@@ -261,7 +261,11 @@ export const purchaseRequestQuoteColumns = ({
         permissions.canAssign && hasVehicle && !row.original.is_paid;
       const canSwapVehicle =
         permissions.canAssign && hasVehicle && !row.original.is_paid;
-      const canEdit = permissions.canUpdate && !row.original.is_invoiced;
+      // Editable mientras no esté pagada en su totalidad. Si ya está
+      // aprobada, el formulario bloquea internamente los campos que afectan
+      // el precio (venta, vehículo/modelo, accesorios, descuentos) y solo
+      // permite agregar bonos, ajustar el margen ("Otros") y otros datos.
+      const canEdit = permissions.canUpdate && !row.original.is_paid;
 
       return (
         <div className="flex items-center gap-2">

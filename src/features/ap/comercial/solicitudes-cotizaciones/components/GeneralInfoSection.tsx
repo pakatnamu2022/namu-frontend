@@ -17,6 +17,8 @@ interface GeneralInfoSectionProps {
   holderDefaultOption?: { value: string; label: string };
   setSelectedHolder: (customer: CustomersResource | undefined) => void;
   currencyTypes: CurrencyTypesResource[];
+  /** Cotización ya aprobada: la moneda de facturación afecta el precio final, se bloquea. */
+  disableCurrency?: boolean;
 }
 
 export const GeneralInfoSection = ({
@@ -26,6 +28,7 @@ export const GeneralInfoSection = ({
   holderDefaultOption,
   setSelectedHolder,
   currencyTypes,
+  disableCurrency = false,
 }: GeneralInfoSectionProps) => {
   return (
     <GroupFormSection
@@ -81,6 +84,7 @@ export const GeneralInfoSection = ({
         }))}
         control={control}
         strictFilter={true}
+        disabled={disableCurrency}
       />
 
       <DatePickerFormField

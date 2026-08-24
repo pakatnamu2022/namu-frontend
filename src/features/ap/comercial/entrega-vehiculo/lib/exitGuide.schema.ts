@@ -17,6 +17,10 @@ export const exitGuideSchema = z
     }),
     observations: z.string().optional(),
     is_extraordinary: z.boolean().optional(),
+    extraordinary_reason: z
+      .string()
+      .max(500, "El motivo no puede exceder 500 caracteres")
+      .optional(),
   })
   .superRefine((data, ctx) => {
     const result = data.is_extraordinary
@@ -26,6 +30,13 @@ export const exitGuideSchema = z
       for (const issue of result.error.issues) {
         ctx.addIssue({ ...issue, path: ["scheduled_delivery_date"] });
       }
+    }
+    if (data.is_extraordinary && !data.extraordinary_reason?.trim()) {
+      ctx.addIssue({
+        code: "custom",
+        message: "El motivo de la entrega extraordinaria es obligatorio",
+        path: ["extraordinary_reason"],
+      });
     }
   });
 

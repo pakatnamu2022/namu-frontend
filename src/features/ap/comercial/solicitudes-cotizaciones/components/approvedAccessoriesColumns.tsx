@@ -24,6 +24,7 @@ interface GetColumnsParams {
   findCurrencyBySymbol: (symbol?: string) => CurrencyType | undefined;
   onEdit: (row: ApprovedAccessoryRow) => void;
   onDelete: (id: string) => void;
+  disabled?: boolean;
 }
 
 export function getApprovedAccessoriesColumns({
@@ -35,6 +36,7 @@ export function getApprovedAccessoriesColumns({
   findCurrencyBySymbol,
   onEdit,
   onDelete,
+  disabled = false,
 }: GetColumnsParams): ColumnDef<ApprovedAccessoryRow>[] {
   return [
     {
@@ -194,28 +196,33 @@ export function getApprovedAccessoriesColumns({
     {
       id: "actions",
       header: "Acciones",
-      cell: ({ row }) => (
-        <div className="flex items-center justify-center gap-1">
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            onClick={() => onEdit(row.original)}
-            className="text-blue-600 hover:text-blue-700 hover:bg-blue-50"
-          >
-            <Edit2 className="h-4 w-4" />
-          </Button>
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            onClick={() => onDelete(row.original.id)}
-            className="text-red-600 hover:text-red-700 hover:bg-red-50"
-          >
-            <Trash2 className="h-4 w-4" />
-          </Button>
-        </div>
-      ),
+      cell: ({ row }) => {
+        if (disabled) {
+          return <span className="block text-center text-xs text-muted-foreground">—</span>;
+        }
+        return (
+          <div className="flex items-center justify-center gap-1">
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={() => onEdit(row.original)}
+              className="text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+            >
+              <Edit2 className="h-4 w-4" />
+            </Button>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={() => onDelete(row.original.id)}
+              className="text-red-600 hover:text-red-700 hover:bg-red-50"
+            >
+              <Trash2 className="h-4 w-4" />
+            </Button>
+          </div>
+        );
+      },
     },
   ];
 }

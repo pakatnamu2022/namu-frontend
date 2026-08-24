@@ -37,6 +37,7 @@ export interface VehiclesDeliveryResource {
   checklist_status?: ChecklistStatus | null;
   shipping_guide?: ShipmentsReceptionsResource | null;
   is_extraordinary?: boolean;
+  extraordinary_reason?: string | null;
   extraordinary_approved?: boolean | null;
   extraordinary_approved_at?: string | null;
   extraordinary_approved_by?: string | null;

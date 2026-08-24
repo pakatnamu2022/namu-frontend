@@ -29,6 +29,7 @@ interface RescheduleDeliveryModalProps {
       scheduled_delivery_date: string;
       observations?: string;
       is_extraordinary?: boolean;
+      extraordinary_reason?: string;
     },
   ) => void;
   isSubmitting?: boolean;
@@ -47,6 +48,7 @@ export function RescheduleDeliveryModal({
       scheduled_delivery_date: undefined,
       observations: "",
       is_extraordinary: false,
+      extraordinary_reason: "",
     },
   });
 
@@ -56,6 +58,7 @@ export function RescheduleDeliveryModal({
         scheduled_delivery_date: undefined,
         observations: "",
         is_extraordinary: false,
+        extraordinary_reason: "",
       });
     }
   }, [delivery, open]);
@@ -90,6 +93,7 @@ export function RescheduleDeliveryModal({
       ),
       observations: data.observations,
       is_extraordinary: data.is_extraordinary,
+      extraordinary_reason: data.extraordinary_reason,
     });
   };
 
@@ -110,6 +114,17 @@ export function RescheduleDeliveryModal({
             description="Esta opción requiere aprobación y enviará un email de confirmación al responsable."
             autoHeight
           />
+
+          {watchIsExtraordinary && (
+            <FormTextArea
+              name="extraordinary_reason"
+              label="Motivo de la entrega extraordinaria"
+              placeholder="Ingrese el motivo por el cual se solicita la entrega extraordinaria"
+              control={form.control}
+              maxLength={500}
+              uppercase
+            />
+          )}
 
           <ScheduledDeliveryPicker
             control={form.control}

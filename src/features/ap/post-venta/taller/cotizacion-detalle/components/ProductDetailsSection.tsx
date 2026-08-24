@@ -82,6 +82,7 @@ import {
 import { useInventory } from "@/features/ap/post-venta/gestion-almacen/inventario/lib/inventory.hook";
 import { StockWarehousesCard } from "@/features/ap/post-venta/gestion-almacen/inventario/components/StockWarehousesCard";
 import { useActiveCampaign } from "@/features/ap/configuraciones/maestros-general/campanas/lib/campaign.hook";
+import { ActiveCampaignAlert } from "@/features/ap/configuraciones/maestros-general/campanas/components/ActiveCampaignAlert";
 import { AP_CLASS_ARTICLE_LUBRICANT_ID } from "@/features/ap/configuraciones/maestros-general/campanas/lib/campaign.constants";
 import { AREA_TALLER } from "@/features/ap/ap-master/lib/apMaster.constants";
 
@@ -745,6 +746,8 @@ export default function ProductDetailsSection({
           )}
         </div>
       </div>
+
+      <ActiveCampaignAlert areaId={AREA_TALLER} className="mt-4" />
 
       {/* Formulario modo AP */}
       {mode === "AP" && (

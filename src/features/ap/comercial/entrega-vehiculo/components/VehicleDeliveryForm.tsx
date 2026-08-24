@@ -60,10 +60,10 @@ const InfoItem = ({
   span?: number;
 }) => (
   <div className={span === 2 ? "col-span-2" : undefined}>
-    <p className="text-[10px] font-semibold text-gray-400 uppercase mb-0.5">
+    <p className="text-[10px] font-semibold text-gray-400 dark:text-gray-500 uppercase mb-0.5">
       {label}
     </p>
-    <p className="text-xs font-medium text-gray-800 leading-snug">
+    <p className="text-xs font-medium text-gray-800 dark:text-gray-100 leading-snug">
       {value ?? "—"}
     </p>
   </div>
@@ -342,34 +342,45 @@ export const VehicleDeliveryForm = ({
               }
             />
           </div>
+
+          {mode === "create" && !isSupplier && watchIsExtraordinary && (
+            <FormTextArea
+              name="extraordinary_reason"
+              label="Motivo de la entrega extraordinaria"
+              placeholder="Ingrese el motivo por el cual se solicita la entrega extraordinaria"
+              control={form.control}
+              maxLength={500}
+              uppercase
+            />
+          )}
         </div>
 
         {/* ── Panel de vehículo ──────────────────────────────────────── */}
         {selectedVehicleId && (
           <>
             {isLoadingDebtInfo ? (
-              <div className="flex items-center gap-3 py-6 px-5 rounded-xl bg-gray-50 text-sm text-gray-400">
+              <div className="flex items-center gap-3 py-6 px-5 rounded-xl bg-gray-50 dark:bg-gray-900 text-sm text-gray-400 dark:text-gray-500">
                 <Loader className="h-4 w-4 animate-spin" />
                 Cargando información del vehículo…
               </div>
             ) : debtInfo ? (
               <div className="space-y-3">
                 {/* ── Hero ──────────────────────────────────────────────── */}
-                <div className="rounded-xl bg-white shadow-md p-4">
+                <div className="rounded-xl bg-white dark:bg-gray-900 shadow-md p-4">
                   <div className="flex flex-wrap items-center justify-between gap-3">
                     <div className="flex items-center gap-3 min-w-0">
-                      <div className="shrink-0 p-2.5 rounded-xl bg-slate-100">
-                        <Car className="h-6 w-6 text-slate-500" />
+                      <div className="shrink-0 p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800">
+                        <Car className="h-6 w-6 text-slate-500 dark:text-slate-400" />
                       </div>
                       <div className="min-w-0">
-                        <p className="text-[10px] font-semibold text-gray-400 uppercase">
+                        <p className="text-[10px] font-semibold text-gray-400 dark:text-gray-500 uppercase">
                           VIN
                         </p>
-                        <p className="text-xl font-bold text-gray-900 truncate leading-tight font-mono">
+                        <p className="text-xl font-bold text-gray-900 dark:text-gray-100 truncate leading-tight font-mono">
                           {debtInfo.vehicle.vin}
                         </p>
-                        <p className="text-xs text-gray-400 truncate">
-                          <span className="font-medium text-gray-600">
+                        <p className="text-xs text-gray-400 dark:text-gray-500 truncate">
+                          <span className="font-medium text-gray-600 dark:text-gray-300">
                             {debtInfo.vehicle.model.brand}
                           </span>
                           {" · "}
@@ -383,8 +394,8 @@ export const VehicleDeliveryForm = ({
                       <div
                         className={`inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full ${
                           isPaid
-                            ? "bg-emerald-100 text-emerald-700"
-                            : "bg-red-100 text-red-600"
+                            ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400"
+                            : "bg-red-100 text-red-600 dark:bg-red-950 dark:text-red-400"
                         }`}
                       >
                         {isPaid ? (
@@ -406,49 +417,49 @@ export const VehicleDeliveryForm = ({
                     </div>
                   </div>
                   <div className="grid grid-cols-3 gap-2 mt-3">
-                    <div className="rounded-lg bg-gray-50 px-3 py-2">
-                      <p className="text-[10px] font-semibold text-gray-400 uppercase mb-0.5">
+                    <div className="rounded-lg bg-gray-50 dark:bg-gray-800 px-3 py-2">
+                      <p className="text-[10px] font-semibold text-gray-400 dark:text-gray-500 uppercase mb-0.5">
                         Precio Venta
                       </p>
-                      <p className="text-sm font-bold text-gray-900 tabular-nums">
+                      <p className="text-sm font-bold text-gray-900 dark:text-gray-100 tabular-nums">
                         S/{" "}
                         {debtInfo.debt_summary.total_sale_price.toLocaleString(
                           "es-PE",
                           { minimumFractionDigits: 2 },
                         )}
                       </p>
-                      <p className="text-[10px] text-gray-400">
+                      <p className="text-[10px] text-gray-400 dark:text-gray-500">
                         Cot. #{debtInfo.purchase_quote.correlative}
                       </p>
                     </div>
-                    <div className="rounded-lg bg-gray-50 px-3 py-2">
-                      <p className="text-[10px] font-semibold text-gray-400 uppercase mb-0.5">
+                    <div className="rounded-lg bg-gray-50 dark:bg-gray-800 px-3 py-2">
+                      <p className="text-[10px] font-semibold text-gray-400 dark:text-gray-500 uppercase mb-0.5">
                         Total Pagado
                       </p>
-                      <p className="text-sm font-bold text-emerald-600 tabular-nums">
+                      <p className="text-sm font-bold text-emerald-600 dark:text-emerald-400 tabular-nums">
                         S/{" "}
                         {debtInfo.debt_summary.total_paid.toLocaleString(
                           "es-PE",
                           { minimumFractionDigits: 2 },
                         )}
                       </p>
-                      <p className="text-[10px] text-gray-400">
+                      <p className="text-[10px] text-gray-400 dark:text-gray-500">
                         {debtInfo.documents_summary.total_documents} doc
                         {debtInfo.documents_summary.total_documents !== 1
                           ? "s"
                           : ""}
                       </p>
                     </div>
-                    <div className="rounded-lg bg-gray-50 px-3 py-2">
-                      <p className="text-[10px] font-semibold text-gray-400 uppercase mb-0.5">
+                    <div className="rounded-lg bg-gray-50 dark:bg-gray-800 px-3 py-2">
+                      <p className="text-[10px] font-semibold text-gray-400 dark:text-gray-500 uppercase mb-0.5">
                         Estado
                       </p>
                       <p
-                        className={`text-sm font-bold tabular-nums ${isPaid ? "text-emerald-600" : "text-red-500"}`}
+                        className={`text-sm font-bold tabular-nums ${isPaid ? "text-emerald-600 dark:text-emerald-400" : "text-red-500 dark:text-red-400"}`}
                       >
                         {debtInfo.debt_summary.status}
                       </p>
-                      <p className="text-[10px] text-gray-400 truncate">
+                      <p className="text-[10px] text-gray-400 dark:text-gray-500 truncate">
                         {debtInfo.debt_summary.message}
                       </p>
                     </div>
@@ -457,13 +468,13 @@ export const VehicleDeliveryForm = ({
 
                 {/* ── Sin recepción ──────────────────────────────────────── */}
                 {!hasReception && (
-                  <div className="flex items-start gap-3 p-3.5 rounded-xl bg-amber-50">
-                    <AlertTriangle className="h-4 w-4 text-amber-500 shrink-0 mt-0.5" />
+                  <div className="flex items-start gap-3 p-3.5 rounded-xl bg-amber-50 dark:bg-amber-950">
+                    <AlertTriangle className="h-4 w-4 text-amber-500 dark:text-amber-400 shrink-0 mt-0.5" />
                     <div>
-                      <p className="text-sm font-semibold text-amber-800">
+                      <p className="text-sm font-semibold text-amber-800 dark:text-amber-300">
                         Sin recepción registrada
                       </p>
-                      <p className="text-xs text-amber-700 mt-0.5 leading-relaxed">
+                      <p className="text-xs text-amber-700 dark:text-amber-400 mt-0.5 leading-relaxed">
                         Este vehículo no tiene guía de recepción. No es posible
                         procesar la entrega hasta registrarla.
                       </p>
@@ -546,7 +557,7 @@ export const VehicleDeliveryForm = ({
                   cols={{ sm: 3, md: 5 }}
                   gap="gap-x-4 gap-y-3"
                   headerExtra={
-                    <span className="text-[10px] font-semibold text-gray-600 bg-white/60 px-2 py-0.5 rounded-full">
+                    <span className="text-[10px] font-semibold text-gray-600 dark:text-gray-300 bg-white/60 dark:bg-white/10 px-2 py-0.5 rounded-full">
                       {debtInfo.vehicle.model.code}
                     </span>
                   }
@@ -622,20 +633,20 @@ export const VehicleDeliveryForm = ({
                     cols={{ sm: 1, md: 1 }}
                     headerExtra={
                       <div className="flex items-center gap-1.5">
-                        <span className="text-[10px] font-semibold bg-white/60 text-gray-600 px-2 py-0.5 rounded-full">
+                        <span className="text-[10px] font-semibold bg-white/60 dark:bg-white/10 text-gray-600 dark:text-gray-300 px-2 py-0.5 rounded-full">
                           {debtInfo.documents_summary.total_facturas} Factura
                           {debtInfo.documents_summary.total_facturas !== 1
                             ? "s"
                             : ""}
                         </span>
                         {debtInfo.documents_summary.total_notas_credito > 0 && (
-                          <span className="text-[10px] font-semibold bg-white/60 text-emerald-800 px-2 py-0.5 rounded-full">
+                          <span className="text-[10px] font-semibold bg-white/60 dark:bg-white/10 text-emerald-800 dark:text-emerald-300 px-2 py-0.5 rounded-full">
                             {debtInfo.documents_summary.total_notas_credito} N.
                             Crédito
                           </span>
                         )}
                         {debtInfo.documents_summary.total_notas_debito > 0 && (
-                          <span className="text-[10px] font-semibold bg-white/60 text-amber-800 px-2 py-0.5 rounded-full">
+                          <span className="text-[10px] font-semibold bg-white/60 dark:bg-white/10 text-amber-800 dark:text-amber-300 px-2 py-0.5 rounded-full">
                             {debtInfo.documents_summary.total_notas_debito} N.
                             Débito
                           </span>
@@ -655,7 +666,7 @@ export const VehicleDeliveryForm = ({
                           ].map((h) => (
                             <th
                               key={h}
-                              className="text-left pb-1.5 text-[10px] font-semibold text-gray-400 uppercase"
+                              className="text-left pb-1.5 text-[10px] font-semibold text-gray-400 dark:text-gray-500 uppercase"
                             >
                               {h}
                             </th>
@@ -667,24 +678,26 @@ export const VehicleDeliveryForm = ({
                           <tr
                             key={factura.id}
                             className={
-                              i % 2 === 0 ? "bg-gray-50/60 rounded-lg" : ""
+                              i % 2 === 0
+                                ? "bg-gray-50/60 dark:bg-gray-800/40 rounded-lg"
+                                : ""
                             }
                           >
-                            <td className="px-2 py-2 text-xs font-bold text-gray-800 rounded-l-lg">
+                            <td className="px-2 py-2 text-xs font-bold text-gray-800 dark:text-gray-100 rounded-l-lg">
                               {factura.document_number}
                             </td>
                             <td className="px-2 py-2">
-                              <span className="text-[10px] font-medium text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full">
+                              <span className="text-[10px] font-medium text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 px-2 py-0.5 rounded-full">
                                 {factura.tipo_documento}
                               </span>
                             </td>
-                            <td className="px-2 py-2 text-xs text-gray-500">
+                            <td className="px-2 py-2 text-xs text-gray-500 dark:text-gray-400">
                               {factura.fecha_emision}
                             </td>
-                            <td className="px-2 py-2 text-xs text-gray-500">
+                            <td className="px-2 py-2 text-xs text-gray-500 dark:text-gray-400">
                               {factura.moneda}
                             </td>
-                            <td className="px-2 py-2 text-right text-xs font-bold text-gray-800 rounded-r-lg tabular-nums">
+                            <td className="px-2 py-2 text-right text-xs font-bold text-gray-800 dark:text-gray-100 rounded-r-lg tabular-nums">
                               S/{" "}
                               {Number(factura.total).toLocaleString("es-PE", {
                                 minimumFractionDigits: 2,
@@ -705,7 +718,7 @@ export const VehicleDeliveryForm = ({
                     color="cyan"
                     cols={{ sm: 1, md: 1 }}
                     headerExtra={
-                      <span className="text-[10px] font-semibold text-cyan-800 bg-white/60 px-2 py-0.5 rounded-full">
+                      <span className="text-[10px] font-semibold text-cyan-800 dark:text-cyan-300 bg-white/60 dark:bg-white/10 px-2 py-0.5 rounded-full">
                         {debtInfo.reception.document_number}
                       </span>
                     }
@@ -741,13 +754,13 @@ export const VehicleDeliveryForm = ({
                       </div>
 
                       {debtInfo.reception.note_received && (
-                        <div className="flex items-start gap-2.5 p-3 rounded-lg bg-amber-50">
-                          <FileText className="h-3.5 w-3.5 text-amber-400 shrink-0 mt-0.5" />
+                        <div className="flex items-start gap-2.5 p-3 rounded-lg bg-amber-50 dark:bg-amber-950">
+                          <FileText className="h-3.5 w-3.5 text-amber-400 dark:text-amber-500 shrink-0 mt-0.5" />
                           <div>
-                            <p className="text-[10px] font-semibold text-amber-500 uppercase mb-0.5">
+                            <p className="text-[10px] font-semibold text-amber-500 dark:text-amber-400 uppercase mb-0.5">
                               Nota de Recepción
                             </p>
-                            <p className="text-xs text-amber-800 font-medium leading-snug">
+                            <p className="text-xs text-amber-800 dark:text-amber-300 font-medium leading-snug">
                               {debtInfo.reception.note_received}
                             </p>
                           </div>
@@ -757,11 +770,11 @@ export const VehicleDeliveryForm = ({
                       {debtInfo.reception.checklist_items.length > 0 && (
                         <div>
                           <div className="flex items-center gap-2 mb-2">
-                            <Package className="h-3.5 w-3.5 text-slate-400" />
-                            <span className="text-xs font-semibold text-gray-700">
+                            <Package className="h-3.5 w-3.5 text-slate-400 dark:text-slate-500" />
+                            <span className="text-xs font-semibold text-gray-700 dark:text-gray-200">
                               Checklist de accesorios
                             </span>
-                            <span className="text-[10px] font-semibold bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full">
+                            <span className="text-[10px] font-semibold bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 px-2 py-0.5 rounded-full">
                               {debtInfo.reception.checklist_items.length}
                             </span>
                           </div>
@@ -771,7 +784,7 @@ export const VehicleDeliveryForm = ({
                                 {["Accesorio", "Cant.", "Km"].map((h) => (
                                   <th
                                     key={h}
-                                    className="text-left pb-1.5 text-[10px] font-semibold text-gray-400 uppercase"
+                                    className="text-left pb-1.5 text-[10px] font-semibold text-gray-400 dark:text-gray-500 uppercase"
                                   >
                                     {h}
                                   </th>
@@ -784,16 +797,18 @@ export const VehicleDeliveryForm = ({
                                   <tr
                                     key={item.id}
                                     className={
-                                      i % 2 === 0 ? "bg-gray-50/60" : ""
+                                      i % 2 === 0
+                                        ? "bg-gray-50/60 dark:bg-gray-800/40"
+                                        : ""
                                     }
                                   >
-                                    <td className="px-2 py-1.5 text-xs font-medium text-gray-700 rounded-l-lg">
+                                    <td className="px-2 py-1.5 text-xs font-medium text-gray-700 dark:text-gray-200 rounded-l-lg">
                                       {item.description}
                                     </td>
-                                    <td className="px-2 py-1.5 text-xs text-gray-500 text-center">
+                                    <td className="px-2 py-1.5 text-xs text-gray-500 dark:text-gray-400 text-center">
                                       {item.quantity}
                                     </td>
-                                    <td className="px-2 py-1.5 text-xs text-gray-500 rounded-r-lg">
+                                    <td className="px-2 py-1.5 text-xs text-gray-500 dark:text-gray-400 rounded-r-lg">
                                       {Number(item.kilometers).toLocaleString(
                                         "es-PE",
                                       )}{" "}
@@ -811,8 +826,8 @@ export const VehicleDeliveryForm = ({
                       {debtInfo.reception.inspection && (
                         <div className="space-y-3 pt-1">
                           <div className="flex items-center gap-2">
-                            <Eye className="h-3.5 w-3.5 text-indigo-500" />
-                            <span className="text-xs font-semibold text-gray-700">
+                            <Eye className="h-3.5 w-3.5 text-indigo-500 dark:text-indigo-400" />
+                            <span className="text-xs font-semibold text-gray-700 dark:text-gray-200">
                               Inspección Visual
                             </span>
                           </div>
@@ -840,11 +855,11 @@ export const VehicleDeliveryForm = ({
 
                           {debtInfo.reception.inspection
                             .general_observations && (
-                            <div className="p-3 rounded-lg bg-gray-50">
-                              <p className="text-[10px] font-semibold text-gray-400 uppercase mb-0.5">
+                            <div className="p-3 rounded-lg bg-gray-50 dark:bg-gray-800">
+                              <p className="text-[10px] font-semibold text-gray-400 dark:text-gray-500 uppercase mb-0.5">
                                 Observaciones generales
                               </p>
-                              <p className="text-xs font-medium text-gray-700 leading-snug">
+                              <p className="text-xs font-medium text-gray-700 dark:text-gray-200 leading-snug">
                                 {
                                   debtInfo.reception.inspection
                                     .general_observations
@@ -880,7 +895,7 @@ export const VehicleDeliveryForm = ({
                                 key={label}
                                 type="button"
                                 onClick={() => setModalImg({ url, label })}
-                                className="relative rounded-xl overflow-hidden aspect-4/3 bg-gray-100 group cursor-pointer focus:outline-none focus:ring-2 focus:ring-indigo-300"
+                                className="relative rounded-xl overflow-hidden aspect-4/3 bg-gray-100 dark:bg-gray-800 group cursor-pointer focus:outline-none focus:ring-2 focus:ring-indigo-300 dark:focus:ring-indigo-700"
                               >
                                 <img
                                   src={url}
@@ -901,11 +916,11 @@ export const VehicleDeliveryForm = ({
                           {debtInfo.reception.inspection.damages.length > 0 && (
                             <div className="space-y-2">
                               <div className="flex items-center gap-2">
-                                <ShieldAlert className="h-3.5 w-3.5 text-red-400" />
-                                <span className="text-xs font-semibold text-gray-700">
+                                <ShieldAlert className="h-3.5 w-3.5 text-red-400 dark:text-red-500" />
+                                <span className="text-xs font-semibold text-gray-700 dark:text-gray-200">
                                   Daños registrados
                                 </span>
-                                <span className="text-[10px] font-semibold bg-red-100 text-red-500 px-2 py-0.5 rounded-full">
+                                <span className="text-[10px] font-semibold bg-red-100 text-red-500 dark:bg-red-950 dark:text-red-400 px-2 py-0.5 rounded-full">
                                   {debtInfo.reception.inspection.damages.length}
                                 </span>
                               </div>
@@ -914,7 +929,7 @@ export const VehicleDeliveryForm = ({
                                   (damage) => (
                                     <div
                                       key={damage.id}
-                                      className="flex items-start gap-2.5 p-2.5 rounded-lg bg-red-50"
+                                      className="flex items-start gap-2.5 p-2.5 rounded-lg bg-red-50 dark:bg-red-950/40"
                                     >
                                       <button
                                         type="button"
@@ -924,7 +939,7 @@ export const VehicleDeliveryForm = ({
                                             label: damage.damage_type,
                                           })
                                         }
-                                        className="relative w-14 h-14 rounded-lg overflow-hidden shrink-0 bg-red-100 group cursor-pointer focus:outline-none"
+                                        className="relative w-14 h-14 rounded-lg overflow-hidden shrink-0 bg-red-100 dark:bg-red-950 group cursor-pointer focus:outline-none"
                                       >
                                         <img
                                           src={damage.photo_url}
@@ -936,15 +951,15 @@ export const VehicleDeliveryForm = ({
                                         </div>
                                       </button>
                                       <div className="min-w-0 pt-0.5">
-                                        <p className="text-[10px] font-bold text-red-700 uppercase">
+                                        <p className="text-[10px] font-bold text-red-700 dark:text-red-300 uppercase">
                                           {damage.damage_type}
                                         </p>
                                         {damage.description && (
-                                          <p className="text-[11px] text-red-600 mt-0.5 leading-snug">
+                                          <p className="text-[11px] text-red-600 dark:text-red-400 mt-0.5 leading-snug">
                                             {damage.description}
                                           </p>
                                         )}
-                                        <p className="text-[10px] text-red-400 mt-1 tabular-nums">
+                                        <p className="text-[10px] text-red-400 dark:text-red-500 mt-1 tabular-nums">
                                           (
                                           {Number(damage.x_coordinate).toFixed(
                                             1,
@@ -976,7 +991,7 @@ export const VehicleDeliveryForm = ({
                     color="slate"
                     cols={{ sm: 1, md: 1 }}
                     headerExtra={
-                      <span className="text-[10px] font-semibold bg-white/60 text-gray-600 px-2 py-0.5 rounded-full">
+                      <span className="text-[10px] font-semibold bg-white/60 dark:bg-white/10 text-gray-600 dark:text-gray-300 px-2 py-0.5 rounded-full">
                         {debtInfo.vehicle.movements.length}
                       </span>
                     }
@@ -990,7 +1005,7 @@ export const VehicleDeliveryForm = ({
                               style={{ backgroundColor: mov.status_color }}
                             />
                             {i < debtInfo.vehicle.movements.length - 1 && (
-                              <div className="w-px bg-gray-100 flex-1 my-0.5" />
+                              <div className="w-px bg-gray-100 dark:bg-gray-800 flex-1 my-0.5" />
                             )}
                           </div>
                           <div className="pb-3 min-w-0">
@@ -1001,7 +1016,7 @@ export const VehicleDeliveryForm = ({
                               >
                                 {mov.status}
                               </span>
-                              <span className="flex items-center gap-1 text-[10px] text-gray-400">
+                              <span className="flex items-center gap-1 text-[10px] text-gray-400 dark:text-gray-500">
                                 <Clock className="h-2.5 w-2.5" />
                                 {new Date(mov.date).toLocaleString("es-PE", {
                                   day: "2-digit",
@@ -1013,7 +1028,7 @@ export const VehicleDeliveryForm = ({
                               </span>
                             </div>
                             {mov.observation && (
-                              <p className="text-[11px] text-gray-400 mt-0.5 leading-snug">
+                              <p className="text-[11px] text-gray-400 dark:text-gray-500 mt-0.5 leading-snug">
                                 {mov.observation}
                               </p>
                             )}
@@ -1025,8 +1040,8 @@ export const VehicleDeliveryForm = ({
                 )}
               </div>
             ) : (
-              <div className="flex items-center gap-3 py-5 px-4 rounded-xl bg-gray-50 text-sm text-gray-400">
-                <AlertCircle className="h-4 w-4 text-gray-300 shrink-0" />
+              <div className="flex items-center gap-3 py-5 px-4 rounded-xl bg-gray-50 dark:bg-gray-900 text-sm text-gray-400 dark:text-gray-500">
+                <AlertCircle className="h-4 w-4 text-gray-300 dark:text-gray-600 shrink-0" />
                 No se encontró información para el vehículo seleccionado.
               </div>
             )}
