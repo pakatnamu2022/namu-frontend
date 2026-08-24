@@ -36,3 +36,14 @@ export const PRODUCTIVITY_STATUS_HEX: Record<ProductivityStatus, string> = {
   on_track: "#16a34a",
   exceeded: "#2563eb",
 };
+
+// Descripción del rango de productividad que representa cada estado
+export const PRODUCTIVITY_STATUS_DESCRIPTION: Record<
+  ProductivityStatus,
+  string
+> = {
+  critical: "Menos de 70%",
+  warning: "Entre 70% y 84%",
+  on_track: "Entre 85% y 100%",
+  exceeded: "Más de 100%",
+};

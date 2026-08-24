@@ -31,6 +31,7 @@ export default function ProductivityDashboardFilters({
 }: ProductivityDashboardFiltersProps) {
   const { data: sedes = [], isLoading: isLoadingSedes } = useMySedes({
     company: EMPRESA_AP.id,
+    has_workshop: 1,
   });
 
   const YEAR_OPTIONS = generateYear().map((y) => ({
