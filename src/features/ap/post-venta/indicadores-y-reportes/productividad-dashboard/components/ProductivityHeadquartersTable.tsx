@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Building2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { DataTable } from "@/shared/components/DataTable";
+import { formatHours } from "@/core/core.function";
 import { ProductivityHeadquarterSummary } from "../lib/productivityDashboard.interface";
 import { productivityHeadquartersColumns } from "./ProductivityHeadquartersColumns";
 import {
@@ -22,12 +23,6 @@ const formatCurrency = (value: number) =>
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
   }).format(value)}`;
-
-const formatHours = (value: number) =>
-  `${new Intl.NumberFormat("es-PE", {
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 1,
-  }).format(value)} h`;
 
 export default function ProductivityHeadquartersTable({
   data,
@@ -74,8 +69,8 @@ export default function ProductivityHeadquartersTable({
                   : "text-green-600",
               )}
             >
-              {sede.total_productivity_hours >= 0 ? "+" : ""}
-              {formatHours(sede.total_productivity_hours)}
+              {sede.total_productivity_hours >= 0 ? "+" : "-"}
+              {formatHours(Math.abs(sede.total_productivity_hours))}
             </div>
           </div>
           <div>
