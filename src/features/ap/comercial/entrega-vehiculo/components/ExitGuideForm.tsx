@@ -184,13 +184,23 @@ export const ExitGuideForm = ({
             autoHeight
           />
           {watchIsExtraordinary && (
-            <div className="flex items-start gap-2.5 p-3 rounded-xl bg-amber-50">
-              <Mail className="h-4 w-4 text-amber-500 shrink-0 mt-0.5" />
-              <p className="text-xs text-amber-800 leading-relaxed">
-                Esta entrega requiere aprobación. Se enviará un email de
-                confirmación al responsable.
-              </p>
-            </div>
+            <>
+              <div className="flex items-start gap-2.5 p-3 rounded-xl bg-amber-50">
+                <Mail className="h-4 w-4 text-amber-500 shrink-0 mt-0.5" />
+                <p className="text-xs text-amber-800 leading-relaxed">
+                  Esta entrega requiere aprobación. Se enviará un email de
+                  confirmación al responsable.
+                </p>
+              </div>
+              <FormTextArea
+                name="extraordinary_reason"
+                label="Motivo de la entrega extraordinaria"
+                placeholder="Ingrese el motivo por el cual se solicita la entrega extraordinaria"
+                control={form.control}
+                maxLength={500}
+                uppercase
+              />
+            </>
           )}
         </div>
 

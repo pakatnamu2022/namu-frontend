@@ -138,6 +138,7 @@ export async function rescheduleVehicleDelivery(
     scheduled_delivery_date: string;
     observations?: string;
     is_extraordinary?: boolean;
+    extraordinary_reason?: string;
   }
 ): Promise<VehiclesDeliveryResource> {
   const response = await api.post<VehiclesDeliveryResource>(
@@ -209,11 +210,18 @@ export async function getVehicleDeliveryRescheduleHistory(
 
 export async function getAvailableDeliverySlots(
   date: string,
-  shopId?: number
+  shopId?: number,
+  isExtraordinary?: boolean
 ): Promise<AvailableDeliverySlotsResponse> {
   const { data } = await api.get<AvailableDeliverySlotsResponse>(
     `${ENDPOINT}/available-slots`,
-    { params: { date, shop_id: shopId } }
+    {
+      params: {
+        date,
+        shop_id: shopId,
+        is_extraordinary: isExtraordinary ? 1 : undefined,
+      },
+    }
   );
   return data;
 }
