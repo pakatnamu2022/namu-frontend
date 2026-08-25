@@ -3,7 +3,7 @@
 import PageSkeleton from "@/shared/components/PageSkeleton";
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
 import { useEffect, useState } from "react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import TitleComponent from "@/shared/components/TitleComponent";
 import DataTablePagination from "@/shared/components/DataTablePagination";
 import { errorToast, successToast } from "@/core/core.function";
@@ -36,7 +36,6 @@ import { EMPRESA_AP } from "@/core/core.constants";
 export default function ElectronicDocumentsPage() {
   const { ROUTE, ABSOLUTE_ROUTE } = ELECTRONIC_DOCUMENT;
   const permissions = useModulePermissions(ROUTE);
-  const queryClient = useQueryClient();
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
   const [page, setPage] = useState(1);
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
@@ -180,17 +179,12 @@ export default function ElectronicDocumentsPage() {
     },
   });
 
-  const handleRefresh = () => {
-    queryClient.invalidateQueries({ queryKey: ["electronic-documents"] });
-    refetch();
-  };
-
   const documentExportFilters = {
     search,
     status: statusFilter,
     migration_status: migrationStatusFilter,
     sunat_concept_document_type_id: documentTypeFilter || undefined,
-    "seriesModel$sede_id": sedeId || undefined,
+    seriesModel$sede_id: sedeId || undefined,
     ...(fechaEmisionFrom && fechaEmisionTo
       ? {
           "fecha_de_emision[0]": fechaEmisionFrom.toLocaleDateString("en-CA"),
@@ -212,7 +206,7 @@ export default function ElectronicDocumentsPage() {
           icon={currentView.icon}
         />
         <ElectronicDocumentActions
-          onRefresh={handleRefresh}
+          onRefresh={refetch}
           isLoading={isFetching && !isLoading}
           permissions={{
             canCreate: permissions.canCreate || false,
