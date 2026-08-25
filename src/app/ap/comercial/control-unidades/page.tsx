@@ -16,6 +16,7 @@ import {
   useCancelShippingGuide,
   useSendControlUnitsToNubefact,
   useQueryControlUnitsFromNubefact,
+  useSyncControlUnitsWithDynamics,
 } from "@/features/ap/comercial/control-unidades/lib/controlUnits.hook";
 import ControlUnitsTable from "@/features/ap/comercial/control-unidades/components/ControlUnitsTable";
 import { ControlUnitsColumns } from "@/features/ap/comercial/control-unidades/components/ControlUnitsColumns";
@@ -31,7 +32,10 @@ import { notFound } from "@/shared/hooks/useNotFound";
 import { format } from "date-fns";
 import { AREA_COMERCIAL } from "@/features/ap/ap-master/lib/apMaster.constants";
 import { useMutation } from "@tanstack/react-query";
-import { dispatchShippingGuideMigration } from "@/features/ap/comercial/entrega-vehiculo/lib/vehicleDelivery.actions";
+import {
+  dispatchShippingGuideMigration,
+  resetShippingGuideMigration,
+} from "@/features/ap/comercial/entrega-vehiculo/lib/vehicleDelivery.actions";
 import { errorToast, successToast } from "@/core/core.function";
 
 export default function ControlUnitsPage() {
@@ -41,6 +45,7 @@ export default function ControlUnitsPage() {
   const [search, setSearch] = useState("");
   const [dateFrom, setDateFrom] = useState<Date | undefined>(undefined);
   const [dateTo, setDateTo] = useState<Date | undefined>(undefined);
+  const [sedeId, setSedeId] = useState("all");
 
   const formattedDateFrom = dateFrom
     ? format(dateFrom, "yyyy-MM-dd")
@@ -58,6 +63,7 @@ export default function ControlUnitsPage() {
   const cancelMutation = useCancelShippingGuide();
   const sendToNubefactMutation = useSendControlUnitsToNubefact();
   const queryFromNubefactMutation = useQueryControlUnitsFromNubefact();
+  const syncWithDynamicsMutation = useSyncControlUnitsWithDynamics();
   const permissions = useModulePermissions(ROUTE);
   const migrateMutation = useMutation({
     mutationFn: dispatchShippingGuideMigration,
@@ -67,11 +73,22 @@ export default function ControlUnitsPage() {
       errorToast(`Error al despachar migración: ${msg}`);
     },
   });
+  const resetMigrationMutation = useMutation({
+    mutationFn: resetShippingGuideMigration,
+    onSuccess: () => {
+      successToast("Migración reiniciada correctamente");
+      refetch();
+    },
+    onError: (error: any) => {
+      const msg = error?.response?.data?.message || "";
+      errorToast(`Error al reiniciar migración: ${msg}`);
+    },
+  });
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setPage(1);
-  }, [search, per_page]);
+  }, [search, per_page, sedeId]);
 
   const { data, isLoading, refetch, isFetching } = useControlUnits({
     page,
@@ -79,7 +96,8 @@ export default function ControlUnitsPage() {
     per_page,
     issue_date: [formattedDateFrom, formattedDateTo],
     area_id: AREA_COMERCIAL,
-    send_dynamics: 0,
+    is_consignment: 1,
+    sede_id: sedeId !== "all" ? sedeId : undefined,
   });
 
   const handleDelete = async () => {
@@ -147,6 +165,8 @@ export default function ControlUnitsPage() {
           onSendToNubefact: (id) => sendToNubefactMutation.mutate(id),
           onQueryFromNubefact: (id) => queryFromNubefactMutation.mutate(id),
           onMigrate: (id) => migrateMutation.mutate(id),
+          onResetMigration: (id) => resetMigrationMutation.mutate(id),
+          onSyncWithDynamics: (id) => syncWithDynamicsMutation.mutate(id),
           permissions,
         })}
         data={data?.data || []}
@@ -160,6 +180,8 @@ export default function ControlUnitsPage() {
             setDateFrom(from);
             setDateTo(to);
           }}
+          sedeId={sedeId}
+          setSedeId={setSedeId}
         />
       </ControlUnitsTable>
 

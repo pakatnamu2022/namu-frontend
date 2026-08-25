@@ -25,6 +25,7 @@ import {
   sendControlUnitsToNubefact,
   queryControlUnitsFromNubefact,
   getNextShippingGuideDocumentNumber,
+  syncControlUnitsWithDynamics,
 } from "./controlUnits.actions";
 import {
   successToast,
@@ -262,6 +263,29 @@ export const useNextShippingGuideDocumentNumber = (
     queryFn: () => getNextShippingGuideDocumentNumber(documentSeriesId!),
     enabled: !!documentSeriesId,
     refetchOnWindowFocus: false,
+  });
+};
+
+// Hook para sincronizar contabilización con Dynamics
+export const useSyncControlUnitsWithDynamics = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: number) => syncControlUnitsWithDynamics(id),
+    onSuccess: (response) => {
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEY] });
+      if (response.success) {
+        successToast(response.message);
+      } else {
+        errorToast(response.message || "Error al sincronizar con Dynamics");
+      }
+    },
+    onError: (error: any) => {
+      errorToast(
+        error?.response?.data?.message ||
+          error?.response?.data?.error ||
+          "Error al sincronizar con Dynamics",
+      );
+    },
   });
 };
 
