@@ -1,6 +1,7 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import { Badge } from "@/components/ui/badge";
-import { Trophy } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Trophy, Eye } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { formatHours } from "@/core/core.function";
 import { ProductivityTechnicianDetail } from "../lib/productivityDashboard.interface";
@@ -18,8 +19,9 @@ const formatCurrency = (value: number) =>
     maximumFractionDigits: 0,
   }).format(value)}`;
 
-export const productivityTechnicianColumns =
-  (): ProductivityTechnicianColumn[] => [
+export const productivityTechnicianColumns = (
+  onViewDetail?: (tech: ProductivityTechnicianDetail) => void,
+): ProductivityTechnicianColumn[] => [
     {
       accessorKey: "rank",
       header: "#",
@@ -127,5 +129,20 @@ export const productivityTechnicianColumns =
           </Badge>
         );
       },
+    },
+    {
+      id: "actions",
+      header: "",
+      cell: ({ row }) => (
+        <Button
+          variant="outline"
+          size="icon"
+          className="size-7"
+          onClick={() => onViewDetail?.(row.original)}
+          tooltip="Ver detalle de productividad"
+        >
+          <Eye className="h-4 w-4" />
+        </Button>
+      ),
     },
   ];

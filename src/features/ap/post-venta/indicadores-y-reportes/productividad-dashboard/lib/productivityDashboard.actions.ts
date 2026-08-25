@@ -3,11 +3,15 @@ import { api } from "@/core/api";
 import {
   ProductivityDashboardFilters,
   ProductivityDashboardResponse,
+  ProductivityTechnicianDetailFilters,
+  ProductivityTechnicianDetailResponse,
 } from "./productivityDashboard.interface";
 
 const BASE_ENDPOINT = "/ap/postVenta/dashboard/productivity";
+const DETAIL_ENDPOINT =
+  "/ap/postVenta/dashboard/technician-productivity-detail";
 
-function toDateRange(year: number, month: number): [string, string] {
+export function toDateRange(year: number, month: number): [string, string] {
   const pad = (n: number) => n.toString().padStart(2, "0");
   const lastDay = new Date(year, month, 0).getDate();
   return [`${year}-${pad(month)}-01`, `${year}-${pad(month)}-${pad(lastDay)}`];
@@ -41,6 +45,24 @@ export async function refreshProductivityDashboard(
   const { data } = await api.post<ProductivityDashboardResponse>(
     `${BASE_ENDPOINT}/refresh`,
     buildPayload(filters),
+  );
+  return data;
+}
+
+export async function getProductivityTechnicianDetail(
+  filters: ProductivityTechnicianDetailFilters,
+): Promise<ProductivityTechnicianDetailResponse> {
+  const config: AxiosRequestConfig = {
+    params: {
+      worker_id: filters.worker_id,
+      date_range: filters.date_range,
+      ...(filters.sede_id && { sede_id: filters.sede_id }),
+    },
+  };
+
+  const { data } = await api.get<ProductivityTechnicianDetailResponse>(
+    DETAIL_ENDPOINT,
+    config,
   );
   return data;
 }
