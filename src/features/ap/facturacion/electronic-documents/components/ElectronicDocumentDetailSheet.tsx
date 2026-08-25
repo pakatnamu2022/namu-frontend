@@ -313,6 +313,9 @@ export function ElectronicDocumentDetailSheet({
             ...(document.medio_de_pago
               ? [{ label: "Medio de Pago", value: document.medio_de_pago }]
               : []),
+            ...(document.bank?.code
+              ? [{ label: "Chequera", value: document.bank?.code }]
+              : []),
           ]}
         />
 
