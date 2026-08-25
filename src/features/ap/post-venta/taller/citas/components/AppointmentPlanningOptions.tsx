@@ -42,17 +42,6 @@ export default function AppointmentPlanningOptions({
         placeholder="Buscar cita..."
       />
       <SearchableSelect
-        options={asesores.map((item) => ({
-          value: item.id.toString(),
-          label: item.name,
-        }))}
-        value={advisorId}
-        onChange={setAdvisorId}
-        placeholder="Filtrar por asesor de servicio"
-        className="min-w-72"
-        classNameOption="text-xs"
-      />
-      <SearchableSelect
         options={sedes.map((item) => ({
           value: item.id.toString(),
           label: item.abreviatura,
@@ -60,9 +49,16 @@ export default function AppointmentPlanningOptions({
         value={sedeId}
         onChange={setSedeId}
         placeholder="Filtrar por sede"
-        className="min-w-72"
-        classNameOption="text-xs"
         allowClear={false}
+      />
+      <SearchableSelect
+        options={asesores.map((item) => ({
+          value: item.id.toString(),
+          label: item.name,
+        }))}
+        value={advisorId}
+        onChange={setAdvisorId}
+        placeholder="Filtrar por asesor de servicio"
       />
       <DateRangePickerFilter
         dateFrom={dateFrom}

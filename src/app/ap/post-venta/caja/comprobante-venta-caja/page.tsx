@@ -68,14 +68,8 @@ export default function SalesReceiptsCajaPage() {
       dateTo: getCurrentDayOfMonth(currentDate) as Date | undefined,
     },
   );
-  const {
-    search,
-    sedeId,
-    statusFilter,
-    consolidationType,
-    dateFrom,
-    dateTo,
-  } = filters;
+  const { search, sedeId, statusFilter, consolidationType, dateFrom, dateTo } =
+    filters;
   const setSearch = (value: string) => setFilter("search", value);
   const setSedeId = (value: string) => setFilter("sedeId", value);
   const setStatusFilter = (value: string) => setFilter("statusFilter", value);
@@ -207,6 +201,15 @@ export default function SalesReceiptsCajaPage() {
     refetch();
   };
 
+  const documentExportFilters = {
+    area_id: [AREA_TALLER, AREA_MESON, AREA_POSTVENTA],
+    seriesModel$sede_id: sedeId ? parseInt(sedeId) : undefined,
+    fecha_de_emision:
+      dateFrom && dateTo
+        ? [formatDate(dateFrom), formatDate(dateTo)]
+        : undefined,
+  };
+
   if (isLoadingModule || isLoadingSedes) return <PageSkeleton />;
   if (!checkRouteExists(ROUTE)) notFound();
   if (!currentView) notFound();
@@ -234,6 +237,7 @@ export default function SalesReceiptsCajaPage() {
           onRefresh={handleRefresh}
           isLoading={isFetching && !isLoading}
           permissions={permissions}
+          filters={documentExportFilters}
         />
       </HeaderTableWrapper>
 

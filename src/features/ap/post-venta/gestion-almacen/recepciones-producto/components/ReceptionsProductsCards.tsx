@@ -18,6 +18,8 @@ import {
   ChevronDown,
   ChevronUp,
   ReceiptText,
+  ShieldAlert,
+  ShieldOff,
 } from "lucide-react";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
@@ -34,10 +36,26 @@ import { InvoiceDetailSheet } from "@/features/ap/post-venta/gestion-almacen/rec
 import { VehiclePurchaseOrderResource } from "@/features/ap/comercial/ordenes-compra-vehiculo/lib/vehiclePurchaseOrder.interface.ts";
 import { translateStatusReception } from "../lib/receptionsProducts.constants";
 import { Switch } from "@/components/ui/switch.tsx";
-import { useUpdateDetailCreditNote } from "../lib/receptionsProducts.hook";
+import {
+  useUpdateDetailCreditNote,
+  useUnmarkDefectiveProduct,
+} from "../lib/receptionsProducts.hook";
 import { useQueryClient } from "@tanstack/react-query";
 import { RECEPTION } from "../lib/receptionsProducts.constants";
 import { successToast, errorToast } from "@/core/core.function";
+import MarkDefectiveProductDialog from "./MarkDefectiveProductDialog.tsx";
+import { ReceptionDetailResource } from "../lib/receptionsProducts.interface.ts";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog.tsx";
 
 interface Props {
   data: ReceptionResource[];
@@ -61,12 +79,16 @@ export default function ReceptionsProductsCards({
 }: Props) {
   const [selectedInvoice, setSelectedInvoice] =
     useState<VehiclePurchaseOrderResource | null>(null);
+  const [selectedDefectiveDetail, setSelectedDefectiveDetail] =
+    useState<ReceptionDetailResource | null>(null);
   const [expandedAnnulled, setExpandedAnnulled] = useState<Set<number>>(
     new Set(),
   );
   const queryClient = useQueryClient();
   const { mutate: updateCreditNote, isPending: isUpdatingCreditNote } =
     useUpdateDetailCreditNote();
+  const { mutate: unmarkDefective, isPending: isUnmarkingDefective } =
+    useUnmarkDefectiveProduct();
 
   const toggleAnnulled = (id: number) =>
     setExpandedAnnulled((prev) => {
@@ -582,7 +604,7 @@ export default function ReceptionsProductsCards({
                                 )}
                               </div>
                             </div>
-                            <div className="text-right shrink-0">
+                            <div className="text-right shrink-0 flex items-center gap-1.5">
                               <Badge
                                 color="default"
                                 className={
@@ -593,6 +615,82 @@ export default function ReceptionsProductsCards({
                                 {detail.product?.unit_measurement_name &&
                                   ` ${detail.product.unit_measurement_name}`}
                               </Badge>
+                              {!detail.is_credit_note && (
+                                <Button
+                                  variant="outline"
+                                  size="icon"
+                                  className="size-6 text-destructive hover:text-destructive"
+                                  tooltip="Marcar como defectuoso"
+                                  onClick={() =>
+                                    setSelectedDefectiveDetail(detail)
+                                  }
+                                >
+                                  <ShieldAlert className="size-3.5" />
+                                </Button>
+                              )}
+                              {detail.is_credit_note && (
+                                <AlertDialog>
+                                  <AlertDialogTrigger asChild>
+                                    <Button
+                                      variant="outline"
+                                      size="icon"
+                                      className="size-6"
+                                      tooltip="Desmarcar defectuoso"
+                                      disabled={isUnmarkingDefective}
+                                    >
+                                      <ShieldOff className="size-3.5" />
+                                    </Button>
+                                  </AlertDialogTrigger>
+                                  <AlertDialogContent>
+                                    <AlertDialogHeader>
+                                      <AlertDialogTitle>
+                                        ¿Desmarcar producto defectuoso?
+                                      </AlertDialogTitle>
+                                      <AlertDialogDescription>
+                                        Se quitará la marca de defectuoso de{" "}
+                                        <strong>
+                                          {detail.product?.name ||
+                                            "este repuesto"}
+                                        </strong>
+                                        . Esta acción se puede revertir
+                                        volviendo a marcarlo.
+                                      </AlertDialogDescription>
+                                    </AlertDialogHeader>
+                                    <AlertDialogFooter>
+                                      <AlertDialogCancel>
+                                        Cancelar
+                                      </AlertDialogCancel>
+                                      <AlertDialogAction
+                                        onClick={() =>
+                                          unmarkDefective(detail.id, {
+                                            onSuccess: () => {
+                                              successToast(
+                                                "Producto desmarcado como defectuoso",
+                                              );
+                                              queryClient.removeQueries({
+                                                queryKey: [
+                                                  RECEPTION.QUERY_KEY,
+                                                  reception.id,
+                                                ],
+                                              });
+                                              onRefresh?.();
+                                            },
+                                            onError: (error: any) => {
+                                              const msg =
+                                                error?.response?.data
+                                                  ?.message ||
+                                                "Error al desmarcar el producto";
+                                              errorToast(msg);
+                                            },
+                                          })
+                                        }
+                                      >
+                                        Desmarcar
+                                      </AlertDialogAction>
+                                    </AlertDialogFooter>
+                                  </AlertDialogContent>
+                                </AlertDialog>
+                              )}
                             </div>
                           </div>
 
@@ -855,6 +953,13 @@ export default function ReceptionsProductsCards({
           invoice={selectedInvoice}
         />
       )}
+
+      <MarkDefectiveProductDialog
+        open={!!selectedDefectiveDetail}
+        onClose={() => setSelectedDefectiveDetail(null)}
+        detail={selectedDefectiveDetail}
+        onSuccess={onRefresh}
+      />
     </div>
   );
 }

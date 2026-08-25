@@ -8,9 +8,12 @@ import DatePicker from "@/shared/components/DatePicker";
 import DataTablePagination from "@/shared/components/DataTablePagination";
 import { VehicleInspectionSelectionTable } from "./VehicleInspectionSelectionTable";
 import type { ColumnDef } from "@tanstack/react-table";
-import { format } from "date-fns";
-import { es } from "date-fns/locale";
-import { errorToast, getMonday, getSunday } from "@/core/core.function";
+import {
+  errorToast,
+  formatDateTime,
+  getMonday,
+  getSunday,
+} from "@/core/core.function";
 import SearchInput from "@/shared/components/SearchInput";
 import { Badge } from "@/components/ui/badge";
 
@@ -45,6 +48,13 @@ export const VehicleInspectionSelectionModal = ({
   };
 
   useEffect(() => {
+    if (open) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setPage(1);
+    }
+  }, [open]);
+
+  useEffect(() => {
     if (dateFrom && dateTo && dateFrom > dateTo) {
       errorToast("La fecha 'Desde' no puede ser mayor que la fecha 'Hasta'.");
     }
@@ -62,6 +72,7 @@ export const VehicleInspectionSelectionModal = ({
     createdByWorkOrder$sede_id: sedeId,
     createdByWorkOrder$vehicle_id: vehicleId || undefined,
     createdByWorkOrder$is_delivery: false,
+    enabled: open && !!sedeId,
   });
 
   const handleRowClick = (inspection: VehicleInspectionResource) => {
@@ -114,17 +125,10 @@ export const VehicleInspectionSelectionModal = ({
         if (!date) return "-";
 
         try {
-          const dateStr =
-            typeof date === "string" ? date : date.toISOString().split("T")[0];
-          const formattedDate = format(
-            new Date(dateStr + "T00:00:00"),
-            "dd/MM/yyyy",
-            { locale: es },
-          );
           return (
             <div className="flex items-center gap-1.5 text-sm">
               <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
-              <span className="font-medium">{formattedDate}</span>
+              <span className="font-medium">{formatDateTime(date)}</span>
             </div>
           );
         } catch {

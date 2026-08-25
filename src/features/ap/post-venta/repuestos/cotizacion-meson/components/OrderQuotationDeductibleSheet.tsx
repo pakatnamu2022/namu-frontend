@@ -10,17 +10,17 @@ import { SUNAT_CURRENCY_ID } from "@/features/gp/maestro-general/conceptos-sunat
 import { CURRENCY_TYPE_IDS } from "@/features/ap/configuraciones/maestros-general/tipos-moneda/lib/CurrencyTypes.constants";
 import { cn } from "@/lib/utils";
 
-interface WorkOrderDeductibleSheetProps {
+interface OrderQuotationDeductibleSheetProps {
   open: boolean;
   onClose: () => void;
   sedeId?: string | number;
   currencyId?: string | number;
   onSelectDocument: (document: ElectronicDocumentResource) => void;
   isSubmitting?: boolean;
-  plate: string;
+  plate?: string;
 }
 
-// Traduce el id de moneda de la OT (CURRENCY_TYPE_IDS) al id SUNAT usado por los comprobantes (SUNAT_CURRENCY_ID)
+// Traduce el id de moneda de la cotización (CURRENCY_TYPE_IDS) al id SUNAT usado por los comprobantes (SUNAT_CURRENCY_ID)
 const toSunatCurrencyId = (currencyId?: string | number) => {
   switch (String(currencyId)) {
     case CURRENCY_TYPE_IDS.SOLES:
@@ -32,7 +32,7 @@ const toSunatCurrencyId = (currencyId?: string | number) => {
   }
 };
 
-export const WorkOrderDeductibleSheet = ({
+export const OrderQuotationDeductibleSheet = ({
   open,
   onClose,
   sedeId,
@@ -40,7 +40,7 @@ export const WorkOrderDeductibleSheet = ({
   onSelectDocument,
   isSubmitting,
   plate,
-}: WorkOrderDeductibleSheetProps) => {
+}: OrderQuotationDeductibleSheetProps) => {
   const [page, setPage] = useState(1);
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
   const [search, setSearch] = useState("");
@@ -52,7 +52,7 @@ export const WorkOrderDeductibleSheet = ({
       search,
       seriesModel$sede_id: sedeId ? Number(sedeId) : undefined,
       sunat_concept_currency_id: toSunatCurrencyId(currencyId),
-      workOrder$vehicle$plate: plate,
+      workOrder$vehicle_plate: plate,
     },
     open,
   );

@@ -51,7 +51,7 @@ export const workOrderColumns = ({
     id: "plate_mileage",
     header: "Placa",
     cell: ({ row }) => {
-      const plate = row.original.vehicle_plate;
+      const plate = row.original.vehicle.plate;
       const mileage = row.original.mileage;
       return (
         <div className="flex flex-col gap-0.5">
@@ -107,19 +107,6 @@ export const workOrderColumns = ({
       const amount = getValue() as number;
       const currencySymbol = row.original.type_currency?.symbol || "S/.";
       return `${currencySymbol} ${Number(amount || 0).toFixed(2)}`;
-    },
-  },
-  {
-    accessorKey: "actual_delivery_date",
-    header: "Fecha Real Entrega",
-    cell: ({ getValue }) => {
-      const value = getValue() as string;
-      if (!value) return "-";
-      try {
-        return formatDate(value);
-      } catch {
-        return value;
-      }
     },
   },
   {

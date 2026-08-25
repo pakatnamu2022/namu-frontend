@@ -34,6 +34,7 @@ interface OrderQuotationSummarySectionProps {
   onSubmit?: () => void;
   hasDraftFinalInvoice?: boolean;
   hasDraftAdvance?: boolean;
+  deductibleAmount?: number;
 }
 
 export function OrderQuotationSummarySection({
@@ -51,6 +52,7 @@ export function OrderQuotationSummarySection({
   onSubmit,
   hasDraftFinalInvoice = false,
   hasDraftAdvance = false,
+  deductibleAmount = 0,
 }: OrderQuotationSummarySectionProps) {
   const selectedDocumentType = form.watch("sunat_concept_document_type_id");
   const series = form.watch("serie");
@@ -239,6 +241,20 @@ export function OrderQuotationSummarySection({
                 })}
               </span>
             </div>
+
+            {deductibleAmount > 0 && (
+              <div className="flex justify-between items-center text-sm p-2 rounded bg-indigo-50 border border-indigo-200">
+                <span className="text-indigo-700 font-medium">
+                  Descuento Global (Deducible)
+                </span>
+                <span className="font-semibold text-indigo-700">
+                  −{currencySymbol}{" "}
+                  {deductibleAmount.toLocaleString("es-PE", {
+                    minimumFractionDigits: 2,
+                  })}
+                </span>
+              </div>
+            )}
 
             <Separator className="bg-primary/20" />
 

@@ -36,8 +36,7 @@ export default function WorkOrderTable({
         getRowId={getRowId as any}
         initialColumnVisibility={{
           correlative: true,
-          vehicle_plate: true,
-          vehicle_vin: false,
+          plate_mileage: true,
           dates: true,
           actual_delivery_date: true,
           is_guarantee: true,

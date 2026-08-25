@@ -51,8 +51,6 @@ export const workerColumns = ({
     cell: ({ row }) => {
       const hasSignature = row.original.has_signature;
 
-      console.log("hasSignature", hasSignature); // Agrega este console.log para depuración
-
       return (
         <Badge
           color={hasSignature ? "green" : "orange"}

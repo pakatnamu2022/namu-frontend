@@ -23,8 +23,7 @@ export default function OrderQuotationMesonTable({
         isLoading={isLoading}
         initialColumnVisibility={{
           quotation_number: true,
-          quotation_date: true,
-          expiration_date: true,
+          dates: true,
           collection_date: false,
           customer: true,
           total_amount: true,

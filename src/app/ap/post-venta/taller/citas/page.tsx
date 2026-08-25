@@ -27,7 +27,7 @@ import AppointmentPlanningOptions from "@/features/ap/post-venta/taller/citas/co
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
 import { notFound } from "@/shared/hooks/useNotFound";
 import { useNavigate } from "react-router-dom";
-import AppointmentCalendarView from "@/features/ap/post-venta/taller/citas/components/AppointmentCalendarView";
+import AppointmentCalendarReport from "@/features/ap/post-venta/taller/citas/components/AppointmentCalendarReport";
 import { Button } from "@/components/ui/button";
 import { Calendar, Table } from "lucide-react";
 import {
@@ -67,6 +67,7 @@ export default function AppointmentPlanningPage() {
   const { data: asesores = [], isLoading: isLoadingAsesores } = useAllWorkers({
     cargo_id: POSITION_TYPE.SERVICE_ADVISOR,
     status_id: STATUS_WORKER.ACTIVE,
+    sede_id: sedeId || undefined,
     sede$empresa_id: EMPRESA_AP.id,
   });
 
@@ -90,6 +91,10 @@ export default function AppointmentPlanningPage() {
   const formatDate = (date: Date | undefined) => {
     return date ? date.toLocaleDateString("en-CA") : undefined; // formato: YYYY-MM-DD
   };
+
+  useEffect(() => {
+    setPage(1);
+  }, [search, sedeId, advisorId, dateFrom, dateTo]);
 
   const { data, isLoading, refetch } = useAppointmentPlanning({
     params: {
@@ -218,9 +223,13 @@ export default function AppointmentPlanningPage() {
           />
         </>
       ) : (
-        <AppointmentCalendarView
+        <AppointmentCalendarReport
           asesores={asesores}
           isLoadingAsesores={isLoadingAsesores}
+          sedeId={sedeId}
+          sedeName={
+            mySedes.find((s) => s.id.toString() === sedeId)?.abreviatura || ""
+          }
         />
       )}
 

@@ -33,8 +33,6 @@ export interface WorkOrderResource {
   vehicle_id: string;
   currency_id: string;
   vehicle: VehicleResource;
-  vehicle_plate: string;
-  vehicle_vin: string;
   status_id: string;
   advisor_id: string;
   advisor_name: string;

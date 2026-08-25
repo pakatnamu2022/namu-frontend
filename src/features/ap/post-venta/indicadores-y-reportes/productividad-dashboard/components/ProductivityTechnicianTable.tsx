@@ -11,8 +11,17 @@ import { ProductivityTechnicianDetail } from "../lib/productivityDashboard.inter
 import { productivityTechnicianColumns } from "./ProductivityTechnicianColumns";
 import {
   PRODUCTIVITY_STATUS_BADGE_COLOR,
+  PRODUCTIVITY_STATUS_DESCRIPTION,
   PRODUCTIVITY_STATUS_LABEL,
 } from "../lib/productivityDashboard.constants";
+import { ProductivityStatus } from "../lib/productivityDashboard.interface";
+
+const STATUS_LEGEND_ORDER: ProductivityStatus[] = [
+  "critical",
+  "warning",
+  "on_track",
+  "exceeded",
+];
 
 interface ProductivityTechnicianTableProps {
   data: ProductivityTechnicianDetail[];
@@ -71,11 +80,26 @@ export default function ProductivityTechnicianTable({
         </div>
 
         <div className="grid grid-cols-2 gap-2 text-sm">
+          {tech.real_hours !== undefined && (
+            <div>
+              <div className="text-xs text-muted-foreground">Reales</div>
+              <div className="font-semibold">
+                {formatHours(tech.real_hours)}
+              </div>
+            </div>
+          )}
           <div>
-            <div className="text-xs text-muted-foreground">Estándar</div>
+            <div className="text-xs text-muted-foreground">
+              Estándar (8h)
+            </div>
             <div className="font-semibold">
               {formatHours(tech.standard_hours)}
             </div>
+            {tech.days_worked !== undefined && (
+              <div className="text-xs text-muted-foreground">
+                {tech.days_worked} x 8 = {tech.standard_hours}
+              </div>
+            )}
           </div>
           <div>
             <div className="text-xs text-muted-foreground">Facturadas</div>
@@ -113,19 +137,33 @@ export default function ProductivityTechnicianTable({
 
   return (
     <Card className="col-span-full">
-      <CardHeader className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-        <div className="flex items-center gap-2">
-          <Wrench className="h-5 w-5 text-muted-foreground" />
-          <CardTitle>Detalle por Técnico</CardTitle>
+      <CardHeader className="flex flex-col gap-3">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <div className="flex items-center gap-2">
+            <Wrench className="h-5 w-5 text-muted-foreground" />
+            <CardTitle>Detalle por Técnico</CardTitle>
+          </div>
+          <SearchableSelect
+            value={sedeFilter}
+            onChange={setSedeFilter}
+            options={sedeOptions}
+            placeholder="Todas las sedes"
+            buttonSize="sm"
+            classNameDiv="min-w-[180px]"
+          />
         </div>
-        <SearchableSelect
-          value={sedeFilter}
-          onChange={setSedeFilter}
-          options={sedeOptions}
-          placeholder="Todas las sedes"
-          buttonSize="sm"
-          classNameDiv="min-w-[180px]"
-        />
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5">
+          {STATUS_LEGEND_ORDER.map((status) => (
+            <div key={status} className="flex items-center gap-1.5">
+              <Badge color={PRODUCTIVITY_STATUS_BADGE_COLOR[status]}>
+                {PRODUCTIVITY_STATUS_LABEL[status]}
+              </Badge>
+              <span className="text-xs text-muted-foreground">
+                {PRODUCTIVITY_STATUS_DESCRIPTION[status]}
+              </span>
+            </div>
+          ))}
+        </div>
       </CardHeader>
       <CardContent>
         <DataTable

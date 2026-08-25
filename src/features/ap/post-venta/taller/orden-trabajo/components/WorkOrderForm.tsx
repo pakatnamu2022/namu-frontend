@@ -417,6 +417,8 @@ export const WorkOrderForm = ({
         },
         year: inspection.vehicle_year,
         vehicle_color: inspection.vehicle_color,
+        engine_type: inspection.engine_type,
+        engine_number: inspection.engine_number,
       });
     }
   };

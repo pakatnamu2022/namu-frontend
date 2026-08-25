@@ -2,6 +2,7 @@ import type { ColumnDef } from "@tanstack/react-table";
 import { Badge } from "@/components/ui/badge";
 import { Trophy } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { formatHours } from "@/core/core.function";
 import { ProductivityTechnicianDetail } from "../lib/productivityDashboard.interface";
 import {
   PRODUCTIVITY_STATUS_BADGE_COLOR,
@@ -16,12 +17,6 @@ const formatCurrency = (value: number) =>
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
   }).format(value)}`;
-
-const formatHours = (value: number) =>
-  `${new Intl.NumberFormat("es-PE", {
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 1,
-  }).format(value)} h`;
 
 export const productivityTechnicianColumns =
   (): ProductivityTechnicianColumn[] => [
@@ -54,9 +49,32 @@ export const productivityTechnicianColumns =
       },
     },
     {
+      accessorKey: "real_hours",
+      header: "Horas reales",
+      cell: ({ row }) => {
+        const tech = row.original;
+        if (tech.real_hours === undefined) return "-";
+        return (
+          <span className="font-semibold">{formatHours(tech.real_hours)}</span>
+        );
+      },
+    },
+    {
       accessorKey: "standard_hours",
-      header: "Horas estándar",
-      cell: ({ row }) => formatHours(row.original.standard_hours),
+      header: "Horas estándar (8h)",
+      cell: ({ row }) => {
+        const tech = row.original;
+        return (
+          <div>
+            <div>{formatHours(tech.standard_hours)}</div>
+            {tech.days_worked !== undefined && (
+              <div className="text-xs text-muted-foreground">
+                {tech.days_worked}d x 8h = {tech.standard_hours}
+              </div>
+            )}
+          </div>
+        );
+      },
     },
     {
       accessorKey: "billed_hours",
@@ -79,8 +97,8 @@ export const productivityTechnicianColumns =
               tech.productivity_hours < 0 ? "text-red-600" : "text-green-600",
             )}
           >
-            {tech.productivity_hours >= 0 ? "+" : ""}
-            {formatHours(tech.productivity_hours)} ·{" "}
+            {tech.productivity_hours >= 0 ? "+" : "-"}
+            {formatHours(Math.abs(tech.productivity_hours))} ·{" "}
             {tech.productivity_percentage}%
           </span>
         );

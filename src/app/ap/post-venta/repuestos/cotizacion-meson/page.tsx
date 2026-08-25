@@ -26,7 +26,10 @@ import {
   ORDER_QUOTATION_STATUS_GROUP_IDS,
   type OrderQuotationStatusGroup,
 } from "@/features/ap/post-venta/taller/cotizacion/lib/proforma.constants";
-import { deleteOrderQuotation } from "@/features/ap/post-venta/taller/cotizacion/lib/proforma.actions";
+import {
+  deleteOrderQuotation,
+  duplicateOrderQuotation,
+} from "@/features/ap/post-venta/taller/cotizacion/lib/proforma.actions";
 import { useOrderQuotations } from "@/features/ap/post-venta/taller/cotizacion/lib/proforma.hook";
 import OrderQuotationMesonTable from "@/features/ap/post-venta/repuestos/cotizacion-meson/components/ProformaMesonTable";
 import OrderQuotationMesonActions from "@/features/ap/post-venta/repuestos/cotizacion-meson/components/ProformaMesonActions";
@@ -143,9 +146,24 @@ export default function OrderQuotationMesonPage() {
     router(`${ABSOLUTE_ROUTE}/detalle/${orderQuotation.id}`);
   };
 
+  const handleManage = (id: number) => {
+    router(`${ABSOLUTE_ROUTE}/gestionar/${id}`);
+  };
+
   const handleViewDelivery = (orderQuotation: { id: number }) => {
     setSelectedDeliveryId(orderQuotation.id);
     setIsDeliverySheetOpen(true);
+  };
+
+  const handleDuplicate = async (id: number) => {
+    try {
+      await duplicateOrderQuotation(id);
+      await refetch();
+      successToast(SUCCESS_MESSAGE(MODEL, "create"));
+    } catch (error: any) {
+      const msg = error?.response?.data?.message || "";
+      errorToast(ERROR_MESSAGE(MODEL, "create", msg));
+    }
   };
 
   const handleCloseDeliverySheet = () => {
@@ -178,9 +196,11 @@ export default function OrderQuotationMesonPage() {
           onUpdate: handleUpdate,
           onViewBilling: handleViewBilling,
           onViewDelivery: handleViewDelivery,
+          onManage: handleManage,
           onRequestDiscount: handleRequestDiscount,
           onApprove: handleApprove,
           onRefresh: refetch,
+          onDuplicate: handleDuplicate,
           permissions,
         })}
         data={data?.data || []}

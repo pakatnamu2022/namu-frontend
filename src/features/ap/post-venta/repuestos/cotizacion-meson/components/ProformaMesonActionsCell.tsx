@@ -1,10 +1,12 @@
 import { Button } from "@/components/ui/button";
 import { OrderQuotationResource } from "../../../taller/cotizacion/lib/proforma.interface";
 import {
+  Copy,
   Download,
   Eye,
   FileSpreadsheet,
   FileText,
+  Handshake,
   Link2,
   Loader2,
   MoreVertical,
@@ -12,6 +14,7 @@ import {
   Pencil,
   Percent,
   Scissors,
+  Settings,
   ShieldCheck,
   Trash2,
   Undo2,
@@ -45,14 +48,17 @@ interface ActionsCellProps {
     canUpdate: boolean;
     canDelete: boolean;
     canApprove: boolean;
+    canDuplicate: boolean;
   };
   onViewBilling: (orderQuotation: OrderQuotationResource) => void;
   onViewDelivery: (orderQuotation: OrderQuotationResource) => void;
+  onManage: (id: number) => void;
   onRequestDiscount: (id: number) => void;
   onApprove: (id: number) => void;
   onRefresh: () => void;
   onUpdate: (id: number) => void;
   onDelete: (id: number) => void;
+  onDuplicate: (id: number) => void;
 }
 
 export const ProformaMesonActionsCell = ({
@@ -60,11 +66,13 @@ export const ProformaMesonActionsCell = ({
   permissions,
   onViewBilling,
   onViewDelivery,
+  onManage,
   onRequestDiscount,
   onApprove,
   onRefresh,
   onUpdate,
   onDelete,
+  onDuplicate,
 }: ActionsCellProps) => {
   const {
     id,
@@ -81,6 +89,7 @@ export const ProformaMesonActionsCell = ({
   const isDelivered = !!delivery_document_number;
   const [showDiscardModal, setShowDiscardModal] = useState(false);
   const [showSegmentConfirm, setShowSegmentConfirm] = useState(false);
+  const [showDuplicateConfirm, setShowDuplicateConfirm] = useState(false);
   const [isDownloadingPdf, setIsDownloadingPdf] = useState(false);
   const [isSendingLink, setIsSendingLink] = useState(false);
   const [isSegmenting, setIsSegmenting] = useState(false);
@@ -211,6 +220,8 @@ export const ProformaMesonActionsCell = ({
 
   const isVisibleSetInEditing = isForInvoicing;
 
+  const isVisibleDuplicate = permissions.canDuplicate;
+
   const isVisibleEdit =
     !isDiscarded &&
     !isForInvoicing &&
@@ -234,10 +245,22 @@ export const ProformaMesonActionsCell = ({
           size="icon"
           className="size-7"
           onClick={() => onViewBilling(row)}
-          tooltip="Ver Detalles Cotización"
+          tooltip="Ver Detalles / Firma"
         >
           <Eye className="size-5" />
         </Button>
+
+        {!isDiscarded && (
+          <Button
+            variant="outline"
+            size="icon"
+            className="size-7"
+            onClick={() => onManage(id)}
+            tooltip="Gestionar"
+          >
+            <Settings className="size-4" />
+          </Button>
+        )}
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -297,14 +320,14 @@ export const ProformaMesonActionsCell = ({
             variant="outline"
             size="icon"
             className="size-7"
-            tooltip="Enviar a Facturar"
+            tooltip="Emitir Comprobante"
             onClick={handleSendToInvoice}
             disabled={isSendingToInvoice}
           >
             {isSendingToInvoice ? (
               <Loader2 className="size-4 animate-spin" />
             ) : (
-              <FileText className="size-4" />
+              <Handshake className="size-4" />
             )}
           </Button>
         )}
@@ -354,6 +377,7 @@ export const ProformaMesonActionsCell = ({
           isVisibleRequestDiscount ||
           isVisibleSegment ||
           isVisibleDiscard ||
+          isVisibleDuplicate ||
           isVisibleEdit ||
           isVisibleDelete) && (
           <DropdownMenu>
@@ -421,11 +445,24 @@ export const ProformaMesonActionsCell = ({
                 </DropdownMenuItem>
               )}
 
+              {isVisibleDuplicate && (
+                <DropdownMenuItem
+                  onSelect={(e) => {
+                    e.preventDefault();
+                    setShowDuplicateConfirm(true);
+                  }}
+                >
+                  <Copy className="size-4 mr-2" />
+                  Duplicar
+                </DropdownMenuItem>
+              )}
+
               {(isVisibleEdit || isVisibleDelete) &&
                 (isVisibleSendVirtualLink ||
                   isVisibleRequestDiscount ||
                   isVisibleSegment ||
-                  isVisibleDiscard) && <DropdownMenuSeparator />}
+                  isVisibleDiscard ||
+                  isVisibleDuplicate) && <DropdownMenuSeparator />}
 
               {isVisibleEdit && (
                 <DropdownMenuItem onClick={() => onUpdate(id)}>
@@ -467,6 +504,18 @@ export const ProformaMesonActionsCell = ({
         cancelText="Cancelar"
         icon="info"
         onConfirm={handleSegment}
+      />
+
+      <ConfirmationDialog
+        open={showDuplicateConfirm}
+        onOpenChange={setShowDuplicateConfirm}
+        trigger={<span className="hidden" />}
+        title="¿Duplicar cotización?"
+        description="Se creará una nueva cotización con los mismos datos. ¿Estás seguro de que deseas duplicar este registro?"
+        confirmText="Sí, duplicar"
+        cancelText="Cancelar"
+        icon="info"
+        onConfirm={() => onDuplicate(id)}
       />
 
       {virtualConfirmationData && (

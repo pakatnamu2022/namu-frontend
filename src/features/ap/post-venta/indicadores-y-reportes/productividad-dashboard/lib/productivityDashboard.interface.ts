@@ -66,6 +66,9 @@ export interface ProductivityTechnicianDetail {
   worker_id: number;
   worker_dni: string;
   worker_name: string;
+  has_error?: boolean;
+  days_worked?: number;
+  real_hours?: number;
   standard_hours: number;
   billed_hours: number;
   productivity_hours: number;

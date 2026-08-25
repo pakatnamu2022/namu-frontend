@@ -97,6 +97,8 @@ export interface VehicleInspectionResource {
   vehicle_brand?: string;
   vehicle_year?: string;
   vehicle_color?: string;
+  engine_type?: string;
+  engine_number?: string;
   work_order_correlative?: string;
   ap_work_order_id?: number;
 }

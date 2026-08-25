@@ -1,11 +1,10 @@
 import type { ColumnDef } from "@tanstack/react-table";
-import { Send } from "lucide-react";
+import { Calendar } from "lucide-react";
 import { OrderQuotationResource } from "../lib/proforma.interface";
-import { format } from "date-fns";
-import { es } from "date-fns/locale";
 import { Badge } from "@/components/ui/badge";
 import { ProformaActionsCell } from "./ProformaActionsCell";
 import { CopyCell } from "@/shared/components/CopyCell";
+import { formatDate } from "@/core/core.function";
 
 export type OrderQuotationColumns = ColumnDef<OrderQuotationResource>;
 
@@ -78,29 +77,27 @@ export const orderQuotationColumns = ({
     id: "dates",
     header: "Fechas",
     cell: ({ row }) => {
-      const formatDate = (date: string | null | undefined) => {
-        if (!date) return "-";
+      const opening = row.original.quotation_date;
+      const estimated = row.original.expiration_date;
+      const fmt = (v: string) => {
         try {
-          return format(new Date(date), "dd/MM/yyyy", { locale: es });
+          return formatDate(v);
         } catch {
-          return date;
+          return v;
         }
       };
-
       return (
-        <div className="flex flex-col gap-0.5 text-sm">
-          <div className="flex items-center gap-1.5">
-            <span className="text-xs font-medium text-muted-foreground">
-              Apertura:
-            </span>
-            <span>{formatDate(row.original.quotation_date)}</span>
-          </div>
-          <div className="flex items-center gap-1.5">
-            <span className="text-xs font-medium text-muted-foreground">
-              Vencimiento:
-            </span>
-            <span>{formatDate(row.original.expiration_date)}</span>
-          </div>
+        <div className="flex flex-col gap-0.5 text-xs">
+          <span className="flex items-center gap-1">
+            <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
+            <span className="text-muted-foreground">Apertura:</span>
+            {opening ? fmt(opening) : "-"}
+          </span>
+          <span className="flex items-center gap-1">
+            <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
+            <span className="text-muted-foreground">Vencimiento:</span>
+            {estimated ? fmt(estimated) : "-"}
+          </span>
         </div>
       );
     },
@@ -129,43 +126,6 @@ export const orderQuotationColumns = ({
   {
     accessorKey: "created_by_name",
     header: "Creado por",
-  },
-  {
-    accessorKey: "emails_sent_count",
-    header: "Emails enviados",
-    cell: ({ row }) => {
-      const sentCount = Number(
-        (row.getValue("emails_sent_count") as
-          | number
-          | string
-          | null
-          | undefined) ?? 0,
-      );
-      const hasSent = sentCount > 0;
-
-      return (
-        <Badge
-          variant="outline"
-          color={hasSent ? "sky" : "gray"}
-          className="inline-flex items-center gap-1"
-        >
-          <Send className="size-3" />
-          {sentCount} {sentCount === 1 ? "envío" : "envíos"}
-        </Badge>
-      );
-    },
-  },
-  {
-    accessorKey: "is_take",
-    header: "Aceptada",
-    cell: ({ getValue }) => {
-      const value = getValue() as boolean;
-      return (
-        <Badge variant="outline" color={value ? "green" : "gray"}>
-          {value ? "Sí" : "No"}
-        </Badge>
-      );
-    },
   },
   {
     accessorKey: "has_management_discount",

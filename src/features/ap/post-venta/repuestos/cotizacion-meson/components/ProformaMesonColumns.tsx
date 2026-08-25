@@ -6,6 +6,8 @@ import { OrderQuotationResource } from "../../../taller/cotizacion/lib/proforma.
 import { STATUS_ORDER_QUOTE_COLOR } from "../../../taller/cotizacion/lib/proforma.constants";
 import { ProformaMesonActionsCell } from "./ProformaMesonActionsCell";
 import { CopyCell } from "@/shared/components/CopyCell";
+import { formatDate } from "@/core/core.function";
+import { Calendar } from "lucide-react";
 
 export type OrderQuotationMesonColumns = ColumnDef<OrderQuotationResource>;
 
@@ -14,13 +16,16 @@ interface Props {
   onUpdate: (id: number) => void;
   onViewBilling: (orderQuotation: OrderQuotationResource) => void;
   onViewDelivery: (orderQuotation: OrderQuotationResource) => void;
+  onManage: (id: number) => void;
   onRequestDiscount: (id: number) => void;
   onApprove: (id: number) => void;
   onRefresh?: () => void;
+  onDuplicate: (id: number) => void;
   permissions: {
     canUpdate: boolean;
     canDelete: boolean;
     canApprove: boolean;
+    canDuplicate: boolean;
   };
 }
 
@@ -29,9 +34,11 @@ export const orderQuotationMesonColumns = ({
   onDelete,
   onViewBilling,
   onViewDelivery,
+  onManage,
   onRequestDiscount,
   onApprove,
   onRefresh,
+  onDuplicate,
   permissions,
 }: Props): OrderQuotationMesonColumns[] => [
   {
@@ -40,6 +47,8 @@ export const orderQuotationMesonColumns = ({
     cell: ({ getValue, row }) => {
       const value = getValue() as string;
       const wasSegmented = row.original.was_segmented;
+      const deductibleAmount = row.original.deductible_amount;
+
       if (!value) return null;
       return (
         <div className="flex flex-col items-start gap-0.5">
@@ -49,35 +58,47 @@ export const orderQuotationMesonColumns = ({
               Segmentado
             </Badge>
           )}
+          {deductibleAmount > 0 && (
+            <Badge variant="outline" color="yellow" size="xs">
+              Deducible: {deductibleAmount.toFixed(2)}
+            </Badge>
+          )}
         </div>
       );
     },
   },
   {
-    accessorKey: "quotation_date",
-    header: "Fecha de Cotización",
-    cell: ({ getValue }) => {
-      const date = getValue() as string;
-      if (!date) return "-";
-      try {
-        return format(new Date(date), "dd/MM/yyyy", { locale: es });
-      } catch {
-        return date;
-      }
+    id: "dates",
+    header: "Fechas",
+    cell: ({ row }) => {
+      const opening = row.original.quotation_date;
+      const estimated = row.original.expiration_date;
+      const fmt = (v: string) => {
+        try {
+          return formatDate(v);
+        } catch {
+          return v;
+        }
+      };
+      return (
+        <div className="flex flex-col gap-0.5 text-xs">
+          <span className="flex items-center gap-1">
+            <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
+            <span className="text-muted-foreground">Apertura:</span>
+            {opening ? fmt(opening) : "-"}
+          </span>
+          <span className="flex items-center gap-1">
+            <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
+            <span className="text-muted-foreground">Vencimiento:</span>
+            {estimated ? fmt(estimated) : "-"}
+          </span>
+        </div>
+      );
     },
   },
   {
-    accessorKey: "expiration_date",
-    header: "Fecha de Vencimiento",
-    cell: ({ getValue }) => {
-      const date = getValue() as string;
-      if (!date) return "-";
-      try {
-        return format(new Date(date), "dd/MM/yyyy", { locale: es });
-      } catch {
-        return date;
-      }
-    },
+    accessorKey: "client.full_name",
+    header: "Cliente",
   },
   {
     accessorKey: "collection_date",
@@ -91,10 +112,6 @@ export const orderQuotationMesonColumns = ({
         return date;
       }
     },
-  },
-  {
-    accessorKey: "client.full_name",
-    header: "Cliente",
   },
   {
     accessorKey: "vehicle.plate",
@@ -192,11 +209,13 @@ export const orderQuotationMesonColumns = ({
         permissions={permissions}
         onViewBilling={onViewBilling}
         onViewDelivery={onViewDelivery}
+        onManage={onManage}
         onRequestDiscount={onRequestDiscount}
         onApprove={onApprove}
         onRefresh={onRefresh!}
         onUpdate={onUpdate}
         onDelete={onDelete}
+        onDuplicate={onDuplicate}
       />
     ),
   },

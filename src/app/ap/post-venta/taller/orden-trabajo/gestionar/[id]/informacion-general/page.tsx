@@ -148,7 +148,8 @@ export default function GeneralInformationPage() {
                 Información General
               </h1>
               <p className="text-xs sm:text-sm text-gray-600 mt-1 font-bold truncate">
-                {workOrder.correlative} - Placa: {workOrder.vehicle_plate}
+                {workOrder.correlative} - Placa:{" "}
+                {workOrder.vehicle.plate || "-"}
               </p>
             </div>
           </div>
@@ -192,36 +193,34 @@ export default function GeneralInformationPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
             <div>
               <p className="text-sm text-gray-600">Placa</p>
-              <p className="font-semibold">
-                {workOrder.vehicle_plate || "N/A"}
-              </p>
+              <p className="font-semibold">{workOrder.vehicle.plate || "-"}</p>
             </div>
             <div>
               <p className="text-sm text-gray-600">VIN</p>
-              <p className="font-semibold">{workOrder.vehicle_vin || "N/A"}</p>
+              <p className="font-semibold">{workOrder.vehicle.vin || "-"}</p>
             </div>
             <div>
               <p className="text-sm text-gray-600">Modelo</p>
               <p className="font-semibold">
-                {workOrder.vehicle?.model?.version || "N/A"}
+                {workOrder.vehicle?.model?.version || "-"}
               </p>
             </div>
             <div>
               <p className="text-sm text-gray-600">Marca</p>
               <p className="font-semibold">
-                {workOrder.vehicle?.model?.brand || "N/A"}
+                {workOrder.vehicle?.model?.brand || "-"}
               </p>
             </div>
             <div>
               <p className="text-sm text-gray-600">Propietario</p>
               <p className="font-semibold">
-                {workOrder.vehicle?.owner?.full_name || "N/A"}
+                {workOrder.vehicle?.owner?.full_name || "-"}
               </p>
             </div>
             <div>
               <p className="text-sm text-gray-600">Num. Doc. Propietario</p>
               <p className="font-semibold">
-                {workOrder.vehicle?.owner?.num_doc || "N/A"}
+                {workOrder.vehicle?.owner?.num_doc || "-"}
               </p>
             </div>
           </div>

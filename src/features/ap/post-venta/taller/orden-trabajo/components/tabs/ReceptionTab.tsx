@@ -11,16 +11,15 @@ import {
   FileText,
   Expand,
   Ban,
-  RotateCcw,
   RefreshCw,
   Droplets,
   Wrench,
   ClipboardList,
   Gift,
   MessageSquare,
+  Pencil,
 } from "lucide-react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useNavigate } from "react-router-dom";
 import { CHECKLIST_ITEMS } from "@/features/ap/post-venta/taller/inspeccion-vehiculo/lib/vehicleInspection.constants";
 import {
   DAMAGE_SYMBOLS,
@@ -42,6 +41,15 @@ import { findWorkOrderById } from "../../lib/workOrder.actions";
 import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
 import { WORKER_ORDER } from "../../lib/workOrder.constants";
+import { STATUS_WORK_ORDER } from "../../lib/workOrder.constants";
+import { ReceptionEditSheet } from "@/features/ap/post-venta/taller/inspeccion-vehiculo/components/ReceptionEditSheet";
+
+const RECEPTION_EDIT_ALLOWED_STATUSES: number[] = [
+  STATUS_WORK_ORDER.APERTURADO,
+  STATUS_WORK_ORDER.RECEPCIONADO,
+  STATUS_WORK_ORDER.EN_TRABAJO,
+  STATUS_WORK_ORDER.FIN_TRABAJO,
+];
 
 interface ReceptionTabProps {
   workOrderId: number;
@@ -53,12 +61,11 @@ export default function ReceptionTab({ workOrderId }: ReceptionTabProps) {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
+  const [editSheetOpen, setEditSheetOpen] = useState(false);
   const [cancellationReason, setCancellationReason] = useState("");
   const { ROUTE } = WORKER_ORDER;
   const permissions = useModulePermissions(ROUTE);
-
   const queryClient = useQueryClient();
-  const router = useNavigate();
 
   const {
     data: workOrder,
@@ -71,10 +78,11 @@ export default function ReceptionTab({ workOrderId }: ReceptionTabProps) {
   });
 
   const inspection = workOrder?.vehicle_inspection;
-
-  const cancellationRequested =
-    !!inspection?.cancellation_requested_at && !inspection?.is_cancelled;
-  const isCancelled = !!inspection?.is_cancelled;
+  const cancellationRequested = inspection?.cancellation_requested_by;
+  const canEditReception =
+    permissions.canUpdate &&
+    !cancellationRequested &&
+    RECEPTION_EDIT_ALLOWED_STATUSES.includes(Number(workOrder?.status_id));
 
   const handleDownloadPdf = async () => {
     if (!inspection?.id) return;
@@ -96,7 +104,11 @@ export default function ReceptionTab({ workOrderId }: ReceptionTabProps) {
 
     try {
       setIsCancelling(true);
-      await requestCancellation(inspection.id, cancellationReason.trim());
+      await requestCancellation(
+        inspection.id,
+        workOrderId,
+        cancellationReason.trim(),
+      );
       successToast("Solicitud de anulación enviada exitosamente");
       setDialogOpen(false);
       setCancellationReason("");
@@ -114,7 +126,7 @@ export default function ReceptionTab({ workOrderId }: ReceptionTabProps) {
     if (!inspection?.id) return;
 
     try {
-      await confirmCancellation(inspection.id);
+      await confirmCancellation(inspection.id, workOrderId);
       successToast("Anulación confirmada exitosamente");
       setConfirmDialogOpen(false);
       queryClient.invalidateQueries({ queryKey: ["workOrder", workOrderId] });
@@ -167,82 +179,6 @@ export default function ReceptionTab({ workOrderId }: ReceptionTabProps) {
           </p>
         </div>
       </Card>
-    );
-  }
-
-  if (isCancelled) {
-    return (
-      <div className="grid gap-6">
-        <Card className="p-6 border-red-200 bg-red-50">
-          <div className="flex items-start gap-3 mb-4">
-            <div className="rounded-full bg-red-100 p-2">
-              <Ban className="h-6 w-6 text-red-600" />
-            </div>
-            <div>
-              <h3 className="text-lg font-semibold text-red-800">
-                Recepción Anulada
-              </h3>
-              <p className="text-sm text-red-600 mt-0.5">
-                Esta recepción de recepción ha sido anulada
-              </p>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-lg border border-red-200 p-4 space-y-3">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <div>
-                <p className="text-xs text-gray-500">Motivo de anulación</p>
-                <p className="text-sm font-medium text-gray-800">
-                  {inspection.cancellation_reason || "No especificado"}
-                </p>
-              </div>
-            </div>
-
-            <div className="border-t pt-3 grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <div>
-                <p className="text-xs text-gray-500">Solicitado por</p>
-                <p className="text-sm font-medium text-gray-800">
-                  {inspection.cancellation_requested_by_name || "N/A"}
-                </p>
-                <p className="text-xs text-gray-400">
-                  {inspection.cancellation_requested_at
-                    ? new Date(
-                        inspection.cancellation_requested_at,
-                      ).toLocaleString("es-PE")
-                    : ""}
-                </p>
-              </div>
-              <div>
-                <p className="text-xs text-gray-500">Confirmado por</p>
-                <p className="text-sm font-medium text-gray-800">
-                  {inspection.cancellation_confirmed_by_name || "N/A"}
-                </p>
-                <p className="text-xs text-gray-400">
-                  {inspection.cancellation_confirmed_at
-                    ? new Date(
-                        inspection.cancellation_confirmed_at,
-                      ).toLocaleString("es-PE")
-                    : ""}
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <div className="mt-5">
-            <Button
-              onClick={() =>
-                router(
-                  `/ap/post-venta/taller/orden-trabajo/${workOrderId}/inspeccion`,
-                )
-              }
-              className="gap-2"
-            >
-              <RotateCcw className="h-4 w-4" />
-              Re-recepcionar
-            </Button>
-          </div>
-        </Card>
-      </div>
     );
   }
 
@@ -299,6 +235,19 @@ export default function ReceptionTab({ workOrderId }: ReceptionTabProps) {
                 {isDownloading ? "Generando..." : "O.R Cliente"}
               </span>
             </Button>
+
+            {canEditReception && (
+              <Button
+                variant="outline"
+                className="gap-2 text-xs sm:text-sm flex-1 sm:flex-none"
+                onClick={() => setEditSheetOpen(true)}
+                size="sm"
+              >
+                <Pencil className="h-4 w-4" />
+                <span className="hidden sm:inline">Editar Recepción</span>
+                <span className="sm:hidden">Editar</span>
+              </Button>
+            )}
 
             {!cancellationRequested && permissions.canRequestCancellation && (
               <Button
@@ -1380,6 +1329,21 @@ export default function ReceptionTab({ workOrderId }: ReceptionTabProps) {
         icon="danger"
         onConfirm={handleConfirmCancellation}
       />
+
+      {/* Sheet: editar recepción */}
+      {canEditReception && editSheetOpen && (
+        <ReceptionEditSheet
+          open={editSheetOpen}
+          onClose={() => setEditSheetOpen(false)}
+          inspection={inspection}
+          workOrderId={workOrderId}
+          dateOrderWork={
+            workOrder?.opening_date
+              ? new Date(workOrder.opening_date)
+              : undefined
+          }
+        />
+      )}
     </div>
   );
 }
