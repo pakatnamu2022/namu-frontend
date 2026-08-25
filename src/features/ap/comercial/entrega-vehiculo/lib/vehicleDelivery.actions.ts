@@ -149,19 +149,23 @@ export async function rescheduleVehicleDelivery(
 }
 
 export async function approveExtraordinaryVehicleDelivery(
-  id: number
+  id: number,
+  comment?: string
 ): Promise<VehiclesDeliveryResource> {
   const { data } = await api.post<VehiclesDeliveryResource>(
-    `${ENDPOINT}/${id}/approve-extraordinary`
+    `${ENDPOINT}/${id}/approve-extraordinary`,
+    { comment }
   );
   return data;
 }
 
 export async function rejectExtraordinaryVehicleDelivery(
-  id: number
+  id: number,
+  comment: string
 ): Promise<VehiclesDeliveryResource> {
   const { data } = await api.post<VehiclesDeliveryResource>(
-    `${ENDPOINT}/${id}/reject-extraordinary`
+    `${ENDPOINT}/${id}/reject-extraordinary`,
+    { comment }
   );
   return data;
 }

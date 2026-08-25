@@ -57,6 +57,7 @@ export default function VehicleDeliveryPage() {
   const [search, setSearch] = useState("");
   const [sedeId, setSedeId] = useState("all");
   const [statusDelivery, setStatusDelivery] = useState("all");
+  const [extraordinaryReview, setExtraordinaryReview] = useState(false);
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [sendToNubefactId, setSendToNubefactId] = useState<number | null>(null);
   const [selectedVehicle, setSelectedVehicle] =
@@ -91,7 +92,7 @@ export default function VehicleDeliveryPage() {
 
   useEffect(() => {
     setPage(1);
-  }, [search, per_page, sedeId, statusDelivery, dateFrom, dateTo]);
+  }, [search, per_page, sedeId, statusDelivery, dateFrom, dateTo, extraordinaryReview]);
 
   const { data, isLoading, refetch, isFetching } = useVehicleDelivery({
     page,
@@ -101,6 +102,7 @@ export default function VehicleDeliveryPage() {
     area_id: AREA_COMERCIAL,
     sede$shop_id: sedeId !== "all" ? sedeId : undefined,
     status_delivery: statusDelivery !== "all" ? statusDelivery : undefined,
+    extraordinary_review: extraordinaryReview ? 1 : undefined,
   });
 
   const handleDelete = async () => {
@@ -171,7 +173,12 @@ export default function VehicleDeliveryPage() {
             area_id: AREA_COMERCIAL,
             sede$shop_id: sedeId !== "all" ? sedeId : undefined,
             status_delivery: statusDelivery !== "all" ? statusDelivery : undefined,
+            extraordinary_review: extraordinaryReview ? 1 : undefined,
           }}
+          extraordinaryReview={extraordinaryReview}
+          onToggleExtraordinaryReview={() =>
+            setExtraordinaryReview((prev) => !prev)
+          }
         />
       </HeaderTableWrapper>
       <VehicleDeliveryTable
@@ -190,6 +197,7 @@ export default function VehicleDeliveryPage() {
             : null,
           onReschedule: setRescheduleDelivery,
           permissions,
+          extraordinaryReview,
         })}
         data={data?.data || []}
       >

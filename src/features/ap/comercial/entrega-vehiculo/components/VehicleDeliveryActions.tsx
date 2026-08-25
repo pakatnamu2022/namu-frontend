@@ -2,7 +2,14 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { FileClock, FileOutput, Plus, RefreshCcw, Send } from "lucide-react";
+import {
+  FileClock,
+  FileOutput,
+  Plus,
+  RefreshCcw,
+  Send,
+  ShieldAlert,
+} from "lucide-react";
 import { Link } from "react-router-dom";
 import ActionsWrapper from "@/shared/components/ActionsWrapper";
 import ExportButtons from "@/shared/components/ExportButtons";
@@ -24,10 +31,13 @@ interface Props {
     canCreate: boolean;
     canMigrate: boolean;
     canManage: boolean;
+    canApprove?: boolean;
   };
   isFetching?: boolean;
   onRefresh: () => void;
   filters?: Record<string, any>;
+  extraordinaryReview?: boolean;
+  onToggleExtraordinaryReview?: () => void;
 }
 
 export default function VehicleDeliveryActions({
@@ -35,10 +45,12 @@ export default function VehicleDeliveryActions({
   isFetching,
   onRefresh,
   filters,
+  extraordinaryReview,
+  onToggleExtraordinaryReview,
 }: Props) {
   const { ROUTE_ADD } = VEHICLE_DELIVERY;
 
-  const { canCreate, canMigrate, canManage } = permissions;
+  const { canCreate, canMigrate, canManage, canApprove } = permissions;
 
   const [historicalOpen, setHistoricalOpen] = useState(false);
 
@@ -60,6 +72,18 @@ export default function VehicleDeliveryActions({
         />
         Actualizar
       </Button>
+      {canApprove && (
+        <Button
+          size="sm"
+          variant={extraordinaryReview ? "default" : "outline"}
+          onClick={onToggleExtraordinaryReview}
+        >
+          <ShieldAlert className="size-4 mr-2" />
+          {extraordinaryReview
+            ? "Ver entregas normales"
+            : "Extraordinarias por aprobar"}
+        </Button>
+      )}
       {canMigrate && (
         <Button
           size="sm"
