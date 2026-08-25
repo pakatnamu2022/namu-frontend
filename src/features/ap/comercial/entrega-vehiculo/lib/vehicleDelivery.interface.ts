@@ -41,6 +41,7 @@ export interface VehiclesDeliveryResource {
   extraordinary_approved?: boolean | null;
   extraordinary_approved_at?: string | null;
   extraordinary_approved_by?: string | null;
+  extraordinary_approval_comment?: string | null;
   extraordinary_sent_by?: number | null;
   rescheduled_by?: number | null;
 }
