@@ -5,7 +5,10 @@ import {
   getTodayLocalDateString,
   toLocalDateString,
 } from "@/core/core.function";
-import { AREA_COMERCIAL } from "@/features/ap/ap-master/lib/apMaster.constants";
+import {
+  AREA_COMERCIAL,
+  CM_COMERCIAL_ID,
+} from "@/features/ap/ap-master/lib/apMaster.constants";
 import {
   DOCUMENT_STATUS,
   MIGRATION_STATUS,
@@ -282,10 +285,10 @@ export const COMMERCIAL_REPORTS: ReportConfig[] = [
   },
   {
     id: "purchase-order",
-    title: "Reporte de Órdenes de Compra",
+    title: "Reporte de Órdenes de Compra Formato Santander",
     type: "Compras",
     description:
-      "Exporta el reporte de órdenes de compra de vehículos, filtrando por rango de fecha de emisión y sede.",
+      "Exporta el reporte de órdenes de compra de vehículos en el formato requerido por Santander, filtrando por rango de fecha de emisión y sede.",
     icon: "FileSpreadsheet",
     endpoint: "/ap/commercial/reports/purchase-order/export",
     method: "get",
@@ -315,7 +318,119 @@ export const COMMERCIAL_REPORTS: ReportConfig[] = [
       },
     ],
     defaultParams: {},
-    fileName: "Reporte_OC",
+    fileName: "Reporte_OC_Santander",
+  },
+  {
+    id: "vehicle-purchase-order",
+    title: "Reporte de Órdenes de Compra de Vehículos",
+    type: "Compras",
+    description:
+      "Exporta el listado de órdenes de compra de vehículos, filtrando por sede, almacén, proveedor y modelo.",
+    icon: "ShoppingCart",
+    endpoint: "/ap/commercial/vehiclePurchaseOrder/export",
+    method: "get",
+    fields: [
+      {
+        name: "search",
+        label: "Buscar",
+        type: "text",
+        required: false,
+        placeholder: "Buscar por número, proveedor, etc.",
+      },
+      {
+        name: "sede_id",
+        label: "Sede",
+        type: "select",
+        required: false,
+        placeholder: "Seleccionar sede",
+        endpoint: "/gp/mg/sede/my",
+        optionsMapper: (data) =>
+          (data ?? []).map((item: any) => ({
+            label: item.abreviatura,
+            value: String(item.id),
+          })),
+      },
+      {
+        name: "warehouse_id",
+        label: "Almacén",
+        type: "select",
+        required: false,
+        placeholder: "Seleccionar almacén",
+        endpoint: "/ap/configuration/warehouse?all=true&status=1",
+        optionsMapper: (data) =>
+          (data ?? []).map((item: any) => ({
+            label: item.description,
+            value: String(item.id),
+          })),
+      },
+      {
+        name: "supplier_id",
+        label: "Proveedor",
+        type: "select",
+        required: false,
+        placeholder: "Seleccionar proveedor",
+        endpoint: "/ap/commercial/businessPartners?all=true",
+        optionsMapper: (data) =>
+          (data ?? []).map((item: any) => ({
+            label: item.full_name,
+            value: String(item.id),
+          })),
+      },
+      {
+        name: "vehicle.ap_models_vn_id",
+        label: "Modelo",
+        type: "select",
+        required: false,
+        placeholder: "Seleccionar modelo",
+        endpoint: "/ap/configuration/modelsVn?all=true&status=1",
+        optionsMapper: (data) =>
+          (data ?? []).map((item: any) => ({
+            label: `${item.code} - ${item.version}`,
+            value: String(item.id),
+          })),
+      },
+    ],
+    defaultParams: {
+      type_operation_id: CM_COMERCIAL_ID,
+    },
+    fileName: "ordenes-compra-vehiculo",
+  },
+  {
+    id: "bonus",
+    title: "Reporte de Bonos",
+    type: "Ventas",
+    description:
+      "Exporta el detalle de bonos (tipo, monto, retención del 7% y VIN) de las cotizaciones totalmente pagadas, en una hoja de Excel por cada sede.",
+    icon: "Gift",
+    endpoint: "/ap/commercial/reports/bonus/export",
+    method: "get",
+    fields: [
+      {
+        name: "fecha",
+        label: "Fecha",
+        type: "daterange",
+        required: false,
+        nameFrom: "fecha_inicio",
+        nameTo: "fecha_fin",
+        defaultValueFrom: toLocalDateString(getFirstDayOfMonth(new Date())),
+        defaultValueTo: getTodayLocalDateString(),
+      },
+      {
+        name: "sede_id",
+        label: "Sede",
+        type: "multiselect",
+        required: false,
+        placeholder: "Seleccionar sede",
+        endpoint: "/gp/mg/sede/my",
+        multiSelectMapper: (data) =>
+          (data ?? []).map((item: any) => ({
+            id: item.id,
+            name: item.abreviatura,
+          })),
+      },
+    ],
+    defaultParams: {},
+    fileName: "Reporte_Bonos",
   },
 ];
 

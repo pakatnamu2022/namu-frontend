@@ -258,6 +258,7 @@ export const PurchaseRequestQuoteForm = ({
               isPercentage: isPercentage,
               valor: valor,
               isNegative: bonus.is_negative || false,
+              hasRetention: bonus.has_retention || false,
             };
           },
         );
@@ -791,6 +792,7 @@ export const PurchaseRequestQuoteForm = ({
         concept_id: row.concept_id,
         type: row.isPercentage ? "PORCENTAJE" : "FIJO",
         value: row.valor,
+        has_retention: row.hasRetention || false,
       };
     });
   };
