@@ -70,6 +70,12 @@ export interface ControlUnitsResource {
   company_name_transport?: string;
   status?: boolean;
   is_consignment?: boolean | null;
+  send_dynamics?: boolean | null;
+  migration_status?: string;
+  is_accounted?: boolean;
+  is_annulled?: boolean;
+  purchase_order_id?: number | null;
+  purchase_order_number?: string | null;
   receiving_checklists: any[];
   items: ShipmentItemResource[];
   vehicle?: VehicleResource;
