@@ -48,7 +48,11 @@
       "Bash(cd c:/laragon/www/milla-backend && grep -n \"filters\\\\s*=\\\\|sorts\\\\s*=\" -A 40 app/Models/ap/comercial/ApVehicleDelivery.php | head -80)",
       "Bash(cd c:/laragon/www/milla-backend && sed -n '1490,1560p' routes/api.php)",
       "Bash(cd c:/laragon/www/milla-backend && grep -n \"middleware\\(\\\\|Route::group\" routes/api.php | sed -n '1,60p')",
-      "Bash(cd c:/laragon/www/milla-backend && sed -n '680,800p' app/Http/Services/ap/comercial/ApVehicleDeliveryService.php)"
+      "Bash(cd c:/laragon/www/milla-backend && sed -n '680,800p' app/Http/Services/ap/comercial/ApVehicleDeliveryService.php)",
+      "Bash(php -l app/Http/Services/ap/comercial/PurchaseRequestQuoteService.php)",
+      "Bash(php artisan tinker '--execute= *)",
+      "Bash(php -i)",
+      "Bash(php artisan *)"
     ],
     "deny": [],
     "ask": [],

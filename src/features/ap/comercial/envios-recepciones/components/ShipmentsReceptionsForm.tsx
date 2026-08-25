@@ -41,8 +41,8 @@ import {
 import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
 import { useNavigate } from "react-router-dom";
 import { BUSINESS_PARTNERS, EMPRESA_AP } from "@/core/core.constants";
-import { useAllCustomers } from "../../clientes/lib/customers.hook";
-import { useAllSuppliers } from "../../proveedores/lib/suppliers.hook";
+import { useCustomers, useCustomersById } from "../../clientes/lib/customers.hook";
+import { useSuppliers, useSuppliersById } from "../../proveedores/lib/suppliers.hook";
 import { EstablishmentSelectorModal } from "./EstablishmentSelectorModal";
 import { EstablishmentsResource } from "../../establecimientos/lib/establishments.interface";
 import { DocumentValidationStatus } from "@/shared/components/DocumentValidationStatus";
@@ -311,17 +311,14 @@ export const ShipmentsReceptionsForm = ({
       type_operation_id: CM_COMERCIAL_ID,
     });
 
-  const { data: customers = [], isLoading: isLoadingCustomers } =
-    useAllCustomers({
-      type_person_id: BUSINESS_PARTNERS.TYPE_PERSON_JURIDICA_ID,
-      status_ap: 1,
-    });
-
-  const { data: suppliers = [], isLoading: isLoadingSuppliers } =
-    useAllSuppliers({
-      type_person_id: BUSINESS_PARTNERS.TYPE_PERSON_JURIDICA_ID,
-      status_ap: 1,
-    });
+  // Datos del proveedor/cliente actualmente seleccionado (para nombre y establecimientos),
+  // sin cargar la lista completa de business partners.
+  const { data: transmitterSupplierData } = useSuppliersById(
+    Number(watchTransmitterOriginId) || 0,
+  );
+  const { data: receiverCustomerData } = useCustomersById(
+    Number(watchTransmitterDestinoId) || 0,
+  );
 
   // Traer todos los conceptos SUNAT con un solo llamado
   const { data: sunatConcepts = [], isLoading: isLoadingSunatConcepts } =
@@ -387,14 +384,11 @@ export const ShipmentsReceptionsForm = ({
 
   // Actualizar el proveedor seleccionado cuando cambie el campo
   useEffect(() => {
-    if (watchTransmitterOriginId && suppliers.length > 0) {
-      const supplier = suppliers.find(
-        (s) => s.id.toString() === watchTransmitterOriginId,
-      );
-      if (supplier && selectedSupplier?.id !== supplier.id) {
+    if (watchTransmitterOriginId && transmitterSupplierData) {
+      if (selectedSupplier?.id !== transmitterSupplierData.id) {
         setSelectedSupplier({
-          id: supplier.id,
-          name: supplier.full_name,
+          id: transmitterSupplierData.id,
+          name: transmitterSupplierData.full_name,
         });
       }
     } else if (!watchTransmitterOriginId && selectedSupplier !== null) {
@@ -409,18 +403,15 @@ export const ShipmentsReceptionsForm = ({
         });
       }
     }
-  }, [watchTransmitterOriginId, suppliers.length]);
+  }, [watchTransmitterOriginId, transmitterSupplierData]);
 
   // Actualizar el cliente seleccionado cuando cambie el campo
   useEffect(() => {
-    if (watchTransmitterDestinoId && customers.length > 0) {
-      const customer = customers.find(
-        (c) => c.id.toString() === watchTransmitterDestinoId,
-      );
-      if (customer && selectedCustomer?.id !== customer.id) {
+    if (watchTransmitterDestinoId && receiverCustomerData) {
+      if (selectedCustomer?.id !== receiverCustomerData.id) {
         setSelectedCustomer({
-          id: customer.id,
-          name: customer.full_name,
+          id: receiverCustomerData.id,
+          name: receiverCustomerData.full_name,
         });
       }
     } else if (!watchTransmitterDestinoId && selectedCustomer !== null) {
@@ -435,7 +426,7 @@ export const ShipmentsReceptionsForm = ({
         });
       }
     }
-  }, [watchTransmitterDestinoId, customers.length]);
+  }, [watchTransmitterDestinoId, receiverCustomerData]);
 
   // Cargar establecimientos origen cuando watchTransmitterId cambia
   useEffect(() => {
@@ -700,14 +691,10 @@ export const ShipmentsReceptionsForm = ({
       form.setValue("total_weight", String(item.model.net_weight));
     }
     if (watchIssuerType === "PROVEEDOR" && item?.supplier_id) {
-      const supplier = suppliers.find((s) => s.id === item.supplier_id);
-      if (supplier) {
-        form.setValue("transmitter_origin_id", supplier.id.toString(), {
-          shouldValidate: true,
-        });
-        setSelectedSupplier({ id: supplier.id, name: supplier.full_name });
-        setVehicleSupplierLocked(true);
-      }
+      form.setValue("transmitter_origin_id", item.supplier_id.toString(), {
+        shouldValidate: true,
+      });
+      setVehicleSupplierLocked(true);
     } else {
       setVehicleSupplierLocked(false);
     }
@@ -762,13 +749,7 @@ export const ShipmentsReceptionsForm = ({
     }
   }, [watchTransferReasonId, watchSedeTransmitterId, isConsignment]);
 
-  if (
-    isLoadingCustomers ||
-    isLoadingSuppliers ||
-    isLoadingSunatConcepts ||
-    isLoadingSeries ||
-    isLoadingArticleClass
-  ) {
+  if (isLoadingSunatConcepts || isLoadingSeries || isLoadingArticleClass) {
     return <FormSkeleton />;
   }
 
@@ -984,6 +965,7 @@ export const ShipmentsReceptionsForm = ({
                 warehouse$is_received: vehiclesIsReceived,
                 warehouse$ap_class_article_id: watchArticleClassId || undefined,
                 model$class_id: watchArticleClassId || undefined,
+                has_movements: false,
                 ...vehicleStatusFilterParams,
               }}
               disabled={!watchSedeTransmitterId || !watchArticleClassId}
@@ -1207,7 +1189,7 @@ export const ShipmentsReceptionsForm = ({
           {/* Ubicación Origen y Destino */}
           <div className="col-span-full grid grid-cols-1 md:grid-cols-2 gap-3">
             <div className="space-y-2">
-              <FormSelect
+              <FormSelectAsync
                 name="transmitter_origin_id"
                 label={() => (
                   <div className="flex items-center gap-2 relative">
@@ -1225,12 +1207,17 @@ export const ShipmentsReceptionsForm = ({
                   </div>
                 )}
                 placeholder="Selecciona proveedor"
-                options={suppliers.map((item) => ({
+                control={form.control}
+                useQueryHook={useSuppliers}
+                mapOptionFn={(item) => ({
                   label: item.full_name,
                   value: item.id.toString(),
-                }))}
-                control={form.control}
-                strictFilter={true}
+                })}
+                additionalParams={{
+                  type_person_id: BUSINESS_PARTNERS.TYPE_PERSON_JURIDICA_ID,
+                  status_ap: 1,
+                }}
+                preloadId={defaultValues.transmitter_origin_id || undefined}
                 disabled={
                   watchTransferReasonId ===
                     SUNAT_CONCEPTS_ID.TRANSFER_REASON_TRASLADO_SEDE ||
@@ -1250,7 +1237,7 @@ export const ShipmentsReceptionsForm = ({
 
             {/* Ubicación Destino */}
             <div className="space-y-2">
-              <FormSelect
+              <FormSelectAsync
                 name="receiver_destination_id"
                 label={() => (
                   <div className="flex items-center gap-2 relative">
@@ -1269,12 +1256,17 @@ export const ShipmentsReceptionsForm = ({
                   </div>
                 )}
                 placeholder="Selecciona cliente"
-                options={customers.map((item) => ({
+                control={form.control}
+                useQueryHook={useCustomers}
+                mapOptionFn={(item) => ({
                   label: item.full_name,
                   value: item.id.toString(),
-                }))}
-                control={form.control}
-                strictFilter={true}
+                })}
+                additionalParams={{
+                  type_person_id: BUSINESS_PARTNERS.TYPE_PERSON_JURIDICA_ID,
+                  status_ap: 1,
+                }}
+                preloadId={defaultValues.receiver_destination_id || undefined}
                 disabled={
                   (!!watchDocumentSeriesId && !isOtrosDestinoLibre) ||
                   watchTransferReasonId ===
@@ -1295,16 +1287,21 @@ export const ShipmentsReceptionsForm = ({
 
           {isPublicTransport && (
             <div className="col-span-full">
-              <FormSelect
+              <FormSelectAsync
                 name="transport_company_id"
                 label="Empresa Transporte"
                 placeholder="Selecciona empresa"
-                options={suppliers.map((item) => ({
+                control={form.control}
+                useQueryHook={useSuppliers}
+                mapOptionFn={(item) => ({
                   label: item.full_name,
                   value: item.id.toString(),
-                }))}
-                control={form.control}
-                strictFilter={true}
+                })}
+                additionalParams={{
+                  type_person_id: BUSINESS_PARTNERS.TYPE_PERSON_JURIDICA_ID,
+                  status_ap: 1,
+                }}
+                preloadId={defaultValues.transport_company_id || undefined}
               />
             </div>
           )}

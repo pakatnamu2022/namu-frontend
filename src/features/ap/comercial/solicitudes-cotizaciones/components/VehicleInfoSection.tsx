@@ -42,8 +42,11 @@ interface VehicleInfoSectionProps {
   modelVnWatch: string | undefined;
   selectedModel: ModelsVnResource | undefined;
   billedCost: number;
-  /** Cotización ya aprobada: bloquea vehículo/modelo/color y precio de venta. */
-  disabled?: boolean;
+  /**
+   * Cotización ya aprobada: bloquea el precio de venta (que ya quedó fijado).
+   * El vehículo/modelo/color siguen editables mientras no esté pagada.
+   */
+  priceLocked?: boolean;
 }
 
 export const VehicleInfoSection = ({
@@ -65,7 +68,7 @@ export const VehicleInfoSection = ({
   modelVnWatch,
   selectedModel,
   billedCost,
-  disabled = false,
+  priceLocked = false,
 }: VehicleInfoSectionProps) => {
   return (
     <GroupFormSection
@@ -81,7 +84,6 @@ export const VehicleInfoSection = ({
           name="with_vin"
           label="Modo de Selección de Vehículo"
           text={withVinWatch ? "Con VIN" : "Sin VIN"}
-          disabled={disabled}
         />
       )}
       {/* Mostrar campo de Vehículo VN cuando with_vin es true */}
@@ -99,7 +101,7 @@ export const VehicleInfoSection = ({
             }))}
             control={control}
             strictFilter={true}
-            disabled={disabled || isLoadingVehiclesVn}
+            disabled={isLoadingVehiclesVn}
             withValue={false}
             isSearchable
             setSearchQuery={handleVinSearch}
@@ -149,7 +151,6 @@ export const VehicleInfoSection = ({
               type_operation_id: CM_COMERCIAL_ID,
             }}
             useFindByIdHook={useModelVnById}
-            disabled={disabled}
           />
 
           <FormSelectAsync
@@ -164,7 +165,6 @@ export const VehicleInfoSection = ({
             })}
             useFindByIdHook={useVehicleColorById}
             control={control}
-            disabled={disabled}
           >
             <Button
               type="button"
@@ -206,7 +206,7 @@ export const VehicleInfoSection = ({
         }
         type="text"
         placeholder="Ingrese precio de venta"
-        disabled={disabled}
+        disabled={priceLocked}
       >
         {/* Mostrar información adicional según el modo */}
         {withVinWatch && vehicleVnWatch && (
