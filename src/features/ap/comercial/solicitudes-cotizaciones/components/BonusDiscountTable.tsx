@@ -23,6 +23,8 @@ export interface BonusDiscountRow {
   isPercentage: boolean;
   valor: number;
   isNegative: boolean;
+  /** Si el valor ya fue guardado neto, con la retención del 7% aplicada (x0.93). */
+  hasRetention?: boolean;
 }
 
 interface BonusDiscountTableProps {
@@ -214,6 +216,7 @@ export const BonusDiscountTable = ({
                   isPercentage: editingRow.isPercentage,
                   valor: editingRow.valor,
                   isNegative: editingRow.isNegative,
+                  hasRetention: editingRow.hasRetention,
                 }
               : undefined
           }

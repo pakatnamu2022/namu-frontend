@@ -28,6 +28,7 @@ const EMPTY_FORM: Omit<BonusDiscountRow, "id"> = {
   isPercentage: false,
   valor: 0,
   isNegative: false,
+  hasRetention: false,
 };
 
 interface BonusDiscountSheetProps {
@@ -63,9 +64,13 @@ export function BonusDiscountSheet({
     defaultValues: { isDeduced: false },
   });
   const isDeduced = deduccionForm.watch("isDeduced");
-  const valorEfectivo = isDeduced
-    ? Math.round(form.valor * DEDUCCION_7_FACTOR * 100) / 100
-    : form.valor;
+  // En modo edición el valor guardado ya es el neto (con el 7% aplicado si
+  // corresponde), así que el switch solo corrige la etiqueta has_retention
+  // sin volver a aplicar el factor sobre un valor que ya está deducido.
+  const valorEfectivo =
+    mode === "add" && isDeduced
+      ? Math.round(form.valor * DEDUCCION_7_FACTOR * 100) / 100
+      : form.valor;
 
   useEffect(() => {
     if (open) {
@@ -73,7 +78,7 @@ export function BonusDiscountSheet({
       setForm(initial);
       setPreviousParentConceptId(initial.parent_concept_id);
       setErrors({ parent_concept_id: false, concept_id: false, valor: false });
-      deduccionForm.reset({ isDeduced: false });
+      deduccionForm.reset({ isDeduced: initial.hasRetention ?? false });
     }
   }, [open]);
 
@@ -142,7 +147,7 @@ export function BonusDiscountSheet({
     setErrors(newErrors);
     if (newErrors.parent_concept_id || newErrors.concept_id || newErrors.valor)
       return;
-    onSubmit({ ...form, valor: valorEfectivo });
+    onSubmit({ ...form, valor: valorEfectivo, hasRetention: isDeduced });
     handleClose();
   };
 
@@ -243,8 +248,12 @@ export function BonusDiscountSheet({
             <FormSwitch
               control={deduccionForm.control}
               name="isDeduced"
-              text="Deducir 7%"
-              textDescription="El monto ingresado se guardará neto, reducido en 7% (x0.93)"
+              text="Aplica retención 7%"
+              textDescription={
+                mode === "add"
+                  ? "El monto ingresado se guardará neto, reducido en 7% (x0.93)"
+                  : "El valor ya guardado es neto: este switch solo corrige la marca de retención, no vuelve a aplicar el 7%"
+              }
               autoHeight
             />
           </Form>
