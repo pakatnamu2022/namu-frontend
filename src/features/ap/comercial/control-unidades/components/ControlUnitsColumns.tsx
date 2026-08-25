@@ -637,6 +637,7 @@ export const ControlUnitsColumns = ({
         !!onMigrate &&
         isAlreadyReceived &&
         isAcceptedBySunat &&
+        (!isConsignment || !!row.original.purchase_order_id) &&
         permissions.canMigrate;
 
       const canResetMigration =
