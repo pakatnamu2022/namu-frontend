@@ -182,7 +182,6 @@ export default function ElectronicDocumentsPage() {
 
   const handleRefresh = () => {
     queryClient.invalidateQueries({ queryKey: ["electronic-documents"] });
-    refetch();
   };
 
   const documentExportFilters = {
