@@ -19,7 +19,11 @@ import { useNextCorrelativeElectronicDocument } from "@/features/ap/facturacion/
 import { useAllApBank } from "@/features/ap/configuraciones/maestros-general/chequeras/lib/apBank.hook";
 import { storeConsolidatedInvoice } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.actions";
 import DirectInvoiceForm from "./DirectInvoiceForm";
-import { errorToast, successToast } from "@/core/core.function";
+import {
+  errorToast,
+  getTodayPeruDateString,
+  successToast,
+} from "@/core/core.function";
 import {
   SUNAT_CONCEPTS_TYPE,
   SUNAT_TRANSACTIONS_ID,
@@ -111,7 +115,7 @@ export default function WorkOrderDirectBillingForm({
       area_id: AREA_TALLER.toString(),
       is_advance_payment: false,
       client_id: "",
-      fecha_de_emision: new Date().toISOString().split("T")[0],
+      fecha_de_emision: getTodayPeruDateString(),
       sunat_concept_currency_id: "",
       total_gravada: 0,
       total_inafecta: 0,

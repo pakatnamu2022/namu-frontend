@@ -8,6 +8,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import {
   ERROR_MESSAGE,
   errorToast,
+  getTodayPeruDateString,
   SUCCESS_MESSAGE,
   successToast,
 } from "@/core/core.function.ts";
@@ -73,7 +74,7 @@ export default function AddRegularizeAdvancePaymentCajaPage() {
       order_quotation_id: "",
       work_order_id: "",
       client_id: "",
-      fecha_de_emision: new Date().toISOString().split("T")[0],
+      fecha_de_emision: getTodayPeruDateString(),
       sunat_concept_currency_id: "",
       total: 0,
       items: [],

@@ -9,6 +9,7 @@ import { DatePickerFormField } from "@/shared/components/DatePickerFormField";
 import { ElectronicDocumentSchema } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.schema";
 import { SunatConceptsResource } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.interface";
 import { AssignSalesSeriesResource } from "@/features/ap/configuraciones/maestros-general/series/lib/assignSalesSeries.interface";
+import { getTodayOnlyDisabledRange } from "@/core/core.function";
 import {
   useCustomers,
   useCustomersById,
@@ -270,14 +271,7 @@ export function InvoiceDocumentInfoSection({
           label="Fecha de Emisión *"
           placeholder="Seleccione fecha"
           description="Seleccione la fecha de emisión del documento"
-          disabledRange={{
-            before: new Date(
-              new Date().getFullYear(),
-              new Date().getMonth(),
-              1,
-            ),
-            after: new Date(),
-          }}
+          disabledRange={getTodayOnlyDisabledRange()}
         />
 
         <FormSelect
