@@ -76,6 +76,7 @@ export interface ControlUnitsResource {
   is_annulled?: boolean;
   purchase_order_id?: number | null;
   purchase_order_number?: string | null;
+  purchase_order_invoice_dynamics?: string | null;
   receiving_checklists: any[];
   items: ShipmentItemResource[];
   vehicle?: VehicleResource;

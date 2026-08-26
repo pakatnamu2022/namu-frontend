@@ -86,6 +86,7 @@ export default function AddPurchaseRequestQuotePage() {
           credit_type_id: "",
           credit_entity_id: "",
           insurance_entity_id: "",
+          has_gps_hunter: false,
           gps_hunter_years: "",
         }}
         onSubmit={handleSubmit}

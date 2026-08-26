@@ -250,10 +250,16 @@ export async function cancelShippingGuide(
 // Función para sincronizar guía de remisión con Dynamics
 export async function syncShippingGuideWithDynamics(
   id: number
-): Promise<{ success: boolean; message: string }> {
-  const { data } = await api.post<{ success: boolean; message: string }>(
-    `/ap/commercial/shippingGuides/${id}/sync-with-dynamics`
-  );
+): Promise<{
+  success: boolean;
+  message?: string;
+  data?: { message: string; shipping_guide: ShipmentsReceptionsResource };
+}> {
+  const { data } = await api.post<{
+    success: boolean;
+    message?: string;
+    data?: { message: string; shipping_guide: ShipmentsReceptionsResource };
+  }>(`/ap/commercial/shippingGuides/${id}/sync-with-dynamics`);
   return data;
 }
 

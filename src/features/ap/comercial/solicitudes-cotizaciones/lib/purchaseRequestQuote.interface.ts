@@ -119,6 +119,7 @@ export interface PurchaseRequestQuoteResource {
   credit_type_id?: number | null;
   credit_entity_id?: number | null;
   insurance_entity_id?: number | null;
+  has_gps_hunter?: boolean;
   gps_hunter_years?: number | null;
   margin_amount: number;
   margin_pct: number;
@@ -160,6 +161,7 @@ export interface PurchaseRequestQuoteRequest {
   credit_type_id?: number | null;
   credit_entity_id?: number | null;
   insurance_entity_id?: number | null;
+  has_gps_hunter?: boolean;
   gps_hunter_years?: number | null;
 }
 

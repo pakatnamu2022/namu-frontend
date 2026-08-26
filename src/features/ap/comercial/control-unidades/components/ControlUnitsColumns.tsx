@@ -498,6 +498,29 @@ export const ControlUnitsColumns = ({
     },
   },
   {
+    accessorKey: "purchase_order_invoice_dynamics",
+    header: "Factura de Compra",
+    cell: ({ row }) => {
+      const { purchase_order_invoice_dynamics } = row.original;
+
+      if (!purchase_order_invoice_dynamics) {
+        return (
+          <Badge color="gray" variant="outline">
+            Sin factura
+          </Badge>
+        );
+      }
+
+      return (
+        <CopyCell
+          value={purchase_order_invoice_dynamics}
+          font="mono"
+          size="sm"
+        />
+      );
+    },
+  },
+  {
     accessorKey: "migration_status",
     header: "Migración",
     cell: ({ row, getValue }) => {

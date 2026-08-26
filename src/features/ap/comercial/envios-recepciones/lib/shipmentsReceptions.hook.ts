@@ -305,12 +305,14 @@ export const useSyncShippingGuideWithDynamics = () => {
     onSuccess: (response) => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEY] });
 
+      // En éxito el backend envía el mensaje anidado en `data.message`;
+      // en error lo envía al nivel raíz (`message`). Se contemplan ambos.
+      const message = response.data?.message ?? response.message;
+
       if (response.success) {
-        successToast(response.message);
+        successToast(message || "Guía sincronizada con Dynamics");
       } else {
-        errorToast(
-          response.message || "Error al sincronizar la guía con Dynamics",
-        );
+        errorToast(message || "Error al sincronizar la guía con Dynamics");
       }
     },
     onError: (error: any) => {
