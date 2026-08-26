@@ -237,19 +237,28 @@ export const vehicleDeliveryColumns = ({
         isAcceptedBySunat &&
         isMigrated;
 
+      const isAnnulled = !!shipping_guide?.is_annulled;
+
       return (
-        <div className="flex items-center gap-1.5">
-          <Badge color={color} icon={icon} className="capitalize w-fit">
-            {label}
-          </Badge>
-          <ButtonAction
-            tooltip="Sincronizar con Dynamics"
-            icon={Search}
-            color={color}
-            canRender={canSyncWithDynamics}
-            disabled={syncingWithDynamicsId === shipping_guide_id}
-            onClick={() => onSyncWithDynamics!(shipping_guide_id!)}
-          />
+        <div className="flex flex-col gap-1">
+          <div className="flex items-center gap-1.5">
+            <Badge color={color} icon={icon} className="capitalize w-fit">
+              {label}
+            </Badge>
+            <ButtonAction
+              tooltip="Sincronizar con Dynamics"
+              icon={Search}
+              color={color}
+              canRender={canSyncWithDynamics}
+              disabled={syncingWithDynamicsId === shipping_guide_id}
+              onClick={() => onSyncWithDynamics!(shipping_guide_id!)}
+            />
+          </div>
+          {isAnnulled && (
+            <Badge color="red" icon={Ban} className="w-fit text-xs">
+              Guía anulada
+            </Badge>
+          )}
         </div>
       );
     },

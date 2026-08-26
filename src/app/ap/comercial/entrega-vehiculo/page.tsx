@@ -60,6 +60,7 @@ export default function VehicleDeliveryPage() {
   const [search, setSearch] = useState("");
   const [sedeId, setSedeId] = useState("all");
   const [statusDelivery, setStatusDelivery] = useState("all");
+  const [annulled, setAnnulled] = useState("all");
   const [extraordinaryReview, setExtraordinaryReview] = useState(false);
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [sendToNubefactId, setSendToNubefactId] = useState<number | null>(null);
@@ -98,7 +99,7 @@ export default function VehicleDeliveryPage() {
 
   useEffect(() => {
     setPage(1);
-  }, [search, per_page, sedeId, statusDelivery, dateFrom, dateTo, extraordinaryReview]);
+  }, [search, per_page, sedeId, statusDelivery, annulled, dateFrom, dateTo, extraordinaryReview]);
 
   const { data, isLoading, refetch, isFetching } = useVehicleDelivery({
     page,
@@ -109,6 +110,7 @@ export default function VehicleDeliveryPage() {
     sede$shop_id: sedeId !== "all" ? sedeId : undefined,
     status_delivery: statusDelivery !== "all" ? statusDelivery : undefined,
     extraordinary_review: extraordinaryReview ? 1 : undefined,
+    annulled: annulled !== "all" ? annulled : undefined,
   });
 
   const handleDelete = async () => {
@@ -194,6 +196,7 @@ export default function VehicleDeliveryPage() {
             sede$shop_id: sedeId !== "all" ? sedeId : undefined,
             status_delivery: statusDelivery !== "all" ? statusDelivery : undefined,
             extraordinary_review: extraordinaryReview ? 1 : undefined,
+            annulled: annulled !== "all" ? annulled : undefined,
           }}
           extraordinaryReview={extraordinaryReview}
           onToggleExtraordinaryReview={() =>
@@ -235,6 +238,8 @@ export default function VehicleDeliveryPage() {
           setSedeId={setSedeId}
           statusDelivery={statusDelivery}
           setStatusDelivery={setStatusDelivery}
+          annulled={annulled}
+          setAnnulled={setAnnulled}
         />
       </VehicleDeliveryTable>
 
