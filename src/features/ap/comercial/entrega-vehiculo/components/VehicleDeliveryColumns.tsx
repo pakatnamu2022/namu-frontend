@@ -31,6 +31,7 @@ import {
   ShieldX,
   Search,
   RotateCcw,
+  Ban,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
@@ -53,6 +54,7 @@ interface Props {
   onResetMigration?: (id: number) => void;
   onSyncAccountingEntry?: (id: number) => void;
   onSyncWithDynamics?: (id: number) => void;
+  onCancel?: (shippingGuideId: number) => void;
   syncingWithDynamicsId?: number | null;
   onReschedule?: (vehicle: VehiclesDeliveryResource) => void;
   extraordinaryReview?: boolean;
@@ -67,6 +69,7 @@ interface Props {
     canMigrate: boolean;
     canResetMigration: boolean;
     canApprove: boolean;
+    canAnnul: boolean;
   };
 }
 
@@ -89,6 +92,7 @@ export const vehicleDeliveryColumns = ({
   onResetMigration,
   onSyncAccountingEntry,
   onSyncWithDynamics,
+  onCancel,
   syncingWithDynamicsId,
   onReschedule,
   extraordinaryReview,
@@ -233,19 +237,28 @@ export const vehicleDeliveryColumns = ({
         isAcceptedBySunat &&
         isMigrated;
 
+      const isAnnulled = !!shipping_guide?.is_annulled;
+
       return (
-        <div className="flex items-center gap-1.5">
-          <Badge color={color} icon={icon} className="capitalize w-fit">
-            {label}
-          </Badge>
-          <ButtonAction
-            tooltip="Sincronizar con Dynamics"
-            icon={Search}
-            color={color}
-            canRender={canSyncWithDynamics}
-            disabled={syncingWithDynamicsId === shipping_guide_id}
-            onClick={() => onSyncWithDynamics!(shipping_guide_id!)}
-          />
+        <div className="flex flex-col gap-1">
+          <div className="flex items-center gap-1.5">
+            <Badge color={color} icon={icon} className="capitalize w-fit">
+              {label}
+            </Badge>
+            <ButtonAction
+              tooltip="Sincronizar con Dynamics"
+              icon={Search}
+              color={color}
+              canRender={canSyncWithDynamics}
+              disabled={syncingWithDynamicsId === shipping_guide_id}
+              onClick={() => onSyncWithDynamics!(shipping_guide_id!)}
+            />
+          </div>
+          {isAnnulled && (
+            <Badge color="red" icon={Ban} className="w-fit text-xs">
+              Guía anulada
+            </Badge>
+          )}
         </div>
       );
     },
@@ -515,6 +528,13 @@ export const vehicleDeliveryColumns = ({
 
       const canOpenApproval = !!is_extraordinary && permissions.canApprove;
 
+      const canCancel =
+        !!onCancel &&
+        !!shipping_guide_id &&
+        permissions.canAnnul &&
+        status_delivery === "delivered" &&
+        !row.original.shipping_guide?.is_annulled;
+
       if (extraordinaryReview) {
         return (
           <div className="flex items-center gap-2">
@@ -682,6 +702,14 @@ export const vehicleDeliveryColumns = ({
                 <ArrowRightLeft className="size-4" />
               </Button>
             )}
+
+          <ButtonAction
+            tooltip="Anular guía"
+            icon={Ban}
+            color="red"
+            canRender={canCancel}
+            onClick={() => onCancel!(shipping_guide_id!)}
+          />
 
           {canDelete && <DeleteButton onClick={() => onDelete(id)} />}
         </div>

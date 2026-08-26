@@ -203,6 +203,17 @@ export async function diagnoseVehicleDeliveryVin(
   return data;
 }
 
+export async function cancelVehicleDeliveryShippingGuide(
+  shippingGuideId: number,
+  cancellation_reason: string,
+): Promise<{ success: boolean; message: string }> {
+  const { data } = await api.post<{ success: boolean; message: string }>(
+    `/ap/commercial/shippingGuides/${shippingGuideId}/cancel`,
+    { cancellation_reason },
+  );
+  return data;
+}
+
 export async function getVehicleDeliveryRescheduleHistory(
   id: number
 ): Promise<VehicleDeliveryRescheduleHistoryItem[]> {
