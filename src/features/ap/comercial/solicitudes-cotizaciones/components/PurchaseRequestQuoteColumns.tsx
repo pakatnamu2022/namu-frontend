@@ -14,6 +14,7 @@ import {
 import { NumberFormat } from "@/shared/components/NumberFormat";
 import { PurchaseRequestQuoteResource } from "../lib/purchaseRequestQuote.interface";
 import { PURCHASE_REQUEST_QUOTE } from "../lib/purchaseRequestQuote.constants";
+import { PURCHASE_REQUEST_QUOTE_ADJUSTMENT } from "../ajustes-margen/lib/purchaseRequestQuoteAdjustment.constants";
 import { DECLARACION_JURADA_KYC } from "../../declaracion-jurada-kyc/lib/declaracionJuradaKyc.constants";
 import { NUM_DIGITS_RUC } from "@/features/ap/configuraciones/maestros-general/tipos-documento/lib/documentTypes.constants";
 import { Badge } from "@/components/ui/badge";
@@ -30,7 +31,6 @@ interface Props {
   onUnassignVehicle: (id: number) => void;
   onSwapVehicle: (purchaseRequestQuote: PurchaseRequestQuoteResource) => void;
   onViewDetail: (id: number) => void;
-  onRequestAdjustment: (purchaseRequestQuote: PurchaseRequestQuoteResource) => void;
   permissions: {
     canUpdate: boolean;
     canApprove: boolean;
@@ -53,7 +53,6 @@ export const purchaseRequestQuoteColumns = ({
   onUnassignVehicle,
   onSwapVehicle,
   onViewDetail,
-  onRequestAdjustment,
   permissions,
   creditTypeLabels = {},
   creditEntityLabels = {},
@@ -329,7 +328,9 @@ export const purchaseRequestQuoteColumns = ({
           <ButtonAction
             icon={PercentCircle}
             tooltip="Solicitar Ajuste de Bono/Descuento"
-            onClick={() => onRequestAdjustment(row.original)}
+            onClick={() =>
+              router(`${PURCHASE_REQUEST_QUOTE_ADJUSTMENT.ROUTE_ADD}/${id}`)
+            }
             canRender={row.original.is_paid && permissions.canRequestAdjustment}
           />
         </div>

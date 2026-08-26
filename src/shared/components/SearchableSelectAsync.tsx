@@ -260,7 +260,7 @@ export function SearchableSelectAsync({
       size={buttonSize}
       disabled={disabled}
       className={cn(
-        "flex w-full items-center justify-between rounded-md border px-3 text-xs md:text-sm overflow-hidden",
+        "flex w-full items-center justify-between rounded-md border px-3 overflow-hidden",
         selected && "bg-muted text-muted-foreground",
         className,
       )}

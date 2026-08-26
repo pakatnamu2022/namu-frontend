@@ -38,7 +38,6 @@ import PurchaseRequestQuoteActions from "@/features/ap/comercial/solicitudes-cot
 import { PurchaseRequestQuoteResource } from "@/features/ap/comercial/solicitudes-cotizaciones/lib/purchaseRequestQuote.interface";
 import { notFound } from "@/shared/hooks/useNotFound";
 import { format } from "date-fns";
-import RequestAdjustmentSheet from "@/features/ap/comercial/solicitudes-cotizaciones/ajustes-margen/components/RequestAdjustmentSheet";
 import { useAllSedes } from "@/features/gp/maestro-general/sede/lib/sede.hook";
 import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
 import { SortingState } from "@tanstack/react-table";
@@ -71,8 +70,6 @@ export default function PurchaseRequestQuotePage() {
   const { MODEL, ROUTE } = PURCHASE_REQUEST_QUOTE;
   const permissions = useModulePermissions(ROUTE);
   const kycPermissions = useModulePermissions(DECLARACION_JURADA_KYC.ROUTE);
-  const [adjustmentQuote, setAdjustmentQuote] =
-    useState<PurchaseRequestQuoteResource | null>(null);
   const { canViewBranches } = permissions;
   const { data: sedesData = [] } = useAllSedes({
     empresa_id: EMPRESA_AP.id,
@@ -182,7 +179,6 @@ export default function PurchaseRequestQuotePage() {
           onUnassignVehicle: setUnassignVehicleId,
           onSwapVehicle: setSwapVehicleQuote,
           onViewDetail: setDetailQuote,
-          onRequestAdjustment: setAdjustmentQuote,
           permissions: {
             ...permissions,
             canCreateKyc: kycPermissions.canCreate,
@@ -262,14 +258,6 @@ export default function PurchaseRequestQuotePage() {
           open={true}
           onOpenChange={(open) => !open && setDetailQuote(null)}
           id={detailQuote}
-        />
-      )}
-
-      {adjustmentQuote !== null && (
-        <RequestAdjustmentSheet
-          open={true}
-          onOpenChange={(open) => !open && setAdjustmentQuote(null)}
-          quote={adjustmentQuote}
         />
       )}
 
