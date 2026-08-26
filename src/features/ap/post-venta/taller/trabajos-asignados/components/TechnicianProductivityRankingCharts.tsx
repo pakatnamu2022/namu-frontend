@@ -9,7 +9,16 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ChartContainer, ChartTooltip } from "@/components/ui/chart";
-import { Bar, BarChart, CartesianGrid, Cell, XAxis, YAxis, LabelList } from "recharts";
+import {
+  Bar,
+  BarChart,
+  CartesianGrid,
+  Cell,
+  LabelList,
+  ReferenceLine,
+  XAxis,
+  YAxis,
+} from "recharts";
 import { Users } from "lucide-react";
 import { TechnicianProductivityRankingItem } from "../lib/technicianProductivityRanking.interface";
 
@@ -68,6 +77,18 @@ export default function TechnicianProductivityRankingCharts({
 
   const height = Math.max(MIN_HEIGHT, chartData.length * ROW_HEIGHT);
 
+  const longestName = chartData.reduce(
+    (max, entry) => Math.max(max, entry.technician.length),
+    0,
+  );
+  const yAxisWidth = Math.min(280, Math.max(150, longestName * 6.5));
+
+  const maxPercentage = chartData.reduce(
+    (max, entry) => Math.max(max, entry.productivity_percentage),
+    0,
+  );
+  const xAxisMax = Math.max(120, Math.ceil((maxPercentage + 10) / 10) * 10);
+
   return (
     <Card>
       <CardHeader>
@@ -105,14 +126,21 @@ export default function TechnicianProductivityRankingCharts({
             margin={{ left: 12, right: 40, top: 12 }}
           >
             <CartesianGrid horizontal={false} />
-            <XAxis type="number" hide />
+            <XAxis
+              type="number"
+              domain={[0, xAxisMax]}
+              tickLine={false}
+              axisLine={false}
+              tick={{ fontSize: 11 }}
+              tickFormatter={(value) => `${value}%`}
+            />
             <YAxis
               dataKey="technician"
               type="category"
               tickLine={false}
               axisLine={false}
               tickMargin={8}
-              width={150}
+              width={yAxisWidth}
               interval={0}
               tick={(props) => {
                 const { x, y, payload } = props;
@@ -180,6 +208,19 @@ export default function TechnicianProductivityRankingCharts({
                 formatter={(value: number) => `${value}%`}
               />
             </Bar>
+            <ReferenceLine
+              x={100}
+              stroke="var(--foreground)"
+              strokeDasharray="4 4"
+              strokeOpacity={0.5}
+              label={{
+                value: "Meta 100%",
+                position: "insideTopRight",
+                fontSize: 11,
+                fill: "var(--foreground)",
+                fillOpacity: 0.7,
+              }}
+            />
           </BarChart>
         </ChartContainer>
       </CardContent>
