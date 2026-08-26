@@ -31,6 +31,7 @@ import {
   ShieldX,
   Search,
   RotateCcw,
+  Ban,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
@@ -53,6 +54,7 @@ interface Props {
   onResetMigration?: (id: number) => void;
   onSyncAccountingEntry?: (id: number) => void;
   onSyncWithDynamics?: (id: number) => void;
+  onCancel?: (shippingGuideId: number) => void;
   syncingWithDynamicsId?: number | null;
   onReschedule?: (vehicle: VehiclesDeliveryResource) => void;
   extraordinaryReview?: boolean;
@@ -67,6 +69,7 @@ interface Props {
     canMigrate: boolean;
     canResetMigration: boolean;
     canApprove: boolean;
+    canAnnul: boolean;
   };
 }
 
@@ -89,6 +92,7 @@ export const vehicleDeliveryColumns = ({
   onResetMigration,
   onSyncAccountingEntry,
   onSyncWithDynamics,
+  onCancel,
   syncingWithDynamicsId,
   onReschedule,
   extraordinaryReview,
@@ -515,6 +519,13 @@ export const vehicleDeliveryColumns = ({
 
       const canOpenApproval = !!is_extraordinary && permissions.canApprove;
 
+      const canCancel =
+        !!onCancel &&
+        !!shipping_guide_id &&
+        permissions.canAnnul &&
+        status_delivery === "delivered" &&
+        !row.original.shipping_guide?.is_annulled;
+
       if (extraordinaryReview) {
         return (
           <div className="flex items-center gap-2">
@@ -682,6 +693,14 @@ export const vehicleDeliveryColumns = ({
                 <ArrowRightLeft className="size-4" />
               </Button>
             )}
+
+          <ButtonAction
+            tooltip="Anular guía"
+            icon={Ban}
+            color="red"
+            canRender={canCancel}
+            onClick={() => onCancel!(shipping_guide_id!)}
+          />
 
           {canDelete && <DeleteButton onClick={() => onDelete(id)} />}
         </div>

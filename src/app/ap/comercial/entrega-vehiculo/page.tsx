@@ -12,6 +12,8 @@ import {
   successToast,
 } from "@/core/core.function";
 import { SimpleConfirmDialog } from "@/shared/components/SimpleConfirmDialog";
+import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
+import { Textarea } from "@/components/ui/textarea";
 import VehicleDeliveryActions from "@/features/ap/comercial/entrega-vehiculo/components/VehicleDeliveryActions";
 import VehicleDeliveryTable from "@/features/ap/comercial/entrega-vehiculo/components/VehicleDeliveryTable";
 import { vehicleDeliveryColumns } from "@/features/ap/comercial/entrega-vehiculo/components/VehicleDeliveryColumns";
@@ -23,6 +25,7 @@ import {
   useSyncAccountingEntry,
   useSyncShippingGuideWithDynamics,
   useRescheduleVehicleDelivery,
+  useCancelVehicleDeliveryShippingGuide,
 } from "@/features/ap/comercial/entrega-vehiculo/lib/vehicleDelivery.hook";
 import { RescheduleDeliveryModal } from "@/features/ap/comercial/entrega-vehiculo/components/RescheduleDeliveryModal";
 import {
@@ -60,6 +63,8 @@ export default function VehicleDeliveryPage() {
   const [extraordinaryReview, setExtraordinaryReview] = useState(false);
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [sendToNubefactId, setSendToNubefactId] = useState<number | null>(null);
+  const [cancelShippingGuideId, setCancelShippingGuideId] = useState<number | null>(null);
+  const [cancellationReason, setCancellationReason] = useState("");
   const [selectedVehicle, setSelectedVehicle] =
     useState<VehiclesDeliveryResource | null>(null);
   const [rescheduleDelivery, setRescheduleDelivery] =
@@ -89,6 +94,7 @@ export default function VehicleDeliveryPage() {
   });
   const syncAccountingEntryMutation = useSyncAccountingEntry();
   const syncWithDynamicsMutation = useSyncShippingGuideWithDynamics();
+  const cancelShippingGuideMutation = useCancelVehicleDeliveryShippingGuide();
 
   useEffect(() => {
     setPage(1);
@@ -143,6 +149,20 @@ export default function VehicleDeliveryPage() {
     );
   };
 
+  const handleCancelShippingGuide = () => {
+    if (!cancelShippingGuideId || !cancellationReason.trim()) return;
+    cancelShippingGuideMutation.mutate(
+      { shippingGuideId: cancelShippingGuideId, cancellation_reason: cancellationReason.trim() },
+      {
+        onSettled: () => {
+          setCancelShippingGuideId(null);
+          setCancellationReason("");
+          refetch();
+        },
+      },
+    );
+  };
+
   const handleQueryFromNubefact = (id: number) => {
     queryFromNubefactMutation.mutate(id, {
       onSettled: () => {
@@ -192,6 +212,7 @@ export default function VehicleDeliveryPage() {
           onResetMigration: (id) => resetMigrationMutation.mutate(id),
           onSyncAccountingEntry: (id) => syncAccountingEntryMutation.mutate(id),
           onSyncWithDynamics: (id) => syncWithDynamicsMutation.mutate(id),
+          onCancel: setCancelShippingGuideId,
           syncingWithDynamicsId: syncWithDynamicsMutation.isPending
             ? syncWithDynamicsMutation.variables
             : null,
@@ -240,6 +261,32 @@ export default function VehicleDeliveryPage() {
           isLoading={sendToNubefactMutation.isPending}
         />
       )}
+
+      <ConfirmationDialog
+        open={cancelShippingGuideId !== null}
+        onOpenChange={(open) => {
+          if (!open) {
+            setCancelShippingGuideId(null);
+            setCancellationReason("");
+          }
+        }}
+        trigger={<span />}
+        title="Anular guía de salida"
+        description="Esta acción anulará la guía y sincronizará la cancelación con Dynamics. Asegúrese de que la guía ya haya sido anulada en SUNAT previamente."
+        confirmText="Sí, anular"
+        cancelText="Cancelar"
+        variant="destructive"
+        icon="danger"
+        onConfirm={handleCancelShippingGuide}
+        confirmDisabled={!cancellationReason.trim() || cancelShippingGuideMutation.isPending}
+      >
+        <Textarea
+          placeholder="Motivo de anulación (obligatorio)"
+          value={cancellationReason}
+          onChange={(e) => setCancellationReason(e.target.value)}
+          rows={3}
+        />
+      </ConfirmationDialog>
 
       <RescheduleDeliveryModal
         open={!!rescheduleDelivery}

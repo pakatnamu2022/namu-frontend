@@ -16,6 +16,7 @@ import {
   getVehicleDeliveryRescheduleHistory,
   approveExtraordinaryVehicleDelivery,
   rejectExtraordinaryVehicleDelivery,
+  cancelVehicleDeliveryShippingGuide,
 } from "./vehicleDelivery.actions";
 import { VEHICLE_DELIVERY } from "./vehicleDelivery.constants";
 import { successToast, errorToast, promiseToast } from "@/core/core.function";
@@ -289,6 +290,28 @@ export const useRejectExtraordinaryVehicleDelivery = () => {
       const msg =
         error?.response?.data?.message ||
         "Error al rechazar la entrega extraordinaria";
+      errorToast(msg);
+    },
+  });
+};
+
+export const useCancelVehicleDeliveryShippingGuide = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      shippingGuideId,
+      cancellation_reason,
+    }: {
+      shippingGuideId: number;
+      cancellation_reason: string;
+    }) => cancelVehicleDeliveryShippingGuide(shippingGuideId, cancellation_reason),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEY] });
+      successToast("Guía anulada correctamente");
+    },
+    onError: (error: any) => {
+      const msg =
+        error?.response?.data?.message || "Error al anular la guía";
       errorToast(msg);
     },
   });
