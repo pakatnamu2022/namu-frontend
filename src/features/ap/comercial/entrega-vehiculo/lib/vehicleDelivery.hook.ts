@@ -258,7 +258,8 @@ export const useVehicleDeliveryRescheduleHistory = (
 export const useApproveExtraordinaryVehicleDelivery = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (id: number) => approveExtraordinaryVehicleDelivery(id),
+    mutationFn: ({ id, comment }: { id: number; comment?: string }) =>
+      approveExtraordinaryVehicleDelivery(id, comment),
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEY] });
       queryClient.setQueryData([QUERY_KEY, data.id], data);
@@ -273,20 +274,21 @@ export const useApproveExtraordinaryVehicleDelivery = () => {
   });
 };
 
-// Hook para rechazar (anular) una entrega extraordinaria
+// Hook para rechazar una entrega extraordinaria
 export const useRejectExtraordinaryVehicleDelivery = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (id: number) => rejectExtraordinaryVehicleDelivery(id),
+    mutationFn: ({ id, comment }: { id: number; comment: string }) =>
+      rejectExtraordinaryVehicleDelivery(id, comment),
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEY] });
       queryClient.setQueryData([QUERY_KEY, data.id], data);
-      successToast("Entrega extraordinaria anulada correctamente");
+      successToast("Entrega extraordinaria rechazada correctamente");
     },
     onError: (error: any) => {
       const msg =
         error?.response?.data?.message ||
-        "Error al anular la entrega extraordinaria";
+        "Error al rechazar la entrega extraordinaria";
       errorToast(msg);
     },
   });

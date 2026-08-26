@@ -55,6 +55,7 @@ interface Props {
   onSyncWithDynamics?: (id: number) => void;
   syncingWithDynamicsId?: number | null;
   onReschedule?: (vehicle: VehiclesDeliveryResource) => void;
+  extraordinaryReview?: boolean;
   permissions: {
     canUpdate: boolean;
     canDelete: boolean;
@@ -90,6 +91,7 @@ export const vehicleDeliveryColumns = ({
   onSyncWithDynamics,
   syncingWithDynamicsId,
   onReschedule,
+  extraordinaryReview,
   permissions,
 }: Props): VehicleDeliveryColumns[] => [
   {
@@ -513,12 +515,35 @@ export const vehicleDeliveryColumns = ({
 
       const canOpenApproval = !!is_extraordinary && permissions.canApprove;
 
+      if (extraordinaryReview) {
+        return (
+          <div className="flex items-center gap-2">
+            <Button
+              size="sm"
+              variant="secondary"
+              className={
+                extraordinary_approved === false
+                  ? "bg-red-100 text-red-700 hover:bg-red-200"
+                  : "bg-amber-100 text-amber-700 hover:bg-amber-200"
+              }
+              onClick={() => router(`${ABSOLUTE_ROUTE}/${id}/aprobacion`)}
+              disabled={!canOpenApproval}
+            >
+              <ShieldCheck className="size-4 mr-2" />
+              {extraordinary_approved === false
+                ? "Revisar rechazo"
+                : "Aprobar"}
+            </Button>
+          </div>
+        );
+      }
+
       return (
         <div className="flex items-center gap-2">
           <ButtonAction
             tooltip={
               extraordinary_approved === null || extraordinary_approved === undefined
-                ? "Aprobar / Anular entrega extraordinaria"
+                ? "Aprobar / Rechazar entrega extraordinaria"
                 : "Ver aprobación de entrega extraordinaria"
             }
             onClick={() => router(`${ABSOLUTE_ROUTE}/${id}/aprobacion`)}

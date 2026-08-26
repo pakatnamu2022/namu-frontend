@@ -61,6 +61,7 @@ interface PurchaseRequestFormProps {
   onCancel?: () => void;
   showQuotationOption?: boolean;
   allowCreateProduct?: boolean;
+  requestNumber?: string;
 }
 
 export default function PurchaseRequestForm({
@@ -71,6 +72,7 @@ export default function PurchaseRequestForm({
   onCancel,
   showQuotationOption = true,
   allowCreateProduct = false,
+  requestNumber,
 }: PurchaseRequestFormProps) {
   const [details, setDetails] = useState<PurchaseRequestDetailSchema[]>(() => {
     // Transformar los detalles del backend al formato esperado
@@ -398,6 +400,17 @@ export default function PurchaseRequestForm({
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        {mode === "update" && requestNumber && (
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-muted-foreground">
+              N° Solicitud:
+            </span>
+            <Badge color="secondary" className="font-semibold">
+              {requestNumber}
+            </Badge>
+          </div>
+        )}
+
         {/* Información General */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           <FormSelect

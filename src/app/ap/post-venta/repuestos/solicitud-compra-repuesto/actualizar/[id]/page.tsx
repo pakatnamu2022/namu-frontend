@@ -108,6 +108,7 @@ export default function UpdatePurchaseRequestRepuestoPage() {
         isSubmitting={isPending}
         mode="update"
         onCancel={() => router(ABSOLUTE_ROUTE!)}
+        requestNumber={purchaseRequest.request_number}
       />
     </FormWrapper>
   );

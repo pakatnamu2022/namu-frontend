@@ -44,6 +44,7 @@ import { GroupFormSection } from "@/shared/components/GroupFormSection";
 import { DatePickerFormField } from "@/shared/components/DatePickerFormField";
 import { notFound } from "@/shared/hooks/useNotFound";
 import { format } from "date-fns";
+import { formatDate, getTodayOnlyDisabledRange } from "@/core/core.function";
 import { useAllAccountingAccountPlan } from "@/features/ap/configuraciones/maestros-general/plan-cuenta-contable/lib/accountingAccountPlan.hook";
 import { ACP_TYPE_CREDIT_NOTE } from "@/features/ap/configuraciones/maestros-general/plan-cuenta-contable/lib/accountingAccountPlan.constants";
 import { FormTextArea } from "@/shared/components/FormTextArea";
@@ -249,7 +250,7 @@ export function CreditNoteForm({
                 label="Fecha de Emisión *"
                 placeholder="Seleccione fecha"
                 description="Seleccione la fecha de emisión de la nota de crédito"
-                disabledRange={{ after: new Date() }}
+                disabledRange={getTodayOnlyDisabledRange()}
               />
 
               {/* Series Verification */}
@@ -615,13 +616,10 @@ export function CreditNoteForm({
                 <div className="pt-2 border-t border-muted-foreground/10">
                   <p className="text-xs text-center text-muted-foreground">
                     Fecha de emisión:{" "}
-                    {new Date(
+                    {formatDate(
                       form.watch("fecha_de_emision"),
-                    ).toLocaleDateString("es-PE", {
-                      day: "2-digit",
-                      month: "long",
-                      year: "numeric",
-                    })}
+                      "dd 'de' MMMM 'de' yyyy",
+                    )}
                   </p>
                 </div>
               </CardContent>

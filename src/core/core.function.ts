@@ -218,6 +218,25 @@ export const getTodayPeruDateString = () => {
   return formatInTimeZone(new Date(), "America/Lima", "yyyy-MM-dd");
 };
 
+// Rango { before, after } para usar como disabledRange de DatePickerFormField
+// cuando solo el día de hoy debe quedar habilitado (ej. fecha de emisión de
+// comprobantes electrónicos, que SUNAT exige emitir el mismo día).
+export const getTodayOnlyDisabledRange = () => {
+  const now = new Date();
+  return {
+    before: new Date(now.getFullYear(), now.getMonth(), now.getDate()),
+    after: new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      now.getDate(),
+      23,
+      59,
+      59,
+      999,
+    ),
+  };
+};
+
 /**
  * Convierte un Date (o string) a "YYYY-MM-DD" usando hora LOCAL.
  * Usar en lugar de toISOString().split("T")[0] que usa UTC y puede dar el día anterior.

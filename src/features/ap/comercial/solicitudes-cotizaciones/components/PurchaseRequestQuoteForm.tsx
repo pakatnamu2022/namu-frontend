@@ -72,9 +72,10 @@ export const PurchaseRequestQuoteForm = ({
   isApproved = false,
   isPaid = false,
 }: PurchaseRequestQuoteFormProps) => {
-  // Una vez aprobada (y mientras no esté pagada en su totalidad), el precio de
-  // venta, el vehículo/modelo y los accesorios quedan fijos: solo se permite
-  // agregar bonos y ajustar "Otros" (margen).
+  // Una vez aprobada (y mientras no esté pagada en su totalidad), el precio
+  // de venta y la moneda de facturación quedan fijos, junto con los
+  // accesorios que afectan el precio y los descuentos. El vehículo/modelo/
+  // color, bonos, obsequios y "Otros" (margen) siguen editables.
   const priceLocked = mode === "update" && isApproved && !isPaid;
   const fullyLocked = mode === "update" && isPaid;
   const [isColorModalOpen, setIsColorModalOpen] = useState(false);
@@ -257,6 +258,7 @@ export const PurchaseRequestQuoteForm = ({
               isPercentage: isPercentage,
               valor: valor,
               isNegative: bonus.is_negative || false,
+              hasRetention: bonus.has_retention || false,
             };
           },
         );
@@ -790,6 +792,7 @@ export const PurchaseRequestQuoteForm = ({
         concept_id: row.concept_id,
         type: row.isPercentage ? "PORCENTAJE" : "FIJO",
         value: row.valor,
+        has_retention: row.hasRetention || false,
       };
     });
   };
@@ -872,9 +875,11 @@ export const PurchaseRequestQuoteForm = ({
           <Alert variant="warning" className="mb-6">
             <AlertTitle>Aprobada</AlertTitle>
             <AlertDescription>
-              Ya fue aprobada: el precio de venta, el vehículo/modelo y los
-              accesorios ya no se pueden modificar. Aún puedes agregar bonos,
-              ajustar "Otros" (margen) y editar los demás datos.
+              Ya fue aprobada: el precio de venta, la moneda de facturación,
+              los accesorios que afectan el precio y los descuentos ya no se
+              pueden modificar. Aún puedes cambiar el vehículo/modelo/color,
+              agregar bonos, obsequios (no afectan el precio), ajustar
+              "Otros" (margen) y editar los demás datos.
             </AlertDescription>
           </Alert>
         )}
@@ -954,7 +959,7 @@ export const PurchaseRequestQuoteForm = ({
               modelVnWatch={modelVnWatch}
               selectedModel={selectedModel}
               billedCost={billedCost}
-              disabled={priceLocked}
+              priceLocked={priceLocked}
             />
 
             {/*Seccion Créditos, Seguros y GPS*/}
@@ -984,7 +989,7 @@ export const PurchaseRequestQuoteForm = ({
                 invoiceCurrencyId ? Number(invoiceCurrencyId) : undefined
               }
               getExchangeRate={getExchangeRate}
-              disabled={priceLocked}
+              lockPaidAccessories={priceLocked}
             />
 
             {/*Seccion Otros Costos Internos — solo ADV (canManage)*/}

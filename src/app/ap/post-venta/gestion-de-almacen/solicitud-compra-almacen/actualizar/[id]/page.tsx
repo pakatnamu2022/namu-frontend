@@ -109,6 +109,7 @@ export default function UpdateWarehousePurchaseRequestPage() {
         onCancel={() => router(ABSOLUTE_ROUTE!)}
         showQuotationOption={false}
         allowCreateProduct={true}
+        requestNumber={purchaseRequest.request_number}
       />
     </FormWrapper>
   );

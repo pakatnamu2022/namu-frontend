@@ -19,6 +19,10 @@ import {
   ShoppingCart,
   LucideIcon,
   ArrowRightLeft,
+  BookCheck,
+  BookX,
+  CloudUpload,
+  RotateCcw,
 } from "lucide-react";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
 import { ButtonAction } from "@/shared/components/ButtonAction";
@@ -39,6 +43,7 @@ import { SUNAT_CONCEPTS_ID } from "@/features/gp/maestro-general/conceptos-sunat
 import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
 import ShippingGuideHistory from "@/features/ap/shipping_guides/components/ShippingGuideHistory";
 import { CopyCell } from "@/shared/components/CopyCell";
+import MigrationStatusBadge from "@/features/ap/facturacion/electronic-documents/components/MigrationStatusBadge";
 
 export type ControlUnitsColumnsType = ColumnDef<ControlUnitsResource>;
 
@@ -51,6 +56,7 @@ interface Props {
   onQueryFromNubefact: (id: number) => void;
   onMigrate?: (id: number) => void;
   onResetMigration?: (id: number) => void;
+  onSyncWithDynamics?: (id: number) => void;
   permissions: {
     canView: boolean;
     canUpdate: boolean;
@@ -128,6 +134,8 @@ export const ControlUnitsColumns = ({
   onSendToNubefact,
   onQueryFromNubefact,
   onMigrate,
+  onResetMigration,
+  onSyncWithDynamics,
   permissions,
 }: Props): ControlUnitsColumnsType[] => [
   {
@@ -202,6 +210,15 @@ export const ControlUnitsColumns = ({
           </div>
         </div>
       );
+    },
+  },
+  {
+    accessorKey: "sede_receiver_id",
+    id: "sede",
+    header: "Sede",
+    cell: ({ row }) => {
+      const sede = row.original.sede_receiver || row.original.sede_transmitter;
+      return sede ? <Badge variant="outline">{sede}</Badge> : "-";
     },
   },
   {
@@ -462,6 +479,91 @@ export const ControlUnitsColumns = ({
     },
   },
   {
+    accessorKey: "purchase_order_number",
+    header: "Compra Generada",
+    cell: ({ row }) => {
+      const { purchase_order_number } = row.original;
+
+      if (!purchase_order_number) {
+        return (
+          <Badge color="gray" variant="outline">
+            Sin compra
+          </Badge>
+        );
+      }
+
+      return (
+        <CopyCell value={purchase_order_number} font="mono" size="sm" />
+      );
+    },
+  },
+  {
+    accessorKey: "migration_status",
+    header: "Migración",
+    cell: ({ row, getValue }) => {
+      const isAnnulled = !!row.original.is_annulled || !row.original.status;
+
+      if (isAnnulled) {
+        return (
+          <Badge color="gray" icon={Ban}>
+            Anulado
+          </Badge>
+        );
+      }
+
+      return <MigrationStatusBadge migration_status={getValue() as string} />;
+    },
+  },
+  {
+    accessorKey: "is_accounted",
+    header: "Contabilización",
+    cell: ({ row }) => {
+      const { id, migration_status, is_accounted } = row.original;
+      const was_migrated = migration_status === "completed";
+      const isAnnulled = !!row.original.is_annulled || !row.original.status;
+
+      if (isAnnulled) {
+        return (
+          <Badge color="gray" icon={Ban}>
+            Anulado
+          </Badge>
+        );
+      }
+
+      if (is_accounted === true) {
+        return (
+          <Badge variant="outline" color="green" icon={BookCheck}>
+            <span>Contabilizado</span>
+          </Badge>
+        );
+      }
+
+      if (was_migrated && onSyncWithDynamics) {
+        return (
+          <Button
+            variant="outline"
+            size="xs"
+            color="blue"
+            onClick={() => onSyncWithDynamics(id)}
+          >
+            <CloudUpload className="size-3.5" />
+            Sincronizar
+          </Button>
+        );
+      }
+
+      return (
+        <Badge
+          color={was_migrated ? "orange" : "gray"}
+          variant="outline"
+          icon={BookX}
+        >
+          <span>{was_migrated ? "No Contabilizado" : "No Migrado"}</span>
+        </Badge>
+      );
+    },
+  },
+  {
     id: "actions",
     header: "Acciones",
     cell: ({ row }) => {
@@ -522,6 +624,7 @@ export const ControlUnitsColumns = ({
         isConsignment &&
         isAcceptedBySunat &&
         isAlreadyReceived &&
+        !row.original.purchase_order_id &&
         permissions.canGenerate;
 
       const canEdit =
@@ -534,7 +637,13 @@ export const ControlUnitsColumns = ({
         !!onMigrate &&
         isAlreadyReceived &&
         isAcceptedBySunat &&
+        (!isConsignment || !!row.original.purchase_order_id) &&
         permissions.canMigrate;
+
+      const canResetMigration =
+        !!onResetMigration &&
+        row.original.migration_status === "failed" &&
+        permissions.canResetMigration;
 
       const canCancel =
         permissions.canAnnul &&
@@ -612,6 +721,14 @@ export const ControlUnitsColumns = ({
             tooltip="Migrar"
             onClick={() => onMigrate && onMigrate(id)}
             canRender={canMigrate}
+          />
+
+          <ButtonAction
+            icon={RotateCcw}
+            tooltip="Reiniciar migración"
+            color="red"
+            onClick={() => onResetMigration && onResetMigration(id)}
+            canRender={canResetMigration}
           />
 
           <ButtonAction

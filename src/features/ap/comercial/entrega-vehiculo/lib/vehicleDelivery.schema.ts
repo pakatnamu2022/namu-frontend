@@ -119,7 +119,27 @@ export const vehicleDeliveryRescheduleSchema = z
     }
   });
 
+export const vehicleDeliveryApproveExtraordinarySchema = z.object({
+  comment: z
+    .string()
+    .max(2000, "El comentario no puede exceder 2000 caracteres")
+    .optional(),
+});
+
+export const vehicleDeliveryRejectExtraordinarySchema = z.object({
+  comment: z
+    .string()
+    .min(1, "Debe indicar el motivo del rechazo")
+    .max(2000, "El comentario no puede exceder 2000 caracteres"),
+});
+
 export type VehicleDeliverySchema = z.infer<typeof vehicleDeliverySchemaCreate>;
 export type VehicleDeliveryRescheduleSchema = z.infer<
   typeof vehicleDeliveryRescheduleSchema
+>;
+export type VehicleDeliveryApproveExtraordinarySchema = z.infer<
+  typeof vehicleDeliveryApproveExtraordinarySchema
+>;
+export type VehicleDeliveryRejectExtraordinarySchema = z.infer<
+  typeof vehicleDeliveryRejectExtraordinarySchema
 >;

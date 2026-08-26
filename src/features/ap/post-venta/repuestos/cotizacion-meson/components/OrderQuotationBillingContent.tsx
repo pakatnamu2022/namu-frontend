@@ -15,7 +15,11 @@ import {
 } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.schema";
 import { storeElectronicDocument } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.actions";
 import { useMutation } from "@tanstack/react-query";
-import { errorToast, successToast } from "@/core/core.function";
+import {
+  errorToast,
+  getTodayPeruDateString,
+  successToast,
+} from "@/core/core.function";
 import { AREA_MESON } from "@/features/ap/ap-master/lib/apMaster.constants";
 import { OrderQuotationResource } from "@/features/ap/post-venta/taller/cotizacion/lib/proforma.interface";
 import { OrderQuotationBillingForm } from "./OrderQuotationBillingForm";
@@ -50,7 +54,7 @@ export default function OrderQuotationBillingContent({
       numero: "",
       sunat_concept_transaction_type_id: "",
       client_id: quotation.invoice_to_client?.id?.toString() || "",
-      fecha_de_emision: new Date().toISOString().split("T")[0],
+      fecha_de_emision: getTodayPeruDateString(),
       sunat_concept_currency_id: "",
       tipo_de_cambio: 1,
       total: 0,
@@ -128,7 +132,7 @@ export default function OrderQuotationBillingContent({
       numero: "",
       sunat_concept_transaction_type_id: "",
       client_id: quotation.invoice_to_client?.id?.toString() || "",
-      fecha_de_emision: new Date().toISOString().split("T")[0],
+      fecha_de_emision: getTodayPeruDateString(),
       sunat_concept_currency_id: "",
       tipo_de_cambio: 1,
       total: 0,

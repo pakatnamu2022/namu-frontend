@@ -12,6 +12,7 @@ import { useCustomersById } from "@/features/ap/comercial/clientes/lib/customers
 import { CustomersResource } from "@/features/ap/comercial/clientes/lib/customers.interface";
 import { ElectronicDocumentResource } from "../../lib/electronicDocument.interface";
 import { SUNAT_TYPE_INVOICES_ID } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.constants";
+import { formatDate } from "@/core/core.function";
 
 interface SummarySectionProps {
   form: UseFormReturn<ElectronicDocumentSchema>;
@@ -454,13 +455,10 @@ export function SummarySection({
           <div className="pt-2">
             <p className="text-xs text-center text-muted-foreground/70">
               {form.watch("fecha_de_emision")
-                ? new Date(
-                    form.watch("fecha_de_emision") + "T00:00:00",
-                  ).toLocaleDateString("es-PE", {
-                    day: "2-digit",
-                    month: "long",
-                    year: "numeric",
-                  })
+                ? formatDate(
+                    form.watch("fecha_de_emision"),
+                    "dd 'de' MMMM 'de' yyyy",
+                  )
                 : "Sin fecha"}
             </p>
           </div>

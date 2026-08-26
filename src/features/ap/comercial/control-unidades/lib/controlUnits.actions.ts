@@ -199,3 +199,13 @@ export async function sendControlUnitsToDynamic(
   );
   return data;
 }
+
+// Función para sincronizar guía de consignación con Dynamics (contabilización)
+export async function syncControlUnitsWithDynamics(
+  id: number
+): Promise<{ success: boolean; message: string }> {
+  const { data } = await api.post<{ success: boolean; message: string }>(
+    `${ENDPOINT}/${id}/sync-with-dynamics`
+  );
+  return data;
+}
