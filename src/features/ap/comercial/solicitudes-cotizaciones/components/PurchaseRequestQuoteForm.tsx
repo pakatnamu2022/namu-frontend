@@ -91,6 +91,7 @@ export const PurchaseRequestQuoteForm = ({
     ),
     defaultValues: {
       quote_deadline: defaultDeadline,
+      has_gps_hunter: false,
       ...defaultValues,
     },
     mode: "onChange",
@@ -841,9 +842,11 @@ export const PurchaseRequestQuoteForm = ({
       insurance_entity_id: data.insurance_entity_id
         ? Number(data.insurance_entity_id)
         : null,
-      gps_hunter_years: data.gps_hunter_years
-        ? parseInt(data.gps_hunter_years, 10)
-        : null,
+      has_gps_hunter: !!data.has_gps_hunter,
+      gps_hunter_years:
+        data.has_gps_hunter && data.gps_hunter_years
+          ? parseInt(data.gps_hunter_years, 10)
+          : null,
     };
 
     onSubmit(finalData);

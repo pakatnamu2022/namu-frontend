@@ -20,9 +20,10 @@ const purchaseRequestQuoteSchemaBase = z.object({
   comment: z.string().optional().default(""),
   holder_id: requiredStringId("Titular es requerido"),
   with_vin: z.boolean().default(false),
-  credit_type_id: z.string().optional(),
+  credit_type_id: requiredStringId("Tipo de crédito es requerido"),
   credit_entity_id: z.string().optional(),
   insurance_entity_id: z.string().optional(),
+  has_gps_hunter: z.boolean().default(false),
   gps_hunter_years: z
     .union([z.string(), z.number()])
     .optional()
@@ -114,6 +115,22 @@ export const purchaseRequestQuoteSchemaCreate = purchaseRequestQuoteSchemaBase
     {
       message: "Debes seleccionar un color de vehículo",
       path: ["vehicle_color_id"],
+    },
+  )
+  .refine(
+    (data) => {
+      // Si tiene GPS Hunter, los años son requeridos
+      if (data.has_gps_hunter) {
+        const val = data.gps_hunter_years;
+        if (val === undefined || val === "") return false;
+        const num = typeof val === "number" ? val : parseInt(val, 10);
+        return !isNaN(num) && num >= 1;
+      }
+      return true;
+    },
+    {
+      message: "Los años de GPS Hunter son requeridos",
+      path: ["gps_hunter_years"],
     },
   );
 
