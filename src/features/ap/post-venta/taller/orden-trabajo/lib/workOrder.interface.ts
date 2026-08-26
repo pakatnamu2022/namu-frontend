@@ -20,6 +20,7 @@ export interface WorkOrderDeductibleResource {
   full_number: string;
   cliente_denominacion: string;
   cliente_numero_de_documento: string;
+  total: number;
 }
 
 export interface WorkOrderResource {
@@ -62,7 +63,7 @@ export interface WorkOrderResource {
   final_amount: number;
   deductible_amount: number;
   deductible_amount_without_tax: number;
-  deductible: WorkOrderDeductibleResource | null;
+  deductibles: WorkOrderDeductibleResource[];
   is_delivery: boolean;
   num_doc_contact: string;
   full_contact_name: string;
