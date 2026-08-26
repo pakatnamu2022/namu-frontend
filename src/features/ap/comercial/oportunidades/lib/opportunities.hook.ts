@@ -176,6 +176,27 @@ export const useUpdateOpportunity = () => {
   });
 };
 
+// Reasignación de familia desde OpportunityInfoCard (ej. PurchaseRequestQuoteForm):
+// mismo mutationFn que useUpdateOpportunity, pero con un toast propio para que
+// quede claro que lo que se guardó fue el cambio de familia.
+export const useUpdateOpportunityFamily = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ id, familyId }: { id: number; familyId: number }) =>
+      updateOpportunity(id, { family_id: familyId.toString() }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEY] });
+      successToast("Familia actualizada exitosamente");
+    },
+    onError: (error: any) => {
+      errorToast(
+        error.response?.data?.message || "Error al actualizar la familia",
+      );
+    },
+  });
+};
+
 export const useCloseOpportunity = () => {
   const queryClient = useQueryClient();
 
