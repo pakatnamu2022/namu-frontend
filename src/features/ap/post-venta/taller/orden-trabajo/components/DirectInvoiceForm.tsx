@@ -32,7 +32,7 @@ import {
   INTERNAL_WORKSHOP_ID,
   ODEBRECHT_MAINTENANCE_ID,
 } from "@/features/ap/configuraciones/postventa/tipos-planificacion/lib/typesPlanning.constants";
-import { formatMoney } from "@/core/core.function";
+import { formatDate, formatMoney } from "@/core/core.function";
 
 interface DirectInvoiceFormProps {
   form: UseFormReturn<ElectronicDocumentSchema>;
@@ -67,11 +67,7 @@ function buildDefaultSingleItemDescription(
   }
   if (typePlanningId === DERCO_WARRANTY_ID) {
     const fecha = emisionDate
-      ? new Date(emisionDate + "T00:00:00").toLocaleDateString("es-PE", {
-          day: "2-digit",
-          month: "2-digit",
-          year: "numeric",
-        })
+      ? formatDate(emisionDate, "dd/MM/yyyy")
       : "DD/MM/YYYY";
     return `FACTURACIÓN DE GARANTÍAS TÉCNICAS DEL ${fecha}`;
   }
@@ -690,13 +686,10 @@ export default function DirectInvoiceForm({
                 <div className="pt-4 border-t border-muted-foreground/10">
                   <p className="text-xs text-center text-muted-foreground">
                     {form.watch("fecha_de_emision")
-                      ? new Date(
-                          form.watch("fecha_de_emision") + "T00:00:00",
-                        ).toLocaleDateString("es-PE", {
-                          day: "2-digit",
-                          month: "long",
-                          year: "numeric",
-                        })
+                      ? formatDate(
+                          form.watch("fecha_de_emision"),
+                          "dd 'de' MMMM 'de' yyyy",
+                        )
                       : "Sin fecha"}
                   </p>
                 </div>

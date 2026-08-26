@@ -11,6 +11,7 @@ import { AssignSalesSeriesResource } from "@/features/ap/configuraciones/maestro
 import { useCustomersById } from "@/features/ap/comercial/clientes/lib/customers.hook";
 import { CustomersResource } from "@/features/ap/comercial/clientes/lib/customers.interface";
 import { ActiveDocument } from "../lib/workOrder.interface";
+import { formatDate } from "@/core/core.function";
 
 interface WorkOrderSummarySectionProps {
   form: UseFormReturn<ElectronicDocumentSchema>;
@@ -377,13 +378,10 @@ export function WorkOrderSummarySection({
           <div className="pt-4 border-t border-muted-foreground/10">
             <p className="text-xs text-center text-muted-foreground">
               {form.watch("fecha_de_emision")
-                ? new Date(
-                    form.watch("fecha_de_emision") + "T00:00:00",
-                  ).toLocaleDateString("es-PE", {
-                    day: "2-digit",
-                    month: "long",
-                    year: "numeric",
-                  })
+                ? formatDate(
+                    form.watch("fecha_de_emision"),
+                    "dd 'de' MMMM 'de' yyyy",
+                  )
                 : "Sin fecha"}
             </p>
           </div>

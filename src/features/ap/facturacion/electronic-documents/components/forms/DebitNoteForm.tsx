@@ -46,6 +46,7 @@ import { ACP_TYPE_DEBIT_NOTE } from "@/features/ap/configuraciones/maestros-gene
 import { DatePickerFormField } from "@/shared/components/DatePickerFormField";
 import { format } from "date-fns";
 import { CM_COMERCIAL_ID } from "@/features/ap/ap-master/lib/apMaster.constants";
+import { formatDate, getTodayOnlyDisabledRange } from "@/core/core.function";
 
 interface DebitNoteFormProps {
   originalDocument: ElectronicDocumentResource;
@@ -430,7 +431,7 @@ export function DebitNoteForm({
                   label="Fecha de Nota de Débito *"
                   placeholder="Seleccione fecha"
                   description="Fecha de emisión de la nota de débito"
-                  disabledRange={{ after: new Date() }}
+                  disabledRange={getTodayOnlyDisabledRange()}
                 />
 
                 {/* Series Verification */}
@@ -702,13 +703,7 @@ export function DebitNoteForm({
                     <div className="pt-2 border-t border-muted-foreground/10">
                       <p className="text-xs text-center text-muted-foreground">
                         Fecha de nota:{" "}
-                        {new Date(
-                          fechaNotaDebito + "T00:00:00",
-                        ).toLocaleDateString("es-PE", {
-                          day: "2-digit",
-                          month: "long",
-                          year: "numeric",
-                        })}
+                        {formatDate(fechaNotaDebito, "dd 'de' MMMM 'de' yyyy")}
                       </p>
                     </div>
                   )}
