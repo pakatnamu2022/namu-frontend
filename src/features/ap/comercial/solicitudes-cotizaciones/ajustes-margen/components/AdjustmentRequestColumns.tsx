@@ -55,12 +55,15 @@ export const adjustmentRequestColumns = ({
     id: "margin",
     header: "Margen Antes → Después",
     cell: ({ row }) => {
-      const { margin_amount_before, margin_amount_after } = row.original;
+      const { margin_amount_before, margin_amount_after, currency_symbol } =
+        row.original;
       const delta = margin_amount_after - margin_amount_before;
       return (
         <div className="flex flex-col text-xs">
           <span>
-            S/ <NumberFormat value={margin_amount_before.toFixed(2)} /> → S/{" "}
+            {currency_symbol}{" "}
+            <NumberFormat value={margin_amount_before.toFixed(2)} /> →{" "}
+            {currency_symbol}{" "}
             <NumberFormat value={margin_amount_after.toFixed(2)} />
           </span>
           <span
@@ -68,6 +71,28 @@ export const adjustmentRequestColumns = ({
           >
             {delta >= 0 ? "+" : ""}
             <NumberFormat value={delta.toFixed(2)} />
+          </span>
+        </div>
+      );
+    },
+  },
+  {
+    id: "margin_pct",
+    header: "Margen % Antes → Después",
+    cell: ({ row }) => {
+      const { margin_pct_before, margin_pct_after } = row.original;
+      const deltaPct = margin_pct_after - margin_pct_before;
+      return (
+        <div className="flex flex-col text-xs">
+          <span>
+            <NumberFormat value={margin_pct_before.toFixed(2)} />% →{" "}
+            <NumberFormat value={margin_pct_after.toFixed(2)} />%
+          </span>
+          <span
+            className={`font-semibold ${deltaPct >= 0 ? "text-emerald-600" : "text-red-600"}`}
+          >
+            {deltaPct >= 0 ? "+" : ""}
+            <NumberFormat value={deltaPct.toFixed(2)} />%
           </span>
         </div>
       );

@@ -5,11 +5,12 @@ import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
 import { notFound } from "@/shared/hooks/useNotFound";
 import FormSkeleton from "@/shared/components/FormSkeleton";
-import PageWrapper from "@/shared/components/PageWrapper";
+import FormWrapper from "@/shared/components/FormWrapper";
 import TitleFormComponent from "@/shared/components/TitleFormComponent";
 import { PURCHASE_REQUEST_QUOTE } from "@/features/ap/comercial/solicitudes-cotizaciones/lib/purchaseRequestQuote.constants";
 import { usePurchaseRequestQuoteById } from "@/features/ap/comercial/solicitudes-cotizaciones/lib/purchaseRequestQuote.hook";
 import AdjustmentRequestForm from "@/features/ap/comercial/solicitudes-cotizaciones/ajustes-margen/components/AdjustmentRequestForm";
+import QuoteMarginSummary from "@/features/ap/comercial/solicitudes-cotizaciones/ajustes-margen/components/QuoteMarginSummary";
 
 export default function RequestAdjustmentPage() {
   const { checkRouteExists, isLoadingModule } = useCurrentModule();
@@ -33,14 +34,15 @@ export default function RequestAdjustmentPage() {
   const goBack = () => navigate(ABSOLUTE_ROUTE);
 
   return (
-    <PageWrapper>
+    <FormWrapper>
       <TitleFormComponent
         title="Solicitar Ajuste de Bono / Descuento"
         subtitle={`Cotización ${quote.correlative} · ya pagada — el cambio requiere aprobación contable`}
         icon="PercentCircle"
         backRoute={ABSOLUTE_ROUTE}
       />
+      <QuoteMarginSummary quote={quote} />
       <AdjustmentRequestForm quote={quote} onSuccess={goBack} onCancel={goBack} />
-    </PageWrapper>
+    </FormWrapper>
   );
 }

@@ -23,6 +23,7 @@ export interface AdjustmentRequestResource {
   purchase_request_quote_id: number;
   quote_correlative: string | null;
   holder_name: string | null;
+  currency_symbol: string;
   requested_by_id: number;
   requested_by_name: string | null;
   status: AdjustmentStatus;
