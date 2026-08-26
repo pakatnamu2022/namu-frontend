@@ -123,7 +123,11 @@ export default function ProductivityDashboard() {
           )}
 
           {dashboard.technician_detail.length > 0 && (
-            <ProductivityTechnicianTable data={dashboard.technician_detail} />
+            <ProductivityTechnicianTable
+              data={dashboard.technician_detail}
+              year={year}
+              month={month}
+            />
           )}
         </div>
       )}

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { ShieldCheck, ShieldOff } from "lucide-react";
+import { ShieldCheck, ShieldOff, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
 import { successToast, errorToast, formatMoney } from "@/core/core.function";
@@ -16,7 +16,7 @@ import { WORKER_ORDER_LABOUR } from "@/features/ap/post-venta/taller/orden-traba
 interface WorkOrderDeductibleActionProps {
   workOrderId: number;
   plate: string;
-  deductible: WorkOrderDeductibleResource | null;
+  deductibles: WorkOrderDeductibleResource[];
   sedeId?: string | number;
   currencyId?: string | number;
   currencySymbol?: string;
@@ -27,7 +27,7 @@ interface WorkOrderDeductibleActionProps {
 export const WorkOrderDeductibleAction = ({
   workOrderId,
   plate,
-  deductible,
+  deductibles,
   sedeId,
   currencyId,
   currencySymbol = "S/",
@@ -36,7 +36,8 @@ export const WorkOrderDeductibleAction = ({
 }: WorkOrderDeductibleActionProps) => {
   const queryClient = useQueryClient();
   const [isSheetOpen, setIsSheetOpen] = useState(false);
-  const hasDeductible = deductibleAmount > 0 && !!deductible;
+  const [deletingId, setDeletingId] = useState<number | null>(null);
+  const hasDeductibles = deductibleAmount > 0 && deductibles.length > 0;
 
   const invalidateWorkOrder = () => {
     queryClient.invalidateQueries({ queryKey: ["workOrder", workOrderId] });
@@ -67,7 +68,8 @@ export const WorkOrderDeductibleAction = ({
   });
 
   const deleteMutation = useMutation({
-    mutationFn: () => deleteWorkOrderDeductible(deductible!.id),
+    mutationFn: (deductibleId: number) =>
+      deleteWorkOrderDeductible(deductibleId),
     onSuccess: () => {
       successToast("Deducible eliminado exitosamente");
       invalidateWorkOrder();
@@ -76,6 +78,9 @@ export const WorkOrderDeductibleAction = ({
       errorToast(
         error?.response?.data?.message || "Error al eliminar el deducible",
       );
+    },
+    onSettled: () => {
+      setDeletingId(null);
     },
   });
 
@@ -86,45 +91,65 @@ export const WorkOrderDeductibleAction = ({
   return (
     <>
       <div className="flex items-center gap-2">
-        {hasDeductible ? (
+        {hasDeductibles ? (
           <>
-            <div className="flex flex-col items-end leading-tight">
-              <p className="text-xs text-gray-500">Deducible</p>
-              <span className="inline-flex items-center gap-1 rounded-full bg-indigo-100 px-3 py-1 text-xs font-semibold text-indigo-800 whitespace-nowrap">
-                <ShieldCheck className="h-3 w-3" />
-                {formatMoney(deductibleAmount, 2, currencySymbol)}
-              </span>
-              {deductible && (
-                <span className="text-[11px] text-gray-500 whitespace-nowrap">
-                  {deductible.full_number} · {deductible.cliente_denominacion} (
-                  {deductible.cliente_numero_de_documento})
+            <div className="flex flex-col items-end gap-1 leading-tight">
+              <div className="flex items-center gap-1">
+                <p className="text-xs text-gray-500">Deducible</p>
+                <span className="inline-flex items-center gap-1 rounded-full bg-indigo-100 px-3 py-1 text-xs font-semibold text-indigo-800 whitespace-nowrap">
+                  <ShieldCheck className="h-3 w-3" />
+                  {formatMoney(deductibleAmount, 2, currencySymbol)}
                 </span>
-              )}
+              </div>
+              <div className="flex flex-col items-end gap-1">
+                {deductibles.map((deductible) => (
+                  <div key={deductible.id} className="flex items-center gap-1">
+                    <span className="text-[11px] text-gray-500 whitespace-nowrap">
+                      {deductible.full_number} · {deductible.cliente_denominacion} (
+                      {deductible.cliente_numero_de_documento}) ·{" "}
+                      {formatMoney(deductible.total, 2, currencySymbol)}
+                    </span>
+                    <ConfirmationDialog
+                      trigger={
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          className="h-5 w-5 shrink-0 text-red-600 hover:text-red-700"
+                          disabled={
+                            disabled ||
+                            (deleteMutation.isPending &&
+                              deletingId === deductible.id)
+                          }
+                          tooltip="Quitar deducible"
+                        >
+                          <ShieldOff className="h-3 w-3" />
+                        </Button>
+                      }
+                      title="¿Quitar el deducible?"
+                      description={`Se eliminará la asociación del comprobante ${deductible.full_number} (${deductible.cliente_denominacion}) como deducible de esta orden de trabajo. Podrás asociar otro comprobante después.`}
+                      confirmText="Sí, quitar"
+                      cancelText="Cancelar"
+                      variant="destructive"
+                      icon="danger"
+                      onConfirm={() => {
+                        setDeletingId(deductible.id);
+                        deleteMutation.mutate(deductible.id);
+                      }}
+                    />
+                  </div>
+                ))}
+              </div>
             </div>
-            <ConfirmationDialog
-              trigger={
-                <Button
-                  variant="outline"
-                  size="icon"
-                  className="shrink-0 text-red-600 hover:text-red-700"
-                  disabled={disabled || deleteMutation.isPending}
-                  tooltip="Quitar deducible"
-                >
-                  <ShieldOff className="h-4 w-4" />
-                </Button>
-              }
-              title="¿Quitar el deducible?"
-              description={
-                deductible
-                  ? `Se eliminará la asociación del comprobante ${deductible.full_number} (${deductible.cliente_denominacion}) como deducible de esta orden de trabajo. Podrás asociar otro comprobante después.`
-                  : "Se eliminará la asociación del comprobante como deducible de esta orden de trabajo. Podrás asociar otro comprobante después."
-              }
-              confirmText="Sí, quitar"
-              cancelText="Cancelar"
-              variant="destructive"
-              icon="danger"
-              onConfirm={() => deleteMutation.mutate()}
-            />
+            <Button
+              variant="outline"
+              size="icon"
+              className="shrink-0"
+              disabled={disabled || storeMutation.isPending}
+              tooltip="Asociar otro deducible"
+              onClick={() => setIsSheetOpen(true)}
+            >
+              <Plus className="h-4 w-4" />
+            </Button>
           </>
         ) : (
           <Button

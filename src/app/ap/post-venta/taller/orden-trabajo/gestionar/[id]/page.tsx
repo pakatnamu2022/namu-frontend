@@ -581,7 +581,7 @@ export default function ManageWorkOrderPage() {
                 <WorkOrderDeductibleAction
                   workOrderId={workOrder.id}
                   plate={workOrder.vehicle.plate}
-                  deductible={workOrder.deductible}
+                  deductibles={workOrder.deductibles}
                   sedeId={workOrder.sede_id}
                   currencyId={workOrder.type_currency?.id}
                   currencySymbol={workOrder.type_currency?.symbol}

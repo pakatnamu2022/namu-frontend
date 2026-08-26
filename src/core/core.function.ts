@@ -431,12 +431,14 @@ export const formatHours = (
   }
 
   const total = Number(hours);
-  if (isNaN(total) || total < 0) return "-";
-  const h = Math.floor(total);
-  const m = Math.round((total - h) * 60);
-  if (h === 0) return `${m} min`;
-  if (m === 0) return `${h} h`;
-  return `${h} h ${m} min`;
+  if (isNaN(total)) return "-";
+  const sign = total < 0 ? "-" : "";
+  const abs = Math.abs(total);
+  const h = Math.floor(abs);
+  const m = Math.round((abs - h) * 60);
+  if (h === 0) return `${sign}${m} min`;
+  if (m === 0) return `${sign}${h} h`;
+  return `${sign}${h} h ${m} min`;
 };
 
 /**

@@ -15,6 +15,8 @@ import {
   PRODUCTIVITY_STATUS_LABEL,
 } from "../lib/productivityDashboard.constants";
 import { ProductivityStatus } from "../lib/productivityDashboard.interface";
+import ProductivityTechnicianDetailSheet from "./ProductivityTechnicianDetailSheet";
+import { formatHours, formatMoney } from "@/core/core.function";
 
 const STATUS_LEGEND_ORDER: ProductivityStatus[] = [
   "critical",
@@ -25,26 +27,23 @@ const STATUS_LEGEND_ORDER: ProductivityStatus[] = [
 
 interface ProductivityTechnicianTableProps {
   data: ProductivityTechnicianDetail[];
+  year: number;
+  month: number;
 }
-
-const formatCurrency = (value: number) =>
-  `S/ ${new Intl.NumberFormat("es-PE", {
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  }).format(value)}`;
-
-const formatHours = (value: number) =>
-  `${new Intl.NumberFormat("es-PE", {
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 1,
-  }).format(value)} h`;
 
 export default function ProductivityTechnicianTable({
   data,
+  year,
+  month,
 }: ProductivityTechnicianTableProps) {
   const [sedeFilter, setSedeFilter] = useState("");
+  const [selectedTechnician, setSelectedTechnician] =
+    useState<ProductivityTechnicianDetail | null>(null);
 
-  const columns = useMemo(() => productivityTechnicianColumns(), []);
+  const columns = useMemo(
+    () => productivityTechnicianColumns(setSelectedTechnician),
+    [],
+  );
 
   const sedeOptions = useMemo(() => {
     const unique = new Map<number, string>();
@@ -63,7 +62,10 @@ export default function ProductivityTechnicianTable({
   }, [data, sedeFilter]);
 
   const mobileCardRender = (tech: ProductivityTechnicianDetail) => (
-    <Card>
+    <Card
+      className="cursor-pointer"
+      onClick={() => setSelectedTechnician(tech)}
+    >
       <CardContent className="p-4 space-y-3">
         <div className="flex justify-between items-start">
           <div>
@@ -89,9 +91,7 @@ export default function ProductivityTechnicianTable({
             </div>
           )}
           <div>
-            <div className="text-xs text-muted-foreground">
-              Estándar (8h)
-            </div>
+            <div className="text-xs text-muted-foreground">Estándar (8h)</div>
             <div className="font-semibold">
               {formatHours(tech.standard_hours)}
             </div>
@@ -127,7 +127,7 @@ export default function ProductivityTechnicianTable({
                 tech.earnings < 0 ? "text-red-600" : "",
               )}
             >
-              {formatCurrency(tech.earnings)}
+              {formatMoney(tech.earnings)}
             </div>
           </div>
         </div>
@@ -174,6 +174,16 @@ export default function ProductivityTechnicianTable({
           mobileCardRender={mobileCardRender}
         />
       </CardContent>
+
+      <ProductivityTechnicianDetailSheet
+        open={!!selectedTechnician}
+        onClose={() => setSelectedTechnician(null)}
+        workerId={selectedTechnician?.worker_id ?? null}
+        year={year}
+        month={month}
+        sedeId={selectedTechnician?.sede_id}
+        sedeName={selectedTechnician?.sede_name}
+      />
     </Card>
   );
 }

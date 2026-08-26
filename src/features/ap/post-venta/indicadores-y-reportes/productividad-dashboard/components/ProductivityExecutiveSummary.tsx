@@ -2,7 +2,7 @@
 
 import { Users, Clock, TrendingUp, Wallet } from "lucide-react";
 import { MetricCard } from "@/shared/components/MetricCard";
-import { formatHours } from "@/core/core.function";
+import { formatHours, formatMoney } from "@/core/core.function";
 import {
   ProductivityExecutiveSummary as ProductivityExecutiveSummaryType,
   ProductivityPeriodInfo,
@@ -13,12 +13,6 @@ interface ProductivityExecutiveSummaryProps {
   summary: ProductivityExecutiveSummaryType;
   period: ProductivityPeriodInfo;
 }
-
-const formatCurrency = (value: number) =>
-  `S/ ${new Intl.NumberFormat("es-PE", {
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  }).format(value)}`;
 
 export default function ProductivityExecutiveSummary({
   summary,
@@ -60,7 +54,7 @@ export default function ProductivityExecutiveSummary({
 
       <MetricCard
         title="Ganancia por productividad"
-        value={formatCurrency(summary.total_earnings)}
+        value={formatMoney(summary.total_earnings)}
         subtitle={period.description}
         icon={Wallet}
         variant="outline"

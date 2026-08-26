@@ -2,6 +2,7 @@
 
 import PageSkeleton from "@/shared/components/PageSkeleton.tsx";
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule.ts";
+import { useScopedFilters } from "@/shared/hooks/useScopedFilters";
 import { useState } from "react";
 import TitleComponent from "@/shared/components/TitleComponent.tsx";
 import DataTablePagination from "@/shared/components/DataTablePagination.tsx";
@@ -30,11 +31,21 @@ export default function VehiclesPostVentaPage() {
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
   const [page, setPage] = useState(1);
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
-  const [search, setSearch] = useState("");
-  const [ap_vehicle_status_id, setApVehicleStatusId] = useState<string[]>([]);
   const [deleteId, setDeleteId] = useState<number | null>(null);
-  const { MODEL, ROUTE, ROUTE_UPDATE } = VEHICLES_TLL;
+  const { MODEL, ROUTE, ABSOLUTE_ROUTE, ROUTE_UPDATE } = VEHICLES_TLL;
   const permissions = useModulePermissions(ROUTE);
+
+  const { values: filters, setFieldValue: setFilter } = useScopedFilters(
+    ABSOLUTE_ROUTE,
+    {
+      search: "",
+      ap_vehicle_status_id: [] as string[],
+    },
+  );
+  const { search, ap_vehicle_status_id } = filters;
+  const setSearch = (value: string) => setFilter("search", value);
+  const setApVehicleStatusId = (value: string[]) =>
+    setFilter("ap_vehicle_status_id", value);
 
   const { data, isLoading, refetch } = useVehicles({
     page,

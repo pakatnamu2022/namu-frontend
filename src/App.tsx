@@ -362,6 +362,7 @@ import GeneralInformationPage from "./app/ap/post-venta/taller/orden-trabajo/ges
 import WorkOrderPlanningPage from "./app/ap/post-venta/taller/planificacion-orden-trabajo/page.tsx";
 import AddWorkOrderPlanningPage from "./app/ap/post-venta/taller/planificacion-orden-trabajo/agregar/page.tsx";
 import AssignedWorkPage from "./app/ap/post-venta/taller/trabajos-asignados/page.tsx";
+import TechnicianProductivityPage from "./app/ap/post-venta/taller/trabajos-asignados/productividad/page.tsx";
 import VehicleInspectionPage from "./app/ap/post-venta/taller/orden-trabajo/[workOrderId]/inspeccion/page.tsx";
 import SalesReceiptsTallerPage from "./app/ap/post-venta/taller/comprobante-venta-taller/page.tsx";
 import BoxPage from "./app/ap/post-venta/caja/page.tsx";
@@ -1862,6 +1863,10 @@ function App() {
               <Route
                 path="taller/trabajos-asignados"
                 element={<AssignedWorkPage />}
+              />
+              <Route
+                path="taller/trabajos-asignados/productividad"
+                element={<TechnicianProductivityPage />}
               />
               <Route
                 path="taller/comprobante-venta-taller"
