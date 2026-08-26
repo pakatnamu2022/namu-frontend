@@ -9,6 +9,7 @@ interface TechnicianProductivityFiltersBarProps {
   workers: WorkerResource[];
   workerId: string;
   setWorkerId: (value: string) => void;
+  isWorkerLocked?: boolean;
   isLoadingWorkers?: boolean;
   sedeName?: string;
   dateFrom: Date | undefined;
@@ -21,6 +22,7 @@ export default function TechnicianProductivityFiltersBar({
   workers,
   workerId,
   setWorkerId,
+  isWorkerLocked,
   isLoadingWorkers,
   dateFrom,
   setDateFrom,
@@ -37,7 +39,7 @@ export default function TechnicianProductivityFiltersBar({
         value={workerId}
         onChange={setWorkerId}
         placeholder={isLoadingWorkers ? "Cargando..." : "Selecciona un técnico"}
-        disabled={isLoadingWorkers}
+        disabled={isLoadingWorkers || isWorkerLocked}
         className="min-w-72"
         classNameOption="text-xs"
         allowClear={false}

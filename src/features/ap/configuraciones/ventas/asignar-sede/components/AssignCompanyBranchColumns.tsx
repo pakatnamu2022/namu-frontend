@@ -1,5 +1,5 @@
 import type { ColumnDef } from "@tanstack/react-table";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
 import {
   AsesorResource,
   AssignCompanyBranchResource,
@@ -63,6 +63,7 @@ export const assignCompanyBranchColumns = ({
     id: "actions",
     header: "Acciones",
     cell: ({ row }) => {
+      // eslint-disable-next-line react-hooks/rules-of-hooks
       const router = useNavigate();
       const { sede_id } = row.original;
       const { ROUTE_UPDATE } = ASSIGN_COMPANY_BRANCH;

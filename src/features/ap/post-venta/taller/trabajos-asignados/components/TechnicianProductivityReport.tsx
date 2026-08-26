@@ -10,6 +10,7 @@ import TitleComponent from "@/shared/components/TitleComponent";
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import { EMPRESA_AP } from "@/core/core.constants";
 import { getCurrentDayOfMonth, getFirstDayOfMonth } from "@/core/core.function";
+import { useAuthStore } from "@/features/auth/lib/auth.store";
 import { useMySedes } from "@/features/gp/maestro-general/sede/lib/sede.hook";
 import { useAllWorkers } from "@/features/gp/gestionhumana/gestion-de-personal/trabajadores/lib/worker.hook";
 import {
@@ -28,6 +29,7 @@ type ViewMode = "personal" | "ranking";
 
 export default function TechnicianProductivityReport() {
   const [searchParams] = useSearchParams();
+  const { user } = useAuthStore();
 
   const currentDate = new Date();
   const [sedeId, setSedeId] = useState<string>(
@@ -72,9 +74,21 @@ export default function TechnicianProductivityReport() {
     !!sedeId,
   );
 
+  // Si el partner_id del usuario coincide con algún técnico de la sede, se bloquea el select
+  const matchedWorker = workers.find((w) => w.id === user?.partner_id);
+  const isWorkerLocked = !!matchedWorker;
+
+  useEffect(() => {
+    if (isWorkerLocked && matchedWorker) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setWorkerId(matchedWorker.id.toString());
+    }
+  }, [isWorkerLocked, matchedWorker]);
+
   // Si el técnico seleccionado no pertenece a la sede actual, se limpia
   useEffect(() => {
     if (
+      !isWorkerLocked &&
       workerId &&
       workers.length > 0 &&
       !workers.some((w) => w.id.toString() === workerId)
@@ -82,14 +96,14 @@ export default function TechnicianProductivityReport() {
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setWorkerId("");
     }
-  }, [workers, workerId]);
+  }, [workers, workerId, isWorkerLocked]);
 
   useEffect(() => {
-    if (!workerId && workers.length > 0) {
+    if (!isWorkerLocked && !workerId && workers.length > 0) {
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setWorkerId(workers[0].id.toString());
     }
-  }, [workers, workerId]);
+  }, [workers, workerId, isWorkerLocked]);
 
   const formatDateParam = (date: Date | undefined) =>
     date ? date.toLocaleDateString("en-CA") : undefined;
@@ -180,6 +194,7 @@ export default function TechnicianProductivityReport() {
         workers={workers}
         workerId={workerId}
         setWorkerId={setWorkerId}
+        isWorkerLocked={isWorkerLocked}
         isLoadingWorkers={isLoadingWorkers}
         sedeName={selectedSede?.description}
         dateFrom={dateFrom}

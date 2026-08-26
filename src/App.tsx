@@ -365,6 +365,8 @@ import AssignedWorkPage from "./app/ap/post-venta/taller/trabajos-asignados/page
 import TechnicianProductivityPage from "./app/ap/post-venta/taller/trabajos-asignados/productividad/page.tsx";
 import VehicleInspectionPage from "./app/ap/post-venta/taller/orden-trabajo/[workOrderId]/inspeccion/page.tsx";
 import SalesReceiptsTallerPage from "./app/ap/post-venta/taller/comprobante-venta-taller/page.tsx";
+import CampaignSchedulePage from "./app/ap/post-venta/taller/cronograma-campanas/page.tsx";
+import AddCampaignSchedulePage from "./app/ap/post-venta/taller/cronograma-campanas/agregar/page.tsx";
 import BoxPage from "./app/ap/post-venta/caja/page.tsx";
 import SalesReceiptsCajaPage from "./app/ap/post-venta/caja/comprobante-venta-caja/page.tsx";
 import UpdateSalesReceiptsCajaPage from "@/app/ap/post-venta/caja/comprobante-venta-caja/actualizar/[id]/page.tsx";
@@ -1871,6 +1873,14 @@ function App() {
               <Route
                 path="taller/comprobante-venta-taller"
                 element={<SalesReceiptsTallerPage />}
+              />
+              <Route
+                path="taller/cronograma-campanas"
+                element={<CampaignSchedulePage />}
+              />
+              <Route
+                path="taller/cronograma-campanas/agregar"
+                element={<AddCampaignSchedulePage />}
               />
               {/* CAJA */}
               <Route path="caja" element={<BoxPage />} />
