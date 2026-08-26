@@ -42,7 +42,6 @@ export function FormTextArea({
   tooltip,
   children,
   required,
-  optional,
   className,
   error,
   value,
@@ -52,7 +51,9 @@ export function FormTextArea({
 }: FormTextAreaProps) {
   // Sin control: textarea controlado estándar
   if (!control) {
-    const handleStandaloneChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const handleStandaloneChange = (
+      e: React.ChangeEvent<HTMLTextAreaElement>,
+    ) => {
       if (onChange) {
         const val = uppercase ? e.target.value.toUpperCase() : e.target.value;
         const syntheticEvent = {

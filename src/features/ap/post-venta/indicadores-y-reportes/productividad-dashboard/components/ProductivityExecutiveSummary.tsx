@@ -34,7 +34,7 @@ export default function ProductivityExecutiveSummary({
       <MetricCard
         title="Horas facturadas"
         value={formatHours(summary.total_billed_hours)}
-        subtitle={`de ${formatHours(summary.total_standard_hours)} estándar`}
+        subtitle={`de ${formatHours(summary.total_standard_hours)} laborables`}
         icon={Clock}
         variant="outline"
         color={color}
@@ -46,7 +46,7 @@ export default function ProductivityExecutiveSummary({
       <MetricCard
         title="Productividad"
         value={`${summary.total_productivity_hours >= 0 ? "+" : "-"}${formatHours(Math.abs(summary.total_productivity_hours))}`}
-        subtitle={`${summary.average_productivity_percentage.toFixed(1)}% del estándar`}
+        subtitle={`${summary.average_productivity_percentage.toFixed(1)}% del laborables`}
         icon={TrendingUp}
         variant="outline"
         color={color}

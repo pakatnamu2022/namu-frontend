@@ -32,7 +32,7 @@ interface TechnicianProductivityChartsProps {
 
 const hoursChartConfig = {
   standard_hours: {
-    label: "Horas estándar",
+    label: "Horas laborables",
     color: "var(--color-gray-300)",
   },
   billed_hours: {
@@ -116,7 +116,9 @@ export default function TechnicianProductivityCharts({
       <Card className="lg:col-span-1">
         <CardHeader>
           <CardTitle>Índice de productividad</CardTitle>
-          <CardDescription>% de horas facturadas vs. estándar</CardDescription>
+          <CardDescription>
+            % de horas facturadas vs. laborables
+          </CardDescription>
         </CardHeader>
         <CardContent className="flex flex-col items-center">
           <div className="relative h-56 w-full">
@@ -149,14 +151,14 @@ export default function TechnicianProductivityCharts({
           </div>
           <div className="mt-5 text-sm text-muted-foreground text-center">
             {formatHours(summary.billed_hours)} facturadas de{" "}
-            {formatHours(summary.standard_hours)} estándar
+            {formatHours(summary.standard_hours)} laborables
           </div>
         </CardContent>
       </Card>
 
       <Card className="lg:col-span-2">
         <CardHeader>
-          <CardTitle>Horas estándar vs. facturadas</CardTitle>
+          <CardTitle>Horas laborables vs. facturadas</CardTitle>
           <CardDescription>
             Comparativo del período seleccionado
           </CardDescription>
@@ -182,7 +184,7 @@ export default function TechnicianProductivityCharts({
                     <div className="rounded-lg border bg-background p-3 shadow-lg space-y-1.5">
                       <div className="flex items-center justify-between gap-8">
                         <span className="text-xs text-muted-foreground">
-                          Horas estándar:
+                          Horas laborables:
                         </span>
                         <span className="text-sm font-bold">
                           {formatHours(summary.standard_hours)}

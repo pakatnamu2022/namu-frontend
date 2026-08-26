@@ -142,7 +142,7 @@ export default function ProductivityTechnicianDetailSheet({
                 value={formatHours(detail.summary.billed_hours)}
               />
               <SummaryItem
-                label="Horas estándar"
+                label="Horas laborables"
                 value={formatHours(detail.summary.standard_hours)}
               />
               <SummaryItem

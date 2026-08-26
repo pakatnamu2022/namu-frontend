@@ -286,7 +286,7 @@ export function DocumentInfoOtherSalesSection({
           ) : igvMode === "gratuita" ? (
             "Los items se registrarán sin IGV y sin cobro (transferencia gratuita)"
           ) : (
-            "Los items se registrarán gravados con IGV (comportamiento estándar)"
+            "Los items se registrarán gravados con IGV (comportamiento laborables)"
           )}
         </p>
       </div>

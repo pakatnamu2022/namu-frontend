@@ -17,7 +17,7 @@ interface ProductivityTopTechniciansChartProps {
 
 const chartConfig = {
   standard_hours: {
-    label: "Horas estándar",
+    label: "Horas laborables",
     color: "var(--color-gray-300)",
   },
   billed_hours: {
@@ -43,7 +43,7 @@ export default function ProductivityTopTechniciansChart({
       <CardHeader>
         <CardTitle>Top 10 Técnicos</CardTitle>
         <CardDescription>
-          Horas estándar vs. facturadas del período
+          Horas laborables vs. facturadas del período
         </CardDescription>
       </CardHeader>
       <CardContent className="px-2 sm:p-4">
@@ -80,7 +80,7 @@ export default function ProductivityTopTechniciansChart({
                     <div className="space-y-1.5">
                       <div className="flex items-center justify-between gap-8">
                         <span className="text-xs text-muted-foreground">
-                          Horas estándar:
+                          Horas laborables:
                         </span>
                         <span className="text-sm font-bold">
                           {item.standard_hours.toLocaleString("es-PE")} h
