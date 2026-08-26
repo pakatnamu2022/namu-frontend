@@ -128,6 +128,7 @@ export interface ProductivityDetailSummary {
 export interface ProductivityWorkOrder {
   work_order_id: number;
   work_order_number: string;
+  vehicle_plate: string;
   sede: string;
   asesor: string;
   asesor_id: number;
@@ -146,6 +147,7 @@ export interface ProductivityWorkOrder {
 export interface ProductivityWorkOrderWithoutLabour {
   work_order_id: number;
   work_order_number: string;
+  vehicle_plate: string;
   sede: string;
   asesor: string;
   asesor_id: number;

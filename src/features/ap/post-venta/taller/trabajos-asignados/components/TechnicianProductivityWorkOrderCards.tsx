@@ -1,10 +1,12 @@
 "use client";
 
+import { useMemo, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Wrench, AlertTriangle, Users, CalendarDays } from "lucide-react";
 import { formatDate, formatHours } from "@/core/core.function";
 import { CopyCell } from "@/shared/components/CopyCell";
+import SearchInput from "@/shared/components/SearchInput";
 import {
   TechnicianProductivityWorkOrder,
   TechnicianProductivityWorkOrderWithoutLabour,
@@ -28,6 +30,10 @@ function WorkOrderCard({ wo }: { wo: TechnicianProductivityWorkOrder }) {
             <div className="flex items-center gap-1 text-xs text-muted-foreground mt-0.5">
               <CalendarDays className="size-3" />
               {formatDate(wo.fecha_facturacion)}
+            </div>
+            <div className="text-xs text-muted-foreground mt-0.5">
+              Placa:{" "}
+              <span className="text-foreground">{wo.vehicle_plate || "-"}</span>
             </div>
           </div>
           <Badge color="blue">{wo.tipo_planificacion}</Badge>
@@ -82,6 +88,10 @@ function WorkOrderWithoutLabourCard({
               <CalendarDays className="size-3" />
               {formatDate(wo.fecha_facturacion)}
             </div>
+            <div className="text-xs text-muted-foreground mt-0.5">
+              Placa:{" "}
+              <span className="text-foreground">{wo.vehicle_plate || "-"}</span>
+            </div>
           </div>
           <Badge color="yellow">{wo.tipo_planificacion}</Badge>
         </div>
@@ -104,35 +114,72 @@ export default function TechnicianProductivityWorkOrderCards({
   workOrders,
   workOrdersWithoutLabour,
 }: TechnicianProductivityWorkOrderCardsProps) {
+  const [search, setSearch] = useState("");
+
+  const normalizedSearch = search.trim().toLowerCase();
+
+  const filteredWorkOrders = useMemo(() => {
+    if (!normalizedSearch) return workOrders;
+
+    return workOrders.filter((wo) => {
+      const workOrderNumber = wo.work_order_number?.toLowerCase() ?? "";
+      const vehiclePlate = wo.vehicle_plate?.toLowerCase() ?? "";
+      return (
+        workOrderNumber.includes(normalizedSearch) ||
+        vehiclePlate.includes(normalizedSearch)
+      );
+    });
+  }, [workOrders, normalizedSearch]);
+
+  const filteredWorkOrdersWithoutLabour = useMemo(() => {
+    if (!normalizedSearch) return workOrdersWithoutLabour;
+
+    return workOrdersWithoutLabour.filter((wo) => {
+      const workOrderNumber = wo.work_order_number?.toLowerCase() ?? "";
+      const vehiclePlate = wo.vehicle_plate?.toLowerCase() ?? "";
+      return (
+        workOrderNumber.includes(normalizedSearch) ||
+        vehiclePlate.includes(normalizedSearch)
+      );
+    });
+  }, [workOrdersWithoutLabour, normalizedSearch]);
+
   return (
     <div className="space-y-6">
+      <SearchInput
+        value={search}
+        onChange={setSearch}
+        placeholder="Buscar por N° OT o placa..."
+        className="w-full md:max-w-sm"
+      />
+
       <div className="space-y-3">
         <h3 className="text-sm font-semibold flex items-center gap-2">
           <Wrench className="size-4" />
-          Órdenes de trabajo con mano de obra ({workOrders.length})
+          Órdenes de trabajo con mano de obra ({filteredWorkOrders.length})
         </h3>
-        {workOrders.length === 0 ? (
+        {filteredWorkOrders.length === 0 ? (
           <div className="rounded-lg border border-dashed p-6 text-center text-sm text-muted-foreground">
             No hay órdenes de trabajo con mano de obra en el período.
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3">
-            {workOrders.map((wo) => (
+            {filteredWorkOrders.map((wo) => (
               <WorkOrderCard key={wo.work_order_id} wo={wo} />
             ))}
           </div>
         )}
       </div>
 
-      {workOrdersWithoutLabour.length > 0 && (
+      {filteredWorkOrdersWithoutLabour.length > 0 && (
         <div className="space-y-3">
           <h3 className="text-sm font-semibold flex items-center gap-2 text-amber-700">
             <AlertTriangle className="size-4" />
-            Órdenes de trabajo sin mano de obra ({workOrdersWithoutLabour.length}
-            )
+            Órdenes de trabajo sin mano de obra (
+            {filteredWorkOrdersWithoutLabour.length})
           </h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3">
-            {workOrdersWithoutLabour.map((wo) => (
+            {filteredWorkOrdersWithoutLabour.map((wo) => (
               <WorkOrderWithoutLabourCard key={wo.work_order_id} wo={wo} />
             ))}
           </div>

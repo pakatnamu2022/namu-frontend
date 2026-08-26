@@ -26,6 +26,7 @@ export const productivityWorkOrderColumns =
             className="font-semibold"
           />
           <div className="text-xs text-muted-foreground">
+            {row.original.vehicle_plate} -{" "}
             {formatDate(row.original.fecha_facturacion)}
           </div>
         </div>
@@ -93,6 +94,7 @@ export const productivityWorkOrderWithoutLabourColumns =
             className="font-semibold"
           />
           <div className="text-xs text-muted-foreground">
+            {row.original.vehicle_plate} -{" "}
             {formatDate(row.original.fecha_facturacion)}
           </div>
         </div>

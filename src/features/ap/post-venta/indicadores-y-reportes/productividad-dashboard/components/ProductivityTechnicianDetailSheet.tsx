@@ -1,11 +1,12 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { Loader2, AlertCircle, AlertTriangle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { formatHours, formatMoney } from "@/core/core.function";
 import GeneralSheet from "@/shared/components/GeneralSheet";
 import { DataTable } from "@/shared/components/DataTable";
+import SearchInput from "@/shared/components/SearchInput";
 import { useProductivityTechnicianDetail } from "../lib/productivityDashboard.hook";
 import { toDateRange } from "../lib/productivityDashboard.actions";
 import {
@@ -47,6 +48,8 @@ export default function ProductivityTechnicianDetailSheet({
   sedeId,
   sedeName,
 }: ProductivityTechnicianDetailSheetProps) {
+  const [workOrderSearch, setWorkOrderSearch] = useState("");
+
   const filters = useMemo(() => {
     if (!workerId) return null;
     return {
@@ -64,6 +67,30 @@ export default function ProductivityTechnicianDetailSheet({
     () => productivityWorkOrderWithoutLabourColumns(),
     [],
   );
+
+  const normalizedSearch = workOrderSearch.trim().toLowerCase();
+
+  const filteredWorkOrders = useMemo(() => {
+    if (!detail) return [];
+    if (!normalizedSearch) return detail.work_orders;
+
+    return detail.work_orders.filter((workOrder) => {
+      const ot = workOrder.work_order_number?.toLowerCase() ?? "";
+      const plate = workOrder.vehicle_plate?.toLowerCase() ?? "";
+      return ot.includes(normalizedSearch) || plate.includes(normalizedSearch);
+    });
+  }, [detail, normalizedSearch]);
+
+  const filteredWorkOrdersWithoutLabour = useMemo(() => {
+    if (!detail) return [];
+    if (!normalizedSearch) return detail.work_orders_without_labour;
+
+    return detail.work_orders_without_labour.filter((workOrder) => {
+      const ot = workOrder.work_order_number?.toLowerCase() ?? "";
+      const plate = workOrder.vehicle_plate?.toLowerCase() ?? "";
+      return ot.includes(normalizedSearch) || plate.includes(normalizedSearch);
+    });
+  }, [detail, normalizedSearch]);
 
   return (
     <GeneralSheet
@@ -157,28 +184,35 @@ export default function ProductivityTechnicianDetailSheet({
               </div>
             )}
 
+            <SearchInput
+              value={workOrderSearch}
+              onChange={setWorkOrderSearch}
+              placeholder="Buscar por N° OT o placa..."
+              className="w-full md:max-w-sm"
+            />
+
             <div className="space-y-2">
               <h3 className="text-sm font-semibold">
-                Órdenes de trabajo con mano de obra ({detail.work_orders.length}
+                Órdenes de trabajo con mano de obra ({filteredWorkOrders.length}
                 )
               </h3>
               <DataTable
                 columns={workOrderColumns}
-                data={detail.work_orders}
+                data={filteredWorkOrders}
                 variant="simple"
                 isVisibleColumnFilter={false}
               />
             </div>
 
-            {detail.work_orders_without_labour.length > 0 && (
+            {filteredWorkOrdersWithoutLabour.length > 0 && (
               <div className="space-y-2">
                 <h3 className="text-sm font-semibold">
                   Órdenes de trabajo sin mano de obra (
-                  {detail.work_orders_without_labour.length})
+                  {filteredWorkOrdersWithoutLabour.length})
                 </h3>
                 <DataTable
                   columns={workOrderWithoutLabourColumns}
-                  data={detail.work_orders_without_labour}
+                  data={filteredWorkOrdersWithoutLabour}
                   variant="simple"
                   isVisibleColumnFilter={false}
                 />

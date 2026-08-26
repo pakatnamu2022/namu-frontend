@@ -119,33 +119,35 @@ export default function TechnicianProductivityCharts({
           <CardDescription>% de horas facturadas vs. estándar</CardDescription>
         </CardHeader>
         <CardContent className="flex flex-col items-center">
-          <ChartContainer
-            config={gaugeChartConfig}
-            className="aspect-square h-56 w-full"
-          >
-            <RadialBarChart
-              data={gaugeData}
-              startAngle={90}
-              endAngle={-270}
-              innerRadius="70%"
-              outerRadius="100%"
+          <div className="relative h-56 w-full">
+            <ChartContainer
+              config={gaugeChartConfig}
+              className="aspect-square h-56 w-full"
             >
-              <PolarAngleAxis
-                type="number"
-                domain={[0, 100]}
-                angleAxisId={0}
-                tick={false}
-              />
-              <RadialBar dataKey="value" background cornerRadius={12} />
-            </RadialBarChart>
-          </ChartContainer>
-          <div className="-mt-32 text-center pointer-events-none">
-            <div className="text-3xl font-bold" style={{ color: gaugeColor }}>
-              {summary.productivity_percentage}%
+              <RadialBarChart
+                data={gaugeData}
+                startAngle={90}
+                endAngle={-270}
+                innerRadius="70%"
+                outerRadius="100%"
+              >
+                <PolarAngleAxis
+                  type="number"
+                  domain={[0, 100]}
+                  angleAxisId={0}
+                  tick={false}
+                />
+                <RadialBar dataKey="value" background cornerRadius={12} />
+              </RadialBarChart>
+            </ChartContainer>
+            <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center text-center">
+              <div className="text-3xl font-bold" style={{ color: gaugeColor }}>
+                {summary.productivity_percentage}%
+              </div>
+              <div className="text-xs text-muted-foreground">productividad</div>
             </div>
-            <div className="text-xs text-muted-foreground">productividad</div>
           </div>
-          <div className="mt-2 text-sm text-muted-foreground text-center">
+          <div className="mt-5 text-sm text-muted-foreground text-center">
             {formatHours(summary.billed_hours)} facturadas de{" "}
             {formatHours(summary.standard_hours)} estándar
           </div>

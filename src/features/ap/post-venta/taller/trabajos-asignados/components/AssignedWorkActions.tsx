@@ -36,12 +36,7 @@ export default function AssignedWorkActions({
 
   return (
     <ActionsWrapper>
-      <Button
-        size="sm"
-        variant="outline"
-        onClick={handleViewProductivity}
-        hidden
-      >
+      <Button size="sm" variant="outline" onClick={handleViewProductivity}>
         <Gauge className="size-4 mr-2" /> Ver Productividad
       </Button>
     </ActionsWrapper>
