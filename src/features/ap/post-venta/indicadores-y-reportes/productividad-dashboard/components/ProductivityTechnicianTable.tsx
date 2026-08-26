@@ -3,7 +3,8 @@
 import { useMemo, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Wrench } from "lucide-react";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { LayoutGrid, Table as TableIcon, Wrench } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { DataTable } from "@/shared/components/DataTable";
 import { SearchableSelect } from "@/shared/components/SearchableSelect";
@@ -16,7 +17,10 @@ import {
 } from "../lib/productivityDashboard.constants";
 import { ProductivityStatus } from "../lib/productivityDashboard.interface";
 import ProductivityTechnicianDetailSheet from "./ProductivityTechnicianDetailSheet";
+import ProductivityTechnicianRankingChart from "./ProductivityTechnicianRankingChart";
 import { formatHours, formatMoney } from "@/core/core.function";
+
+type ViewMode = "table" | "chart";
 
 const STATUS_LEGEND_ORDER: ProductivityStatus[] = [
   "critical",
@@ -37,6 +41,7 @@ export default function ProductivityTechnicianTable({
   month,
 }: ProductivityTechnicianTableProps) {
   const [sedeFilter, setSedeFilter] = useState("");
+  const [viewMode, setViewMode] = useState<ViewMode>("table");
   const [selectedTechnician, setSelectedTechnician] =
     useState<ProductivityTechnicianDetail | null>(null);
 
@@ -143,14 +148,30 @@ export default function ProductivityTechnicianTable({
             <Wrench className="h-5 w-5 text-muted-foreground" />
             <CardTitle>Detalle por Técnico</CardTitle>
           </div>
-          <SearchableSelect
-            value={sedeFilter}
-            onChange={setSedeFilter}
-            options={sedeOptions}
-            placeholder="Todas las sedes"
-            buttonSize="sm"
-            classNameDiv="min-w-[180px]"
-          />
+          <div className="flex items-center gap-2">
+            <SearchableSelect
+              value={sedeFilter}
+              onChange={setSedeFilter}
+              options={sedeOptions}
+              placeholder="Todas las sedes"
+              buttonSize="sm"
+              classNameDiv="min-w-[180px]"
+            />
+            <ToggleGroup
+              type="single"
+              variant="outline"
+              size="sm"
+              value={viewMode}
+              onValueChange={(value) => value && setViewMode(value as ViewMode)}
+            >
+              <ToggleGroupItem value="table" aria-label="Ver como tabla">
+                <TableIcon className="h-4 w-4" />
+              </ToggleGroupItem>
+              <ToggleGroupItem value="chart" aria-label="Ver como gráfica">
+                <LayoutGrid className="h-4 w-4" />
+              </ToggleGroupItem>
+            </ToggleGroup>
+          </div>
         </div>
         <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5">
           {STATUS_LEGEND_ORDER.map((status) => (
@@ -166,13 +187,17 @@ export default function ProductivityTechnicianTable({
         </div>
       </CardHeader>
       <CardContent>
-        <DataTable
-          columns={columns}
-          data={filteredData}
-          variant="simple"
-          isVisibleColumnFilter={false}
-          mobileCardRender={mobileCardRender}
-        />
+        {viewMode === "table" ? (
+          <DataTable
+            columns={columns}
+            data={filteredData}
+            variant="simple"
+            isVisibleColumnFilter={false}
+            mobileCardRender={mobileCardRender}
+          />
+        ) : (
+          <ProductivityTechnicianRankingChart data={filteredData} />
+        )}
       </CardContent>
 
       <ProductivityTechnicianDetailSheet
