@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { AlertCircle, AlertTriangle, ArrowLeft, Gauge, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { ButtonGroup } from "@/shared/components/ButtonGroup";
 import PageWrapper from "@/shared/components/PageWrapper";
 import TitleComponent from "@/shared/components/TitleComponent";
 import FormSkeleton from "@/shared/components/FormSkeleton";
@@ -158,22 +158,22 @@ export default function TechnicianProductivityReport() {
           />
         </div>
 
-        <ToggleGroup
-          type="single"
-          variant="outline"
-          size="sm"
+        <ButtonGroup
+          options={[
+            {
+              value: "personal",
+              label: "Mi productividad",
+              icon: <Gauge className="h-4 w-4" />,
+            },
+            {
+              value: "ranking",
+              label: "Comparativo de sede",
+              icon: <Users className="h-4 w-4" />,
+            },
+          ]}
           value={viewMode}
-          onValueChange={(value) => value && setViewMode(value as ViewMode)}
-        >
-          <ToggleGroupItem value="personal" aria-label="Mi productividad">
-            <Gauge className="h-4 w-4 mr-1.5" />
-            Mi productividad
-          </ToggleGroupItem>
-          <ToggleGroupItem value="ranking" aria-label="Comparativo de sede">
-            <Users className="h-4 w-4 mr-1.5" />
-            Comparativo de sede
-          </ToggleGroupItem>
-        </ToggleGroup>
+          onChange={(value) => setViewMode(value as ViewMode)}
+        />
       </div>
 
       <TechnicianProductivityFiltersBar
