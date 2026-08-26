@@ -138,6 +138,7 @@ export default function WorkOrderLabourForm({
             onValueChange={() => {
               isTypeManuallySet.current = true;
             }}
+            readOnly
           />
         </div>
 

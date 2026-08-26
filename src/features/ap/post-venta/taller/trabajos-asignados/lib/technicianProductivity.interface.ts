@@ -33,6 +33,7 @@ export interface TechnicianProductivitySummary {
 export interface TechnicianProductivityWorkOrder {
   work_order_id: number;
   work_order_number: string;
+  vehicle_plate?: string;
   sede: string;
   asesor: string;
   asesor_id: number;
@@ -51,6 +52,7 @@ export interface TechnicianProductivityWorkOrder {
 export interface TechnicianProductivityWorkOrderWithoutLabour {
   work_order_id: number;
   work_order_number: string;
+  vehicle_plate?: string;
   sede: string;
   asesor: string;
   asesor_id: number;

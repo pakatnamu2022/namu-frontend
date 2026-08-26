@@ -8,10 +8,7 @@ import PageWrapper from "@/shared/components/PageWrapper";
 import TitleComponent from "@/shared/components/TitleComponent";
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import { EMPRESA_AP } from "@/core/core.constants";
-import {
-  getCurrentDayOfMonth,
-  getFirstDayOfMonth,
-} from "@/core/core.function";
+import { getCurrentDayOfMonth, getFirstDayOfMonth } from "@/core/core.function";
 import { useMySedes } from "@/features/gp/maestro-general/sede/lib/sede.hook";
 import { useAllWorkers } from "@/features/gp/gestionhumana/gestion-de-personal/trabajadores/lib/worker.hook";
 import {
@@ -38,10 +35,14 @@ export default function TechnicianProductivityReport() {
   const initialDateFrom = searchParams.get("date_from");
   const initialDateTo = searchParams.get("date_to");
   const [dateFrom, setDateFrom] = useState<Date | undefined>(
-    initialDateFrom ? new Date(`${initialDateFrom}T00:00:00`) : getFirstDayOfMonth(currentDate),
+    initialDateFrom
+      ? new Date(`${initialDateFrom}T00:00:00`)
+      : getFirstDayOfMonth(currentDate),
   );
   const [dateTo, setDateTo] = useState<Date | undefined>(
-    initialDateTo ? new Date(`${initialDateTo}T00:00:00`) : getCurrentDayOfMonth(currentDate),
+    initialDateTo
+      ? new Date(`${initialDateTo}T00:00:00`)
+      : getCurrentDayOfMonth(currentDate),
   );
 
   const { data: mySedes = [], isLoading: isLoadingMySedes } = useMySedes({
