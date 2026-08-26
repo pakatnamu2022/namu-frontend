@@ -42,7 +42,28 @@ export interface TechnicianProductivityRankingItem {
   rank: number;
 }
 
+export interface TechnicianProductivityRankingPeriod {
+  start_date: string;
+  end_date: string;
+  current_date: string;
+  total_days: number;
+  working_days: number;
+  description: string;
+}
+
+export interface TechnicianProductivityRankingConfigurations {
+  working_hours_per_day: number;
+  earnings_per_hour: number;
+}
+
+export interface TechnicianProductivityRankingData {
+  period: TechnicianProductivityRankingPeriod;
+  sede_id: number;
+  configurations: TechnicianProductivityRankingConfigurations;
+  technician_detail: TechnicianProductivityRankingItem[];
+}
+
 export interface TechnicianProductivityRankingResponse {
   success: boolean;
-  data: TechnicianProductivityRankingItem[];
+  data: TechnicianProductivityRankingData;
 }

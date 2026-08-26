@@ -2,8 +2,9 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
-import { AlertCircle, AlertTriangle, ArrowLeft } from "lucide-react";
+import { AlertCircle, AlertTriangle, ArrowLeft, Gauge, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import PageWrapper from "@/shared/components/PageWrapper";
 import TitleComponent from "@/shared/components/TitleComponent";
 import FormSkeleton from "@/shared/components/FormSkeleton";
@@ -16,10 +17,14 @@ import {
   STATUS_WORKER,
 } from "@/features/gp/gestionhumana/gestion-de-personal/posiciones/lib/position.constant";
 import { useTechnicianProductivity } from "../lib/technicianProductivity.hook";
+import { useTechnicianProductivityRanking } from "../lib/technicianProductivityRanking.hook";
 import TechnicianProductivityFiltersBar from "./TechnicianProductivityFiltersBar";
 import TechnicianProductivitySummaryCards from "./TechnicianProductivitySummaryCards";
 import TechnicianProductivityCharts from "./TechnicianProductivityCharts";
 import TechnicianProductivityWorkOrderCards from "./TechnicianProductivityWorkOrderCards";
+import TechnicianProductivityRankingCharts from "./TechnicianProductivityRankingCharts";
+
+type ViewMode = "personal" | "ranking";
 
 export default function TechnicianProductivityReport() {
   const [searchParams] = useSearchParams();
@@ -106,25 +111,69 @@ export default function TechnicianProductivityReport() {
 
   const selectedSede = mySedes.find((s) => s.id.toString() === sedeId);
 
+  const [viewMode, setViewMode] = useState<ViewMode>("personal");
+
+  const rankingFilters = useMemo(() => {
+    if (!sedeId || !dateFrom || !dateTo) return null;
+    return {
+      date_range: [formatDateParam(dateFrom)!, formatDateParam(dateTo)!] as [
+        string,
+        string,
+      ],
+      sede_id: Number(sedeId),
+    };
+  }, [sedeId, dateFrom, dateTo]);
+
+  const {
+    data: rankingData,
+    isLoading: isLoadingRanking,
+    isError: isRankingError,
+  } = useTechnicianProductivityRanking(
+    rankingFilters,
+    viewMode === "ranking",
+  );
+  const rankingDetail = rankingData?.data?.technician_detail;
+
   return (
     <PageWrapper>
-      <div className="flex items-center gap-2">
-        <Button
-          size="icon"
-          variant="ghost"
-          onClick={() => window.history.back()}
+      <div className="flex items-center gap-2 justify-between flex-wrap">
+        <div className="flex items-center gap-2">
+          <Button
+            size="icon"
+            variant="ghost"
+            onClick={() => window.history.back()}
+          >
+            <ArrowLeft className="size-4" />
+          </Button>
+          <TitleComponent
+            title="Productividad del técnico"
+            subtitle={
+              viewMode === "personal"
+                ? detail
+                  ? `${detail.technician_info.worker_name} · ${selectedSede?.description ?? "-"}`
+                  : "Avance de órdenes de trabajo terminadas"
+                : `Comparativo con tus compañeros · ${selectedSede?.description ?? "-"}`
+            }
+            icon="Gauge"
+          />
+        </div>
+
+        <ToggleGroup
+          type="single"
+          variant="outline"
+          size="sm"
+          value={viewMode}
+          onValueChange={(value) => value && setViewMode(value as ViewMode)}
         >
-          <ArrowLeft className="size-4" />
-        </Button>
-        <TitleComponent
-          title="Productividad del técnico"
-          subtitle={
-            detail
-              ? `${detail.technician_info.worker_name} · ${selectedSede?.description ?? "-"}`
-              : "Avance de órdenes de trabajo terminadas"
-          }
-          icon="Gauge"
-        />
+          <ToggleGroupItem value="personal" aria-label="Mi productividad">
+            <Gauge className="h-4 w-4 mr-1.5" />
+            Mi productividad
+          </ToggleGroupItem>
+          <ToggleGroupItem value="ranking" aria-label="Comparativo de sede">
+            <Users className="h-4 w-4 mr-1.5" />
+            Comparativo de sede
+          </ToggleGroupItem>
+        </ToggleGroup>
       </div>
 
       <TechnicianProductivityFiltersBar
@@ -139,52 +188,95 @@ export default function TechnicianProductivityReport() {
         setDateTo={setDateTo}
       />
 
-      {(isLoading || isLoadingMySedes) && <FormSkeleton />}
+      {viewMode === "personal" && (
+        <>
+          {(isLoading || isLoadingMySedes) && <FormSkeleton />}
 
-      {!isLoading && !isLoadingMySedes && !workerId && (
-        <div className="rounded-lg border border-dashed p-8 text-center text-sm text-muted-foreground">
-          Selecciona un técnico para ver su productividad.
-        </div>
-      )}
-
-      {!isLoading && workerId && (isError || !detail) && (
-        <div className="flex items-center justify-center py-12">
-          <div className="text-center space-y-4">
-            <AlertCircle className="size-8 mx-auto text-red-500" />
-            <p className="text-sm text-red-600">
-              No se pudo cargar la productividad del técnico
-            </p>
-          </div>
-        </div>
-      )}
-
-      {!isLoading && detail && (
-        <div className="space-y-6">
-          {!detail.validation.cuadra && (
-            <div className="flex items-start gap-2 p-3 rounded-lg border border-amber-300 bg-amber-50 text-amber-800 text-xs">
-              <AlertTriangle className="size-4 shrink-0 mt-0.5" />
-              <span>
-                Las sumas del detalle no cuadran exactamente con el resumen.
-                Verificar información.
-              </span>
+          {!isLoading && !isLoadingMySedes && !workerId && (
+            <div className="rounded-lg border border-dashed p-8 text-center text-sm text-muted-foreground">
+              Selecciona un técnico para ver su productividad.
             </div>
           )}
 
-          <TechnicianProductivitySummaryCards
-            summary={detail.summary}
-            period={detail.period}
-          />
+          {!isLoading && workerId && (isError || !detail) && (
+            <div className="flex items-center justify-center py-12">
+              <div className="text-center space-y-4">
+                <AlertCircle className="size-8 mx-auto text-red-500" />
+                <p className="text-sm text-red-600">
+                  No se pudo cargar la productividad del técnico
+                </p>
+              </div>
+            </div>
+          )}
 
-          <TechnicianProductivityCharts
-            summary={detail.summary}
-            workOrders={detail.work_orders}
-          />
+          {!isLoading && detail && (
+            <div className="space-y-6">
+              {!detail.validation.cuadra && (
+                <div className="flex items-start gap-2 p-3 rounded-lg border border-amber-300 bg-amber-50 text-amber-800 text-xs">
+                  <AlertTriangle className="size-4 shrink-0 mt-0.5" />
+                  <span>
+                    Las sumas del detalle no cuadran exactamente con el
+                    resumen. Verificar información.
+                  </span>
+                </div>
+              )}
 
-          <TechnicianProductivityWorkOrderCards
-            workOrders={detail.work_orders}
-            workOrdersWithoutLabour={detail.work_orders_without_labour}
-          />
-        </div>
+              <TechnicianProductivitySummaryCards
+                summary={detail.summary}
+                period={detail.period}
+              />
+
+              <TechnicianProductivityCharts
+                summary={detail.summary}
+                workOrders={detail.work_orders}
+              />
+
+              <TechnicianProductivityWorkOrderCards
+                workOrders={detail.work_orders}
+                workOrdersWithoutLabour={detail.work_orders_without_labour}
+              />
+            </div>
+          )}
+        </>
+      )}
+
+      {viewMode === "ranking" && (
+        <>
+          {(isLoadingRanking || isLoadingMySedes) && <FormSkeleton />}
+
+          {!isLoadingRanking && !isLoadingMySedes && !sedeId && (
+            <div className="rounded-lg border border-dashed p-8 text-center text-sm text-muted-foreground">
+              Selecciona una sede para ver el comparativo.
+            </div>
+          )}
+
+          {!isLoadingRanking &&
+            sedeId &&
+            (isRankingError || !rankingDetail) && (
+              <div className="flex items-center justify-center py-12">
+                <div className="text-center space-y-4">
+                  <AlertCircle className="size-8 mx-auto text-red-500" />
+                  <p className="text-sm text-red-600">
+                    No se pudo cargar el comparativo de la sede
+                  </p>
+                </div>
+              </div>
+            )}
+
+          {!isLoadingRanking && rankingDetail && rankingDetail.length > 0 && (
+            <TechnicianProductivityRankingCharts
+              data={rankingDetail}
+              currentWorkerId={workerId ? Number(workerId) : null}
+            />
+          )}
+
+          {!isLoadingRanking && rankingDetail && rankingDetail.length === 0 && (
+            <div className="rounded-lg border border-dashed p-8 text-center text-sm text-muted-foreground">
+              No hay datos de productividad para la sede y período
+              seleccionados.
+            </div>
+          )}
+        </>
       )}
     </PageWrapper>
   );
