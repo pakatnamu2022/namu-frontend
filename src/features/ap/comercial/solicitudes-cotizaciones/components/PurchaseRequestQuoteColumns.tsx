@@ -9,6 +9,7 @@ import {
   ArrowLeftRight,
   X,
   FileCheck,
+  PercentCircle,
 } from "lucide-react";
 import { NumberFormat } from "@/shared/components/NumberFormat";
 import { PurchaseRequestQuoteResource } from "../lib/purchaseRequestQuote.interface";
@@ -29,12 +30,14 @@ interface Props {
   onUnassignVehicle: (id: number) => void;
   onSwapVehicle: (purchaseRequestQuote: PurchaseRequestQuoteResource) => void;
   onViewDetail: (id: number) => void;
+  onRequestAdjustment: (purchaseRequestQuote: PurchaseRequestQuoteResource) => void;
   permissions: {
     canUpdate: boolean;
     canApprove: boolean;
     canExport: boolean;
     canAssign: boolean;
     canCreateKyc: boolean;
+    canRequestAdjustment: boolean;
   };
   // Mapas id -> descripción (desde apMasters), para mostrar los nombres
   // legibles de crédito/entidad/seguro en la tabla.
@@ -50,6 +53,7 @@ export const purchaseRequestQuoteColumns = ({
   onUnassignVehicle,
   onSwapVehicle,
   onViewDetail,
+  onRequestAdjustment,
   permissions,
   creditTypeLabels = {},
   creditEntityLabels = {},
@@ -321,6 +325,12 @@ export const purchaseRequestQuoteColumns = ({
             color="emerald"
             onClick={() => onApprove(id)}
             canRender={!isApproved && permissions.canApprove}
+          />
+          <ButtonAction
+            icon={PercentCircle}
+            tooltip="Solicitar Ajuste de Bono/Descuento"
+            onClick={() => onRequestAdjustment(row.original)}
+            canRender={row.original.is_paid && permissions.canRequestAdjustment}
           />
         </div>
       );

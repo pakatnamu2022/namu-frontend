@@ -16,6 +16,8 @@ export default function VehicleDeliveryOptions({
   setSedeId,
   statusDelivery = "all",
   setStatusDelivery,
+  annulled = "all",
+  setAnnulled,
 }: {
   search: string;
   setSearch: (value: string) => void;
@@ -26,6 +28,8 @@ export default function VehicleDeliveryOptions({
   setSedeId: (value: string) => void;
   statusDelivery?: string;
   setStatusDelivery: (value: string) => void;
+  annulled?: string;
+  setAnnulled: (value: string) => void;
 }) {
   const { data: availableSedes = [] } = useMyShops();
 
@@ -42,6 +46,12 @@ export default function VehicleDeliveryOptions({
     { value: "all", label: "Todos" },
     { value: "pending", label: "Pendientes" },
     { value: "delivered", label: "Entregados" },
+  ];
+
+  const annulledOptions = [
+    { value: "all", label: "Activas e Inactivas" },
+    { value: "0", label: "Solo activas" },
+    { value: "1", label: "Solo anuladas" },
   ];
 
   return (
@@ -64,6 +74,14 @@ export default function VehicleDeliveryOptions({
         value={statusDelivery}
         onChange={setStatusDelivery}
         placeholder="Seleccionar estado"
+        className="w-fit"
+        classNameOption="text-xs"
+      />
+      <SearchableSelect
+        options={annulledOptions}
+        value={annulled}
+        onChange={setAnnulled}
+        placeholder="Guías anuladas"
         className="w-fit"
         classNameOption="text-xs"
       />

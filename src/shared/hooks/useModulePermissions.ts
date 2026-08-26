@@ -310,6 +310,34 @@ export const PERMISSION_ACTIONS: PermissionAction[] = [
     icon: "CheckCircle",
     description: "Permite autorizar la reversión de una nota interna",
   },
+  {
+    value: "viewAdjustments",
+    label: "Ver Ajustes de Margen",
+    icon: "Eye",
+    description:
+      "Permite ver la bandeja de solicitudes de ajuste de bono/descuento post-pago",
+  },
+  {
+    value: "requestAdjustment",
+    label: "Solicitar Ajuste de Margen",
+    icon: "PercentCircle",
+    description:
+      "Permite solicitar un ajuste de bono/descuento sobre una cotización ya pagada",
+  },
+  {
+    value: "approveAdjustment",
+    label: "Aprobar Ajuste de Margen",
+    icon: "ThumbsUp",
+    description:
+      "Permite aprobar una solicitud de ajuste de bono/descuento post-pago",
+  },
+  {
+    value: "rejectAdjustment",
+    label: "Rechazar Ajuste de Margen",
+    icon: "ThumbsDown",
+    description:
+      "Permite rechazar una solicitud de ajuste de bono/descuento post-pago",
+  },
 ];
 
 /**
@@ -397,5 +425,9 @@ export function useModulePermissions(moduleCode: string) {
     canAuthorizeReversalInternalNote: hasModulePermission(
       "authorizeReversalInternalNote",
     ),
+    canViewAdjustments: hasModulePermission("viewAdjustments"),
+    canRequestAdjustment: hasModulePermission("requestAdjustment"),
+    canApproveAdjustment: hasModulePermission("approveAdjustment"),
+    canRejectAdjustment: hasModulePermission("rejectAdjustment"),
   };
 }

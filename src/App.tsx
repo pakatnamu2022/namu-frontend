@@ -94,6 +94,8 @@ import ManageLeadsPage from "./app/ap/comercial/gestionar-leads/page";
 import PurchaseRequestQuotePage from "./app/ap/comercial/solicitudes-cotizaciones/page";
 import AddPurchaseRequestQuotePage from "./app/ap/comercial/solicitudes-cotizaciones/[opportunity_id]/agregar/page";
 import UpdatePurchaseRequestQuotePage from "./app/ap/comercial/solicitudes-cotizaciones/actualizar/[id]/page";
+import AdjustmentRequestInboxPage from "./app/ap/comercial/solicitudes-cotizaciones/ajustes-margen/page";
+import AdjustmentRequestDetailPage from "./app/ap/comercial/solicitudes-cotizaciones/ajustes-margen/[id]/page";
 import DeclaracionJuradaKycPage from "./app/ap/comercial/declaracion-jurada-kyc/page";
 import AddDeclaracionJuradaKycPage from "./app/ap/comercial/declaracion-jurada-kyc/agregar/page";
 import UpdateDeclaracionJuradaKycPage from "./app/ap/comercial/declaracion-jurada-kyc/actualizar/[id]/page";
@@ -969,6 +971,14 @@ function App() {
               <Route
                 path="solicitudes-cotizaciones/actualizar/:id"
                 element={<UpdatePurchaseRequestQuotePage />}
+              />
+              <Route
+                path="solicitudes-cotizaciones/ajustes-margen"
+                element={<AdjustmentRequestInboxPage />}
+              />
+              <Route
+                path="solicitudes-cotizaciones/ajustes-margen/:id"
+                element={<AdjustmentRequestDetailPage />}
               />
 
               {/* Declaración Jurada KYC */}
