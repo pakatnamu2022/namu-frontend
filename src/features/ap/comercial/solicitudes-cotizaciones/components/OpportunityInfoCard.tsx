@@ -21,7 +21,10 @@ import {
 } from "lucide-react";
 import { OpportunityResource } from "../../oportunidades/lib/opportunities.interface";
 import { FamiliesResource } from "@/features/ap/configuraciones/vehiculos/familias/lib/families.interface";
-import { useFamilies } from "../../oportunidades/lib/opportunities.hook";
+import {
+  useFamilies,
+  useUpdateOpportunityFamily,
+} from "../../oportunidades/lib/opportunities.hook";
 import { SearchableSelectAsync } from "@/shared/components/SearchableSelectAsync";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
@@ -105,13 +108,29 @@ export const OpportunityInfoCard = ({
   const [isEditingFamily, setIsEditingFamily] = useState(false);
   const [familyDraft, setFamilyDraft] = useState("");
 
+  const { mutate: updateFamily, isPending: isSavingFamily } =
+    useUpdateOpportunityFamily();
+
   const handleFamilySelect = (value: string, item?: FamiliesResource) => {
     setFamilyDraft(value);
-    if (item) {
-      setDisplayedFamily(item);
-      onFamilyChange?.(item.id, item);
+    if (!item) return;
+
+    // Si no cambió, solo cerrar el editor sin llamar a la API.
+    if (item.id === displayedFamily.id) {
       setIsEditingFamily(false);
+      return;
     }
+
+    updateFamily(
+      { id: opportunity.id, familyId: item.id },
+      {
+        onSuccess: () => {
+          setDisplayedFamily(item);
+          onFamilyChange?.(item.id, item);
+          setIsEditingFamily(false);
+        },
+      },
+    );
   };
 
   return (
@@ -209,6 +228,7 @@ export const OpportunityInfoCard = ({
                     onValueChange={handleFamilySelect}
                     placeholder="Buscar familia..."
                     buttonSize="sm"
+                    disabled={isSavingFamily}
                   />
                 </div>
                 <Button
@@ -217,6 +237,7 @@ export const OpportunityInfoCard = ({
                   variant="outline"
                   size="icon-sm"
                   title="Cancelar"
+                  disabled={isSavingFamily}
                 >
                   <X/>
                 </Button>

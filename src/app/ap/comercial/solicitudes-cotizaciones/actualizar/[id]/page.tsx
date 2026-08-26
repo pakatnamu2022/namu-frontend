@@ -85,6 +85,7 @@ export default function UpdatePurchaseRequestQuotePage() {
       credit_type_id: data.credit_type_id?.toString() || "",
       credit_entity_id: data.credit_entity_id?.toString() || "",
       insurance_entity_id: data.insurance_entity_id?.toString() || "",
+      has_gps_hunter: !!data.has_gps_hunter,
       gps_hunter_years: data.gps_hunter_years?.toString() || "",
     };
   }

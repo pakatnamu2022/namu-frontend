@@ -91,6 +91,7 @@ export const PurchaseRequestQuoteForm = ({
     ),
     defaultValues: {
       quote_deadline: defaultDeadline,
+      has_gps_hunter: false,
       ...defaultValues,
     },
     mode: "onChange",
@@ -371,7 +372,11 @@ export const PurchaseRequestQuoteForm = ({
     : modelsVn.find((model) => model.id === Number(modelVnWatch));
 
   const originalPrice = selectedModel?.sale_price || 0;
-  const currencySymbol = selectedModel?.currency_symbol || "S/";
+  // Sin modelo/vehículo elegido todavía, mostrar dólares por defecto (no soles).
+  const currencySymbol =
+    selectedModel?.currency_symbol ||
+    currencyTypes.find((c) => c.code === "USD")?.symbol ||
+    "$";
 
   // Obtener el billed_cost del vehículo seleccionado (cuando se selecciona con VIN)
   const billedCost = vehicleVnSelected?.billed_cost
@@ -637,11 +642,21 @@ export const PurchaseRequestQuoteForm = ({
 
   // Tipo de cambio oficial (SBS) para USD
   const today = getTodayPeruDateString();
-  const usdCurrencyId = currencyTypes.find((c) => c.code === "USD")?.id ?? null;
+  const usdCurrency = currencyTypes.find((c) => c.code === "USD");
+  const usdCurrencyId = usdCurrency?.id ?? null;
   const { data: usdExchangeRateData } = useExchangeRateByDateAndCurrency(
     usdCurrencyId,
     today,
   );
+
+  // Moneda por defecto cuando aún no hay modelo/vehículo elegido (p. ej. sin
+  // VIN todavía sin modelo): dólares en vez de soles, para no dejar el
+  // formulario en una moneda inválida (id 0) mientras se termina de armar la
+  // cotización.
+  const defaultVehicleCurrency = {
+    currencyId: usdCurrencyId ?? 0,
+    symbol: usdCurrency?.symbol || "$",
+  };
 
   // Obtener la moneda del vehículo (modelo VN o vehículo VN)
   const getVehicleCurrency = () => {
@@ -654,18 +669,19 @@ export const PurchaseRequestQuoteForm = ({
           (model) => model.id === Number(selectedVehicle.ap_models_vn_id),
         );
         return {
-          currencyId: modelOfVehicle?.currency_type_id || 0,
-          symbol: modelOfVehicle?.currency_symbol || "S/",
+          currencyId:
+            modelOfVehicle?.currency_type_id || defaultVehicleCurrency.currencyId,
+          symbol: modelOfVehicle?.currency_symbol || defaultVehicleCurrency.symbol,
         };
       }
     } else if (modelVnWatch) {
       const model = modelsVn.find((m) => m.id === Number(modelVnWatch));
       return {
-        currencyId: model?.currency_type_id || 0,
-        symbol: model?.currency_symbol || "S/",
+        currencyId: model?.currency_type_id || defaultVehicleCurrency.currencyId,
+        symbol: model?.currency_symbol || defaultVehicleCurrency.symbol,
       };
     }
-    return { currencyId: 0, symbol: "S/" };
+    return defaultVehicleCurrency;
   };
 
   const vehicleCurrency = getVehicleCurrency();
@@ -841,9 +857,11 @@ export const PurchaseRequestQuoteForm = ({
       insurance_entity_id: data.insurance_entity_id
         ? Number(data.insurance_entity_id)
         : null,
-      gps_hunter_years: data.gps_hunter_years
-        ? parseInt(data.gps_hunter_years, 10)
-        : null,
+      has_gps_hunter: !!data.has_gps_hunter,
+      gps_hunter_years:
+        data.has_gps_hunter && data.gps_hunter_years
+          ? parseInt(data.gps_hunter_years, 10)
+          : null,
     };
 
     onSubmit(finalData);
