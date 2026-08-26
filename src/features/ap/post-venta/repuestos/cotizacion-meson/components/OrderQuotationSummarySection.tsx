@@ -10,6 +10,7 @@ import { SunatConceptsResource } from "@/features/gp/maestro-general/conceptos-s
 import { OrderQuotationResource } from "../../../taller/cotizacion/lib/proforma.interface";
 import { AssignSalesSeriesResource } from "@/features/ap/configuraciones/maestros-general/series/lib/assignSalesSeries.interface";
 import { useCustomersById } from "@/features/ap/comercial/clientes/lib/customers.hook";
+import { formatDate } from "@/core/core.function";
 
 interface OrderQuotationSummarySectionProps {
   form: UseFormReturn<ElectronicDocumentSchema>;
@@ -371,13 +372,10 @@ export function OrderQuotationSummarySection({
           <div className="pt-4 border-t border-muted-foreground/10">
             <p className="text-xs text-center text-muted-foreground">
               {form.watch("fecha_de_emision")
-                ? new Date(
-                    form.watch("fecha_de_emision") + "T00:00:00",
-                  ).toLocaleDateString("es-PE", {
-                    day: "2-digit",
-                    month: "long",
-                    year: "numeric",
-                  })
+                ? formatDate(
+                    form.watch("fecha_de_emision"),
+                    "dd 'de' MMMM 'de' yyyy",
+                  )
                 : "Sin fecha"}
             </p>
           </div>

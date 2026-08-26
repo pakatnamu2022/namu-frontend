@@ -8,6 +8,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import {
   ERROR_MESSAGE,
   errorToast,
+  getTodayPeruDateString,
   SUCCESS_MESSAGE,
   successToast,
 } from "@/core/core.function.ts";
@@ -115,7 +116,7 @@ export default function AddHistoricalFinalSaleWithAdvanceCajaPage() {
       sunat_concept_transaction_type_id: "",
       area_id: AREA_POSTVENTA.toString(),
       client_id: "",
-      fecha_de_emision: new Date().toISOString().split("T")[0],
+      fecha_de_emision: getTodayPeruDateString(),
       total: 0,
       items: [],
       enviar_automaticamente_a_la_sunat: false,

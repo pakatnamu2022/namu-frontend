@@ -31,11 +31,7 @@ export default function AddDebitNotePage() {
 
   const { mutate, isPending } = useMutation({
     mutationFn: (data: DebitNoteSchema) =>
-      createDebitNote(
-        documentId,
-        data,
-        originalDocument?.fecha_de_emision || ""
-      ),
+      createDebitNote(documentId, data, data.fecha_nota_debito),
     onSuccess: () => {
       successToast("Nota de débito generada correctamente");
       router(ABSOLUTE_ROUTE);

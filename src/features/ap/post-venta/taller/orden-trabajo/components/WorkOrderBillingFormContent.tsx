@@ -22,7 +22,11 @@ import { useAllApBank } from "@/features/ap/configuraciones/maestros-general/che
 import { storeElectronicDocument } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.actions";
 import WorkOrderBillingForm from "./WorkOrderBillingForm.tsx";
 import InvoiceList from "../../../../facturacion/electronic-documents/components/InvoiceList.tsx";
-import { errorToast, successToast } from "@/core/core.function";
+import {
+  errorToast,
+  getTodayPeruDateString,
+  successToast,
+} from "@/core/core.function";
 import {
   SUNAT_CONCEPTS_TYPE,
   SUNAT_TRANSACTIONS_ID,
@@ -90,7 +94,7 @@ export default function WorkOrderBillingFormContent({
       area_id: AREA_TALLER.toString(),
       is_advance_payment: false,
       client_id: "",
-      fecha_de_emision: new Date().toISOString().split("T")[0],
+      fecha_de_emision: getTodayPeruDateString(),
       sunat_concept_currency_id: "",
       total_gravada: 0,
       total_inafecta: 0,
@@ -214,7 +218,7 @@ export default function WorkOrderBillingFormContent({
       area_id: AREA_TALLER.toString(),
       is_advance_payment: isAdvance,
       client_id: workOrder?.invoice_to_client?.id?.toString() || "",
-      fecha_de_emision: new Date().toISOString().split("T")[0],
+      fecha_de_emision: getTodayPeruDateString(),
       sunat_concept_currency_id: penCurrency?.id.toString() || "",
       total_gravada: 0,
       total_inafecta: 0,
