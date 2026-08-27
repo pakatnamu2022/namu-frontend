@@ -64,18 +64,35 @@ export function BonusDiscountSheet({
     defaultValues: { isDeduced: false },
   });
   const isDeduced = deduccionForm.watch("isDeduced");
-  // En modo edición el valor guardado ya es el neto (con el 7% aplicado si
-  // corresponde), así que el switch solo corrige la etiqueta has_retention
-  // sin volver a aplicar el factor sobre un valor que ya está deducido.
+  // El usuario SIEMPRE ingresa el valor bruto en el campo "Valor". El monto
+  // que realmente se guarda / afecta el precio es el neto (bruto x 0.93 cuando
+  // aplica retención). Se calcula aquí, se muestra en la Vista Previa y se
+  // envía en handleSubmit: el asesor no tiene que sacar el 7% con calculadora.
   const valorEfectivo =
-    mode === "add" && isDeduced
+    isDeduced
       ? Math.round(form.valor * DEDUCCION_7_FACTOR * 100) / 100
       : form.valor;
+
+  // Monto en la moneda del vehículo (resuelve el % contra el precio de venta),
+  // en bruto y en neto, para la Vista Previa.
+  const montoBruto = form.isPercentage
+    ? (costoReferencia * form.valor) / 100
+    : form.valor;
+  const montoEfectivo = isDeduced
+    ? Math.round(montoBruto * DEDUCCION_7_FACTOR * 100) / 100
+    : montoBruto;
 
   useEffect(() => {
     if (open) {
       const initial = initialValues ?? EMPTY_FORM;
-      setForm(initial);
+      // `initial.valor` viene como neto (así se guarda). Para editar mostramos
+      // el bruto en el campo, reconstruyéndolo, y que el flujo sea idéntico a
+      // "agregar": ingresas bruto, ves el neto.
+      const valorBruto =
+        initial.hasRetention && initial.valor > 0
+          ? Math.round((initial.valor / DEDUCCION_7_FACTOR) * 100) / 100
+          : initial.valor;
+      setForm({ ...initial, valor: valorBruto });
       setPreviousParentConceptId(initial.parent_concept_id);
       setErrors({ parent_concept_id: false, concept_id: false, valor: false });
       deduccionForm.reset({ isDeduced: initial.hasRetention ?? false });
@@ -228,7 +245,7 @@ export function BonusDiscountSheet({
         <div>
           <FormInput
             name="valor"
-            label="Valor"
+            label={isDeduced ? "Valor bruto (antes del 7%)" : "Valor"}
             type="number"
             value={form.valor || ""}
             onChange={(e) => {
@@ -249,11 +266,7 @@ export function BonusDiscountSheet({
               control={deduccionForm.control}
               name="isDeduced"
               text="Aplica retención 7%"
-              textDescription={
-                mode === "add"
-                  ? "El monto ingresado se guardará neto, reducido en 7% (x0.93)"
-                  : "El valor ya guardado es neto: este switch solo corrige la marca de retención, no vuelve a aplicar el 7%"
-              }
+              textDescription="Ingresa el valor bruto: se guardará el neto (bruto − 7%). El resultado se ve abajo en Vista Previa."
               autoHeight
             />
           </Form>
@@ -276,31 +289,44 @@ export function BonusDiscountSheet({
                 </div>
                 <div>
                   <span className="opacity-75">
-                    Monto {form.isNegative ? "Descuento" : "Bono"}:
+                    Monto {form.isNegative ? "Descuento" : "Bono"}
+                    {isDeduced ? " (neto)" : ""}:
                   </span>
                   <p className="font-medium">
                     {form.isNegative ? "- " : ""}
                     {currencySymbol}{" "}
-                    {form.isPercentage
-                      ? (
-                          (costoReferencia * valorEfectivo) /
-                          100
-                        ).toLocaleString("es-PE", {
-                          minimumFractionDigits: 2,
-                        })
-                      : valorEfectivo.toLocaleString("es-PE", {
-                          minimumFractionDigits: 2,
-                        })}
+                    {montoEfectivo.toLocaleString("es-PE", {
+                      minimumFractionDigits: 2,
+                    })}
                   </p>
+                  {isDeduced && (
+                    <p className="text-xs opacity-75">
+                      bruto {currencySymbol}{" "}
+                      {montoBruto.toLocaleString("es-PE", {
+                        minimumFractionDigits: 2,
+                      })}{" "}
+                      − 7% ({currencySymbol}{" "}
+                      {(montoBruto - montoEfectivo).toLocaleString("es-PE", {
+                        minimumFractionDigits: 2,
+                      })}
+                      )
+                    </p>
+                  )}
                 </div>
               </div>
               {form.isNegative && (
-                <Alert variant="destructive" className="mt-2">
-                  <AlertCircle className="h-4 w-4" />
-                  <AlertDescription>
-                    Este descuento afectará el precio final del vehículo
-                  </AlertDescription>
-                </Alert>
+                <div className="mt-2 flex items-center justify-between rounded-md bg-background/60 px-3 py-2">
+                  <span className="text-sm opacity-75">
+                    Precio final del vehículo:
+                  </span>
+                  <span className="font-semibold">
+                    {currencySymbol}{" "}
+                    {Math.max(costoReferencia - montoEfectivo, 0).toLocaleString(
+                      "es-PE",
+                      { minimumFractionDigits: 2 },
+                    )}
+                  </span>
+                </div>
               )}
             </AlertDescription>
           </Alert>
