@@ -25,7 +25,7 @@ export default function TechnicianProductivitySummaryCards({
       <MetricCard
         title="Horas facturadas"
         value={formatHours(summary.billed_hours)}
-        subtitle={`de ${formatHours(summary.standard_hours)} estándar`}
+        subtitle={`de ${formatHours(summary.standard_hours)} laborables`}
         icon={Clock}
         variant="outline"
         color={color}

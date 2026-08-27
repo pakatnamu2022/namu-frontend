@@ -1,5 +1,18 @@
-import { VehicleResource } from "@/features/ap/comercial/vehiculos/lib/vehicles.interface";
 import { type Links, type Meta } from "@/shared/lib/pagination.interface.ts";
+
+// Vehículo tal como lo devuelve el endpoint de citas (forma aplanada,
+// distinta de VehicleResource: brand/model/color son strings planos).
+export interface AppointmentVehicleResource {
+  id: number;
+  plate: string;
+  vin: string;
+  brand: string;
+  model: string;
+  year: number;
+  color: string;
+  engine_type: string;
+  engine_number: string;
+}
 
 export interface AppointmentPlanningResponse {
   data: AppointmentPlanningResource[];
@@ -23,7 +36,7 @@ export interface AppointmentPlanningResource {
   type_planning_name: string;
   type_operation_appointment_name: string;
   ap_vehicle_id: number;
-  vehicle: VehicleResource;
+  vehicle: AppointmentVehicleResource;
   advisor_id: number;
   sede_id: number;
   sede_name: string;

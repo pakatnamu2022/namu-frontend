@@ -93,6 +93,28 @@ export interface AttendanceSyncRangeResponse {
   days: number;
 }
 
+export interface AttendanceBulkStoreMark {
+  time: string;
+  mark_type: MarkType;
+}
+
+export interface AttendanceBulkStoreDate {
+  date: string;
+  marks: AttendanceBulkStoreMark[];
+}
+
+export interface AttendanceBulkStorePayload {
+  person_id: number;
+  sede_id: number;
+  dates: AttendanceBulkStoreDate[];
+}
+
+export interface AttendanceBulkStoreResponse {
+  message: string;
+  created?: number;
+  skipped?: number;
+}
+
 export interface AttendanceReportFilters {
   date_from: string;
   date_to: string;

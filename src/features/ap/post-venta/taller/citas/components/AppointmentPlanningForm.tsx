@@ -376,7 +376,7 @@ export const AppointmentPlanningForm = ({
                     value: appointmentPlanningData.vehicle.id.toString(),
                     label: `${appointmentPlanningData.vehicle.vin || "S/N"} | ${
                       appointmentPlanningData.vehicle.plate || ""
-                    } | ${appointmentPlanningData.vehicle.model?.brand || ""}`,
+                    } | ${appointmentPlanningData.vehicle.brand || ""}`,
                   }
                 : undefined
             }
