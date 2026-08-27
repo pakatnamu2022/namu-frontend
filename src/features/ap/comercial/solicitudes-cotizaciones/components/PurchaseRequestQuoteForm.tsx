@@ -801,7 +801,10 @@ export const PurchaseRequestQuoteForm = ({
     (c) => c.id === Number(invoiceCurrencyId),
   );
 
-  // Transformar datos de bonos/descuentos para el envío
+  // Transformar datos de bonos/descuentos para el envío.
+  // `row.valor` ya es el monto final (neto): al agregar, el sheet aplica el 7%
+  // (valorEfectivo); al editar / recargar, se toma tal cual el valor guardado.
+  // El backend guarda `value` sin recalcular; `has_retention` es solo etiqueta.
   const transformBonusDiscountData = () => {
     return bonusDiscountRows.map((row) => {
       return {

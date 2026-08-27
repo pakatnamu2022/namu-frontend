@@ -136,6 +136,9 @@ export default function AdjustmentRequestForm({
       return;
     }
 
+    // `item.value` ya es el monto final (neto): al agregar, el sheet aplica el
+    // 7% (valorEfectivo); al editar, se toma el valor actual tal cual. El
+    // backend lo guarda sin recalcular; `has_retention` es solo etiqueta.
     const items: AdjustmentItemPayload[] = stagedItems.map((item) => ({
       action: item.action,
       discount_coupon_id: item.discount_coupon_id ?? null,
