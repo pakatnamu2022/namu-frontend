@@ -110,38 +110,46 @@ function WorkOrderWithoutLabourCard({
   );
 }
 
+// Normaliza para comparación exacta: minúsculas, sin acentos y sin
+// espacios/guiones/símbolos, de modo que "ABC-123", "abc 123" y "N° OT 123"
+// se comparen de forma consistente.
+function normalizeSearchValue(value: string) {
+  return value
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[̀-ͯ]/g, "")
+    .replace(/[^a-z0-9]/g, "");
+}
+
+function matchesExactSearch(
+  wo: { work_order_number?: string; vehicle_plate?: string },
+  normalizedSearch: string,
+) {
+  const workOrderNumber = normalizeSearchValue(wo.work_order_number ?? "");
+  const vehiclePlate = normalizeSearchValue(wo.vehicle_plate ?? "");
+  return (
+    workOrderNumber === normalizedSearch || vehiclePlate === normalizedSearch
+  );
+}
+
 export default function TechnicianProductivityWorkOrderCards({
   workOrders,
   workOrdersWithoutLabour,
 }: TechnicianProductivityWorkOrderCardsProps) {
   const [search, setSearch] = useState("");
 
-  const normalizedSearch = search.trim().toLowerCase();
+  const normalizedSearch = normalizeSearchValue(search);
 
   const filteredWorkOrders = useMemo(() => {
     if (!normalizedSearch) return workOrders;
-
-    return workOrders.filter((wo) => {
-      const workOrderNumber = wo.work_order_number?.toLowerCase() ?? "";
-      const vehiclePlate = wo.vehicle_plate?.toLowerCase() ?? "";
-      return (
-        workOrderNumber.includes(normalizedSearch) ||
-        vehiclePlate.includes(normalizedSearch)
-      );
-    });
+    return workOrders.filter((wo) => matchesExactSearch(wo, normalizedSearch));
   }, [workOrders, normalizedSearch]);
 
   const filteredWorkOrdersWithoutLabour = useMemo(() => {
     if (!normalizedSearch) return workOrdersWithoutLabour;
-
-    return workOrdersWithoutLabour.filter((wo) => {
-      const workOrderNumber = wo.work_order_number?.toLowerCase() ?? "";
-      const vehiclePlate = wo.vehicle_plate?.toLowerCase() ?? "";
-      return (
-        workOrderNumber.includes(normalizedSearch) ||
-        vehiclePlate.includes(normalizedSearch)
-      );
-    });
+    return workOrdersWithoutLabour.filter((wo) =>
+      matchesExactSearch(wo, normalizedSearch),
+    );
   }, [workOrdersWithoutLabour, normalizedSearch]);
 
   return (
@@ -149,7 +157,7 @@ export default function TechnicianProductivityWorkOrderCards({
       <SearchInput
         value={search}
         onChange={setSearch}
-        placeholder="Buscar por N° OT o placa..."
+        placeholder="Buscar por N° OT o placa exacta..."
         className="w-full md:max-w-sm"
       />
 
@@ -164,8 +172,11 @@ export default function TechnicianProductivityWorkOrderCards({
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3">
-            {filteredWorkOrders.map((wo) => (
-              <WorkOrderCard key={wo.work_order_id} wo={wo} />
+            {filteredWorkOrders.map((wo, index) => (
+              <WorkOrderCard
+                key={`${wo.work_order_id}-${wo.descripcion_labour ?? ""}-${index}`}
+                wo={wo}
+              />
             ))}
           </div>
         )}
@@ -179,8 +190,11 @@ export default function TechnicianProductivityWorkOrderCards({
             {filteredWorkOrdersWithoutLabour.length})
           </h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3">
-            {filteredWorkOrdersWithoutLabour.map((wo) => (
-              <WorkOrderWithoutLabourCard key={wo.work_order_id} wo={wo} />
+            {filteredWorkOrdersWithoutLabour.map((wo, index) => (
+              <WorkOrderWithoutLabourCard
+                key={`${wo.work_order_id}-${index}`}
+                wo={wo}
+              />
             ))}
           </div>
         </div>
