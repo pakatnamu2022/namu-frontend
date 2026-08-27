@@ -93,6 +93,12 @@ export const PERMISSION_ACTIONS: PermissionAction[] = [
     description: "Permite ver información de asesores asignados",
   },
   {
+    value: "viewAll",
+    label: "Ver Todo",
+    icon: "Eye",
+    description: "Permite ver todos los registros sin restricción",
+  },
+  {
     value: "viewBranches",
     label: "Ver Por Sedes",
     icon: "Building",
@@ -382,6 +388,7 @@ export function useModulePermissions(moduleCode: string) {
     canPrint: hasModulePermission("print"),
     canSend: hasModulePermission("send"),
     canDuplicate: hasModulePermission("duplicate"),
+    canViewAll: hasModulePermission("viewAll"),
     canViewAdvisors: hasModulePermission("viewAdvisors"),
     canViewBranches: hasModulePermission("viewBranches"),
     canAssign: hasModulePermission("assign"),

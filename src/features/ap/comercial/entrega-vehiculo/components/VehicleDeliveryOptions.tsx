@@ -43,9 +43,10 @@ export default function VehicleDeliveryOptions({
   );
 
   const getStatusDelivery = [
-    { value: "all", label: "Todos" },
-    { value: "pending", label: "Pendientes" },
+    { value: "all",       label: "Todos" },
+    { value: "pending",   label: "Pendientes" },
     { value: "delivered", label: "Entregados" },
+    { value: "cancelled", label: "Anulados" },
   ];
 
   const annulledOptions = [
