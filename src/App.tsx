@@ -96,6 +96,7 @@ import AddPurchaseRequestQuotePage from "./app/ap/comercial/solicitudes-cotizaci
 import UpdatePurchaseRequestQuotePage from "./app/ap/comercial/solicitudes-cotizaciones/actualizar/[id]/page";
 import AdjustmentRequestInboxPage from "./app/ap/comercial/solicitudes-cotizaciones/ajustes-margen/page";
 import AdjustmentRequestDetailPage from "./app/ap/comercial/solicitudes-cotizaciones/ajustes-margen/[id]/page";
+import RequestAdjustmentPage from "./app/ap/comercial/solicitudes-cotizaciones/ajustes-margen/agregar/[quoteId]/page";
 import DeclaracionJuradaKycPage from "./app/ap/comercial/declaracion-jurada-kyc/page";
 import AddDeclaracionJuradaKycPage from "./app/ap/comercial/declaracion-jurada-kyc/agregar/page";
 import UpdateDeclaracionJuradaKycPage from "./app/ap/comercial/declaracion-jurada-kyc/actualizar/[id]/page";
@@ -976,6 +977,10 @@ function App() {
               <Route
                 path="solicitudes-cotizaciones/ajustes-margen"
                 element={<AdjustmentRequestInboxPage />}
+              />
+              <Route
+                path="solicitudes-cotizaciones/ajustes-margen/agregar/:quoteId"
+                element={<RequestAdjustmentPage />}
               />
               <Route
                 path="solicitudes-cotizaciones/ajustes-margen/:id"

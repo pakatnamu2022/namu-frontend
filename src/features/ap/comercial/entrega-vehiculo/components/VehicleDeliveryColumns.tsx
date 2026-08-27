@@ -215,11 +215,12 @@ export const vehicleDeliveryColumns = ({
       const value = (getValue() as DeliveryStatus) ?? "pending";
       const config: Record<
         DeliveryStatus,
-        { label: string; color: "green" | "blue" | "amber"; icon: LucideIcon }
+        { label: string; color: "green" | "blue" | "amber" | "red"; icon: LucideIcon }
       > = {
-        pending: { label: "Pendiente", color: "amber", icon: XCircle },
-        delivered: { label: "Entregado", color: "blue", icon: ArrowRightLeft },
+        pending:   { label: "Pendiente",  color: "amber", icon: XCircle },
+        delivered: { label: "Entregado",  color: "blue",  icon: ArrowRightLeft },
         completed: { label: "Completado", color: "green", icon: CheckCircle2 },
+        cancelled: { label: "Anulado",    color: "red",   icon: Ban },
       };
       const { label, color, icon } = config[value] ?? config.pending;
 
@@ -237,7 +238,11 @@ export const vehicleDeliveryColumns = ({
         isAcceptedBySunat &&
         isMigrated;
 
-      const isAnnulled = !!shipping_guide?.is_annulled;
+      // Mostrar badge "Guía anulada" solo en transición: cancelada en sistema pero
+      // el job aún no confirmó en Dynamics (status sigue en delivered/pending)
+      const isGuideCancelled = !!shipping_guide?.cancelled_at;
+      const isDeliveryAlreadyCancelled = value === "cancelled";
+      const showAnnulledBadge = isGuideCancelled && !isDeliveryAlreadyCancelled;
 
       return (
         <div className="flex flex-col gap-1">
@@ -254,7 +259,7 @@ export const vehicleDeliveryColumns = ({
               onClick={() => onSyncWithDynamics!(shipping_guide_id!)}
             />
           </div>
-          {isAnnulled && (
+          {showAnnulledBadge && (
             <Badge color="red" icon={Ban} className="w-fit text-xs">
               Guía anulada
             </Badge>

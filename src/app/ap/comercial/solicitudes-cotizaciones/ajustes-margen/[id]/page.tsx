@@ -5,9 +5,9 @@ import { useState } from "react";
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
 import { notFound } from "@/shared/hooks/useNotFound";
-import PageSkeleton from "@/shared/components/PageSkeleton";
-import TitleComponent from "@/shared/components/TitleComponent";
-import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
+import FormSkeleton from "@/shared/components/FormSkeleton";
+import FormWrapper from "@/shared/components/FormWrapper";
+import TitleFormComponent from "@/shared/components/TitleFormComponent";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -16,6 +16,8 @@ import { NumberFormat } from "@/shared/components/NumberFormat";
 import { ERROR_MESSAGE, errorToast, successToast } from "@/core/core.function";
 import { PURCHASE_REQUEST_QUOTE_ADJUSTMENT } from "@/features/ap/comercial/solicitudes-cotizaciones/ajustes-margen/lib/purchaseRequestQuoteAdjustment.constants";
 import { PURCHASE_REQUEST_QUOTE } from "@/features/ap/comercial/solicitudes-cotizaciones/lib/purchaseRequestQuote.constants";
+import { usePurchaseRequestQuoteById } from "@/features/ap/comercial/solicitudes-cotizaciones/lib/purchaseRequestQuote.hook";
+import QuoteMarginSummary from "@/features/ap/comercial/solicitudes-cotizaciones/ajustes-margen/components/QuoteMarginSummary";
 import {
   useAdjustmentRequestById,
   useApproveAdjustmentRequest,
@@ -31,13 +33,16 @@ import {
 export default function AdjustmentRequestDetailPage() {
   const { checkRouteExists, isLoadingModule } = useCurrentModule();
   const { id } = useParams<{ id: string }>();
-  const { MODEL } = PURCHASE_REQUEST_QUOTE_ADJUSTMENT;
+  const { MODEL, ABSOLUTE_ROUTE } = PURCHASE_REQUEST_QUOTE_ADJUSTMENT;
   // Es una subruta de Solicitudes de Compra: reutiliza el mismo módulo/permisos
   // (no requiere una Vista nueva en el menú).
   const permissions = useModulePermissions(PURCHASE_REQUEST_QUOTE.ROUTE);
 
   const { data: request, isLoading, refetch } = useAdjustmentRequestById(
     Number(id),
+  );
+  const { data: quote } = usePurchaseRequestQuoteById(
+    request?.purchase_request_quote_id ?? 0,
   );
   const approveMutation = useApproveAdjustmentRequest();
   const rejectMutation = useRejectAdjustmentRequest();
@@ -73,7 +78,7 @@ export default function AdjustmentRequestDetailPage() {
     }
   };
 
-  if (isLoadingModule) return <PageSkeleton />;
+  if (isLoadingModule) return <FormSkeleton />;
   if (!checkRouteExists(PURCHASE_REQUEST_QUOTE.ROUTE)) notFound();
   if (
     !permissions.canViewAdjustments &&
@@ -82,23 +87,23 @@ export default function AdjustmentRequestDetailPage() {
     !permissions.canRejectAdjustment
   )
     notFound();
-  if (isLoading || !request) return <PageSkeleton />;
+  if (isLoading || !request) return <FormSkeleton />;
 
   const isPending = request.status === ADJUSTMENT_STATUS_PENDING;
   const marginDelta = request.margin_amount_after - request.margin_amount_before;
 
   return (
-    <div className="space-y-6">
-      <HeaderTableWrapper>
-        <TitleComponent
-          title={`Ajuste de Margen — ${request.quote_correlative}`}
-          subtitle={`Solicitado por ${request.requested_by_name} el ${new Date(request.created_at).toLocaleDateString("es-PE")}`}
-          icon={PURCHASE_REQUEST_QUOTE_ADJUSTMENT.ICON}
-        />
+    <FormWrapper>
+      <TitleFormComponent
+        title={`Ajuste de Margen — ${request.quote_correlative}`}
+        subtitle={`Solicitado por ${request.requested_by_name} el ${new Date(request.created_at).toLocaleDateString("es-PE")}`}
+        icon={PURCHASE_REQUEST_QUOTE_ADJUSTMENT.ICON}
+        backRoute={ABSOLUTE_ROUTE}
+      >
         <Badge color={ADJUSTMENT_STATUS_COLOR[request.status] ?? "gray"}>
           {ADJUSTMENT_STATUS_LABEL[request.status] ?? request.status}
         </Badge>
-      </HeaderTableWrapper>
+      </TitleFormComponent>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className="rounded-xl border p-4">
@@ -111,20 +116,24 @@ export default function AdjustmentRequestDetailPage() {
         </div>
       </div>
 
+      {quote && <QuoteMarginSummary quote={quote} />}
+
       <div className="rounded-xl border p-4 space-y-2">
         <p className="text-sm font-semibold">Impacto en el Margen</p>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div>
             <p className="text-xs text-muted-foreground">Antes</p>
             <p className="text-lg font-semibold">
-              S/ <NumberFormat value={request.margin_amount_before.toFixed(2)} />{" "}
+              {request.currency_symbol}{" "}
+              <NumberFormat value={request.margin_amount_before.toFixed(2)} />{" "}
               ({request.margin_pct_before.toFixed(2)}%)
             </p>
           </div>
           <div>
             <p className="text-xs text-muted-foreground">Después</p>
             <p className="text-lg font-semibold">
-              S/ <NumberFormat value={request.margin_amount_after.toFixed(2)} />{" "}
+              {request.currency_symbol}{" "}
+              <NumberFormat value={request.margin_amount_after.toFixed(2)} />{" "}
               ({request.margin_pct_after.toFixed(2)}%)
             </p>
           </div>
@@ -134,6 +143,7 @@ export default function AdjustmentRequestDetailPage() {
               className={`text-lg font-semibold ${marginDelta >= 0 ? "text-emerald-600" : "text-red-600"}`}
             >
               {marginDelta >= 0 ? "+" : ""}
+              {request.currency_symbol}{" "}
               <NumberFormat value={marginDelta.toFixed(2)} />
             </p>
           </div>
@@ -159,12 +169,12 @@ export default function AdjustmentRequestDetailPage() {
                 <td className="px-4 py-2">{item.concept_code ?? "—"}</td>
                 <td className="px-4 py-2 text-right">
                   {item.previous_precio_unitario != null
-                    ? `S/ ${Number(item.previous_precio_unitario).toFixed(2)}`
+                    ? `${request.currency_symbol} ${Number(item.previous_precio_unitario).toFixed(2)}`
                     : "—"}
                 </td>
                 <td className="px-4 py-2 text-right">
                   {item.new_precio_unitario != null
-                    ? `S/ ${Number(item.new_precio_unitario).toFixed(2)}`
+                    ? `${request.currency_symbol} ${Number(item.new_precio_unitario).toFixed(2)}`
                     : "—"}
                 </td>
               </tr>
@@ -172,6 +182,19 @@ export default function AdjustmentRequestDetailPage() {
           </tbody>
         </table>
       </div>
+
+      {!isPending && request.resolved_by_name && (
+        <div className="rounded-xl border p-4">
+          <p className="text-sm text-muted-foreground">
+            {ADJUSTMENT_STATUS_LABEL[request.status] ?? request.status} por
+          </p>
+          <p className="font-medium">
+            {request.resolved_by_name}
+            {request.resolved_at &&
+              ` · ${new Date(request.resolved_at).toLocaleDateString("es-PE")}`}
+          </p>
+        </div>
+      )}
 
       {request.status === "rejected" && request.rejection_reason && (
         <div className="rounded-xl border border-red-200 bg-red-50 p-4">
@@ -230,6 +253,6 @@ export default function AdjustmentRequestDetailPage() {
           />
         </ConfirmationDialog>
       )}
-    </div>
+    </FormWrapper>
   );
 }

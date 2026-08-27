@@ -5,7 +5,6 @@ import { Plus, Edit2, Trash2, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import GeneralSheet from "@/shared/components/GeneralSheet";
 import { NumberFormat } from "@/shared/components/NumberFormat";
 import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
 import { errorToast, successToast } from "@/core/core.function";
@@ -36,15 +35,15 @@ interface StagedItem {
 }
 
 interface Props {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
   quote: PurchaseRequestQuoteResource;
+  onSuccess: () => void;
+  onCancel: () => void;
 }
 
-export default function RequestAdjustmentSheet({
-  open,
-  onOpenChange,
+export default function AdjustmentRequestForm({
   quote,
+  onSuccess,
+  onCancel,
 }: Props) {
   const { data: conceptsOptions = [] } = useAllConceptDiscountBond();
   const { data: coupons = [], isLoading } = useDiscountCouponsByQuote(
@@ -76,12 +75,6 @@ export default function RequestAdjustmentSheet({
 
   const salePrice = Number(quote.sale_price) || 0;
   const currencySymbol = quote.doc_type_currency_symbol || "S/";
-
-  const handleClose = () => {
-    setReason("");
-    setStagedItems([]);
-    onOpenChange(false);
-  };
 
   const handleAddCreate = (values: Omit<BonusDiscountRow, "id">) => {
     setStagedItems((prev) => [
@@ -161,7 +154,7 @@ export default function RequestAdjustmentSheet({
       successToast(
         "Solicitud de ajuste enviada. Quedará pendiente de aprobación contable.",
       );
-      handleClose();
+      onSuccess();
     } catch (error: any) {
       errorToast(
         error?.response?.data?.message ||
@@ -172,157 +165,141 @@ export default function RequestAdjustmentSheet({
 
   return (
     <>
-      <GeneralSheet
-        open={open}
-        onClose={handleClose}
-        title="Solicitar Ajuste de Bono / Descuento"
-        subtitle={`Cotización ${quote.correlative} · ya pagada — el cambio requiere aprobación contable`}
-        icon="Gift"
-        size="xl"
-        isLoading={isLoading}
-        childrenFooter={
-          <div className="flex justify-end gap-2">
-            <Button variant="outline" onClick={handleClose}>
-              Cancelar
-            </Button>
-            <Button
-              onClick={handleSubmit}
-              disabled={createAdjustment.isPending}
-            >
-              {createAdjustment.isPending ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Enviando...
-                </>
-              ) : (
-                "Enviar Solicitud"
-              )}
-            </Button>
-          </div>
-        }
-      >
-        <div className="space-y-6">
-          <div className="space-y-2">
-            <Label>Bonos / Descuentos actuales</Label>
-            {availableCoupons.length === 0 ? (
-              <p className="text-sm text-muted-foreground">
-                No hay más bonos/descuentos disponibles para editar o eliminar.
-              </p>
-            ) : (
-              <div className="rounded-lg border divide-y">
-                {availableCoupons.map((coupon) => (
-                  <div
-                    key={coupon.id}
-                    className="flex items-center justify-between px-3 py-2 text-sm"
-                  >
-                    <div className="flex flex-col">
-                      <span className="font-medium">
-                        {coupon.concept_code}
-                      </span>
-                      <span
-                        className={
-                          coupon.is_negative
-                            ? "text-red-600"
-                            : "text-emerald-600"
-                        }
-                      >
-                        {coupon.is_negative ? "- " : ""}
-                        {currencySymbol}{" "}
-                        <NumberFormat
-                          value={Number(coupon.precio_unitario).toFixed(2)}
-                        />
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => setEditingCoupon(coupon)}
-                        className="text-blue-600 hover:text-blue-700 hover:bg-blue-50"
-                      >
-                        <Edit2 className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => setDeleteCouponId(coupon.id)}
-                        className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
+      <div className="space-y-6">
+        <div className="space-y-2">
+          <Label>Bonos / Descuentos actuales</Label>
+          {isLoading ? (
+            <p className="text-sm text-muted-foreground">Cargando...</p>
+          ) : availableCoupons.length === 0 ? (
+            <p className="text-sm text-muted-foreground">
+              No hay más bonos/descuentos disponibles para editar o eliminar.
+            </p>
+          ) : (
+            <div className="rounded-lg border divide-y">
+              {availableCoupons.map((coupon) => (
+                <div
+                  key={coupon.id}
+                  className="flex items-center justify-between px-3 py-2 text-sm"
+                >
+                  <div className="flex flex-col">
+                    <span className="font-medium">{coupon.concept_code}</span>
+                    <span
+                      className={
+                        coupon.is_negative
+                          ? "text-red-600"
+                          : "text-emerald-600"
+                      }
+                    >
+                      {coupon.is_negative ? "- " : ""}
+                      {currencySymbol}{" "}
+                      <NumberFormat
+                        value={Number(coupon.precio_unitario).toFixed(2)}
+                      />
+                    </span>
                   </div>
-                ))}
-              </div>
-            )}
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              className="gap-2"
-              onClick={() => setAddSheetOpen(true)}
-            >
-              <Plus className="h-4 w-4" />
-              Agregar Bono / Descuento
-            </Button>
-          </div>
-
-          <div className="space-y-2">
-            <Label>Cambios a solicitar</Label>
-            {stagedItems.length === 0 ? (
-              <p className="text-sm text-muted-foreground">
-                Aún no has agregado ninguna línea de cambio.
-              </p>
-            ) : (
-              <div className="rounded-lg border divide-y">
-                {stagedItems.map((item) => (
-                  <div
-                    key={item.key}
-                    className="flex items-center justify-between px-3 py-2 text-sm"
-                  >
-                    <div className="flex flex-col">
-                      <span className="font-medium">
-                        {ADJUSTMENT_ACTION_LABEL[item.action]} ·{" "}
-                        {item.concept_label}
-                      </span>
-                      {item.action !== "delete" && (
-                        <span className="text-muted-foreground text-xs">
-                          Nuevo valor: {item.type === "PORCENTAJE" ? "" : currencySymbol}{" "}
-                          {item.value} {item.type === "PORCENTAJE" ? "%" : ""}
-                        </span>
-                      )}
-                    </div>
+                  <div className="flex items-center gap-1">
                     <Button
                       type="button"
                       variant="ghost"
                       size="sm"
-                      onClick={() => handleRemoveStaged(item.key)}
-                      className="text-muted-foreground hover:text-red-600"
+                      onClick={() => setEditingCoupon(coupon)}
+                      className="text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                    >
+                      <Edit2 className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setDeleteCouponId(coupon.id)}
+                      className="text-red-600 hover:text-red-700 hover:bg-red-50"
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>
                   </div>
-                ))}
-              </div>
-            )}
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="adjustment-reason">
-              Motivo del ajuste (opcional)
-            </Label>
-            <Textarea
-              id="adjustment-reason"
-              value={reason}
-              onChange={(e) => setReason(e.target.value)}
-              placeholder="Ej. Cayó un bono financiero adicional tras la facturación."
-              rows={3}
-            />
-          </div>
+                </div>
+              ))}
+            </div>
+          )}
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            className="gap-2"
+            onClick={() => setAddSheetOpen(true)}
+          >
+            <Plus className="h-4 w-4" />
+            Agregar Bono / Descuento
+          </Button>
         </div>
-      </GeneralSheet>
+
+        <div className="space-y-2">
+          <Label>Cambios a solicitar</Label>
+          {stagedItems.length === 0 ? (
+            <p className="text-sm text-muted-foreground">
+              Aún no has agregado ninguna línea de cambio.
+            </p>
+          ) : (
+            <div className="rounded-lg border divide-y">
+              {stagedItems.map((item) => (
+                <div
+                  key={item.key}
+                  className="flex items-center justify-between px-3 py-2 text-sm"
+                >
+                  <div className="flex flex-col">
+                    <span className="font-medium">
+                      {ADJUSTMENT_ACTION_LABEL[item.action]} ·{" "}
+                      {item.concept_label}
+                    </span>
+                    {item.action !== "delete" && (
+                      <span className="text-muted-foreground text-xs">
+                        Nuevo valor: {item.type === "PORCENTAJE" ? "" : currencySymbol}{" "}
+                        {item.value} {item.type === "PORCENTAJE" ? "%" : ""}
+                      </span>
+                    )}
+                  </div>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleRemoveStaged(item.key)}
+                    className="text-muted-foreground hover:text-red-600"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="adjustment-reason">Motivo del ajuste (opcional)</Label>
+          <Textarea
+            id="adjustment-reason"
+            value={reason}
+            onChange={(e) => setReason(e.target.value)}
+            placeholder="Ej. Cayó un bono financiero adicional tras la facturación."
+            rows={3}
+          />
+        </div>
+
+        <div className="flex justify-end gap-2">
+          <Button type="button" variant="outline" onClick={onCancel}>
+            Cancelar
+          </Button>
+          <Button onClick={handleSubmit} disabled={createAdjustment.isPending}>
+            {createAdjustment.isPending ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Enviando...
+              </>
+            ) : (
+              "Enviar Solicitud"
+            )}
+          </Button>
+        </div>
+      </div>
 
       <BonusDiscountSheet
         open={addSheetOpen}
