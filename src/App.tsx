@@ -498,6 +498,7 @@ import PayrollRatesPercentagesPage from "./app/gp/gestion-humana/planillas/tasas
 import PayrollConceptsPage from "./app/gp/gestion-humana/planillas/conceptos-planilla/page.tsx";
 import AttendancePage from "./app/gp/gestion-humana/asistencias/page.tsx";
 import AttendancePersonPage from "./app/gp/gestion-humana/asistencias/persona/[personId]/page.tsx";
+import AttendanceBulkStoreRoutePage from "./app/gp/gestion-humana/asistencias/marcacion-masiva/page.tsx";
 import SunafilReportPage from "./app/gp/gestion-humana/asistencias/sunafil/page.tsx";
 import InternalReportPage from "./app/gp/gestion-humana/asistencias/interno/page.tsx";
 import WorkSchedulePage from "./app/gp/gestion-humana/asistencias/horarios/page.tsx";
@@ -2338,6 +2339,10 @@ function App() {
               <Route
                 path="asistencias/asistencias/:personId"
                 element={<AttendancePersonPage />}
+              />
+              <Route
+                path="asistencias/marcacion-masiva"
+                element={<AttendanceBulkStoreRoutePage />}
               />
               <Route
                 path="asistencias/sunafil"

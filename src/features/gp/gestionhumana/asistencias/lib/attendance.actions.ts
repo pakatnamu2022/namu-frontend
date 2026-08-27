@@ -9,6 +9,8 @@ import type {
   AttendanceSyncUnifiedResponse,
   AttendanceSyncRangePayload,
   AttendanceSyncRangeResponse,
+  AttendanceBulkStorePayload,
+  AttendanceBulkStoreResponse,
   AttendanceReportFilters,
   AttendanceInternalResponse,
   AttendanceSunafilResponse,
@@ -56,6 +58,16 @@ export async function syncAttendanceRange(
 ): Promise<AttendanceSyncRangeResponse> {
   const { data } = await api.post<AttendanceSyncRangeResponse>(
     `${ENDPOINT}/sync-range`,
+    payload,
+  );
+  return data;
+}
+
+export async function bulkStoreAttendance(
+  payload: AttendanceBulkStorePayload,
+): Promise<AttendanceBulkStoreResponse> {
+  const { data } = await api.post<AttendanceBulkStoreResponse>(
+    `${ENDPOINT}/bulk-store`,
     payload,
   );
   return data;

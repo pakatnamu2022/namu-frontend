@@ -5,6 +5,7 @@ export const ATTENDANCE = {
   QUERY_KEY: "gp-attendance",
   ROUTE: "asistencias",
   ABSOLUTE_ROUTE: "/gp/gestion-humana/asistencias/asistencias",
+  BULK_STORE_ABSOLUTE_ROUTE: "/gp/gestion-humana/asistencias/marcacion-masiva",
   SUNAFIL_ABSOLUTE_ROUTE: "/gp/gestion-humana/asistencias/sunafil",
   INTERNAL_ABSOLUTE_ROUTE: "/gp/gestion-humana/asistencias/interno",
   PERSON_ABSOLUTE_ROUTE: "/gp/gestion-humana/asistencias/asistencias",
