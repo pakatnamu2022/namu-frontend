@@ -136,14 +136,26 @@ export default function AdjustmentRequestForm({
       return;
     }
 
-    const items: AdjustmentItemPayload[] = stagedItems.map((item) => ({
-      action: item.action,
-      discount_coupon_id: item.discount_coupon_id ?? null,
-      concept_code_id: item.concept_code_id ?? null,
-      type: item.type ?? null,
-      value: item.value,
-      has_retention: item.has_retention,
-    }));
+    const items: AdjustmentItemPayload[] = stagedItems.map((item) => {
+      // El backend (computeAmounts) SIEMPRE multiplica `value` por 0.93 cuando
+      // has_retention es true. Los valores que traemos aquí ya son netos: en
+      // "create" vienen del sheet con el 7% aplicado (valorEfectivo) y en
+      // "update" se cargan desde `precio_unitario` (que ya es neto). Si los
+      // reenviáramos tal cual, el backend aplicaría el 7% otra vez. Mandamos el
+      // bruto reconstruido para que el backend reproduzca el mismo neto.
+      const value =
+        item.has_retention && typeof item.value === "number" && item.value > 0
+          ? Math.round((item.value / 0.93) * 100) / 100
+          : item.value;
+      return {
+        action: item.action,
+        discount_coupon_id: item.discount_coupon_id ?? null,
+        concept_code_id: item.concept_code_id ?? null,
+        type: item.type ?? null,
+        value,
+        has_retention: item.has_retention,
+      };
+    });
 
     try {
       await createAdjustment.mutateAsync({
