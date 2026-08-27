@@ -248,9 +248,25 @@ export const WorkOrderForm = ({
           "vehicle_id",
           selectedAppointment.ap_vehicle_id.toString(),
         );
-        // Setear selectedVehicle para mostrar la info del vehículo
+        // Setear selectedVehicle para mostrar la info del vehículo.
+        // El endpoint de citas devuelve el vehículo en forma aplanada
+        // (brand/model/color planos), así que lo adaptamos a la forma
+        // que espera el DataCard y el FormSelectAsync.
         if (selectedAppointment.vehicle) {
-          setSelectedVehicle(selectedAppointment.vehicle);
+          const v = selectedAppointment.vehicle;
+          setSelectedVehicle({
+            id: v.id,
+            plate: v.plate,
+            vin: v.vin,
+            model: {
+              brand: v.brand,
+              version: v.model,
+            },
+            year: v.year,
+            vehicle_color: v.color,
+            engine_type: v.engine_type,
+            engine_number: v.engine_number,
+          });
         }
       }
       if (selectedAppointment.sede_id) {
@@ -606,9 +622,9 @@ export const WorkOrderForm = ({
           )}
         </GroupFormSection>
 
-        {/* Datos del Servicio */}
+        {/* Datos del Vehículo */}
         <GroupFormSection
-          title="Datos del Servicio"
+          title="Datos del Vehículo"
           icon={Car}
           color="primary"
           cols={{ sm: 1 }}
