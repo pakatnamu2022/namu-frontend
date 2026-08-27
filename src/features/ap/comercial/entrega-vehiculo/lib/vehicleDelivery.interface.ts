@@ -9,7 +9,7 @@ export interface VehiclesDeliveryResponse {
 }
 
 export type WashStatus = "pending" | "completed";
-export type DeliveryStatus = "pending" | "delivered" | "completed";
+export type DeliveryStatus = "pending" | "delivered" | "completed" | "cancelled";
 export type ChecklistStatus = "draft" | "confirmed" | "completed";
 
 export interface VehiclesDeliveryResource {
