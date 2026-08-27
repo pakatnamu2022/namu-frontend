@@ -170,7 +170,7 @@ export default function ProductivityTechnicianDetailSheet({
               />
               <SummaryItem
                 label="Días laborados"
-                value={`${detail.period.working_days} / ${detail.period.total_days}`}
+                value={`${detail.summary.days_worked.toString()} / ${detail.period.total_days}`}
               />
             </div>
 

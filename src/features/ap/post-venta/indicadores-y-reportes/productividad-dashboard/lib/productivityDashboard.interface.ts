@@ -115,6 +115,7 @@ export interface ProductivityTechnicianInfo {
 }
 
 export interface ProductivityDetailSummary {
+  days_worked: number;
   real_hours: number;
   billed_hours: number;
   standard_hours: number;
