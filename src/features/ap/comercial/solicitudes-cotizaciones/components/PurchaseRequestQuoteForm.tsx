@@ -804,11 +804,23 @@ export const PurchaseRequestQuoteForm = ({
   // Transformar datos de bonos/descuentos para el envío
   const transformBonusDiscountData = () => {
     return bonusDiscountRows.map((row) => {
+      const hasRetention = row.hasRetention || false;
+      // El backend (saveBonusDiscounts) SIEMPRE multiplica `value` por 0.93
+      // cuando has_retention es true. En el front `row.valor` ya es el neto:
+      // al crear se guarda con el 7% aplicado (valorEfectivo) y al recargar en
+      // edición se llena desde `amount` (que ya es neto). Si reenviáramos ese
+      // neto como `value`, el backend le aplicaría el 7% otra vez en cada
+      // guardado (93 -> 86.49 -> ...). Reconstruimos el bruto para que el
+      // backend reproduzca exactamente el mismo neto.
+      const value =
+        hasRetention && row.valor > 0
+          ? round2(row.valor / 0.93)
+          : row.valor;
       return {
         concept_id: row.concept_id,
         type: row.isPercentage ? "PORCENTAJE" : "FIJO",
-        value: row.valor,
-        has_retention: row.hasRetention || false,
+        value,
+        has_retention: hasRetention,
       };
     });
   };
