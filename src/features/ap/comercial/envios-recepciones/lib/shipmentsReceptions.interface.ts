@@ -77,6 +77,7 @@ export interface ShipmentsReceptionsResource {
   is_annulled: boolean;
   vin?: string | null;
   vehicle?: VehicleResource;
+  cancelled_at?: string | null;
 }
 
 export interface ShipmentItemResource {
