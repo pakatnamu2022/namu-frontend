@@ -20,7 +20,7 @@ import {
   ReservedStockReportResponse,
 } from "./inventory.interface.ts";
 import {
-  InventoryMovementResponse,
+  InventoryKardexResponse,
   InventoryMovementShowResponse,
   PurchaseHistoryResponse,
 } from "./inventoryMovements.interface.ts";
@@ -69,8 +69,8 @@ export const useInventoryKardex = (
   params?: Record<string, any>,
   options?: { enabled?: boolean },
 ) => {
-  return useQuery<InventoryMovementResponse>({
-    queryKey: ["inventory-movements", params],
+  return useQuery<InventoryKardexResponse>({
+    queryKey: ["inventory-kardex", params],
     queryFn: () => getInventoryKardex({ params }),
     refetchOnWindowFocus: false,
     enabled: options?.enabled ?? true,

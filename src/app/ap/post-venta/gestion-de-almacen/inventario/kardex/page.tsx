@@ -1,5 +1,5 @@
 import { notFound } from "@/shared/hooks/useNotFound.ts";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { INVENTORY } from "@/features/ap/post-venta/gestion-almacen/inventario/lib/inventory.constants.ts";
 import BackButton from "@/shared/components/BackButton.tsx";
 import TitleComponent from "@/shared/components/TitleComponent.tsx";
@@ -12,25 +12,48 @@ import DataTablePagination from "@/shared/components/DataTablePagination.tsx";
 import { useInventoryKardex } from "@/features/ap/post-venta/gestion-almacen/inventario/lib/inventory.hook.ts";
 import PageSkeleton from "@/shared/components/PageSkeleton.tsx";
 import { inventoryKardexColumns } from "@/features/ap/post-venta/gestion-almacen/inventario/components/InventoryKardexColumns.tsx";
+import InventoryKardexActions from "@/features/ap/post-venta/gestion-almacen/inventario/components/InventoryKardexActions.tsx";
+import { useMyPhysicalWarehouse } from "@/features/ap/configuraciones/maestros-general/almacenes/lib/warehouse.hook.ts";
+import { getFirstDayOfMonth } from "@/core/core.function.ts";
 
 export default function InventoryKardexPage() {
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
   const [page, setPage] = useState(1);
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
   const [search, setSearch] = useState("");
-  const [dateFrom, setDateFrom] = useState<Date | undefined>(undefined);
-  const [dateTo, setDateTo] = useState<Date | undefined>(undefined);
+  const [warehouseId, setWarehouseId] = useState("");
+  const [dateFrom, setDateFrom] = useState<Date | undefined>(
+    getFirstDayOfMonth(new Date()),
+  );
+  const [dateTo, setDateTo] = useState<Date | undefined>(new Date());
   const { ABSOLUTE_ROUTE, ROUTE } = INVENTORY;
 
-  const { data, isLoading } = useInventoryKardex({
+  // Obtener mis almacenes físicos de postventa
+  const { data: warehouses = [], isLoading: isLoadingWarehouses } =
+    useMyPhysicalWarehouse();
+
+  // Setear automáticamente el primer almacén cuando se carguen
+  useEffect(() => {
+    if (!isLoadingWarehouses && warehouses.length > 0 && !warehouseId) {
+      setWarehouseId(warehouses[0].id.toString());
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isLoadingWarehouses, warehouses, warehouseId]);
+
+  const kardexFilters = {
     page,
     search,
     per_page,
+    warehouse_id: warehouseId,
     date_from: dateFrom ? dateFrom.toISOString().split("T")[0] : undefined,
     date_to: dateTo ? dateTo.toISOString().split("T")[0] : undefined,
+  };
+
+  const { data, isLoading } = useInventoryKardex(kardexFilters, {
+    enabled: !!warehouseId,
   });
 
-  if (isLoadingModule) return <PageSkeleton />;
+  if (isLoadingModule || isLoadingWarehouses) return <PageSkeleton />;
   if (!checkRouteExists(ROUTE)) notFound();
   if (!currentView) notFound();
 
@@ -42,11 +65,17 @@ export default function InventoryKardexPage() {
           subtitle={`Kardex del inventario`}
           icon={currentView.icon}
         />
-        <BackButton
-          route={`${ABSOLUTE_ROUTE}`}
-          name={"Inventario"}
-          fullname={false}
-        />
+        <div className="flex items-center gap-2">
+          <InventoryKardexActions
+            filters={kardexFilters}
+            disabled={!warehouseId}
+          />
+          <BackButton
+            route={`${ABSOLUTE_ROUTE}`}
+            name={"Inventario"}
+            fullname={false}
+          />
+        </div>
       </HeaderTableWrapper>
       <InventoryKardexTable
         isLoading={isLoading}
@@ -60,6 +89,9 @@ export default function InventoryKardexPage() {
           setDateFrom={setDateFrom}
           dateTo={dateTo}
           setDateTo={setDateTo}
+          warehouses={warehouses}
+          warehouseId={warehouseId}
+          setWarehouseId={setWarehouseId}
         />
       </InventoryKardexTable>
       <DataTablePagination

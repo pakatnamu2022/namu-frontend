@@ -107,6 +107,24 @@ export interface getInventoryKardexProps {
   params?: Record<string, any>;
 }
 
+export interface InventoryKardexResource {
+  id: number;
+  code: string;
+  dyn_code: string;
+  description: string;
+  category: string;
+  brand: string;
+  unit_measurement: string;
+  article_class: string;
+  balance: number;
+}
+
+export interface InventoryKardexResponse {
+  data: InventoryKardexResource[];
+  links: Links;
+  meta: Meta;
+}
+
 export interface getProductPurchaseHistoryProps {
   productId: number;
   warehouseId: number;

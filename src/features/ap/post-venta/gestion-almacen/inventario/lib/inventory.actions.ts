@@ -16,8 +16,8 @@ import {
   getInventoryKardexProps,
   getInventoryMovementProps,
   getProductPurchaseHistoryProps,
+  InventoryKardexResponse,
   InventoryMovementResource,
-  InventoryMovementResponse,
   InventoryMovementShowResponse,
   PurchaseHistoryResponse,
 } from "./inventoryMovements.interface.ts";
@@ -70,17 +70,55 @@ export const getInventoryMovementById = async (
 
 export const getInventoryKardex = async ({
   params,
-}: getInventoryKardexProps): Promise<InventoryMovementResponse> => {
+}: getInventoryKardexProps): Promise<InventoryKardexResponse> => {
   const config: AxiosRequestConfig = {
     params: {
       ...params,
     },
   };
-  const { data } = await api.get<InventoryMovementResponse>(
+  const { data } = await api.get<InventoryKardexResponse>(
     `/ap/postVenta/inventoryMovements/kardex`,
     config,
   );
   return data;
+};
+
+export const exportInventoryKardex = async (
+  params: Record<string, any>,
+): Promise<void> => {
+  const config: AxiosRequestConfig = {
+    params: {
+      ...params,
+    },
+    responseType: "blob",
+  };
+
+  const response = await api.get(
+    `/ap/postVenta/inventoryMovements/kardex/export`,
+    config,
+  );
+
+  const blob = new Blob([response.data], {
+    type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+  });
+  const url = window.URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+
+  const contentDisposition = response.headers["content-disposition"];
+  let filename = `kardex-inventario.xlsx`;
+  if (contentDisposition) {
+    const match = contentDisposition.match(
+      /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/,
+    );
+    if (match?.[1]) filename = match[1].replace(/['"]/g, "");
+  }
+
+  link.setAttribute("download", filename);
+  document.body.appendChild(link);
+  link.click();
+  link.parentNode?.removeChild(link);
+  window.URL.revokeObjectURL(url);
 };
 
 export async function createSaleFromQuotation(
