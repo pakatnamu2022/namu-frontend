@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge.tsx";
 import GeneralSheet from "@/shared/components/GeneralSheet";
 import { ReceptionResource } from "@/features/ap/post-venta/gestion-almacen/recepciones-producto/lib/receptionsProducts.interface.ts";
 import { ShipmentsReceptionsResource } from "@/features/ap/comercial/envios-recepciones/lib/shipmentsReceptions.interface.ts";
+import { ShippingGuidesResource } from "@/features/ap/shipping_guides/lib/shippingGuides.interface.ts";
 import { WorkOrderPartsResource } from "../../../taller/orden-trabajo-repuesto/lib/workOrderParts.interface.ts";
 import { OrderQuotationResource } from "../../../taller/cotizacion/lib/proforma.interface.ts";
 import { TransferReceptionResource } from "../../recepcion-transferencia/lib/transferReception.interface.ts";
@@ -280,52 +281,114 @@ export default function InventoryMovementDetailsSheet({
       }
 
       case "TRANSFER_IN": {
-        const transferReception = reference as TransferReceptionResource;
-        const transferMovement = transferReception.transfer_movement;
-        const shippingGuide = transferReception.shipping_guide;
+        // La referencia puede venir como TransferReception (con transfer_movement
+        // y shipping_guide anidados) o directamente como ShippingGuides, según el
+        // origen del movimiento.
+        const isShippingGuide = reference_type?.includes("ShippingGuides");
+
+        const transferReception = isShippingGuide
+          ? null
+          : (reference as TransferReceptionResource);
+        const transferMovement = transferReception?.transfer_movement;
+        const shippingGuide = isShippingGuide
+          ? (reference as ShippingGuidesResource)
+          : transferReception?.shipping_guide;
 
         return (
           <div className="space-y-4">
             {/* Información de la Recepción */}
-            <div className="border rounded-lg">
-              <div className="p-4 bg-muted/50 border-b">
-                <h3 className="font-semibold text-sm">
-                  Detalles de Recepción de Transferencia
-                </h3>
+            {transferReception && (
+              <div className="border rounded-lg">
+                <div className="p-4 bg-muted/50 border-b">
+                  <h3 className="font-semibold text-sm">
+                    Detalles de Recepción de Transferencia
+                  </h3>
+                </div>
+                <div className="grid grid-cols-2 gap-4 p-4">
+                  <div>
+                    <p className="text-xs text-muted-foreground">N° Recepción</p>
+                    <p className="font-semibold">
+                      {transferReception.reception_number}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-muted-foreground">Fecha</p>
+                    <p className="font-medium">
+                      {formatDate(transferReception.reception_date)}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-muted-foreground">Total Items</p>
+                    <p className="font-medium">
+                      {transferReception.total_items}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-muted-foreground">
+                      Cantidad Total
+                    </p>
+                    <p className="font-medium">
+                      {transferReception.total_quantity}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-muted-foreground">Estado</p>
+                    <Badge variant="default">
+                      {translateStatusTransfer(transferReception.status)}
+                    </Badge>
+                  </div>
+                </div>
               </div>
-              <div className="grid grid-cols-2 gap-4 p-4">
-                <div>
-                  <p className="text-xs text-muted-foreground">N° Recepción</p>
-                  <p className="font-semibold">
-                    {transferReception.reception_number}
-                  </p>
+            )}
+
+            {/* Información del Movimiento (origen/destino desde el movimiento) */}
+            {movement && (
+              <div className="border rounded-lg">
+                <div className="p-4 bg-muted/50 border-b">
+                  <h3 className="font-semibold text-sm">
+                    Información del Movimiento
+                  </h3>
                 </div>
-                <div>
-                  <p className="text-xs text-muted-foreground">Fecha</p>
-                  <p className="font-medium">
-                    {formatDate(transferReception.reception_date)}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-xs text-muted-foreground">Total Items</p>
-                  <p className="font-medium">{transferReception.total_items}</p>
-                </div>
-                <div>
-                  <p className="text-xs text-muted-foreground">
-                    Cantidad Total
-                  </p>
-                  <p className="font-medium">
-                    {transferReception.total_quantity}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-xs text-muted-foreground">Estado</p>
-                  <Badge variant="default">
-                    {translateStatusTransfer(transferReception.status)}
-                  </Badge>
+                <div className="grid grid-cols-2 gap-4 p-4">
+                  <div>
+                    <p className="text-xs text-muted-foreground">
+                      N° Movimiento
+                    </p>
+                    <p className="font-semibold">{movement.movement_number}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-muted-foreground">Fecha</p>
+                    <p className="font-medium">
+                      {formatDate(movement.movement_date)}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-muted-foreground">
+                      Almacén Origen
+                    </p>
+                    <p className="font-medium">
+                      {movement.warehouse_origin?.description ||
+                        shippingGuide?.transmitter_establishment?.description ||
+                        "-"}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-muted-foreground">
+                      Almacén Destino
+                    </p>
+                    <p className="font-medium">
+                      {movement.warehouse_destination?.description ||
+                        shippingGuide?.receiver_establishment?.description ||
+                        "-"}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-muted-foreground">Usuario</p>
+                    <p className="font-medium">{movement.user_name}</p>
+                  </div>
                 </div>
               </div>
-            </div>
+            )}
 
             {/* Información del Movimiento de Transferencia */}
             {transferMovement && (
@@ -397,10 +460,12 @@ export default function InventoryMovementDetailsSheet({
               </div>
             )}
 
-            {transferReception.notes && (
+            {(transferReception?.notes || movement.notes) && (
               <div className="p-4 border rounded-lg">
                 <p className="text-xs text-muted-foreground mb-1">Notas</p>
-                <p className="font-medium text-sm">{transferReception.notes}</p>
+                <p className="font-medium text-sm">
+                  {transferReception?.notes || movement.notes}
+                </p>
               </div>
             )}
           </div>
