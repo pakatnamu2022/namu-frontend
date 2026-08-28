@@ -49,3 +49,19 @@ export async function deleteLiquidacionBbss(
   const { data } = await api.delete<GeneralResponse>(`${ENDPOINT}/${id}`);
   return data;
 }
+
+export interface CalculateGratificationResult {
+  success: boolean;
+  period_id: number;
+  workers_processed: number;
+  skipped: string[];
+}
+
+export async function calculateGratification(
+  periodId: number | string,
+): Promise<CalculateGratificationResult> {
+  const { data } = await api.post<any>(
+    `${ENDPOINT}/calculate-gratification/${periodId}`,
+  );
+  return unwrap<CalculateGratificationResult>(data);
+}

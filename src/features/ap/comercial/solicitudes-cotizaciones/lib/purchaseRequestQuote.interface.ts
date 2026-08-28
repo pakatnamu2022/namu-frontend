@@ -36,12 +36,6 @@ export interface DiscountCouponResource {
   concept_code_parent_id: number | null;
 }
 
-export interface DiscountCouponUpdatePayload {
-  has_retention?: boolean;
-  concept_id?: number;
-  value?: number;
-}
-
 export interface BonusDiscountPayload {
   concept_id: number | string;
   type: "FIJO" | "PORCENTAJE";

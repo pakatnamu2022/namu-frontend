@@ -10,7 +10,15 @@ import InsuranceTable from "@/features/gp/gestionhumana/planillas/insurances/com
 import { insuranceColumns } from "@/features/gp/gestionhumana/planillas/insurances/components/InsuranceColumns";
 import InsuranceOptions from "@/features/gp/gestionhumana/planillas/insurances/components/InsuranceOptions";
 import InsuranceActions from "@/features/gp/gestionhumana/planillas/insurances/components/InsuranceActions";
-import { currentYear } from "@/core/core.function";
+import { deleteInsurance } from "@/features/gp/gestionhumana/planillas/insurances/lib/insurance.actions";
+import { SimpleDeleteDialog } from "@/shared/components/SimpleDeleteDialog";
+import {
+  currentYear,
+  ERROR_MESSAGE,
+  errorToast,
+  SUCCESS_MESSAGE,
+  successToast,
+} from "@/core/core.function";
 import { DEFAULT_PER_PAGE } from "@/core/core.constants";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
 import { notFound } from "@/shared/hooks/useNotFound";
@@ -18,11 +26,12 @@ import { INSURANCE } from "@/features/gp/gestionhumana/planillas/insurances/lib/
 import { useAllCompanies } from "@/features/gp/maestro-general/empresa/lib/company.hook";
 
 export default function InsurancePage() {
-  const { ROUTE } = INSURANCE;
+  const { MODEL, ROUTE } = INSURANCE;
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
   const [page, setPage] = useState(1);
   const [per_page, setPerPage] = useState(DEFAULT_PER_PAGE);
   const [search, setSearch] = useState("");
+  const [deleteId, setDeleteId] = useState<number | null>(null);
 
   const [year, setYear] = useState(String(currentYear()));
   const [companyId, setCompanyId] = useState("");
@@ -42,7 +51,7 @@ export default function InsurancePage() {
     setPage(1);
   }, [search, per_page, year, companyId, periodId]);
 
-  const { data, isLoading } = useInsurances({
+  const { data, isLoading, refetch } = useInsurances({
     page,
     per_page,
     search,
@@ -50,6 +59,21 @@ export default function InsurancePage() {
     period$company_id: companyId,
     ...(periodId ? { period_id: periodId } : {}),
   });
+
+  const handleDelete = async () => {
+    if (!deleteId) return;
+    try {
+      await deleteInsurance(deleteId);
+      await refetch();
+      successToast(SUCCESS_MESSAGE(MODEL, "delete"));
+    } catch (error: any) {
+      errorToast(
+        error?.response?.data?.message ?? ERROR_MESSAGE(MODEL, "delete"),
+      );
+    } finally {
+      setDeleteId(null);
+    }
+  };
 
   if (isLoadingModule) return <PageSkeleton />;
   if (!checkRouteExists(ROUTE)) notFound();
@@ -71,7 +95,7 @@ export default function InsurancePage() {
 
       <InsuranceTable
         isLoading={isLoading}
-        columns={insuranceColumns()}
+        columns={insuranceColumns({ onDelete: setDeleteId })}
         data={data?.data || []}
       >
         <InsuranceOptions
@@ -85,6 +109,14 @@ export default function InsurancePage() {
           setPeriodId={setPeriodId}
         />
       </InsuranceTable>
+
+      {deleteId !== null && (
+        <SimpleDeleteDialog
+          open={true}
+          onOpenChange={(open) => !open && setDeleteId(null)}
+          onConfirm={handleDelete}
+        />
+      )}
 
       <DataTablePagination
         page={page}

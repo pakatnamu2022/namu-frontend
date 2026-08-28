@@ -7,7 +7,6 @@ import {
   ConceptDiscountBondResource,
   CreditInsuranceMasterResource,
   DiscountCouponResource,
-  DiscountCouponUpdatePayload,
   getPurchaseRequestQuoteProps,
   PurchaseRequestQuoteResource,
   PurchaseRequestQuoteResponse,
@@ -265,17 +264,6 @@ export async function getDiscountCouponsByQuote(
     `${DISCOUNT_COUPON_ENDPOINT}/byQuote/${quoteId}`
   );
   return data;
-}
-
-export async function updateDiscountCoupon(
-  id: number,
-  data: DiscountCouponUpdatePayload
-): Promise<DiscountCouponResource> {
-  const response = await api.put<DiscountCouponResource>(
-    `${DISCOUNT_COUPON_ENDPOINT}/${id}`,
-    data
-  );
-  return response.data;
 }
 
 export async function exportPurchaseRequestQuoteFile({

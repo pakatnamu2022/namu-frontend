@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import GeneralSheet from "@/shared/components/GeneralSheet";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
@@ -8,9 +7,8 @@ import { NumberFormat } from "@/shared/components/NumberFormat";
 import { CopyCell } from "@/shared/components/CopyCell";
 import { ButtonAction } from "@/shared/components/ButtonAction";
 import { usePurchaseRequestQuoteById } from "../lib/purchaseRequestQuote.hook";
-import { EditDiscountCouponModal } from "./EditDiscountCouponModal";
 import { BonusDiscountResource } from "../lib/purchaseRequestQuote.interface";
-import { FileDown, Pencil } from "lucide-react";
+import { FileDown } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -82,8 +80,6 @@ export default function PurchaseRequestQuoteDetailModal({
   id,
 }: PurchaseRequestQuoteDetailModalProps) {
   const { data: quote, isLoading } = usePurchaseRequestQuoteById(id);
-  const [editingCoupon, setEditingCoupon] =
-    useState<BonusDiscountResource | null>(null);
 
   const model = quote?.ap_vehicle?.model ?? quote?.model;
   const symbol = quote?.doc_type_currency_symbol ?? "";
@@ -427,16 +423,6 @@ export default function PurchaseRequestQuoteDetailModal({
                     <span className="inline-flex items-center gap-1 justify-end">
                       {item.isDiscount && item.total >= 0 && "+ "}
                       <NumberFormat value={item.total} prefix={symbol} />
-                      {item.coupon &&
-                      !item.coupon.is_negative &&
-                      quote.is_invoiced ? (
-                        <ButtonAction
-                          tooltip="Editar bono / descuento"
-                          icon={Pencil}
-                          color="neutral"
-                          onClick={() => setEditingCoupon(item.coupon!)}
-                        />
-                      ) : null}
                     </span>
                   </TableCell>
                 </TableRow>
@@ -615,12 +601,6 @@ export default function PurchaseRequestQuoteDetailModal({
         </div>
       )}
 
-      <EditDiscountCouponModal
-        open={!!editingCoupon}
-        onClose={() => setEditingCoupon(null)}
-        coupon={editingCoupon}
-        currencySymbol={symbol}
-      />
     </GeneralSheet>
   );
 }

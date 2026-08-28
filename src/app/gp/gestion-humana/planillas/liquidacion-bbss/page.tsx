@@ -85,7 +85,7 @@ export default function LiquidacionBbssPage() {
           subtitle={currentView.descripcion}
           icon={currentView.icon}
         />
-        <LiquidacionBbssActions />
+        <LiquidacionBbssActions periodId={periodId} onCalculated={refetch} />
       </HeaderTableWrapper>
 
       <LiquidacionBbssTable
