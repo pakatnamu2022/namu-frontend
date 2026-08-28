@@ -22,6 +22,10 @@ export interface ApprovedAccessoryRow {
 
 interface ApprovedAccessoriesTableProps {
   accessories: ApprovedAccesoriesResource[];
+  /** Carrocería del modelo/VIN elegido; sin ella no se puede filtrar por precio. */
+  modelBodyTypeId?: number;
+  /** Cachea en el formulario padre el accesorio completo elegido en el buscador async. */
+  onRegisterAccessory?: (accessory: ApprovedAccesoriesResource) => void;
   onAccessoriesChange?: (accessories: ApprovedAccessoryRow[]) => void;
   initialData?: ApprovedAccessoryRow[];
   canCreateApprovedAccessory?: boolean;
@@ -37,6 +41,8 @@ interface ApprovedAccessoriesTableProps {
 
 export const ApprovedAccessoriesTable = ({
   accessories,
+  modelBodyTypeId,
+  onRegisterAccessory,
   onAccessoriesChange,
   initialData = [],
   canCreateApprovedAccessory = false,
@@ -217,6 +223,13 @@ export const ApprovedAccessoriesTable = ({
       }
     >
       <div className="space-y-4 col-span-full">
+        {!modelBodyTypeId && (
+          <div className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-700">
+            Selecciona el modelo o el VIN del vehículo para listar los accesorios
+            homologados que aplican a su carrocería y su precio.
+          </div>
+        )}
+
         {/* DataTable de accesorios agregados */}
         {rows.length > 0 ? (
           <div>
@@ -274,6 +287,8 @@ export const ApprovedAccessoriesTable = ({
         {/* Modal para crear nuevo accesorio homologado (solo comercial) */}
         <CreateApprovedAccessoryModal
           open={isCreateModalOpen}
+          defaultBodyTypeId={modelBodyTypeId}
+          onCreated={onRegisterAccessory}
           onClose={() => setIsCreateModalOpen(false)}
           onSuccess={(accessoryId) => {
             setPendingAccessoryId(accessoryId);
@@ -291,6 +306,8 @@ export const ApprovedAccessoriesTable = ({
           onSubmit={handleAdd}
           accessories={accessories}
           rows={rows}
+          modelBodyTypeId={modelBodyTypeId}
+          onRegisterAccessory={onRegisterAccessory}
           canCreateApprovedAccessory={canCreateApprovedAccessory}
           onOpenCreateModal={() => setIsCreateModalOpen(true)}
           initialAccessoryId={pendingAccessoryId}
@@ -308,6 +325,8 @@ export const ApprovedAccessoriesTable = ({
           editingRow={editingRow}
           accessories={accessories}
           rows={rows}
+          modelBodyTypeId={modelBodyTypeId}
+          onRegisterAccessory={onRegisterAccessory}
           lockPaidAccessories={lockPaidAccessories}
         />
       </div>

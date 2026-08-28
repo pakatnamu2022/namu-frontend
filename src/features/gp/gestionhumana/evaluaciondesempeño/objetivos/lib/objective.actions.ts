@@ -108,6 +108,23 @@ export async function activateObjectiveInCategories(
   return data;
 }
 
+export async function exportAssignedObjectives(
+  format: "excel" | "pdf"
+): Promise<void> {
+  const response = await api.get(
+    "/gp/gh/performanceEvaluation/categoryObjectiveDetail/export-all",
+    { params: { format, title: "Objetivos Asignados" }, responseType: "blob" }
+  );
+  const url = window.URL.createObjectURL(new Blob([response.data]));
+  const link = document.createElement("a");
+  link.href = url;
+  link.setAttribute("download", `objetivos-asignados.${format === "excel" ? "xlsx" : "pdf"}`);
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  window.URL.revokeObjectURL(url);
+}
+
 export async function deactivateObjectiveInCategories(
   id: number,
   categoryIds?: number[]

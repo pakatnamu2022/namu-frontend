@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { useParams } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -18,7 +19,10 @@ import {
   findApprovedAccesoriesById,
   updateApprovedAccesories,
 } from "@/features/ap/post-venta/repuestos/accesorios-homologados/lib/approvedAccessories.actions.ts";
-import { ApprovedAccesoriesSchema } from "@/features/ap/post-venta/repuestos/accesorios-homologados/lib/approvedAccessories.schema.ts";
+import {
+  ApprovedAccesoriesSchema,
+  groupPricesByAmount,
+} from "@/features/ap/post-venta/repuestos/accesorios-homologados/lib/approvedAccessories.schema.ts";
 import { ApprovedAccesoriesResource } from "@/features/ap/post-venta/repuestos/accesorios-homologados/lib/approvedAccessories.interface.ts";
 import { ApprovedAccesoriesForm } from "@/features/ap/post-venta/repuestos/accesorios-homologados/components/ApprovedAccessoriesForm.tsx";
 import { notFound } from "@/shared/hooks/useNotFound.ts";
@@ -37,10 +41,12 @@ export default function UpdateApprovedAccesoriesPage() {
       refetchOnWindowFocus: false,
     });
 
+  const [serverError, setServerError] = useState<string | undefined>();
+
   const { mutate, isPending } = useMutation({
-    mutationFn: (data: ApprovedAccesoriesSchema) =>
-      updateApprovedAccesories(Number(id), data),
+    mutationFn: (data: any) => updateApprovedAccesories(Number(id), data),
     onSuccess: async () => {
+      setServerError(undefined);
       successToast(SUCCESS_MESSAGE(MODEL, "update"));
       await queryClient.invalidateQueries({
         queryKey: [QUERY_KEY, id],
@@ -49,11 +55,12 @@ export default function UpdateApprovedAccesoriesPage() {
     },
     onError: (error: any) => {
       const msg = error?.response?.data?.message || "";
-      errorToast(ERROR_MESSAGE(MODEL, "delete", msg));
+      setServerError(msg || undefined);
+      errorToast(ERROR_MESSAGE(MODEL, "update", msg));
     },
   });
 
-  const handleSubmit = (data: ApprovedAccesoriesSchema) => {
+  const handleSubmit = (data: any) => {
     mutate(data);
   };
 
@@ -61,11 +68,9 @@ export default function UpdateApprovedAccesoriesPage() {
     data: ApprovedAccesoriesResource
   ): Partial<ApprovedAccesoriesSchema> {
     return {
-      code: data.code,
       type_operation_id: data.type_operation_id,
       description: data.description,
-      price: data.price,
-      body_type_id: String(data.body_type_id),
+      priceGroups: groupPricesByAmount(data.prices ?? []),
     };
   }
 
@@ -89,6 +94,7 @@ export default function UpdateApprovedAccesoriesPage() {
         onSubmit={handleSubmit}
         isSubmitting={isPending}
         mode="update"
+        serverError={serverError}
       />
     </FormWrapper>
   );
