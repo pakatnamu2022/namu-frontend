@@ -1,9 +1,9 @@
 import { DataTable } from "@/shared/components/DataTable.tsx";
-import { InventoryMovementColumns } from "./InventoryMovementsColumns.tsx";
+import { InventoryKardexColumns } from "./InventoryKardexColumns.tsx";
 import { InventoryMovementResource } from "@/features/ap/post-venta/gestion-almacen/inventario/lib/inventoryMovements.interface.ts";
 
 interface Props {
-  columns: InventoryMovementColumns[];
+  columns: InventoryKardexColumns[];
   data: InventoryMovementResource[];
   children?: React.ReactNode;
   isLoading?: boolean;

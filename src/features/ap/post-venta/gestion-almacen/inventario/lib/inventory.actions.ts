@@ -16,9 +16,12 @@ import {
   getInventoryKardexProps,
   getInventoryMovementProps,
   getProductPurchaseHistoryProps,
+  InventoryMovementResource,
   InventoryMovementResponse,
+  InventoryMovementShowResponse,
   PurchaseHistoryResponse,
 } from "./inventoryMovements.interface.ts";
+import { InventoryMovementListResponse } from "./inventoryMovementsList.interface.ts";
 import { InventoryStockMinMaxSchema } from "./inventoryStockMinMaxSchema.ts";
 
 const { ENDPOINT } = INVENTORY;
@@ -39,17 +42,30 @@ export const getInventoryMovements = async ({
   productId,
   warehouseId,
   params,
-}: getInventoryMovementProps): Promise<InventoryMovementResponse> => {
+}: getInventoryMovementProps): Promise<InventoryMovementListResponse> => {
   const config: AxiosRequestConfig = {
     params: {
       ...params,
     },
   };
-  const { data } = await api.get<InventoryMovementResponse>(
+  const { data } = await api.get<InventoryMovementListResponse>(
     `/ap/postVenta/inventoryMovements/product/${productId}/warehouse/${warehouseId}/history`,
     config,
   );
   return data;
+};
+
+export const getInventoryMovementById = async (
+  id: number,
+): Promise<InventoryMovementShowResponse> => {
+  const { data } = await api.get<
+    InventoryMovementShowResponse | InventoryMovementResource
+  >(`/ap/postVenta/inventoryMovements/${id}`);
+  // El endpoint show devuelve el movimiento plano; lo normalizamos a { data }
+  // para respetar el contrato InventoryMovementShowResponse que consume el hook.
+  return "data" in data
+    ? (data as InventoryMovementShowResponse)
+    : { data: data as InventoryMovementResource };
 };
 
 export const getInventoryKardex = async ({

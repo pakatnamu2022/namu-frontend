@@ -24,6 +24,7 @@ import {
 import { useInventoryMovements } from "@/features/ap/post-venta/gestion-almacen/inventario/lib/inventory.hook.ts";
 import ExportButtons from "@/shared/components/ExportButtons.tsx";
 import { exportProductMovementHistory } from "@/features/ap/post-venta/gestion-almacen/inventario/lib/inventory.actions.ts";
+import { CopyCell } from "@/shared/components/CopyCell.tsx";
 
 export default function ProductKardexPage() {
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
@@ -91,11 +92,15 @@ export default function ProductKardexPage() {
     );
   }
 
-  // Obtener nombres del producto y almacén desde los datos
+  // La metadata (product / warehouse) la devuelve el endpoint /history;
+  // caemos a los ids solo mientras carga o si la respuesta no la trae.
   const firstMovement = data?.data?.[0];
-  const productName =
-    firstMovement?.details?.[0]?.product?.name || `Producto #${productId}`;
+  const productMeta = data?.product;
+  const productName = productMeta?.name || `Producto #${productId}`;
+  const productCode = productMeta?.code;
+  const productDynCode = productMeta?.dyn_code;
   const warehouseName =
+    data?.warehouse?.description ||
     firstMovement?.warehouse_origin?.description ||
     firstMovement?.warehouse_destination?.description ||
     `Almacén #${warehouseId}`;
@@ -124,6 +129,23 @@ export default function ProductKardexPage() {
           />
         </div>
       </HeaderTableWrapper>
+
+      {(productCode || productDynCode) && (
+        <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
+          {productCode && (
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-muted-foreground">Código:</span>
+              <CopyCell value={productCode} font="mono" />
+            </div>
+          )}
+          {productDynCode && (
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-muted-foreground">Código Dyn:</span>
+              <CopyCell value={productDynCode} font="mono" />
+            </div>
+          )}
+        </div>
+      )}
       <InventoryMovementsTable
         isLoading={isLoading}
         columns={inventoryMovementsColumns()}

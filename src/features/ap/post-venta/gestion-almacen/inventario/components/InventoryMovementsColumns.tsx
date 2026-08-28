@@ -1,8 +1,6 @@
 import type { ColumnDef } from "@tanstack/react-table";
-import {
-  CreditNoteResource,
-  InventoryMovementResource,
-} from "@/features/ap/post-venta/gestion-almacen/inventario/lib/inventoryMovements.interface.ts";
+import { CreditNoteResource } from "@/features/ap/post-venta/gestion-almacen/inventario/lib/inventoryMovements.interface.ts";
+import { InventoryMovementListRow } from "@/features/ap/post-venta/gestion-almacen/inventario/lib/inventoryMovementsList.interface.ts";
 import { Badge } from "@/components/ui/badge.tsx";
 import { translateMovementType } from "@/features/ap/post-venta/gestion-almacen/inventario/lib/inventory.constants.ts";
 import { ArrowDown, ArrowUp, RotateCcw, XCircle } from "lucide-react";
@@ -15,7 +13,7 @@ import { formatDate } from "@/core/core.function.ts";
 import { ShippingGuidesResource } from "@/features/ap/shipping_guides/lib/shippingGuides.interface.ts";
 import { InternalNoteResource } from "../../../taller/orden-trabajo/lib/workOrder.interface.ts";
 
-export type InventoryMovementColumns = ColumnDef<InventoryMovementResource>;
+export type InventoryMovementColumns = ColumnDef<InventoryMovementListRow>;
 
 export const inventoryMovementsColumns = (): InventoryMovementColumns[] => [
   {
@@ -82,6 +80,54 @@ export const inventoryMovementsColumns = (): InventoryMovementColumns[] => [
       const referenceType = movement.reference_type;
       const movementType = movement.movement_type;
 
+      // Bloque de cliente + factura a partir del documento electrónico slim.
+      // Se usa en SALE y RETURN_IN, que en el list solo traen electronic_document
+      // (reference suele venir null aunque exista reference_type).
+      const renderElectronicDoc = (returnIcon = false) => {
+        const electronicDoc = movement.electronic_document;
+        const isCancelled = electronicDoc?.status === "cancelled";
+        const Icon = returnIcon ? RotateCcw : XCircle;
+
+        return (
+          <div className="flex flex-col text-sm">
+            <span className="font-medium">
+              {electronicDoc?.cliente_denominacion ?? "-"}
+            </span>
+            <span className="text-xs text-gray-500">
+              RUC: {electronicDoc?.cliente_numero_de_documento ?? "-"}
+            </span>
+            {electronicDoc?.full_number && (
+              <div
+                className={`flex items-center gap-1.5 text-xs ${isCancelled ? "text-red-500" : "text-gray-500"}`}
+              >
+                {isCancelled && (
+                  <Icon className="h-3 w-3 text-red-500 shrink-0" />
+                )}
+                <span>Factura: {electronicDoc.full_number}</span>
+                {electronicDoc.credit_note_id && (
+                  <span className="text-red-400 font-medium">
+                    · NC {electronicDoc.credit_note_number}
+                  </span>
+                )}
+              </div>
+            )}
+          </div>
+        );
+      };
+
+      // SALE / RETURN_IN se pintan desde el documento electrónico, así que se
+      // resuelven antes del guard de `reference` (que en el list llega null).
+      if (
+        movementType === "SALE" &&
+        !referenceType?.includes("ApInternalNote")
+      ) {
+        return renderElectronicDoc();
+      }
+
+      if (movementType === "RETURN_IN") {
+        return renderElectronicDoc(true);
+      }
+
       // Si no hay referencia, verificar si hay reason_in_out para ajustes
       if (!reference && movement.movement_number_dyn) {
         return (
@@ -109,6 +155,18 @@ export const inventoryMovementsColumns = (): InventoryMovementColumns[] => [
         const purchaseOrder = reception.purchase_order;
 
         if (purchaseOrder) {
+          const supplierName =
+            typeof purchaseOrder.supplier === "object" &&
+            purchaseOrder.supplier !== null
+              ? ((purchaseOrder.supplier as { full_name?: string }).full_name ??
+                "-")
+              : purchaseOrder.supplier;
+          const supplierNumDoc =
+            typeof purchaseOrder.supplier === "object" &&
+            purchaseOrder.supplier !== null
+              ? ((purchaseOrder.supplier as { num_doc?: string }).num_doc ??
+                purchaseOrder.supplier_num_doc)
+              : purchaseOrder.supplier_num_doc;
           const hasCreditNote = purchaseOrder.credit_note_dynamics != null;
           const invoiceDynLabel =
             purchaseOrder.invoice_dynamics ??
@@ -122,9 +180,9 @@ export const inventoryMovementsColumns = (): InventoryMovementColumns[] => [
 
           return (
             <div className="flex flex-col text-sm">
-              <span className="font-medium">{purchaseOrder.supplier}</span>
+              <span className="font-medium">{supplierName}</span>
               <span className="text-xs text-gray-500">
-                RUC: {purchaseOrder.supplier_num_doc}
+                RUC: {supplierNumDoc}
               </span>
               <div className="flex items-center gap-2 text-xs text-gray-500">
                 <span>Factura: {invoiceLabel}</span>
@@ -211,9 +269,6 @@ export const inventoryMovementsColumns = (): InventoryMovementColumns[] => [
         const electronicDoc = movement.electronic_document;
         const isCancelled = electronicDoc?.status === "cancelled";
 
-        console.log("internalNote", internalNote);
-        console.log("electronicDoc", electronicDoc);
-
         return (
           <div className="flex flex-col text-sm">
             <span className="font-medium">
@@ -226,73 +281,6 @@ export const inventoryMovementsColumns = (): InventoryMovementColumns[] => [
               Nota interna: {internalNote.number}
               {internalNote.work_order_correlative &&
                 ` · ${internalNote.work_order_correlative}`}
-            </span>
-            {electronicDoc?.full_number && (
-              <div
-                className={`flex items-center gap-1.5 text-xs ${isCancelled ? "text-red-500" : "text-gray-500"}`}
-              >
-                {isCancelled && (
-                  <XCircle className="h-3 w-3 text-red-500 shrink-0" />
-                )}
-                <span>Factura: {electronicDoc.full_number}</span>
-                {electronicDoc.credit_note_id && (
-                  <span className="text-red-400 font-medium">
-                    · NC {electronicDoc.credit_note_number}
-                  </span>
-                )}
-              </div>
-            )}
-          </div>
-        );
-      }
-
-      // SALE - Mostrar cliente desde el documento electrónico (ApWorkOrder)
-      if (movementType === "SALE" && referenceType?.includes("ApWorkOrder")) {
-        const electronicDoc = movement.electronic_document;
-        const isCancelled = electronicDoc?.status === "cancelled";
-
-        return (
-          <div className="flex flex-col text-sm">
-            <span className="font-medium">
-              {electronicDoc?.cliente_denominacion ?? "-"}
-            </span>
-            <span className="text-xs text-gray-500">
-              RUC: {electronicDoc?.cliente_numero_de_documento ?? "-"}
-            </span>
-            {electronicDoc?.full_number && (
-              <div
-                className={`flex items-center gap-1.5 text-xs ${isCancelled ? "text-red-500" : "text-gray-500"}`}
-              >
-                {isCancelled && (
-                  <XCircle className="h-3 w-3 text-red-500 shrink-0" />
-                )}
-                <span>Factura: {electronicDoc.full_number}</span>
-                {electronicDoc.credit_note_id && (
-                  <span className="text-red-400 font-medium">
-                    · NC {electronicDoc.credit_note_number}
-                  </span>
-                )}
-              </div>
-            )}
-          </div>
-        );
-      }
-
-      // SALE - Mostrar cliente de la cotización
-      if (
-        movementType === "SALE" &&
-        referenceType?.includes("ApOrderQuotations")
-      ) {
-        const electronicDoc = movement.electronic_document;
-        const isCancelled = electronicDoc?.status === "cancelled";
-
-        return (
-          <div className="flex flex-col text-sm">
-            <span className="font-medium">
-              {electronicDoc?.cliente_denominacion ?? "-"}
-            </span>
-            <span className="text-xs text-gray-500">
-              RUC: {electronicDoc?.cliente_numero_de_documento ?? "-"}
             </span>
             {electronicDoc?.full_number && (
               <div
@@ -420,48 +408,34 @@ export const inventoryMovementsColumns = (): InventoryMovementColumns[] => [
         }
       }
 
-      if (movementType === "RETURN_IN") {
-        const electronicDoc = movement.electronic_document;
-        const isCancelled = electronicDoc?.status === "cancelled";
-
-        return (
-          <div className="flex flex-col text-sm">
-            <span className="font-medium">
-              {electronicDoc?.cliente_denominacion ?? "-"}
-            </span>
-            <span className="text-xs text-gray-500">
-              RUC: {electronicDoc?.cliente_numero_de_documento ?? "-"}
-            </span>
-            {electronicDoc?.full_number && (
-              <div
-                className={`flex items-center gap-1.5 text-xs ${isCancelled ? "text-red-500" : "text-gray-500"}`}
-              >
-                {isCancelled && (
-                  <RotateCcw className="h-3 w-3 text-red-500 shrink-0" />
-                )}
-                <span>Factura: {electronicDoc.full_number}</span>
-              </div>
-            )}
-          </div>
-        );
-      }
-
-      // SALE - Mostrar cliente de la cotización
+      // RETURN_OUT - Devolución a proveedor (nota de crédito de compra)
       if (movementType === "RETURN_OUT") {
         const creditNote = reference as CreditNoteResource;
+        const roPurchaseOrder = creditNote.purchase_order;
+
+        const roSupplierName =
+          typeof roPurchaseOrder.supplier === "object" &&
+          roPurchaseOrder.supplier !== null
+            ? ((roPurchaseOrder.supplier as { full_name?: string }).full_name ??
+              "-")
+            : roPurchaseOrder.supplier;
+        const roSupplierNumDoc =
+          typeof roPurchaseOrder.supplier === "object" &&
+          roPurchaseOrder.supplier !== null
+            ? ((roPurchaseOrder.supplier as { num_doc?: string }).num_doc ??
+              roPurchaseOrder.supplier_num_doc)
+            : roPurchaseOrder.supplier_num_doc;
 
         const invoiceDynLabel =
-          creditNote.purchase_order.invoice_dynamics ??
-          `${creditNote.purchase_order.invoice_series}-${creditNote.purchase_order.invoice_number}`;
-        const invoiceLabel = `${creditNote.purchase_order.invoice_series}-${creditNote.purchase_order.invoice_number}`;
+          roPurchaseOrder.invoice_dynamics ??
+          `${roPurchaseOrder.invoice_series}-${roPurchaseOrder.invoice_number}`;
+        const invoiceLabel = `${roPurchaseOrder.invoice_series}-${roPurchaseOrder.invoice_number}`;
 
         return (
           <div className="flex flex-col text-sm">
-            <span className="font-medium">
-              {creditNote.purchase_order.supplier}
-            </span>
+            <span className="font-medium">{roSupplierName}</span>
             <span className="text-xs text-gray-500">
-              RUC: {creditNote.purchase_order.supplier_num_doc}
+              RUC: {roSupplierNumDoc}
             </span>
             <span className="text-xs text-gray-500">
               Factura: {invoiceLabel}

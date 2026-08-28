@@ -276,6 +276,8 @@ import CreateTransferReceptionPage from "@/app/ap/post-venta/gestion-de-almacen/
 import AdjustmentsProductPage from "./app/ap/post-venta/gestion-de-almacen/ajuste-producto/page.tsx";
 import AddAdjustmentsProductPage from "@/app/ap/post-venta/gestion-de-almacen/ajuste-producto/agregar/page.tsx";
 import UpdateAdjustmentsProductPage from "@/app/ap/post-venta/gestion-de-almacen/ajuste-producto/actualizar/[id]/page.tsx";
+import ProductShelfPage from "./app/ap/post-venta/gestion-de-almacen/estantes-almacen/page.tsx";
+import ManageShelfProductsPage from "@/app/ap/post-venta/gestion-de-almacen/estantes-almacen/gestionar/[id]/page.tsx";
 import InventoryPage from "./app/ap/post-venta/gestion-de-almacen/inventario/page.tsx";
 import InventoryKardexPage from "@/app/ap/post-venta/gestion-de-almacen/inventario/kardex/page.tsx";
 import ProductKardexPage from "@/app/ap/post-venta/gestion-de-almacen/inventario/movimientos/[productId]/[warehouseId]/page.tsx";
@@ -1521,6 +1523,14 @@ function App() {
               <Route
                 path="gestion-de-almacen/ajuste-producto/actualizar/:id"
                 element={<UpdateAdjustmentsProductPage />}
+              />
+              <Route
+                path="gestion-de-almacen/estantes-almacen"
+                element={<ProductShelfPage />}
+              />
+              <Route
+                path="gestion-de-almacen/estantes-almacen/gestionar/:id"
+                element={<ManageShelfProductsPage />}
               />
               <Route
                 path="gestion-de-almacen/inventario"
