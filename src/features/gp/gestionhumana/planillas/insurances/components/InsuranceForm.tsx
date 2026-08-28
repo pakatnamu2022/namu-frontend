@@ -5,7 +5,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form, FormField } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
-import { Loader } from "lucide-react";
+import { Loader, Download } from "lucide-react";
 import { Link } from "react-router-dom";
 import { INSURANCE } from "../lib/insurance.constant";
 import { InsuranceSchema, insuranceSchema } from "../lib/insurance.schema";
@@ -14,6 +14,8 @@ import { FormSelectAsync } from "@/shared/components/FormSelectAsync";
 import { FileForm } from "@/shared/components/FileForm";
 import { usePayrollPeriods } from "@/features/gp/gestionhumana/planillas/periodo-planilla/lib/payroll-period.hook";
 import { Option } from "@/core/core.interface";
+import { downloadInsuranceTemplate } from "../lib/insurance.actions";
+import { errorToast } from "@/core/core.function";
 
 const INSURER_OPTIONS: Option[] = [
   { label: "FESALUD SA", value: "13297" },
@@ -36,6 +38,8 @@ export const InsuranceForm = ({
   const { ABSOLUTE_ROUTE, MODEL } = INSURANCE;
   const [file, setFile] = useState<File | null>(null);
 
+  const [isDownloading, setIsDownloading] = useState(false);
+
   const form = useForm<InsuranceSchema>({
     resolver: zodResolver(insuranceSchema) as any,
     defaultValues: {
@@ -45,9 +49,25 @@ export const InsuranceForm = ({
     mode: "onChange",
   });
 
+  const businessPartnerId = form.watch("business_partner_id");
+
   const handleSubmit = (data: InsuranceSchema) => {
     if (!file) return;
     onSubmit(data, file);
+  };
+
+  const handleDownloadTemplate = async () => {
+    if (!businessPartnerId) return;
+    setIsDownloading(true);
+    try {
+      await downloadInsuranceTemplate(businessPartnerId);
+    } catch (error: any) {
+      errorToast(
+        error?.response?.data?.message ?? "Error al descargar la plantilla",
+      );
+    } finally {
+      setIsDownloading(false);
+    }
   };
 
   return (
@@ -86,6 +106,20 @@ export const InsuranceForm = ({
               value: String(item.id),
             })}
           />
+        </div>
+
+        <div className="flex justify-end">
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            className="gap-2"
+            disabled={!businessPartnerId || isDownloading}
+            onClick={handleDownloadTemplate}
+          >
+            <Download className="size-4" />
+            {isDownloading ? "Descargando..." : "Descargar plantilla"}
+          </Button>
         </div>
 
         <FormField

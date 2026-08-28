@@ -6,6 +6,13 @@ import { INSURANCE } from "./insurance.constant";
 
 const { ENDPOINT } = INSURANCE;
 
+// El backend a veces envuelve la respuesta en { data: ... } (show/store/update
+// usan success($resource), que serializa el Resource SIN el wrapper "data") y
+// a veces no — este helper soporta ambos casos sin asumir uno fijo.
+function unwrap<T>(response: any): T {
+  return response?.data ?? response;
+}
+
 export async function getInsurances(
   params?: Record<string, any>,
 ): Promise<InsuranceResponse> {
@@ -15,8 +22,8 @@ export async function getInsurances(
 }
 
 export async function findInsuranceById(id: number): Promise<InsuranceResource> {
-  const { data } = await api.get<{ data: InsuranceResource }>(`${ENDPOINT}/${id}`);
-  return data.data;
+  const { data } = await api.get<any>(`${ENDPOINT}/${id}`);
+  return unwrap<InsuranceResource>(data);
 }
 
 export async function deleteInsurance(id: number): Promise<GeneralResponse> {
@@ -39,4 +46,45 @@ export async function importInsurance(
     { headers: { "Content-Type": "multipart/form-data" } },
   );
   return data;
+}
+
+const TEMPLATE_FILE_NAMES: Record<string, string> = {
+  "13297": "plantilla_seguro_fesalud.xlsx",
+  "13298": "plantilla_seguro_oncosalud.xlsx",
+};
+
+export async function downloadInsuranceTemplate(
+  business_partner_id: string | number,
+): Promise<void> {
+  const response = await api.get(`${ENDPOINT}/template`, {
+    params: { business_partner_id },
+    responseType: "blob",
+  });
+  const blob = new Blob([response.data], {
+    type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+  });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download =
+    TEMPLATE_FILE_NAMES[String(business_partner_id)] ?? "plantilla_seguro.xlsx";
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+}
+
+export async function createInsurance(
+  payload: Record<string, any>,
+): Promise<InsuranceResource> {
+  const { data } = await api.post<any>(ENDPOINT, payload);
+  return unwrap<InsuranceResource>(data);
+}
+
+export async function updateInsurance(
+  id: number,
+  payload: Record<string, any>,
+): Promise<InsuranceResource> {
+  const { data } = await api.put<any>(`${ENDPOINT}/${id}`, payload);
+  return unwrap<InsuranceResource>(data);
 }

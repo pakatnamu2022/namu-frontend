@@ -4,7 +4,6 @@ import {
   ConceptDiscountBondResource,
   CreditInsuranceMasterResource,
   DiscountCouponResource,
-  DiscountCouponUpdatePayload,
   PurchaseRequestQuoteResource,
   PurchaseRequestQuoteResponse,
 } from "./purchaseRequestQuote.interface";
@@ -21,7 +20,6 @@ import {
   getInsuranceEntities,
   getPurchaseRequestQuote,
   swapVehicleInPurchaseRequestQuote,
-  updateDiscountCoupon,
 } from "./purchaseRequestQuote.actions";
 
 const DISCOUNT_COUPON_QUERY_KEY = "discountCoupons";
@@ -143,20 +141,3 @@ export const useDiscountCouponsByQuote = (quoteId: number) => {
   });
 };
 
-export const useUpdateDiscountCoupon = () => {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: ({
-      id,
-      data,
-    }: {
-      id: number;
-      data: DiscountCouponUpdatePayload;
-    }) => updateDiscountCoupon(id, data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [DISCOUNT_COUPON_QUERY_KEY] });
-      queryClient.invalidateQueries({ queryKey: [QUERY_KEY] });
-    },
-  });
-};

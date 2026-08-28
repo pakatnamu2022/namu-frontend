@@ -1,10 +1,4 @@
-import { type Links, type Meta } from "@/shared/lib/pagination.interface";
-
-export interface PayrollRegisterResponse {
-  data: PayrollRegisterResource[];
-  links: Links;
-  meta: Meta;
-}
+export type PayrollRegisterResponse = PayrollRegisterResource[];
 
 export interface PayrollRegisterResource {
   id: number;

@@ -53,6 +53,7 @@ export default function PayrollRegisterPage() {
   const { data, isLoading } = usePayrollRegister(params);
 
   const canGenerate = !!companyId && !!periodId;
+  const isRegenerate = !!periodId && (data?.length ?? 0) > 0;
 
   const selectedCompanyName =
     companies?.find((c) => String(c.id) === companyId)?.name ?? "";
@@ -87,7 +88,11 @@ export default function PayrollRegisterPage() {
         force: true,
       });
       await queryClient.invalidateQueries({ queryKey: [QUERY_KEY] });
-      successToast("Planilla generada correctamente");
+      successToast(
+        isRegenerate
+          ? "Planilla regenerada correctamente"
+          : "Planilla generada correctamente",
+      );
     } catch (error: any) {
       errorToast(
         error?.response?.data?.message ?? "Error al generar la planilla",
@@ -128,7 +133,7 @@ export default function PayrollRegisterPage() {
             className="gap-2"
           >
             <Sparkles className="size-4" />
-            Generar Planilla
+            {isRegenerate ? "Regenerar Planilla" : "Generar Planilla"}
           </Button>
         </div>
       </HeaderTableWrapper>
@@ -152,13 +157,15 @@ export default function PayrollRegisterPage() {
         open={generateOpen}
         onOpenChange={(open) => !isGenerating && setGenerateOpen(open)}
         onConfirm={handleGenerate}
-        title="Generar Planilla"
+        title={isRegenerate ? "Regenerar Planilla" : "Generar Planilla"}
         description={
-          selectedCompanyName
-            ? `Se generará la planilla para ${selectedCompanyName} con el periodo seleccionado. Si ya existe información, será reemplazada.`
-            : "Se generará la planilla para el periodo seleccionado. Si ya existe información, será reemplazada."
+          isRegenerate
+            ? `Ya existe información generada${selectedCompanyName ? ` para ${selectedCompanyName}` : ""} en este periodo. Se eliminará y se volverá a calcular con los datos actuales.`
+            : selectedCompanyName
+              ? `Se generará la planilla para ${selectedCompanyName} con el periodo seleccionado.`
+              : "Se generará la planilla para el periodo seleccionado."
         }
-        confirmText="Generar"
+        confirmText={isRegenerate ? "Regenerar" : "Generar"}
         cancelText="Cancelar"
         icon="success"
         isLoading={isGenerating}

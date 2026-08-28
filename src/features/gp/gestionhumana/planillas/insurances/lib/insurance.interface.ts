@@ -12,6 +12,7 @@ export interface InsuranceResource {
   worker: string | null;
   period_id: number;
   period: string | null;
+  company_id: number | null;
   business_partner_id: number;
   business_partner: string | null;
   doc_number_affiliate: string | null;

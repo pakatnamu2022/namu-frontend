@@ -1,6 +1,9 @@
 "use client";
 
-import { ColumnDef } from "@tanstack/react-table";
+import { ColumnDef, Column } from "@tanstack/react-table";
+import { ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import { PayrollRegisterResource } from "../lib/payroll-register.interface";
 
 const pen = (val: number | null | undefined) =>
@@ -11,6 +14,44 @@ const num = (val: number | null | undefined) =>
 
 type Col = ColumnDef<PayrollRegisterResource>;
 
+// ── Header ordenable (clic = asc → desc → sin orden) ────────────────────────
+function SortableHeader({
+  column,
+  label,
+  align = "left",
+}: {
+  column: Column<PayrollRegisterResource, unknown>;
+  label: string;
+  align?: "left" | "right";
+}) {
+  const sorted = column.getIsSorted();
+  return (
+    <Button
+      variant="ghost"
+      size="sm"
+      onClick={column.getToggleSortingHandler()}
+      className={cn(
+        "h-6 px-1 gap-1 text-xs font-semibold text-muted-foreground hover:text-foreground w-full",
+        align === "right" ? "justify-end -mr-1" : "justify-start -ml-1",
+      )}
+    >
+      <span>{label}</span>
+      {sorted === "asc" ? (
+        <ArrowUp className="size-3 shrink-0" />
+      ) : sorted === "desc" ? (
+        <ArrowDown className="size-3 shrink-0" />
+      ) : (
+        <ArrowUpDown className="size-3 shrink-0 opacity-40" />
+      )}
+    </Button>
+  );
+}
+
+const sortableHeader = (label: string, align: "left" | "right" = "left") =>
+  function Header({ column }: { column: Column<PayrollRegisterResource, unknown> }) {
+    return <SortableHeader column={column} label={label} align={align} />;
+  };
+
 // ── Identidad (sticky) ──────────────────────────────────────────────────────
 export const colsIdentidad: Col[] = [
   {
@@ -20,10 +61,11 @@ export const colsIdentidad: Col[] = [
       <span className="text-muted-foreground">{row.index + 1}</span>
     ),
     size: 48,
+    enableSorting: false,
   },
   {
     accessorKey: "worker_name",
-    header: "Trabajador",
+    header: sortableHeader("Trabajador"),
     cell: ({ getValue }) => (
       <span className="font-semibold whitespace-nowrap">
         {(getValue() as string) ?? "—"}
@@ -33,7 +75,7 @@ export const colsIdentidad: Col[] = [
   },
   {
     accessorKey: "worker_vat",
-    header: "DNI",
+    header: sortableHeader("DNI"),
     cell: ({ getValue }) => (
       <span className="font-mono text-xs">{(getValue() as string) ?? "—"}</span>
     ),
@@ -41,7 +83,7 @@ export const colsIdentidad: Col[] = [
   },
   {
     accessorKey: "occupation",
-    header: "Cargo",
+    header: sortableHeader("Cargo"),
     cell: ({ getValue }) => (
       <span className="text-xs whitespace-nowrap">
         {(getValue() as string) ?? "—"}
@@ -51,7 +93,7 @@ export const colsIdentidad: Col[] = [
   },
   {
     accessorKey: "cost_center",
-    header: "C. Costo",
+    header: sortableHeader("C. Costo"),
     cell: ({ getValue }) => (
       <span className="text-xs">{(getValue() as string) ?? "—"}</span>
     ),
@@ -59,7 +101,7 @@ export const colsIdentidad: Col[] = [
   },
   {
     accessorKey: "monthly_salary",
-    header: "Sueldo",
+    header: sortableHeader("Sueldo", "right"),
     cell: ({ getValue }) => (
       <span className="font-mono text-xs">{pen(getValue() as number)}</span>
     ),
@@ -67,7 +109,7 @@ export const colsIdentidad: Col[] = [
   },
   {
     accessorKey: "afp_affiliation",
-    header: "AFP",
+    header: sortableHeader("AFP"),
     cell: ({ getValue }) => (
       <span className="text-xs">{(getValue() as string) ?? "—"}</span>
     ),
@@ -79,7 +121,7 @@ export const colsIdentidad: Col[] = [
 export const colsDias: Col[] = [
   {
     accessorKey: "days_worked",
-    header: "Trabajados",
+    header: sortableHeader("Trabajados", "right"),
     cell: ({ getValue }) => (
       <span className="font-mono text-xs text-right block">
         {num(getValue() as number)}
@@ -89,7 +131,7 @@ export const colsDias: Col[] = [
   },
   {
     accessorKey: "days_vacation",
-    header: "Vacaciones",
+    header: sortableHeader("Vacaciones", "right"),
     cell: ({ getValue }) => (
       <span className="font-mono text-xs text-right block">
         {num(getValue() as number)}
@@ -99,7 +141,7 @@ export const colsDias: Col[] = [
   },
   {
     accessorKey: "days_medical_rest",
-    header: "Desc. Médico",
+    header: sortableHeader("Desc. Médico", "right"),
     cell: ({ getValue }) => (
       <span className="font-mono text-xs text-right block">
         {num(getValue() as number)}
@@ -109,7 +151,7 @@ export const colsDias: Col[] = [
   },
   {
     accessorKey: "days_absence",
-    header: "Faltas",
+    header: sortableHeader("Faltas", "right"),
     cell: ({ getValue }) => (
       <span className="font-mono text-xs text-right block">
         {num(getValue() as number)}
@@ -119,7 +161,7 @@ export const colsDias: Col[] = [
   },
   {
     accessorKey: "days_effective",
-    header: "Efectivos",
+    header: sortableHeader("Efectivos", "right"),
     cell: ({ getValue }) => (
       <span className="font-mono text-xs text-right block font-semibold">
         {num(getValue() as number)}
@@ -129,7 +171,7 @@ export const colsDias: Col[] = [
   },
   {
     accessorKey: "normal_hours",
-    header: "Horas",
+    header: sortableHeader("Horas", "right"),
     cell: ({ getValue }) => (
       <span className="font-mono text-xs text-right block">
         {num(getValue() as number)}
@@ -143,7 +185,7 @@ export const colsDias: Col[] = [
 export const colsIngresos: Col[] = [
   {
     accessorKey: "basic_salary",
-    header: "Básico",
+    header: sortableHeader("Básico", "right"),
     cell: ({ getValue }) => (
       <span className="font-mono text-xs text-right block">
         {pen(getValue() as number)}
@@ -153,7 +195,7 @@ export const colsIngresos: Col[] = [
   },
   {
     accessorKey: "family_allowance",
-    header: "Asig. Familiar",
+    header: sortableHeader("Asig. Familiar", "right"),
     cell: ({ getValue }) => (
       <span className="font-mono text-xs text-right block">
         {pen(getValue() as number)}
@@ -163,7 +205,7 @@ export const colsIngresos: Col[] = [
   },
   {
     accessorKey: "overtime_25",
-    header: "HE 25%",
+    header: sortableHeader("HE 25%", "right"),
     cell: ({ getValue }) => (
       <span className="font-mono text-xs text-right block">
         {pen(getValue() as number)}
@@ -173,7 +215,7 @@ export const colsIngresos: Col[] = [
   },
   {
     accessorKey: "overtime_35",
-    header: "HE 35%",
+    header: sortableHeader("HE 35%", "right"),
     cell: ({ getValue }) => (
       <span className="font-mono text-xs text-right block">
         {pen(getValue() as number)}
@@ -183,7 +225,7 @@ export const colsIngresos: Col[] = [
   },
   {
     accessorKey: "work_conditions",
-    header: "Cond. Trabajo",
+    header: sortableHeader("Cond. Trabajo", "right"),
     cell: ({ getValue }) => (
       <span className="font-mono text-xs text-right block">
         {pen(getValue() as number)}
@@ -193,7 +235,7 @@ export const colsIngresos: Col[] = [
   },
   {
     accessorKey: "vacation_pay",
-    header: "Vacaciones",
+    header: sortableHeader("Vacaciones", "right"),
     cell: ({ getValue }) => (
       <span className="font-mono text-xs text-right block">
         {pen(getValue() as number)}
@@ -203,7 +245,7 @@ export const colsIngresos: Col[] = [
   },
   {
     accessorKey: "production_bonus",
-    header: "Bono Prod.",
+    header: sortableHeader("Bono Prod.", "right"),
     cell: ({ getValue }) => (
       <span className="font-mono text-xs text-right block">
         {pen(getValue() as number)}
@@ -213,7 +255,7 @@ export const colsIngresos: Col[] = [
   },
   {
     accessorKey: "food_benefit",
-    header: "Alimentación",
+    header: sortableHeader("Alimentación", "right"),
     cell: ({ getValue }) => (
       <span className="font-mono text-xs text-right block">
         {pen(getValue() as number)}
@@ -223,7 +265,7 @@ export const colsIngresos: Col[] = [
   },
   {
     accessorKey: "night_bonus",
-    header: "Bonif. Noc.",
+    header: sortableHeader("Bonif. Noc.", "right"),
     cell: ({ getValue }) => (
       <span className="font-mono text-xs text-right block">
         {pen(getValue() as number)}
@@ -233,7 +275,7 @@ export const colsIngresos: Col[] = [
   },
   {
     accessorKey: "commercial_bonus",
-    header: "Bono Comerc.",
+    header: sortableHeader("Bono Comerc.", "right"),
     cell: ({ getValue }) => (
       <span className="font-mono text-xs text-right block">
         {pen(getValue() as number)}
@@ -243,7 +285,7 @@ export const colsIngresos: Col[] = [
   },
   {
     accessorKey: "total_income",
-    header: "TOTAL ING.",
+    header: sortableHeader("TOTAL ING.", "right"),
     cell: ({ getValue }) => (
       <span className="font-mono text-xs text-right block font-bold text-green-700 dark:text-green-400">
         {pen(getValue() as number)}
@@ -257,7 +299,7 @@ export const colsIngresos: Col[] = [
 export const colsBbss: Col[] = [
   {
     accessorKey: "cts_truncated",
-    header: "CTS Trunca",
+    header: sortableHeader("CTS Trunca", "right"),
     cell: ({ getValue }) => (
       <span className="font-mono text-xs text-right block">
         {pen(getValue() as number)}
@@ -267,7 +309,7 @@ export const colsBbss: Col[] = [
   },
   {
     accessorKey: "gratification",
-    header: "Gratif.",
+    header: sortableHeader("Gratif.", "right"),
     cell: ({ getValue }) => (
       <span className="font-mono text-xs text-right block">
         {pen(getValue() as number)}
@@ -277,7 +319,7 @@ export const colsBbss: Col[] = [
   },
   {
     accessorKey: "extraordinary_bonus",
-    header: "Bonif. Extr.",
+    header: sortableHeader("Bonif. Extr.", "right"),
     cell: ({ getValue }) => (
       <span className="font-mono text-xs text-right block">
         {pen(getValue() as number)}
@@ -287,7 +329,7 @@ export const colsBbss: Col[] = [
   },
   {
     accessorKey: "vacation_truncated",
-    header: "Vac. Truncas",
+    header: sortableHeader("Vac. Truncas", "right"),
     cell: ({ getValue }) => (
       <span className="font-mono text-xs text-right block">
         {pen(getValue() as number)}
@@ -301,7 +343,7 @@ export const colsBbss: Col[] = [
 export const colsDescuentos: Col[] = [
   {
     accessorKey: "onp_deduction",
-    header: "ONP",
+    header: sortableHeader("ONP", "right"),
     cell: ({ getValue }) => (
       <span className="font-mono text-xs text-right block">
         {pen(getValue() as number)}
@@ -311,7 +353,7 @@ export const colsDescuentos: Col[] = [
   },
   {
     accessorKey: "afp_mandatory",
-    header: "AFP Oblig.",
+    header: sortableHeader("AFP Oblig.", "right"),
     cell: ({ getValue }) => (
       <span className="font-mono text-xs text-right block">
         {pen(getValue() as number)}
@@ -321,7 +363,7 @@ export const colsDescuentos: Col[] = [
   },
   {
     accessorKey: "afp_insurance",
-    header: "AFP Seguro",
+    header: sortableHeader("AFP Seguro", "right"),
     cell: ({ getValue }) => (
       <span className="font-mono text-xs text-right block">
         {pen(getValue() as number)}
@@ -331,7 +373,7 @@ export const colsDescuentos: Col[] = [
   },
   {
     accessorKey: "afp_commission",
-    header: "AFP Comis.",
+    header: sortableHeader("AFP Comis.", "right"),
     cell: ({ getValue }) => (
       <span className="font-mono text-xs text-right block">
         {pen(getValue() as number)}
@@ -341,7 +383,7 @@ export const colsDescuentos: Col[] = [
   },
   {
     accessorKey: "afp_total",
-    header: "AFP Total",
+    header: sortableHeader("AFP Total", "right"),
     cell: ({ getValue }) => (
       <span className="font-mono text-xs text-right block font-semibold">
         {pen(getValue() as number)}
@@ -351,7 +393,7 @@ export const colsDescuentos: Col[] = [
   },
   {
     accessorKey: "income_tax_5th",
-    header: "Imp. 5ta",
+    header: sortableHeader("Imp. 5ta", "right"),
     cell: ({ getValue }) => (
       <span className="font-mono text-xs text-right block">
         {pen(getValue() as number)}
@@ -361,7 +403,7 @@ export const colsDescuentos: Col[] = [
   },
   {
     accessorKey: "oncosalud_plan",
-    header: "Oncosalud",
+    header: sortableHeader("Oncosalud", "right"),
     cell: ({ getValue }) => (
       <span className="font-mono text-xs text-right block">
         {pen(getValue() as number)}
@@ -371,7 +413,7 @@ export const colsDescuentos: Col[] = [
   },
   {
     accessorKey: "advances_loans",
-    header: "Préstamos",
+    header: sortableHeader("Préstamos", "right"),
     cell: ({ getValue }) => (
       <span className="font-mono text-xs text-right block">
         {pen(getValue() as number)}
@@ -381,7 +423,7 @@ export const colsDescuentos: Col[] = [
   },
   {
     accessorKey: "other_deductions",
-    header: "Otros Desc.",
+    header: sortableHeader("Otros Desc.", "right"),
     cell: ({ getValue }) => (
       <span className="font-mono text-xs text-right block">
         {pen(getValue() as number)}
@@ -391,7 +433,7 @@ export const colsDescuentos: Col[] = [
   },
   {
     accessorKey: "total_deductions",
-    header: "TOTAL DESC.",
+    header: sortableHeader("TOTAL DESC.", "right"),
     cell: ({ getValue }) => (
       <span className="font-mono text-xs text-right block font-bold text-red-600 dark:text-red-400">
         {pen(getValue() as number)}
@@ -405,7 +447,7 @@ export const colsDescuentos: Col[] = [
 export const colsAportes: Col[] = [
   {
     accessorKey: "essalud_employer",
-    header: "EsSalud",
+    header: sortableHeader("EsSalud", "right"),
     cell: ({ getValue }) => (
       <span className="font-mono text-xs text-right block">
         {pen(getValue() as number)}
@@ -415,7 +457,7 @@ export const colsAportes: Col[] = [
   },
   {
     accessorKey: "cts_employer",
-    header: "CTS",
+    header: sortableHeader("CTS", "right"),
     cell: ({ getValue }) => (
       <span className="font-mono text-xs text-right block">
         {pen(getValue() as number)}
@@ -425,7 +467,7 @@ export const colsAportes: Col[] = [
   },
   {
     accessorKey: "sctr_health",
-    header: "SCTR Salud",
+    header: sortableHeader("SCTR Salud", "right"),
     cell: ({ getValue }) => (
       <span className="font-mono text-xs text-right block">
         {pen(getValue() as number)}
@@ -435,7 +477,7 @@ export const colsAportes: Col[] = [
   },
   {
     accessorKey: "sctr_pension",
-    header: "SCTR Pensión",
+    header: sortableHeader("SCTR Pensión", "right"),
     cell: ({ getValue }) => (
       <span className="font-mono text-xs text-right block">
         {pen(getValue() as number)}
@@ -445,7 +487,7 @@ export const colsAportes: Col[] = [
   },
   {
     accessorKey: "life_insurance",
-    header: "Seg. Vida",
+    header: sortableHeader("Seg. Vida", "right"),
     cell: ({ getValue }) => (
       <span className="font-mono text-xs text-right block">
         {pen(getValue() as number)}
@@ -455,7 +497,7 @@ export const colsAportes: Col[] = [
   },
   {
     accessorKey: "employer_contributions_total",
-    header: "TOTAL APOR.",
+    header: sortableHeader("TOTAL APOR.", "right"),
     cell: ({ getValue }) => (
       <span className="font-mono text-xs text-right block font-bold text-blue-600 dark:text-blue-400">
         {pen(getValue() as number)}
@@ -469,7 +511,7 @@ export const colsAportes: Col[] = [
 export const colsNetos: Col[] = [
   {
     accessorKey: "net_pay_preliminary",
-    header: "Neto Prelim.",
+    header: sortableHeader("Neto Prelim.", "right"),
     cell: ({ getValue }) => (
       <span className="font-mono text-xs text-right block">
         {pen(getValue() as number)}
@@ -479,7 +521,7 @@ export const colsNetos: Col[] = [
   },
   {
     accessorKey: "aguinaldo",
-    header: "Aguinaldo",
+    header: sortableHeader("Aguinaldo", "right"),
     cell: ({ getValue }) => (
       <span className="font-mono text-xs text-right block">
         {pen(getValue() as number)}
@@ -489,7 +531,7 @@ export const colsNetos: Col[] = [
   },
   {
     accessorKey: "net_pay_final",
-    header: "NETO FINAL",
+    header: sortableHeader("NETO FINAL", "right"),
     cell: ({ getValue }) => (
       <span className="font-mono text-xs text-right block font-bold text-emerald-700 dark:text-emerald-400">
         {pen(getValue() as number)}

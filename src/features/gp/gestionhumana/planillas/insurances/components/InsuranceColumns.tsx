@@ -3,10 +3,25 @@
 import { ColumnDef } from "@tanstack/react-table";
 import { InsuranceResource } from "../lib/insurance.interface";
 import { formatMoney, formatPeriod } from "@/core/core.function";
+import { Button } from "@/components/ui/button";
+import { Pencil } from "lucide-react";
+import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
+import { useNavigate } from "react-router-dom";
+import { INSURANCE } from "../lib/insurance.constant";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 export type InsuranceColumns = ColumnDef<InsuranceResource>;
 
-export const insuranceColumns = (): InsuranceColumns[] => [
+export const insuranceColumns = ({
+  onDelete,
+}: {
+  onDelete: (id: number) => void;
+}): InsuranceColumns[] => [
   {
     accessorKey: "period",
     header: "Periodo",
@@ -51,6 +66,40 @@ export const insuranceColumns = (): InsuranceColumns[] => [
     cell: ({ getValue }) => {
       const val = getValue() as number;
       return formatMoney(val);
+    },
+  },
+  {
+    id: "actions",
+    header: "Acciones",
+    cell: ({ row }) => {
+      // eslint-disable-next-line react-hooks/rules-of-hooks
+      const router = useNavigate();
+      const { id } = row.original;
+      const { ROUTE_UPDATE } = INSURANCE;
+
+      return (
+        <div className="flex items-center gap-2">
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="size-7"
+                  onClick={() => router(`${ROUTE_UPDATE}/${id}`)}
+                >
+                  <Pencil className="size-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Editar</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+
+          <DeleteButton onClick={() => onDelete(id)} />
+        </div>
+      );
     },
   },
 ];
