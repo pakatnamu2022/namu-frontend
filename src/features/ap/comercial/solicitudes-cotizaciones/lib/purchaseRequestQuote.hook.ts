@@ -9,6 +9,8 @@ import {
 } from "./purchaseRequestQuote.interface";
 import {
   assignVehicleToPurchaseRequestQuote,
+  deletePurchaseRequestQuote,
+  duplicatePurchaseRequestQuote,
   findPurchaseRequestQuoteById,
   getAllConceptDiscountBond,
   getAllCreditEntities,
@@ -126,6 +128,29 @@ export const useSwapVehiclePurchaseRequestQuote = () => {
       id: number;
       ap_vehicle_id: number;
     }) => swapVehicleInPurchaseRequestQuote(id, ap_vehicle_id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEY] });
+    },
+  });
+};
+
+export const useDuplicatePurchaseRequestQuote = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ id, copies }: { id: number; copies: number }) =>
+      duplicatePurchaseRequestQuote(id, copies),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEY] });
+    },
+  });
+};
+
+export const useDeletePurchaseRequestQuote = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (id: number) => deletePurchaseRequestQuote(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEY] });
     },

@@ -191,6 +191,17 @@ export async function deletePurchaseRequestQuote(
   return data;
 }
 
+export async function duplicatePurchaseRequestQuote(
+  id: number,
+  copies: number
+): Promise<{ message: string; correlatives: string[] }> {
+  const { data } = await api.post<{ message: string; correlatives: string[] }>(
+    `${ENDPOINT}/${id}/duplicate`,
+    { copies }
+  );
+  return data;
+}
+
 export async function approvePurchaseRequestQuote(
   id: number
 ): Promise<PurchaseRequestQuoteResource> {

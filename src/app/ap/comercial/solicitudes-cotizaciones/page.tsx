@@ -22,7 +22,9 @@ import {
   useCreditTypes,
   useAllCreditEntities,
   useInsuranceEntities,
+  useDeletePurchaseRequestQuote,
 } from "@/features/ap/comercial/solicitudes-cotizaciones/lib/purchaseRequestQuote.hook";
+import DuplicatePurchaseRequestQuoteModal from "@/features/ap/comercial/solicitudes-cotizaciones/components/DuplicatePurchaseRequestQuoteModal";
 import {
   approvePurchaseRequestQuote,
   downloadPurchaseRequestQuotePdf,
@@ -61,6 +63,12 @@ export default function PurchaseRequestQuotePage() {
     null,
   );
   const [detailQuote, setDetailQuote] = useState<number | null>(null);
+  const [duplicateQuote, setDuplicateQuote] =
+    useState<PurchaseRequestQuoteResource | null>(null);
+  const [deleteQuote, setDeleteQuote] =
+    useState<PurchaseRequestQuoteResource | null>(null);
+  const { mutateAsync: deletePurchaseRequestQuoteMutate } =
+    useDeletePurchaseRequestQuote();
   const [dateFrom, setDateFrom] = useState<Date | undefined>(
     new Date(new Date().getFullYear(), new Date().getMonth(), 1),
   );
@@ -133,6 +141,20 @@ export default function PurchaseRequestQuotePage() {
     }
   };
 
+  const handleDeleteQuote = async () => {
+    if (!deleteQuote) return;
+    try {
+      await deletePurchaseRequestQuoteMutate(deleteQuote.id);
+      await refetch();
+      successToast("La solicitud se eliminó correctamente");
+    } catch (error: any) {
+      const msg = error?.response?.data?.message || "";
+      errorToast(ERROR_MESSAGE(MODEL, msg));
+    } finally {
+      setDeleteQuote(null);
+    }
+  };
+
   const handleUnassignVehicle = async () => {
     if (!unassignVehicleId) return;
     try {
@@ -179,6 +201,8 @@ export default function PurchaseRequestQuotePage() {
           onUnassignVehicle: setUnassignVehicleId,
           onSwapVehicle: setSwapVehicleQuote,
           onViewDetail: setDetailQuote,
+          onDuplicate: setDuplicateQuote,
+          onDelete: setDeleteQuote,
           permissions: {
             ...permissions,
             canCreateKyc: kycPermissions.canCreate,
@@ -258,6 +282,29 @@ export default function PurchaseRequestQuotePage() {
           open={true}
           onOpenChange={(open) => !open && setDetailQuote(null)}
           id={detailQuote}
+        />
+      )}
+
+      {duplicateQuote !== null && (
+        <DuplicatePurchaseRequestQuoteModal
+          open={true}
+          onOpenChange={(open) => !open && setDuplicateQuote(null)}
+          quote={duplicateQuote}
+        />
+      )}
+
+      {deleteQuote !== null && (
+        <ConfirmationDialog
+          trigger={<span className="hidden" />}
+          title="¿Eliminar esta solicitud?"
+          description={`Se eliminará la solicitud ${deleteQuote.correlative}. Esta acción no se puede deshacer. Solo se permite si la solicitud no tiene VIN asignado, no está aprobada ni facturada.`}
+          confirmText="Sí, eliminar"
+          cancelText="Cancelar"
+          onConfirm={handleDeleteQuote}
+          variant="destructive"
+          icon="warning"
+          open={true}
+          onOpenChange={(open) => !open && setDeleteQuote(null)}
         />
       )}
 
