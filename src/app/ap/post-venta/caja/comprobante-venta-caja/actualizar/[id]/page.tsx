@@ -143,7 +143,9 @@ function buildFormDefaults(
         sunat_concept_igv_type_id: item.sunat_concept_igv_type_id || 0,
         igv: item.igv ?? 0,
         total: item.total ?? 0,
-        anticipo_regularizacion: item.anticipo_regularizacion ?? undefined,
+        anticipo_regularizacion: item.anticipo_regularizacion
+          ? true
+          : undefined,
         anticipo_documento_serie: item.anticipo_documento_serie || undefined,
         anticipo_documento_numero: item.anticipo_documento_numero ?? undefined,
       })) || [],

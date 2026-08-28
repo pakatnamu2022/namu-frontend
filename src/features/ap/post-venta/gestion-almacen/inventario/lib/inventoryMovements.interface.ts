@@ -93,6 +93,10 @@ export interface InventoryMovementResponse {
   meta: Meta;
 }
 
+export interface InventoryMovementShowResponse {
+  data: InventoryMovementResource;
+}
+
 export interface getInventoryMovementProps {
   productId: number;
   warehouseId: number;
@@ -101,6 +105,24 @@ export interface getInventoryMovementProps {
 
 export interface getInventoryKardexProps {
   params?: Record<string, any>;
+}
+
+export interface InventoryKardexResource {
+  id: number;
+  code: string;
+  dyn_code: string;
+  description: string;
+  category: string;
+  brand: string;
+  unit_measurement: string;
+  article_class: string;
+  balance: number;
+}
+
+export interface InventoryKardexResponse {
+  data: InventoryKardexResource[];
+  links: Links;
+  meta: Meta;
 }
 
 export interface getProductPurchaseHistoryProps {

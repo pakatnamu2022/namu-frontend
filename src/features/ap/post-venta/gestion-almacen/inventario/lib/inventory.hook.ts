@@ -3,6 +3,7 @@ import {
   getInventory,
   getInventoryKardex,
   getInventoryMovements,
+  getInventoryMovementById,
   getProductPurchaseHistory,
   getCompareDynamics,
   updateInventoryStockMinMax,
@@ -19,9 +20,11 @@ import {
   ReservedStockReportResponse,
 } from "./inventory.interface.ts";
 import {
-  InventoryMovementResponse,
+  InventoryKardexResponse,
+  InventoryMovementShowResponse,
   PurchaseHistoryResponse,
 } from "./inventoryMovements.interface.ts";
+import { InventoryMovementListResponse } from "./inventoryMovementsList.interface.ts";
 import { errorToast, successToast } from "@/core/core.function.ts";
 
 export const useInventory = (
@@ -42,7 +45,7 @@ export const useInventoryMovements = (
   params?: Record<string, any>,
   options?: { enabled?: boolean },
 ) => {
-  return useQuery<InventoryMovementResponse>({
+  return useQuery<InventoryMovementListResponse>({
     queryKey: ["inventory-movements", productId, warehouseId, params],
     queryFn: () => getInventoryMovements({ productId, warehouseId, params }),
     refetchOnWindowFocus: false,
@@ -50,12 +53,24 @@ export const useInventoryMovements = (
   });
 };
 
+export const useInventoryMovementById = (
+  id: number | null,
+  options?: { enabled?: boolean },
+) => {
+  return useQuery<InventoryMovementShowResponse>({
+    queryKey: ["inventory-movement", id],
+    queryFn: () => getInventoryMovementById(id as number),
+    refetchOnWindowFocus: false,
+    enabled: (options?.enabled ?? true) && id != null,
+  });
+};
+
 export const useInventoryKardex = (
   params?: Record<string, any>,
   options?: { enabled?: boolean },
 ) => {
-  return useQuery<InventoryMovementResponse>({
-    queryKey: ["inventory-movements", params],
+  return useQuery<InventoryKardexResponse>({
+    queryKey: ["inventory-kardex", params],
     queryFn: () => getInventoryKardex({ params }),
     refetchOnWindowFocus: false,
     enabled: options?.enabled ?? true,

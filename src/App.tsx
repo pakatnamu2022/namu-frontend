@@ -276,6 +276,8 @@ import CreateTransferReceptionPage from "@/app/ap/post-venta/gestion-de-almacen/
 import AdjustmentsProductPage from "./app/ap/post-venta/gestion-de-almacen/ajuste-producto/page.tsx";
 import AddAdjustmentsProductPage from "@/app/ap/post-venta/gestion-de-almacen/ajuste-producto/agregar/page.tsx";
 import UpdateAdjustmentsProductPage from "@/app/ap/post-venta/gestion-de-almacen/ajuste-producto/actualizar/[id]/page.tsx";
+import ProductShelfPage from "./app/ap/post-venta/gestion-de-almacen/estantes-almacen/page.tsx";
+import ManageShelfProductsPage from "@/app/ap/post-venta/gestion-de-almacen/estantes-almacen/gestionar/[id]/page.tsx";
 import InventoryPage from "./app/ap/post-venta/gestion-de-almacen/inventario/page.tsx";
 import InventoryKardexPage from "@/app/ap/post-venta/gestion-de-almacen/inventario/kardex/page.tsx";
 import ProductKardexPage from "@/app/ap/post-venta/gestion-de-almacen/inventario/movimientos/[productId]/[warehouseId]/page.tsx";
@@ -365,8 +367,11 @@ import GeneralInformationPage from "./app/ap/post-venta/taller/orden-trabajo/ges
 import WorkOrderPlanningPage from "./app/ap/post-venta/taller/planificacion-orden-trabajo/page.tsx";
 import AddWorkOrderPlanningPage from "./app/ap/post-venta/taller/planificacion-orden-trabajo/agregar/page.tsx";
 import AssignedWorkPage from "./app/ap/post-venta/taller/trabajos-asignados/page.tsx";
+import TechnicianProductivityPage from "./app/ap/post-venta/taller/trabajos-asignados/productividad/page.tsx";
 import VehicleInspectionPage from "./app/ap/post-venta/taller/orden-trabajo/[workOrderId]/inspeccion/page.tsx";
 import SalesReceiptsTallerPage from "./app/ap/post-venta/taller/comprobante-venta-taller/page.tsx";
+import CampaignSchedulePage from "./app/ap/post-venta/taller/cronograma-campanas/page.tsx";
+import AddCampaignSchedulePage from "./app/ap/post-venta/taller/cronograma-campanas/agregar/page.tsx";
 import BoxPage from "./app/ap/post-venta/caja/page.tsx";
 import SalesReceiptsCajaPage from "./app/ap/post-venta/caja/comprobante-venta-caja/page.tsx";
 import UpdateSalesReceiptsCajaPage from "@/app/ap/post-venta/caja/comprobante-venta-caja/actualizar/[id]/page.tsx";
@@ -496,6 +501,7 @@ import PayrollRatesPercentagesPage from "./app/gp/gestion-humana/planillas/tasas
 import PayrollConceptsPage from "./app/gp/gestion-humana/planillas/conceptos-planilla/page.tsx";
 import AttendancePage from "./app/gp/gestion-humana/asistencias/page.tsx";
 import AttendancePersonPage from "./app/gp/gestion-humana/asistencias/persona/[personId]/page.tsx";
+import AttendanceBulkStoreRoutePage from "./app/gp/gestion-humana/asistencias/marcacion-masiva/page.tsx";
 import SunafilReportPage from "./app/gp/gestion-humana/asistencias/sunafil/page.tsx";
 import InternalReportPage from "./app/gp/gestion-humana/asistencias/interno/page.tsx";
 import WorkSchedulePage from "./app/gp/gestion-humana/asistencias/horarios/page.tsx";
@@ -1519,6 +1525,14 @@ function App() {
                 element={<UpdateAdjustmentsProductPage />}
               />
               <Route
+                path="gestion-de-almacen/estantes-almacen"
+                element={<ProductShelfPage />}
+              />
+              <Route
+                path="gestion-de-almacen/estantes-almacen/gestionar/:id"
+                element={<ManageShelfProductsPage />}
+              />
+              <Route
                 path="gestion-de-almacen/inventario"
                 element={<InventoryPage />}
               />
@@ -1879,8 +1893,20 @@ function App() {
                 element={<AssignedWorkPage />}
               />
               <Route
+                path="taller/trabajos-asignados/productividad"
+                element={<TechnicianProductivityPage />}
+              />
+              <Route
                 path="taller/comprobante-venta-taller"
                 element={<SalesReceiptsTallerPage />}
+              />
+              <Route
+                path="taller/cronograma-campanas"
+                element={<CampaignSchedulePage />}
+              />
+              <Route
+                path="taller/cronograma-campanas/agregar"
+                element={<AddCampaignSchedulePage />}
               />
               {/* CAJA */}
               <Route path="caja" element={<BoxPage />} />
@@ -2328,6 +2354,10 @@ function App() {
               <Route
                 path="asistencias/asistencias/:personId"
                 element={<AttendancePersonPage />}
+              />
+              <Route
+                path="asistencias/marcacion-masiva"
+                element={<AttendanceBulkStoreRoutePage />}
               />
               <Route
                 path="asistencias/sunafil"

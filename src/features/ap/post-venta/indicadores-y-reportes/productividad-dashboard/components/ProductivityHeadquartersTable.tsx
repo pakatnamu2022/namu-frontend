@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Building2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { DataTable } from "@/shared/components/DataTable";
-import { formatHours } from "@/core/core.function";
+import { formatHours, formatMoney } from "@/core/core.function";
 import { ProductivityHeadquarterSummary } from "../lib/productivityDashboard.interface";
 import { productivityHeadquartersColumns } from "./ProductivityHeadquartersColumns";
 import {
@@ -17,12 +17,6 @@ import {
 interface ProductivityHeadquartersTableProps {
   data: ProductivityHeadquarterSummary[];
 }
-
-const formatCurrency = (value: number) =>
-  `S/ ${new Intl.NumberFormat("es-PE", {
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  }).format(value)}`;
 
 export default function ProductivityHeadquartersTable({
   data,
@@ -81,7 +75,7 @@ export default function ProductivityHeadquartersTable({
                 sede.total_earnings < 0 ? "text-red-600" : "",
               )}
             >
-              {formatCurrency(sede.total_earnings)}
+              {formatMoney(sede.total_earnings)}
             </div>
           </div>
         </div>

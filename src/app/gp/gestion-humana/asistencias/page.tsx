@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { RefreshCw } from "lucide-react";
+import { Link } from "react-router-dom";
+import { CalendarPlus, RefreshCw } from "lucide-react";
 import { format } from "date-fns";
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
 import TitleComponent from "@/shared/components/TitleComponent";
@@ -85,6 +86,12 @@ export default function AttendancePage() {
             Actualizar
           </Button>
           <AttendanceAbsentReportButton date={toDateStr(date)} />
+          <Button size="sm" variant="outline" asChild>
+            <Link to={ATTENDANCE.BULK_STORE_ABSOLUTE_ROUTE}>
+              <CalendarPlus className="size-4 mr-1.5" />
+              Marcación masiva
+            </Link>
+          </Button>
           <AttendanceSyncRangeDialog onSynced={refetch} />
         </div>
       </HeaderTableWrapper>

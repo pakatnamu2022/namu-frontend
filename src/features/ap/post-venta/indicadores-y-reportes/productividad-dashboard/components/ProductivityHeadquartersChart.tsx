@@ -24,7 +24,7 @@ interface ProductivityHeadquartersChartProps {
 
 const chartConfig = {
   total_standard_hours: {
-    label: "Horas estándar",
+    label: "Horas laborables",
     color: "var(--color-gray-300)",
   },
   total_billed_hours: {
@@ -49,7 +49,7 @@ export default function ProductivityHeadquartersChart({
       <CardHeader>
         <CardTitle>Comparativo por Sede</CardTitle>
         <CardDescription>
-          Horas estándar vs. horas facturadas del período
+          Horas laborables vs. horas facturadas del período
         </CardDescription>
       </CardHeader>
       <CardContent className="px-2 sm:p-4">
@@ -82,7 +82,7 @@ export default function ProductivityHeadquartersChart({
                     <div className="space-y-1.5">
                       <div className="flex items-center justify-between gap-8">
                         <span className="text-xs text-muted-foreground">
-                          Horas estándar:
+                          Horas laborables:
                         </span>
                         <span className="text-sm font-bold">
                           {item.total_standard_hours.toLocaleString("es-PE")} h

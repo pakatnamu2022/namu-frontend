@@ -50,7 +50,7 @@ export const productivityHeadquartersColumns =
     },
     {
       accessorKey: "total_standard_hours",
-      header: "Horas estándar",
+      header: "Horas laborables",
       cell: ({ row }) => formatHours(row.original.total_standard_hours),
     },
     {

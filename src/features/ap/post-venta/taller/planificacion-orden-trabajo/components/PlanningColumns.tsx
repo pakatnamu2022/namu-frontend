@@ -8,12 +8,13 @@ import {
   PLANNING_STATUS_COLORS,
 } from "../lib/workOrderPlanning.interface";
 import { PLANNING_TYPE_LABELS } from "../lib/workOrderPlanning.constants";
-import { Clock, User, FileText, Ban, Play, Flag } from "lucide-react";
+import { Clock, User, Ban, Play, Flag } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Eye, Pencil, ShieldCheck, UserCog } from "lucide-react";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
 import { ElapsedTimer } from "./ElapsedTimer";
 import { formatDateTime, formatHours } from "@/core/core.function";
+import { CopyCell } from "@/shared/components/CopyCell";
 
 export type WorkOrderPlanningColumns = ColumnDef<WorkOrderPlanningResource>;
 
@@ -45,16 +46,24 @@ export const planningColumns = ({
   },
 }: PlanningColumnsProps = {}): ColumnDef<WorkOrderPlanningResource>[] => [
   {
-    accessorKey: "work_order_correlative",
+    id: "work_order_correlative_plate",
     header: "Orden de Trabajo",
-    cell: ({ row }) => (
-      <div className="flex items-center gap-2">
-        <FileText className="h-4 w-4 text-muted-foreground" />
-        <span className="font-medium">
-          {row.original.work_order_correlative}
-        </span>
-      </div>
-    ),
+    cell: ({ row }) => {
+      const plate = row.original.vehicle_plate;
+      const vin = row.original.vehicle_vin;
+
+      return (
+        <div className="flex flex-col gap-0.5">
+          <CopyCell
+            className="font-medium"
+            value={row.original.work_order_correlative!}
+          />
+          <span className="text-xs text-muted-foreground">
+            {plate ? `${plate}` : vin ? `${vin}` : "-"}
+          </span>
+        </div>
+      );
+    },
   },
   {
     accessorKey: "worker_name",

@@ -37,6 +37,7 @@ import {
 } from "@/features/gp/gestionhumana/gestion-de-personal/posiciones/lib/position.constant";
 import { WORK_ORDER_PLANNING_SESSION } from "@/features/ap/post-venta/taller/trabajos-asignados/lib/assignedWork.constants";
 import { useMySedes } from "@/features/gp/maestro-general/sede/lib/sede.hook";
+import AssignedWorkActions from "@/features/ap/post-venta/taller/trabajos-asignados/components/AssignedWorkActions";
 
 export default function AssignedWorkPage() {
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
@@ -227,7 +228,14 @@ export default function AssignedWorkPage() {
           title={currentView.descripcion}
           subtitle="Gestiona tus trabajos asignados"
           icon={currentView.icon}
-        />
+        >
+          <AssignedWorkActions
+            workerId={workerId}
+            sedeId={sedeId}
+            dateFrom={dateFrom}
+            dateTo={dateTo}
+          />
+        </TitleComponent>
       </HeaderTableWrapper>
       <AssignedWorkTable
         isLoading={isLoading || isLoadingWorkers}
