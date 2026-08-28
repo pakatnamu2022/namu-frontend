@@ -47,7 +47,10 @@ export function CreateApprovedAccessoryModal({
       description: "",
       type_operation_id: CM_COMERCIAL_ID,
       priceGroups: [
-        { body_type_ids: defaultBodyTypeId ? [defaultBodyTypeId] : [], price: 0 },
+        {
+          body_type_ids: defaultBodyTypeId ? [defaultBodyTypeId] : [],
+          price: 0,
+        },
       ],
     },
     mode: "onChange",
@@ -91,7 +94,10 @@ export function CreateApprovedAccessoryModal({
 
   const handleSubmit = form.handleSubmit((data: any) => {
     const { priceGroups, ...rest } = data;
-    createAccessory({ ...rest, prices: flattenPriceGroups(priceGroups) } as any);
+    createAccessory({
+      ...rest,
+      prices: flattenPriceGroups(priceGroups),
+    } as any);
   });
 
   return (
@@ -111,7 +117,7 @@ export function CreateApprovedAccessoryModal({
 
         <Form {...form}>
           <div className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4">
               <FormInput
                 name="description"
                 label="Descripción"
@@ -137,9 +143,7 @@ export function CreateApprovedAccessoryModal({
                   variant="outline"
                   size="sm"
                   className="gap-2"
-                  onClick={() =>
-                    append({ body_type_ids: [], price: 0 })
-                  }
+                  onClick={() => append({ body_type_ids: [], price: 0 })}
                 >
                   <Plus className="h-4 w-4" />
                   Agregar grupo de precio
@@ -156,13 +160,12 @@ export function CreateApprovedAccessoryModal({
                 const current: number[] = groups[index]?.body_type_ids ?? [];
                 const takenElsewhere = new Set(
                   groups.flatMap((g, i) =>
-                    i === index ? [] : g.body_type_ids ?? [],
+                    i === index ? [] : (g.body_type_ids ?? []),
                   ),
                 );
                 const options = typesBody.filter(
                   (item) =>
-                    current.includes(item.id) ||
-                    !takenElsewhere.has(item.id),
+                    current.includes(item.id) || !takenElsewhere.has(item.id),
                 );
                 return (
                   <div
@@ -178,7 +181,7 @@ export function CreateApprovedAccessoryModal({
                       getDisplayValue={(item) =>
                         `${item.code} - ${item.description}`
                       }
-                      required
+                      required                      
                     />
                     <FormInput
                       name={`priceGroups.${index}.price`}
