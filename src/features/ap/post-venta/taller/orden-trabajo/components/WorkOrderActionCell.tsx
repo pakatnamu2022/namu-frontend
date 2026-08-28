@@ -182,7 +182,7 @@ export function WorkOrderActionCell({
     !isInterna &&
     (status_id == String(STATUS_WORK_ORDER.TERMINADO) || isClosed);
 
-  const isVisiblePdfDelivery = (isDelivery || isClosed) && !isInterna;
+  const isVisiblePdfDelivery = isDelivery || isClosed;
 
   const isVisibleGenerateInternalNote =
     permissions.canGenerateInternalNote && !isClosed && isInterna;
