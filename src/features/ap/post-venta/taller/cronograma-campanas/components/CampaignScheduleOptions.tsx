@@ -35,7 +35,7 @@ export default function CampaignScheduleOptions({
       <SearchInput
         value={search}
         onChange={setSearch}
-        placeholder="Buscar cronograma..."
+        placeholder="Buscar técnico..."
       />
       <SearchableSelect
         options={years.map((year) => ({

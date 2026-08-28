@@ -1,7 +1,8 @@
 "use client";
 
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { endOfMonth, startOfMonth } from "date-fns";
 import PageSkeleton from "@/shared/components/PageSkeleton";
 import TitleComponent from "@/shared/components/TitleComponent";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
@@ -18,6 +19,7 @@ import {
   generateYear,
   ERROR_MESSAGE,
   errorToast,
+  formatDate,
   SUCCESS_MESSAGE,
   successToast,
 } from "@/core/core.function";
@@ -48,6 +50,15 @@ export default function CampaignSchedulePage() {
     setPage(1);
   }, [search, year, month, sedeId, per_page]);
 
+  const { dateFrom, dateTo } = useMemo(() => {
+    if (!year || !month) return { dateFrom: undefined, dateTo: undefined };
+    const monthDate = new Date(Number(year), Number(month) - 1, 1);
+    return {
+      dateFrom: startOfMonth(monthDate),
+      dateTo: endOfMonth(monthDate),
+    };
+  }, [year, month]);
+
   const { data: mySedes = [], isLoading: isLoadingSedes } = useMySedes({
     company: EMPRESA_AP.id,
     has_workshop: true,
@@ -65,8 +76,13 @@ export default function CampaignSchedulePage() {
       page,
       search,
       per_page,
-      year,
-      month,
+      date:
+        dateFrom && dateTo
+          ? [
+              formatDate(dateFrom, "yyyy-MM-dd"),
+              formatDate(dateTo, "yyyy-MM-dd"),
+            ]
+          : undefined,
       sede_id: sedeId || undefined,
     },
     enabled: !!sedeId,
