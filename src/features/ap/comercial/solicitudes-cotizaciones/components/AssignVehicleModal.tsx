@@ -23,13 +23,13 @@ export default function AssignVehicleModal({
   quote,
 }: AssignVehicleModalProps) {
   const [selectedVehicleId, setSelectedVehicleId] = useState<number | null>(
-    null
+    null,
   );
 
   const { data: vehicles, isLoading } = useAllVehicles({
     ap_vehicle_status_id: [2, 5],
     has_purchase_request_quote: 0,
-    ap_models_vn_id: quote.ap_models_vn_id,
+    model$family_id: quote.opportunity_family_id,
     warehouse$sede_id: quote.sede_id,
   });
 
