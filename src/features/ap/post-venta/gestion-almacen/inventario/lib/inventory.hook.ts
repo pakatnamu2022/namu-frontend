@@ -24,6 +24,7 @@ import {
   InventoryMovementShowResponse,
   PurchaseHistoryResponse,
 } from "./inventoryMovements.interface.ts";
+import { InventoryMovementListResponse } from "./inventoryMovementsList.interface.ts";
 import { errorToast, successToast } from "@/core/core.function.ts";
 
 export const useInventory = (
@@ -44,7 +45,7 @@ export const useInventoryMovements = (
   params?: Record<string, any>,
   options?: { enabled?: boolean },
 ) => {
-  return useQuery<InventoryMovementResponse>({
+  return useQuery<InventoryMovementListResponse>({
     queryKey: ["inventory-movements", productId, warehouseId, params],
     queryFn: () => getInventoryMovements({ productId, warehouseId, params }),
     refetchOnWindowFocus: false,

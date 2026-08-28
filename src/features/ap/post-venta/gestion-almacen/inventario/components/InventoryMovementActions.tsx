@@ -1,12 +1,12 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button.tsx";
 import { Eye } from "lucide-react";
-import { InventoryMovementResource } from "@/features/ap/post-venta/gestion-almacen/inventario/lib/inventoryMovements.interface.ts";
 import { useInventoryMovementById } from "@/features/ap/post-venta/gestion-almacen/inventario/lib/inventory.hook.ts";
 import InventoryMovementDetailsSheet from "./InventoryMovementDetailsSheet.tsx";
 
 interface InventoryMovementActionsProps {
-  movement: InventoryMovementResource;
+  // De la fila solo se usa el id: el detalle se pide al endpoint show.
+  movement: { id: number };
 }
 
 export default function InventoryMovementActions({

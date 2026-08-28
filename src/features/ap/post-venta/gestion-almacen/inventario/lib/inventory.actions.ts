@@ -21,6 +21,7 @@ import {
   InventoryMovementShowResponse,
   PurchaseHistoryResponse,
 } from "./inventoryMovements.interface.ts";
+import { InventoryMovementListResponse } from "./inventoryMovementsList.interface.ts";
 import { InventoryStockMinMaxSchema } from "./inventoryStockMinMaxSchema.ts";
 
 const { ENDPOINT } = INVENTORY;
@@ -41,13 +42,13 @@ export const getInventoryMovements = async ({
   productId,
   warehouseId,
   params,
-}: getInventoryMovementProps): Promise<InventoryMovementResponse> => {
+}: getInventoryMovementProps): Promise<InventoryMovementListResponse> => {
   const config: AxiosRequestConfig = {
     params: {
       ...params,
     },
   };
-  const { data } = await api.get<InventoryMovementResponse>(
+  const { data } = await api.get<InventoryMovementListResponse>(
     `/ap/postVenta/inventoryMovements/product/${productId}/warehouse/${warehouseId}/history`,
     config,
   );

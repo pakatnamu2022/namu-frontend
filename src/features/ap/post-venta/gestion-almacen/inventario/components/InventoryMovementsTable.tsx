@@ -1,10 +1,10 @@
 import { DataTable } from "@/shared/components/DataTable.tsx";
 import { InventoryMovementColumns } from "./InventoryMovementsColumns.tsx";
-import { InventoryMovementResource } from "@/features/ap/post-venta/gestion-almacen/inventario/lib/inventoryMovements.interface.ts";
+import { InventoryMovementListRow } from "@/features/ap/post-venta/gestion-almacen/inventario/lib/inventoryMovementsList.interface.ts";
 
 interface Props {
   columns: InventoryMovementColumns[];
-  data: InventoryMovementResource[];
+  data: InventoryMovementListRow[];
   children?: React.ReactNode;
   isLoading?: boolean;
 }

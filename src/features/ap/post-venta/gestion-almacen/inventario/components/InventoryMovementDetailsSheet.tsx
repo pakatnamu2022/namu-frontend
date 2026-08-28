@@ -1120,7 +1120,7 @@ export default function InventoryMovementDetailsSheet({
           : "Cargando..."
       }
       size="3xl"
-      isLoading={isLoading || !movement}
+      isLoading={open && (isLoading || !movement)}
     >
       {!movement ? null : (
       <div className="space-y-6 px-6">
