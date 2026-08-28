@@ -16,7 +16,9 @@ import {
   getInventoryKardexProps,
   getInventoryMovementProps,
   getProductPurchaseHistoryProps,
+  InventoryMovementResource,
   InventoryMovementResponse,
+  InventoryMovementShowResponse,
   PurchaseHistoryResponse,
 } from "./inventoryMovements.interface.ts";
 import { InventoryStockMinMaxSchema } from "./inventoryStockMinMaxSchema.ts";
@@ -50,6 +52,19 @@ export const getInventoryMovements = async ({
     config,
   );
   return data;
+};
+
+export const getInventoryMovementById = async (
+  id: number,
+): Promise<InventoryMovementShowResponse> => {
+  const { data } = await api.get<
+    InventoryMovementShowResponse | InventoryMovementResource
+  >(`/ap/postVenta/inventoryMovements/${id}`);
+  // El endpoint show devuelve el movimiento plano; lo normalizamos a { data }
+  // para respetar el contrato InventoryMovementShowResponse que consume el hook.
+  return "data" in data
+    ? (data as InventoryMovementShowResponse)
+    : { data: data as InventoryMovementResource };
 };
 
 export const getInventoryKardex = async ({

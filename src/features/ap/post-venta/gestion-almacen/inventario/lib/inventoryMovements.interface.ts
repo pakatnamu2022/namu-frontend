@@ -93,6 +93,10 @@ export interface InventoryMovementResponse {
   meta: Meta;
 }
 
+export interface InventoryMovementShowResponse {
+  data: InventoryMovementResource;
+}
+
 export interface getInventoryMovementProps {
   productId: number;
   warehouseId: number;

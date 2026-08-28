@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button.tsx";
 import { Eye } from "lucide-react";
 import { InventoryMovementResource } from "@/features/ap/post-venta/gestion-almacen/inventario/lib/inventoryMovements.interface.ts";
+import { useInventoryMovementById } from "@/features/ap/post-venta/gestion-almacen/inventario/lib/inventory.hook.ts";
 import InventoryMovementDetailsSheet from "./InventoryMovementDetailsSheet.tsx";
 
 interface InventoryMovementActionsProps {
@@ -13,12 +14,16 @@ export default function InventoryMovementActions({
 }: InventoryMovementActionsProps) {
   const [dialogOpen, setDialogOpen] = useState(false);
 
-  // Verificar si el movimiento tiene información para mostrar
-  const hasDetails =
-    movement.reference !== null ||
-    movement.reference !== undefined ||
-    movement.reason_in_out !== null ||
-    movement.reason_in_out !== undefined;
+  // El detalle se consulta al endpoint show con el id; la API arma la
+  // respuesta según el reference_type del movimiento. De la fila solo se
+  // usa el id, nunca para pintar el detalle.
+  const { data, isLoading } = useInventoryMovementById(
+    dialogOpen ? movement.id : null,
+  );
+
+  const detailedMovement = data?.data ?? null;
+  // Solo mostramos el skeleton mientras no tengamos la respuesta del show.
+  const loading = dialogOpen && isLoading && !detailedMovement;
 
   return (
     <>
@@ -27,15 +32,15 @@ export default function InventoryMovementActions({
         size="sm"
         onClick={() => setDialogOpen(true)}
         className="h-8 w-8 p-0"
-        disabled={!hasDetails}
-        tooltip={hasDetails ? "Ver detalles" : "Sin detalles disponibles"}
+        tooltip="Ver detalles"
       >
         <Eye className="h-4 w-4" />
       </Button>
       <InventoryMovementDetailsSheet
         open={dialogOpen}
         onOpenChange={setDialogOpen}
-        movement={movement}
+        movement={detailedMovement}
+        isLoading={loading}
       />
     </>
   );

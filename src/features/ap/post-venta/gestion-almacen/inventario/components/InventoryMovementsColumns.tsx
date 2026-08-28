@@ -109,6 +109,18 @@ export const inventoryMovementsColumns = (): InventoryMovementColumns[] => [
         const purchaseOrder = reception.purchase_order;
 
         if (purchaseOrder) {
+          const supplierName =
+            typeof purchaseOrder.supplier === "object" &&
+            purchaseOrder.supplier !== null
+              ? ((purchaseOrder.supplier as { full_name?: string }).full_name ??
+                "-")
+              : purchaseOrder.supplier;
+          const supplierNumDoc =
+            typeof purchaseOrder.supplier === "object" &&
+            purchaseOrder.supplier !== null
+              ? ((purchaseOrder.supplier as { num_doc?: string }).num_doc ??
+                purchaseOrder.supplier_num_doc)
+              : purchaseOrder.supplier_num_doc;
           const hasCreditNote = purchaseOrder.credit_note_dynamics != null;
           const invoiceDynLabel =
             purchaseOrder.invoice_dynamics ??
@@ -122,9 +134,9 @@ export const inventoryMovementsColumns = (): InventoryMovementColumns[] => [
 
           return (
             <div className="flex flex-col text-sm">
-              <span className="font-medium">{purchaseOrder.supplier}</span>
+              <span className="font-medium">{supplierName}</span>
               <span className="text-xs text-gray-500">
-                RUC: {purchaseOrder.supplier_num_doc}
+                RUC: {supplierNumDoc}
               </span>
               <div className="flex items-center gap-2 text-xs text-gray-500">
                 <span>Factura: {invoiceLabel}</span>
@@ -449,19 +461,31 @@ export const inventoryMovementsColumns = (): InventoryMovementColumns[] => [
       // SALE - Mostrar cliente de la cotización
       if (movementType === "RETURN_OUT") {
         const creditNote = reference as CreditNoteResource;
+        const roPurchaseOrder = creditNote.purchase_order;
+
+        const roSupplierName =
+          typeof roPurchaseOrder.supplier === "object" &&
+          roPurchaseOrder.supplier !== null
+            ? ((roPurchaseOrder.supplier as { full_name?: string }).full_name ??
+              "-")
+            : roPurchaseOrder.supplier;
+        const roSupplierNumDoc =
+          typeof roPurchaseOrder.supplier === "object" &&
+          roPurchaseOrder.supplier !== null
+            ? ((roPurchaseOrder.supplier as { num_doc?: string }).num_doc ??
+              roPurchaseOrder.supplier_num_doc)
+            : roPurchaseOrder.supplier_num_doc;
 
         const invoiceDynLabel =
-          creditNote.purchase_order.invoice_dynamics ??
-          `${creditNote.purchase_order.invoice_series}-${creditNote.purchase_order.invoice_number}`;
-        const invoiceLabel = `${creditNote.purchase_order.invoice_series}-${creditNote.purchase_order.invoice_number}`;
+          roPurchaseOrder.invoice_dynamics ??
+          `${roPurchaseOrder.invoice_series}-${roPurchaseOrder.invoice_number}`;
+        const invoiceLabel = `${roPurchaseOrder.invoice_series}-${roPurchaseOrder.invoice_number}`;
 
         return (
           <div className="flex flex-col text-sm">
-            <span className="font-medium">
-              {creditNote.purchase_order.supplier}
-            </span>
+            <span className="font-medium">{roSupplierName}</span>
             <span className="text-xs text-gray-500">
-              RUC: {creditNote.purchase_order.supplier_num_doc}
+              RUC: {roSupplierNumDoc}
             </span>
             <span className="text-xs text-gray-500">
               Factura: {invoiceLabel}

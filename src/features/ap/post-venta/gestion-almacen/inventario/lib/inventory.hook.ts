@@ -3,6 +3,7 @@ import {
   getInventory,
   getInventoryKardex,
   getInventoryMovements,
+  getInventoryMovementById,
   getProductPurchaseHistory,
   getCompareDynamics,
   updateInventoryStockMinMax,
@@ -20,6 +21,7 @@ import {
 } from "./inventory.interface.ts";
 import {
   InventoryMovementResponse,
+  InventoryMovementShowResponse,
   PurchaseHistoryResponse,
 } from "./inventoryMovements.interface.ts";
 import { errorToast, successToast } from "@/core/core.function.ts";
@@ -47,6 +49,18 @@ export const useInventoryMovements = (
     queryFn: () => getInventoryMovements({ productId, warehouseId, params }),
     refetchOnWindowFocus: false,
     enabled: options?.enabled ?? true,
+  });
+};
+
+export const useInventoryMovementById = (
+  id: number | null,
+  options?: { enabled?: boolean },
+) => {
+  return useQuery<InventoryMovementShowResponse>({
+    queryKey: ["inventory-movement", id],
+    queryFn: () => getInventoryMovementById(id as number),
+    refetchOnWindowFocus: false,
+    enabled: (options?.enabled ?? true) && id != null,
   });
 };
 

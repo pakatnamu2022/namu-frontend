@@ -23,15 +23,19 @@ import { translateStatusTransfer } from "../../recepcion-transferencia/lib/trans
 interface InventoryMovementDetailsSheetProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  movement: InventoryMovementResource;
+  movement: InventoryMovementResource | null;
+  isLoading?: boolean;
 }
 
 export default function InventoryMovementDetailsSheet({
   open,
   onOpenChange,
   movement,
+  isLoading = false,
 }: InventoryMovementDetailsSheetProps) {
   const renderReferenceDetails = () => {
+    if (!movement) return null;
+
     if (!movement.reference) {
       // Mostrar información de ajustes si no hay referencia pero hay reason_in_out
       if (movement.reason_in_out) {
@@ -690,56 +694,64 @@ export default function InventoryMovementDetailsSheet({
               <div className="grid grid-cols-2 gap-4 p-4">
                 <div>
                   <p className="text-xs text-muted-foreground">N° Cotización</p>
-                  <p className="font-semibold">{quotation.quotation_number}</p>
+                  <p className="font-semibold">
+                    {quotation.quotation_number || "-"}
+                  </p>
                 </div>
                 <div>
                   <p className="text-xs text-muted-foreground">Fecha</p>
                   <p className="font-medium">
-                    {formatDate(quotation.quotation_date)}
+                    {quotation.quotation_date
+                      ? formatDate(quotation.quotation_date)
+                      : "-"}
                   </p>
                 </div>
                 <div className="col-span-2">
                   <p className="text-xs text-muted-foreground">Cliente</p>
                   <p className="font-semibold text-base">
-                    {quotation.client.full_name}
+                    {quotation.client?.full_name || "-"}
                   </p>
                   <p className="text-xs text-muted-foreground">
-                    Num Doc :{quotation.client.num_doc}
+                    Num Doc :{quotation.client?.num_doc || "-"}
                   </p>
                 </div>
                 <div>
                   <p className="text-xs text-muted-foreground">Vehículo</p>
-                  <p className="font-medium">{quotation.vehicle.plate}</p>
+                  <p className="font-medium">
+                    {quotation.vehicle?.plate || "-"}
+                  </p>
                 </div>
                 <div>
                   <p className="text-xs text-muted-foreground">Moneda</p>
-                  <p className="font-medium">{quotation.type_currency.name}</p>
+                  <p className="font-medium">
+                    {quotation.type_currency?.name || "-"}
+                  </p>
                 </div>
                 <div>
                   <p className="text-xs text-muted-foreground">Subtotal</p>
                   <p className="font-medium">
-                    {quotation.type_currency.symbol}{" "}
-                    {quotation.subtotal.toFixed(2)}
+                    {quotation.type_currency?.symbol || "S/"}{" "}
+                    {Number(quotation.subtotal ?? 0).toFixed(2)}
                   </p>
                 </div>
                 <div>
                   <p className="text-xs text-muted-foreground">IGV</p>
                   <p className="font-medium">
-                    {quotation.type_currency.symbol}{" "}
-                    {quotation.tax_amount?.toFixed(2) || "0.00"}
+                    {quotation.type_currency?.symbol || "S/"}{" "}
+                    {Number(quotation.tax_amount ?? 0).toFixed(2)}
                   </p>
                 </div>
                 <div>
                   <p className="text-xs text-muted-foreground">Total a Pagar</p>
                   <p className="font-semibold text-lg text-green-600">
-                    {quotation.type_currency.symbol}{" "}
-                    {quotation.total_amount.toFixed(2)}
+                    {quotation.type_currency?.symbol || "S/"}{" "}
+                    {Number(quotation.total_amount ?? 0).toFixed(2)}
                   </p>
                 </div>
                 <div>
                   <p className="text-xs text-muted-foreground">Estado</p>
                   <Badge variant="default">
-                    {quotation.status.description}
+                    {quotation.status?.description || "-"}
                   </Badge>
                 </div>
               </div>
@@ -859,24 +871,26 @@ export default function InventoryMovementDetailsSheet({
                       N° Cotización
                     </p>
                     <p className="font-semibold">
-                      {quotation.quotation_number}
+                      {quotation.quotation_number || "-"}
                     </p>
                   </div>
                   <div>
                     <p className="text-xs text-muted-foreground">Cliente</p>
                     <p className="font-semibold">
-                      {quotation.client.full_name}
+                      {quotation.client?.full_name || "-"}
                     </p>
                   </div>
                   <div>
                     <p className="text-xs text-muted-foreground">Vehículo</p>
-                    <p className="font-medium">{quotation.vehicle.plate}</p>
+                    <p className="font-medium">
+                      {quotation.vehicle?.plate || "-"}
+                    </p>
                   </div>
                   <div>
                     <p className="text-xs text-muted-foreground">Total</p>
                     <p className="font-semibold text-lg">
-                      {quotation.type_currency.symbol}{" "}
-                      {quotation.total_amount.toFixed(2)}
+                      {quotation.type_currency?.symbol || "S/"}{" "}
+                      {Number(quotation.total_amount ?? 0).toFixed(2)}
                     </p>
                   </div>
                 </div>
@@ -1100,9 +1114,15 @@ export default function InventoryMovementDetailsSheet({
       open={open}
       onClose={() => onOpenChange(false)}
       title="Detalles del Movimiento"
-      subtitle={`Movimiento #${movement.movement_number} - ${translateMovementType(movement.movement_type)}`}
+      subtitle={
+        movement
+          ? `Movimiento #${movement.movement_number} - ${translateMovementType(movement.movement_type)}`
+          : "Cargando..."
+      }
       size="3xl"
+      isLoading={isLoading || !movement}
     >
+      {!movement ? null : (
       <div className="space-y-6 px-6">
         {/* Información General del Movimiento */}
 
@@ -1138,6 +1158,7 @@ export default function InventoryMovementDetailsSheet({
         {/* Detalles de la Referencia */}
         {renderReferenceDetails()}
       </div>
+      )}
     </GeneralSheet>
   );
 }
