@@ -39,7 +39,7 @@ export default function InventoryMovementsOptions({
             value: item.id.toString(),
             label: item.dyn_code,
           }))}
-          value={warehouseId}
+          value={warehouseId ?? ""}
           onChange={setWarehouseId}
           placeholder="Filtrar por almacén"
           className="min-w-72"
