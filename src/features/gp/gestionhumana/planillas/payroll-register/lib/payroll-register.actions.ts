@@ -16,6 +16,7 @@ export async function getPayrollRegister(
 export async function generatePayrollRegister(payload: {
   company_id: number;
   period_id: number;
+  force?: boolean;
 }): Promise<void> {
   await api.post(`${ENDPOINT}/generate`, payload);
 }

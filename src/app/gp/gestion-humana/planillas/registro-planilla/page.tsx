@@ -43,6 +43,9 @@ export default function PayrollRegisterPage() {
 
   const params = {
     year,
+    all: "true",
+    sort: "worker_name",
+    direction: "asc",
     ...(companyId ? { period$company_id: companyId } : {}),
     ...(periodId ? { period_id: periodId } : {}),
   };
@@ -81,6 +84,7 @@ export default function PayrollRegisterPage() {
       await generatePayrollRegister({
         company_id: Number(companyId),
         period_id: Number(periodId),
+        force: true,
       });
       await queryClient.invalidateQueries({ queryKey: [QUERY_KEY] });
       successToast("Planilla generada correctamente");
@@ -141,7 +145,7 @@ export default function PayrollRegisterPage() {
           }}
         />
 
-        <PayrollRegisterTable data={data?.data ?? []} isLoading={isLoading} />
+        <PayrollRegisterTable data={data ?? []} isLoading={isLoading} />
       </div>
 
       <SimpleConfirmDialog
