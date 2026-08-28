@@ -92,6 +92,7 @@ export interface PurchaseRequestQuoteResource {
   holder_email: string;
   holder_phone: string;
   client_name: string;
+  opportunity_family_id: number;
   ap_vehicle_id?: number;
   vehicle_color_id: number;
   vehicle_color: string;
