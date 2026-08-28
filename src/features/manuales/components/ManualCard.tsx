@@ -19,19 +19,19 @@ export default function ManualCard({ manual, onClick }: ManualCardProps) {
           <FileText className="w-5 h-5 text-primary" />
         </div>
         <div className="min-w-0 flex-1">
-          <p className="font-semibold text-gray-900 leading-snug line-clamp-2">
+          <p className="font-semibold text-foreground leading-snug line-clamp-2">
             {manual.title}
           </p>
         </div>
       </div>
 
       {manual.description && (
-        <p className="px-5 pb-4 w-full text-sm text-gray-500 line-clamp-2 leading-relaxed">
+        <p className="px-5 pb-4 w-full text-sm text-muted-foreground line-clamp-2 leading-relaxed">
           {manual.description}
         </p>
       )}
 
-      <div className="flex items-center justify-between px-5 py-3 w-full bg-gray-50 rounded-b-2xl">
+      <div className="flex items-center justify-between px-5 py-3 w-full bg-muted/50 rounded-b-2xl">
         <span className="text-xs font-medium text-primary">Ver manual</span>
         <ChevronRight className="w-4 h-4 text-primary transition-transform duration-200 group-hover:translate-x-0.5" />
       </div>

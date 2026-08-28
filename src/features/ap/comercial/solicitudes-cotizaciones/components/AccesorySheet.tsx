@@ -1,11 +1,15 @@
 import { useState, useEffect } from "react";
+import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { SearchableSelect } from "@/shared/components/SearchableSelect";
+import { Form } from "@/components/ui/form";
+import { FormSelectAsync } from "@/shared/components/FormSelectAsync";
 import GeneralSheet from "@/shared/components/GeneralSheet";
 import { FormInput } from "@/shared/components/FormInput";
 import { NumberFormat } from "@/shared/components/NumberFormat";
 import { ApprovedAccesoriesResource } from "@/features/ap/post-venta/repuestos/accesorios-homologados/lib/approvedAccessories.interface";
+import { useApprovedAccesoriesSelect } from "@/features/ap/post-venta/repuestos/accesorios-homologados/lib/approvedAccessories.hook";
 import { ApprovedAccessoryRow } from "./ApprovedAccessoriesTable";
 
 interface AccesorySheetProps {
@@ -18,6 +22,10 @@ interface AccesorySheetProps {
   canCreateApprovedAccessory?: boolean;
   onOpenCreateModal?: () => void;
   initialAccessoryId?: number;
+  /** Carrocería del modelo/VIN elegido: filtra la búsqueda de accesorios en el backend. */
+  modelBodyTypeId?: number;
+  /** Reporta el accesorio completo elegido para cachearlo en el formulario padre. */
+  onRegisterAccessory?: (accessory: ApprovedAccesoriesResource) => void;
   /** Cotización aprobada: solo se permite agregar/editar obsequios (no afectan el precio). */
   lockPaidAccessories?: boolean;
 }
@@ -39,8 +47,13 @@ export function AccesorySheet({
   canCreateApprovedAccessory = false,
   onOpenCreateModal,
   initialAccessoryId,
+  modelBodyTypeId,
+  onRegisterAccessory,
   lockPaidAccessories = false,
 }: AccesorySheetProps) {
+  const selectForm = useForm<{ accessory_id: string }>({
+    defaultValues: { accessory_id: "" },
+  });
   const isEditing = !!editingRow;
   // Con la cotización aprobada, un nuevo registro solo puede ser obsequio
   // (no afecta el precio final); el tipo queda fijo y no seleccionable.
@@ -80,6 +93,14 @@ export function AccesorySheet({
       setForm((prev) => ({ ...prev, accessory_id: initialAccessoryId }));
     }
   }, [open, editingRow, initialAccessoryId]);
+
+  // Mantener el FormSelectAsync en sync con el accessory_id del estado local.
+  useEffect(() => {
+    selectForm.setValue(
+      "accessory_id",
+      form.accessory_id ? String(form.accessory_id) : "",
+    );
+  }, [form.accessory_id, selectForm]);
 
   const handleClose = () => {
     setForm(forceGiftType ? { ...EMPTY_FORM, type: "OBSEQUIO" } : EMPTY_FORM);
@@ -149,34 +170,52 @@ export function AccesorySheet({
 
         <div>
           <div className="flex items-end gap-2">
-            <SearchableSelect
-              buttonSize="default"
-              label="Accesorio"
-              value={
-                form.accessory_id === 0 ? "" : form.accessory_id.toString()
-              }
-              onChange={(value) => {
-                setForm({ ...form, accessory_id: parseInt(value) });
-                setErrors({
-                  ...errors,
-                  accessory_id: false,
-                  accessory_duplicate: false,
-                });
-              }}
-              options={accessories.map((accessory) => ({
-                label: `${accessory.code} - ${accessory.description}`,
-                value: accessory.id.toString(),
-                description: accessory.type_operation,
-              }))}
-              placeholder="Selecciona un accesorio"
-              className={
-                errors.accessory_id || errors.accessory_duplicate
-                  ? "border-red-500"
-                  : ""
-              }
-              classNameDiv="flex-1"
-              withValue={false}
-            />
+            <div className="flex-1">
+              <Form {...selectForm}>
+                <FormSelectAsync
+                  name="accessory_id"
+                  label="Accesorio"
+                  placeholder="Busca un accesorio"
+                  control={selectForm.control}
+                  withValue={false}
+                  allowClear={false}
+                  useQueryHook={useApprovedAccesoriesSelect}
+                  additionalParams={
+                    modelBodyTypeId ? { body_type_id: modelBodyTypeId } : {}
+                  }
+                  mapOptionFn={(a: ApprovedAccesoriesResource) => ({
+                    value: String(a.id),
+                    label: `${a.code} - ${a.description}`,
+                    description: a.type_operation,
+                  })}
+                  defaultOption={
+                    selectedAccessory
+                      ? {
+                          value: String(selectedAccessory.id),
+                          label: `${selectedAccessory.code} - ${selectedAccessory.description}`,
+                        }
+                      : undefined
+                  }
+                  onValueChange={(value, item) => {
+                    setForm((prev) => ({
+                      ...prev,
+                      accessory_id: value ? Number(value) : 0,
+                    }));
+                    setErrors((prev) => ({
+                      ...prev,
+                      accessory_id: false,
+                      accessory_duplicate: false,
+                    }));
+                    if (item && onRegisterAccessory) onRegisterAccessory(item);
+                  }}
+                  className={
+                    errors.accessory_id || errors.accessory_duplicate
+                      ? "border-red-500"
+                      : ""
+                  }
+                />
+              </Form>
+            </div>
             {!isEditing && canCreateApprovedAccessory && (
               <Button
                 type="button"

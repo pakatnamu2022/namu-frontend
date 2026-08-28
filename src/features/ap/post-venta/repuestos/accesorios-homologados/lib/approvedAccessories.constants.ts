@@ -23,8 +23,9 @@ export const APPROVED_ACCESSORIES: ModelComplete<ApprovedAccesoriesResource> = {
     type_operation_id: 0,
     type_operation: "",
     description: "",
-    price: 0,
     status: true,
-    body_type_id: "",
+    type_currency_id: 0,
+    prices: [],
+    body_type_ids: [],
   },
 };
