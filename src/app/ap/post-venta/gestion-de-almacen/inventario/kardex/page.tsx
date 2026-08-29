@@ -35,9 +35,9 @@ export default function InventoryKardexPage() {
   // Setear automáticamente el primer almacén cuando se carguen
   useEffect(() => {
     if (!isLoadingWarehouses && warehouses.length > 0 && !warehouseId) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setWarehouseId(warehouses[0].id.toString());
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isLoadingWarehouses, warehouses, warehouseId]);
 
   const kardexFilters = {

@@ -500,6 +500,11 @@ export const electronicDocumentColumns = ({
                 tooltip="Ver detalles"
                 icon={Eye}
               />
+
+              {/* Work Orders */}
+              {document.consolidation_type === "massive" && (
+                <WorkOrdersSheet documentId={document.id} />
+              )}
             </div>
           );
         }
