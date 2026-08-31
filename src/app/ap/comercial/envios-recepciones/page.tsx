@@ -23,6 +23,7 @@ import {
   useShipmentsReceptions,
   useMarkAsReceived,
   useCancelShippingGuide,
+  useAnnulShippingGuide,
   useSyncShippingGuideWithDynamics,
 } from "@/features/ap/comercial/envios-recepciones/lib/shipmentsReceptions.hook";
 import ShipmentsReceptionsTable from "@/features/ap/comercial/envios-recepciones/components/ShipmentsReceptionsTable";
@@ -32,7 +33,7 @@ import ShipmentsReceptionsOptions from "@/features/ap/comercial/envios-recepcion
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
 import { MarkAsReceivedDialog } from "@/features/ap/comercial/envios-recepciones/components/MarkAsReceivedDialog";
 import { ReasonDialog } from "@/shared/components/ReasonDialog";
-import { Ban } from "lucide-react";
+import { Ban, XCircle } from "lucide-react";
 import { ShipmentsReceptionsResource } from "@/features/ap/comercial/envios-recepciones/lib/shipmentsReceptions.interface";
 import { SheetShipmentDetailsDialog } from "@/features/ap/comercial/envios-recepciones/components/SheetShipmentDetailsDialog";
 import { notFound } from "@/shared/hooks/useNotFound";
@@ -71,6 +72,7 @@ export default function ShipmentsReceptionsPage() {
   const [sendToNubefactId, setSendToNubefactId] = useState<number | null>(null);
   const [markAsReceivedId, setMarkAsReceivedId] = useState<number | null>(null);
   const [cancelId, setCancelId] = useState<number | null>(null);
+  const [annulId, setAnnulId] = useState<number | null>(null);
   const [generatePDIVehicleId, setGeneratePDIVehicleId] = useState<
     number | null
   >(null);
@@ -86,6 +88,7 @@ export default function ShipmentsReceptionsPage() {
   const queryFromNubefactMutation = useQueryShippingGuideFromNubefact();
   const markAsReceivedMutation = useMarkAsReceived();
   const cancelMutation = useCancelShippingGuide();
+  const annulMutation = useAnnulShippingGuide();
   const syncWithDynamicsMutation = useSyncShippingGuideWithDynamics();
   const permissions = useModulePermissions(ROUTE);
   const migrateMutation = useMutation({
@@ -186,6 +189,19 @@ export default function ShipmentsReceptionsPage() {
     );
   };
 
+  const handleAnnul = (reason: string) => {
+    if (!annulId) return;
+    annulMutation.mutate(
+      { id: annulId, cancellation_reason: reason },
+      {
+        onSettled: () => {
+          refetch();
+          setAnnulId(null);
+        },
+      },
+    );
+  };
+
   const generatePDIMutation = useMutation({
     mutationFn: (vehicleId: number) => generatePDIForVehicle(vehicleId),
     onSuccess: () => successToast("OT de PDI generada correctamente"),
@@ -238,6 +254,7 @@ export default function ShipmentsReceptionsPage() {
           onMarkAsReceived: setMarkAsReceivedId,
           onViewDetails: setSelectedShipment,
           onCancel: setCancelId,
+          onAnnul: setAnnulId,
           onMigrate: (id) => migrateMutation.mutate(id),
           onResetMigration: (id) => resetMigrationMutation.mutate(id),
           onSyncWithDynamics: (id) => syncWithDynamicsMutation.mutate(id),
@@ -311,6 +328,25 @@ export default function ShipmentsReceptionsPage() {
           confirmText="Confirmar cancelación"
           cancelText="Volver"
           fieldLabel="Motivo de cancelación"
+          required={true}
+        />
+      )}
+
+      {annulId !== null && (
+        <ReasonDialog
+          open={true}
+          onOpenChange={(open) => !open && setAnnulId(null)}
+          onConfirm={handleAnnul}
+          isLoading={annulMutation.isPending}
+          title="Anular Guía de Remisión"
+          description="Está a punto de anular esta guía de remisión. Quedará fuera de circulación y los procesos de sincronización dejarán de tomarla. Indique el motivo de la anulación."
+          icon={XCircle}
+          iconBgColor="bg-red-100"
+          iconColor="text-red-600"
+          placeholder="Ej: Guía emitida por error, datos incorrectos, etc."
+          confirmText="Confirmar anulación"
+          cancelText="Volver"
+          fieldLabel="Motivo de anulación"
           required={true}
         />
       )}

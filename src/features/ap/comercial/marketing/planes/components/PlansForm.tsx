@@ -13,6 +13,7 @@ import { GroupFormSection } from "@/shared/components/GroupFormSection";
 import { useAllBrands } from "@/features/ap/configuraciones/vehiculos/marcas/lib/brands.hook";
 import { useMarketingConstants } from "@/features/ap/comercial/marketing/lib/marketingConstants.hook";
 import { PLAN_STATUS_OPTIONS, PLANS } from "../lib/plans.constants";
+import { CM_COMERCIAL_ID } from "@/features/ap/ap-master/lib/apMaster.constants";
 
 interface Props {
   defaultValues: Partial<PlansSchema>;
@@ -31,7 +32,9 @@ export const PlansForm = ({
     defaultValues,
   });
 
-  const { data: brands = [] } = useAllBrands();
+  const { data: brands = [] } = useAllBrands({
+    type_operation_id: CM_COMERCIAL_ID,
+  });
   const { data: constants } = useMarketingConstants();
   const statusOptions = constants?.plan_statuses ?? PLAN_STATUS_OPTIONS;
 

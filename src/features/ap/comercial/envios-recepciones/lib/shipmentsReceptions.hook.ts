@@ -23,6 +23,7 @@ import {
   updateShipmentsReceptions,
   markAsReceived,
   cancelShippingGuide,
+  annulShippingGuide,
   getNextShippingGuideDocumentNumber,
   syncShippingGuideWithDynamics,
 } from "./shipmentsReceptions.actions";
@@ -287,6 +288,39 @@ export const useCancelShippingGuide = () => {
       errorToast(errorMessage);
 
       // Si hay errores de validación adicionales, mostrarlos
+      if (error?.response?.data?.errors) {
+        const errors = error.response.data.errors;
+        Object.keys(errors).forEach((key) => {
+          errorToast(`${key}: ${errors[key].join(", ")}`);
+        });
+      }
+    },
+  });
+};
+
+// Hook para anular guía de remisión (sin reversión en Dynamics)
+export const useAnnulShippingGuide = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      id,
+      cancellation_reason,
+    }: {
+      id: number;
+      cancellation_reason: string;
+    }) => annulShippingGuide(id, cancellation_reason),
+    onSuccess: (response) => {
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEY] });
+      successToast(response.message || "Guía anulada exitosamente");
+    },
+    onError: (error: any) => {
+      const errorMessage =
+        error?.response?.data?.message ||
+        error?.response?.data?.error ||
+        "Error al anular la guía de remisión";
+
+      errorToast(errorMessage);
+
       if (error?.response?.data?.errors) {
         const errors = error.response.data.errors;
         Object.keys(errors).forEach((key) => {
