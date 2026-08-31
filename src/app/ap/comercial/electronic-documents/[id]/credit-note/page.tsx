@@ -42,6 +42,7 @@ export default function AddCreditNotePage() {
       series: Number(data.series),
       fecha_de_emision: data.fecha_de_emision,
       observaciones: data.observaciones,
+      re_invoice: data.re_invoice,
     };
     if (typeId === CREDIT_NOTE_TYPE_IDS.DESCUENTO_GLOBAL) {
       return {

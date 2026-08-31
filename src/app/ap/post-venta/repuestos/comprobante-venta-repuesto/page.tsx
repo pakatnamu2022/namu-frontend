@@ -191,6 +191,7 @@ export default function SalesReceiptsRepuestoPage() {
           onRefresh={handleRefresh}
           isLoading={isFetching && !isLoading}
           permissions={permissions}
+          enableAccounting={false}
         />
       </HeaderTableWrapper>
 

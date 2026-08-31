@@ -426,7 +426,6 @@ export const electronicDocumentColumns = ({
 
         const canMigrate =
           onMigrate && document.migration_status !== "completed";
-        //  &&          document.aceptada_por_sunat; // Solo mostrar botón migrar si no está migrado completamente
 
         const canResetMigration =
           !!onResetMigration &&
@@ -437,6 +436,7 @@ export const electronicDocumentColumns = ({
         const canSyncAccountingStatus =
           !!onSyncAccountingStatus &&
           !!permissions.canMigrate &&
+          !document.is_accounted &&
           document.migration_status === "completed";
 
         const canSendToSunat =
@@ -500,6 +500,11 @@ export const electronicDocumentColumns = ({
                 tooltip="Ver detalles"
                 icon={Eye}
               />
+
+              {/* Work Orders */}
+              {document.consolidation_type === "massive" && (
+                <WorkOrdersSheet documentId={document.id} />
+              )}
             </div>
           );
         }

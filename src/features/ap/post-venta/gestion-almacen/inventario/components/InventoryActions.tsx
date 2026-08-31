@@ -70,7 +70,9 @@ export default function InventoryActions({ permissions, warehouseId }: Props) {
         variant="outline"
         disabled={!warehouseId}
         onClick={() =>
-          router(`${ABSOLUTE_ROUTE}/comparativa-dynamics?warehouse_id=${warehouseId}`)
+          router(
+            `${ABSOLUTE_ROUTE}/comparativa-dynamics?warehouse_id=${warehouseId}`,
+          )
         }
       >
         <GitCompareArrows className="size-4 mr-2" /> Comparativa Dynamics
@@ -82,7 +84,7 @@ export default function InventoryActions({ permissions, warehouseId }: Props) {
           variant="default"
           onClick={() => router(`${ABSOLUTE_ROUTE}/kardex`)}
         >
-          <FileBox className="size-4 mr-2" /> Movimiento de Inventario
+          <FileBox className="size-4 mr-2" /> Inventario Valorizado
         </Button>
       )}
     </ActionsWrapper>

@@ -344,6 +344,13 @@ export const PERMISSION_ACTIONS: PermissionAction[] = [
     description:
       "Permite rechazar una solicitud de ajuste de bono/descuento post-pago",
   },
+  {
+    value: "reReserveStock",
+    label: "Re-reservar Stock",
+    icon: "RefreshCw",
+    description:
+      "Permite re-reservar el stock de una OT o cotización después de emitir una nota de crédito",
+  },
 ];
 
 /**
@@ -436,5 +443,6 @@ export function useModulePermissions(moduleCode: string) {
     canRequestAdjustment: hasModulePermission("requestAdjustment"),
     canApproveAdjustment: hasModulePermission("approveAdjustment"),
     canRejectAdjustment: hasModulePermission("rejectAdjustment"),
+    canReReserveStock: hasModulePermission("reReserveStock"),
   };
 }

@@ -238,6 +238,7 @@ export default function SalesReceiptsCajaPage() {
           isLoading={isFetching && !isLoading}
           permissions={permissions}
           filters={documentExportFilters}
+          enableAccounting={false}
         />
       </HeaderTableWrapper>
 

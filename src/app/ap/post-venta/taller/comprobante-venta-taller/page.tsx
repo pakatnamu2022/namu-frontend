@@ -191,6 +191,7 @@ export default function SalesReceiptsTallerPage() {
           onRefresh={handleRefresh}
           isLoading={isFetching && !isLoading}
           permissions={permissions}
+          enableAccounting={false}
         />
       </HeaderTableWrapper>
 

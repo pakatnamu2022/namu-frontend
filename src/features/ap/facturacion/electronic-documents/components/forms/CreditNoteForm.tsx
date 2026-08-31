@@ -48,6 +48,7 @@ import { formatDate, getTodayOnlyDisabledRange } from "@/core/core.function";
 import { useAllAccountingAccountPlan } from "@/features/ap/configuraciones/maestros-general/plan-cuenta-contable/lib/accountingAccountPlan.hook";
 import { ACP_TYPE_CREDIT_NOTE } from "@/features/ap/configuraciones/maestros-general/plan-cuenta-contable/lib/accountingAccountPlan.constants";
 import { FormTextArea } from "@/shared/components/FormTextArea";
+import { FormSwitch } from "@/shared/components/FormSwitch";
 import { CM_COMERCIAL_ID } from "@/features/ap/ap-master/lib/apMaster.constants";
 
 interface CreditNoteFormProps {
@@ -101,6 +102,7 @@ export function CreditNoteForm({
       account_plan_id:
         creditNote?.items?.[0]?.account_plan_id?.toString() ?? undefined,
       detail_ids: [],
+      re_invoice: creditNote?.re_invoice ?? false,
     },
     mode: "onChange",
   });
@@ -133,6 +135,7 @@ export function CreditNoteForm({
       form.setValue("detail_ids", [], { shouldValidate: true });
     }
     prevTypeRef.current = selectedTypeId;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedTypeId]);
 
   useEffect(() => {
@@ -168,6 +171,7 @@ export function CreditNoteForm({
       }
     };
     if (!creditNote) verifyNextNumber();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     selectedSeries,
     originalDocument.id,
@@ -296,6 +300,20 @@ export function CreditNoteForm({
                       : ""
                   }`}
                   required
+                />
+              </div>
+
+              <div className="col-span-2">
+                <FormSwitch
+                  name="re_invoice"
+                  control={form.control}
+                  text="Volver a refacturar"
+                  textDescription={
+                    form.watch("re_invoice")
+                      ? "Se generará un nuevo comprobante de venta"
+                      : "No se generará un nuevo comprobante de venta"
+                  }
+                  autoHeight
                 />
               </div>
             </GroupFormSection>

@@ -122,6 +122,7 @@ export interface ElectronicDocumentResource {
   sunat_soap_error?: string;
   sunat_description?: string;
   anulado: boolean;
+  re_invoice?: boolean;
   was_dyn_requested?: boolean;
   is_accounted?: boolean;
   is_annulled?: boolean;

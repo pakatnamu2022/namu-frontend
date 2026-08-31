@@ -45,6 +45,10 @@ import {
 import { CURRENCY_TYPE_IDS } from "@/features/ap/configuraciones/maestros-general/tipos-moneda/lib/CurrencyTypes.constants";
 import { FormSelect } from "@/shared/components/FormSelect";
 import { CopyCell } from "@/shared/components/CopyCell";
+import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
+import { WORKER_ORDER } from "@/features/ap/post-venta/taller/orden-trabajo/lib/workOrder.constants";
+import { useReReserveStockAfterCreditNote } from "@/features/ap/post-venta/gestion-almacen/inventario/lib/inventory.hook";
+import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
 
 export default function GeneralInformationPage() {
   const params = useParams();
@@ -54,6 +58,10 @@ export default function GeneralInformationPage() {
   const currencyForm = useForm<{ currency_id: string }>({
     defaultValues: { currency_id: "" },
   });
+
+  const { canReReserveStock } = useModulePermissions(WORKER_ORDER.ROUTE);
+  const { mutate: reReserveStock, isPending: isReReservingStock } =
+    useReReserveStockAfterCreditNote();
 
   // Fetch work order data
   const { data: workOrder, isLoading } = useQuery({
@@ -706,6 +714,29 @@ export default function GeneralInformationPage() {
                   />
                   Recalcular Montos
                 </Button>
+                {canReReserveStock && (
+                  <ConfirmationDialog
+                    trigger={
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        disabled={isReReservingStock}
+                      >
+                        <RefreshCw
+                          className={`h-4 w-4 mr-2 ${isReReservingStock ? "animate-spin" : ""}`}
+                        />
+                        Re-reservar Stock
+                      </Button>
+                    }
+                    title="¿Re-reservar stock de esta OT?"
+                    description="Esta acción volverá a reservar el stock de los repuestos de esta orden de trabajo tras la emisión de una nota de crédito. ¿Deseas continuar?"
+                    confirmText="Sí, re-reservar"
+                    cancelText="Cancelar"
+                    icon="warning"
+                    confirmDisabled={isReReservingStock}
+                    onConfirm={() => reReserveStock({ work_order_id: id })}
+                  />
+                )}
               </div>
             </div>
 
