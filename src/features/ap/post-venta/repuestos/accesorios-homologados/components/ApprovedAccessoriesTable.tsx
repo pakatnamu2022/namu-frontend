@@ -23,11 +23,10 @@ export default function ApprovedAccesoriesTable({
         isLoading={isLoading}
         initialColumnVisibility={{
           code: true,
-          type: true,
+          type_operation: true,
           description: true,
-          price: true,
+          prices: true,
           type_currency: true,
-          body_type: true,
           status: true,
         }}
       >

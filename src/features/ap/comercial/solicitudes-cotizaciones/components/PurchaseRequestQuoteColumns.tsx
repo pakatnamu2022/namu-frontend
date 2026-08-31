@@ -10,6 +10,8 @@ import {
   X,
   FileCheck,
   PercentCircle,
+  Copy,
+  Trash2,
 } from "lucide-react";
 import { NumberFormat } from "@/shared/components/NumberFormat";
 import { PurchaseRequestQuoteResource } from "../lib/purchaseRequestQuote.interface";
@@ -31,6 +33,8 @@ interface Props {
   onUnassignVehicle: (id: number) => void;
   onSwapVehicle: (purchaseRequestQuote: PurchaseRequestQuoteResource) => void;
   onViewDetail: (id: number) => void;
+  onDuplicate: (purchaseRequestQuote: PurchaseRequestQuoteResource) => void;
+  onDelete: (purchaseRequestQuote: PurchaseRequestQuoteResource) => void;
   permissions: {
     canUpdate: boolean;
     canApprove: boolean;
@@ -38,6 +42,8 @@ interface Props {
     canAssign: boolean;
     canCreateKyc: boolean;
     canRequestAdjustment: boolean;
+    canDuplicate: boolean;
+    canDelete: boolean;
   };
   // Mapas id -> descripción (desde apMasters), para mostrar los nombres
   // legibles de crédito/entidad/seguro en la tabla.
@@ -53,6 +59,8 @@ export const purchaseRequestQuoteColumns = ({
   onUnassignVehicle,
   onSwapVehicle,
   onViewDetail,
+  onDuplicate,
+  onDelete,
   permissions,
   creditTypeLabels = {},
   creditEntityLabels = {},
@@ -269,6 +277,13 @@ export const purchaseRequestQuoteColumns = ({
       // el precio (venta, vehículo/modelo, accesorios, descuentos) y solo
       // permite agregar bonos, ajustar el margen ("Otros") y otros datos.
       const canEdit = permissions.canUpdate && !row.original.is_paid;
+      // Solo se puede eliminar una solicitud "limpia": sin VIN, sin aprobar y
+      // sin pagos/facturas. El backend revalida esto de todos modos.
+      const canDelete =
+        permissions.canDelete &&
+        !hasVehicle &&
+        !isApproved &&
+        !row.original.is_paid;
 
       return (
         <div className="flex items-center gap-2">
@@ -317,6 +332,19 @@ export const purchaseRequestQuoteColumns = ({
             tooltip="Editar"
             onClick={() => router(`${ROUTE_UPDATE}/${id}`)}
             canRender={canEdit}
+          />
+          <ButtonAction
+            icon={Copy}
+            tooltip="Duplicar solicitud"
+            onClick={() => onDuplicate(row.original)}
+            canRender={permissions.canDuplicate}
+          />
+          <ButtonAction
+            icon={Trash2}
+            tooltip="Eliminar solicitud"
+            color="red"
+            onClick={() => onDelete(row.original)}
+            canRender={canDelete}
           />
           <ButtonAction
             icon={Check}

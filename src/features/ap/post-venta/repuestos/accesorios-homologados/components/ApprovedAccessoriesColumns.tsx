@@ -42,16 +42,27 @@ export const approvedAccesoriesColumns = ({
     header: "Descripción",
   },
   {
-    accessorKey: "price",
-    header: "Precio",
+    id: "prices",
+    header: "Precios por carrocería",
+    cell: ({ row }) => {
+      const { prices, currency_symbol } = row.original;
+      if (!prices?.length) return <span className="text-muted-foreground">—</span>;
+      return (
+        <div className="flex flex-wrap gap-1">
+          {prices.map((p) => (
+            <Badge key={p.body_type_id} color="secondary" className="font-normal">
+              {p.body_type ?? p.body_type_code ?? `#${p.body_type_id}`}:{" "}
+              {currency_symbol ?? ""}
+              {Number(p.price).toFixed(2)}
+            </Badge>
+          ))}
+        </div>
+      );
+    },
   },
   {
     accessorKey: "type_currency",
     header: "Moneda",
-  },
-  {
-    accessorKey: "body_type",
-    header: "Carrocería",
   },
   {
     accessorKey: "status",

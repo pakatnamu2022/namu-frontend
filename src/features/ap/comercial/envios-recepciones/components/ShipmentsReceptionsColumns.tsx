@@ -53,6 +53,7 @@ interface Props {
   onMarkAsReceived: (id: number) => void;
   onViewDetails: (shipment: ShipmentsReceptionsResource) => void;
   onCancel: (id: number) => void;
+  onAnnul: (id: number) => void;
   onMigrate?: (id: number) => void;
   onResetMigration?: (id: number) => void;
   onSyncWithDynamics?: (id: number) => void;
@@ -132,6 +133,7 @@ export const ShipmentsReceptionsColumns = ({
   onMarkAsReceived,
   onViewDetails,
   onCancel,
+  onAnnul,
   onMigrate,
   onResetMigration,
   onSyncWithDynamics,
@@ -469,7 +471,9 @@ export const ShipmentsReceptionsColumns = ({
     accessorKey: "cancellation_reason",
     header: "Motivo Anulación",
     cell: ({ row }) => {
-      const notes = row.getValue("cancellation_reason") as string;
+      const notes =
+        (row.original.annulled_reason as string) ||
+        (row.getValue("cancellation_reason") as string);
       return notes ? (
         <span className="text-sm text-muted-foreground truncate max-w-[200px] block">
           {notes}
@@ -643,6 +647,12 @@ export const ShipmentsReceptionsColumns = ({
         row.original.migration_status === "completed" &&
         row.original.is_accounted === true;
 
+      // Anular: deja la guía fuera de circulación (is_annulled = 1, status = 0)
+      // sin generar reversión en Dynamics. Aplica a guías activas que no
+      // califican para el flujo de cancelación con reversión.
+      const canAnnulGuide =
+        isGuiaRemision && status && !canCancel && permissions.canAnnul;
+
       const canGeneratePDI =
         !!ap_vehicle_id &&
         permissions.canGenerate &&
@@ -739,6 +749,14 @@ export const ShipmentsReceptionsColumns = ({
             onClick={() => onCancel(id)}
             color="red"
             canRender={canCancel}
+          />
+
+          <ButtonAction
+            icon={XCircle}
+            tooltip="Anular guía"
+            onClick={() => onAnnul(id)}
+            color="red"
+            canRender={canAnnulGuide}
           />
 
           <ButtonAction

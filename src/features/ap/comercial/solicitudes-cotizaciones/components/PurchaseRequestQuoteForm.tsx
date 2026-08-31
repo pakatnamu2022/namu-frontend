@@ -21,13 +21,13 @@ import { useCustomersById } from "../../clientes/lib/customers.hook";
 import { CustomersResource } from "../../clientes/lib/customers.interface";
 import { useAllModelsVn } from "@/features/ap/configuraciones/vehiculos/modelos-vn/lib/modelsVn.hook";
 import { useAllVehicleColor } from "@/features/ap/configuraciones/vehiculos/colores-vehiculo/lib/vehicleColor.hook";
-import { useEffect, useState, useRef, useMemo } from "react";
+import { useEffect, useState, useRef, useMemo, useCallback } from "react";
 import { BonusDiscountTable } from "./BonusDiscountTable";
 import { ApprovedAccessoriesTable } from "./ApprovedAccessoriesTable";
 import { OthersTable, OthersRow } from "./OthersTable";
 import { useAllConceptDiscountBond } from "../lib/purchaseRequestQuote.hook";
 import { useGeneralMasterByCode } from "@/features/gp/maestros-generales/lib/generalMasters.hook";
-import { useAllApprovedAccesories } from "@/features/ap/post-venta/repuestos/accesorios-homologados/lib/approvedAccessories.hook";
+import { ApprovedAccesoriesResource } from "@/features/ap/post-venta/repuestos/accesorios-homologados/lib/approvedAccessories.interface";
 import { useAllCurrencyTypes } from "@/features/ap/configuraciones/maestros-general/tipos-moneda/lib/CurrencyTypes.hook";
 import { useMySedes } from "@/features/gp/maestro-general/sede/lib/sede.hook";
 import { EMPRESA_AP, STATUS_ACTIVE } from "@/core/core.constants";
@@ -166,10 +166,17 @@ export const PurchaseRequestQuoteForm = ({
     data: conceptDiscountBond = [],
     isLoading: isLoadingConceptDiscountBond,
   } = useAllConceptDiscountBond();
-  const {
-    data: approvedAccesories = [],
-    isLoading: isLoadingApprovedAccesories,
-  } = useAllApprovedAccesories();
+  // Caché en memoria de los accesorios homologados completos: se llena con lo que
+  // viene en la cotización (modo update) y con lo que el usuario elige en el
+  // buscador async del sheet. Reemplaza la antigua llamada `all=true`.
+  const [accessoryCache, setAccessoryCache] = useState<
+    Record<number, ApprovedAccesoriesResource>
+  >({});
+
+  const registerAccessory = useCallback((accessory: ApprovedAccesoriesResource) => {
+    if (!accessory?.id) return;
+    setAccessoryCache((prev) => ({ ...prev, [accessory.id]: accessory }));
+  }, []);
   const { data: vehiclesVn = [], isLoading: isLoadingVehiclesVn } =
     useAllVehiclesWithCosts({
       family_id: selectedFamilyId,
@@ -280,6 +287,32 @@ export const PurchaseRequestQuoteForm = ({
         );
         setInitialAccessories(transformedAccessories);
         setAccessoriesRows(transformedAccessories);
+
+        // Sembrar la caché con los accesorios que ya trae la cotización,
+        // reconstruyendo un recurso parcial desde el detalle guardado.
+        const seeded: Record<number, ApprovedAccesoriesResource> = {};
+        dataWithArrays.accessories.forEach((acc: any) => {
+          const accId = Number(acc.approved_accessory_id);
+          if (!accId) return;
+          const bodyTypeId = acc.body_type_id ? Number(acc.body_type_id) : 0;
+          seeded[accId] = {
+            id: accId,
+            code: acc.code ?? "",
+            type_operation_id: Number(acc.type_operation_id ?? 0),
+            type_operation: "",
+            description: acc.description ?? "",
+            status: true,
+            type_currency_id: Number(acc.type_currency_id ?? 0),
+            currency_symbol:
+              acc.currency_symbol ?? acc.type_currency_symbol ?? "",
+            prices: bodyTypeId
+              ? [{ body_type_id: bodyTypeId, price: Number(acc.price ?? 0) }]
+              : [],
+            body_type_ids: bodyTypeId ? [bodyTypeId] : [],
+            price: Number(acc.price ?? 0),
+          };
+        });
+        setAccessoryCache((prev) => ({ ...seeded, ...prev }));
       }
 
       // Transformar otros costos internos desde la respuesta del API
@@ -370,6 +403,27 @@ export const PurchaseRequestQuoteForm = ({
   const selectedModel = withVinWatch
     ? modelsVn.find((model) => model.id === vehicleVnSelected?.ap_models_vn_id)
     : modelsVn.find((model) => model.id === Number(modelVnWatch));
+
+  // Carrocería del modelo/VIN elegido: determina qué accesorios homologados
+  // aplican y con qué precio (cada accesorio tiene un precio por carrocería).
+  const modelBodyTypeId = selectedModel?.body_type_id;
+
+  const filteredAccessories = useMemo(() => {
+    return Object.values(accessoryCache)
+      .filter(
+        (acc) =>
+          !modelBodyTypeId ||
+          (acc.body_type_ids ?? []).length === 0 ||
+          (acc.body_type_ids ?? []).includes(modelBodyTypeId),
+      )
+      .map((acc) => {
+        const priceRow =
+          (acc.prices ?? []).find(
+            (p) => p.body_type_id === modelBodyTypeId,
+          ) ?? (acc.prices ?? [])[0];
+        return { ...acc, price: Number(priceRow?.price ?? acc.price ?? 0) };
+      });
+  }, [accessoryCache, modelBodyTypeId]);
 
   const originalPrice = selectedModel?.sale_price || 0;
   // Sin modelo/vehículo elegido todavía, mostrar dólares por defecto (no soles).
@@ -740,7 +794,7 @@ export const PurchaseRequestQuoteForm = ({
         return total;
       }
 
-      const accessory = approvedAccesories.find(
+      const accessory = filteredAccessories.find(
         (acc) => acc.id === row.accessory_id,
       );
       if (accessory) {
@@ -874,7 +928,6 @@ export const PurchaseRequestQuoteForm = ({
     isLoadingOpportunities ||
     isLoadingColor ||
     isLoadingConceptDiscountBond ||
-    isLoadingApprovedAccesories ||
     isLoadingCurrencyTypes ||
     isLoadingMySedes
   )
@@ -1002,7 +1055,9 @@ export const PurchaseRequestQuoteForm = ({
 
             {/*Seccion Accesorios Homologados*/}
             <ApprovedAccessoriesTable
-              accessories={approvedAccesories}
+              accessories={filteredAccessories}
+              modelBodyTypeId={modelBodyTypeId}
+              onRegisterAccessory={registerAccessory}
               onAccessoriesChange={setAccessoriesRows}
               initialData={initialAccessories}
               canCreateApprovedAccessory={canAssign}
@@ -1057,7 +1112,7 @@ export const PurchaseRequestQuoteForm = ({
               bonusDiscountRows={bonusDiscountRows}
               accessoriesRows={accessoriesRows}
               othersRows={othersRows}
-              approvedAccesories={approvedAccesories}
+              approvedAccesories={filteredAccessories}
               canManage={canManage}
               onCancel={onCancel}
               onSubmit={handleFormSubmit}

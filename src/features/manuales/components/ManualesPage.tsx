@@ -42,14 +42,14 @@ export default function ManualesPage() {
               {Array.from({ length: 6 }).map((_, i) => (
                 <div
                   key={i}
-                  className="h-24 rounded-xl bg-gray-100 animate-pulse"
+                  className="h-24 rounded-xl bg-muted animate-pulse"
                 />
               ))}
             </div>
           )}
 
           {!isLoading && (!manuals || manuals.length === 0) && (
-            <div className="py-16 text-center text-gray-400">
+            <div className="py-16 text-center text-muted-foreground">
               <BookOpen className="w-10 h-10 mx-auto mb-3 opacity-30" />
               <p className="text-sm">
                 No hay manuales disponibles para este módulo.
