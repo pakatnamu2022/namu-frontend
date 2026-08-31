@@ -9,6 +9,7 @@ import {
   Loader2,
   ShieldCheck,
   ShieldOff,
+  RefreshCw,
 } from "lucide-react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import type { OrderQuotationResource } from "../../../taller/cotizacion/lib/proforma.interface";
@@ -40,7 +41,12 @@ import SearchInput from "@/shared/components/SearchInput";
 import FilterWrapper from "@/shared/components/FilterWrapper";
 import GeneralSheet from "@/shared/components/GeneralSheet";
 import { useQuery } from "@tanstack/react-query";
-import { STATUS_ORDER_QUOTE } from "../../../taller/cotizacion/lib/proforma.constants";
+import {
+  STATUS_ORDER_QUOTE,
+  ORDER_QUOTATION_MESON,
+} from "../../../taller/cotizacion/lib/proforma.constants";
+import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
+import { useReReserveStockAfterCreditNote } from "@/features/ap/post-venta/gestion-almacen/inventario/lib/inventory.hook";
 import { OrderQuotationDeductibleSheet } from "./OrderQuotationDeductibleSheet";
 import { ElectronicDocumentResource } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.interface";
 import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
@@ -163,6 +169,11 @@ export function OrderQuotationManageContent({
   const [showDeductibleSheet, setShowDeductibleSheet] = useState(false);
   const [showRemoveDeductibleConfirm, setShowRemoveDeductibleConfirm] =
     useState(false);
+  const [showReReserveStockConfirm, setShowReReserveStockConfirm] =
+    useState(false);
+
+  const { canReReserveStock } = useModulePermissions(ORDER_QUOTATION_MESON.ROUTE);
+  const reReserveStockMutation = useReReserveStockAfterCreditNote();
 
   const isInvoiced = orderQuotation.status.id === STATUS_ORDER_QUOTE.FACTURADO;
   const { deductible, deductible_amount } = orderQuotation;
@@ -534,6 +545,54 @@ export function OrderQuotationManageContent({
         icon="warning"
         onConfirm={() => removeDeductibleMutation.mutate()}
       />
+
+      {canReReserveStock && (
+        <>
+          <Separator />
+
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <RefreshCw className="h-5 w-5 text-primary" />
+                <h3 className="font-semibold text-lg">Re-reservar Stock</h3>
+              </div>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                disabled={reReserveStockMutation.isPending}
+                onClick={() => setShowReReserveStockConfirm(true)}
+              >
+                {reReserveStockMutation.isPending ? (
+                  <Loader2 className="h-4 w-4 mr-1 animate-spin" />
+                ) : (
+                  <RefreshCw className="h-4 w-4 mr-1" />
+                )}
+                Re-reservar Stock
+              </Button>
+            </div>
+            <p className="text-muted-foreground text-sm">
+              Vuelve a reservar el stock de los repuestos de esta cotización tras
+              la emisión de una nota de crédito.
+            </p>
+          </div>
+
+          <ConfirmationDialog
+            open={showReReserveStockConfirm}
+            onOpenChange={setShowReReserveStockConfirm}
+            trigger={<span className="hidden" />}
+            title="¿Re-reservar stock de esta cotización?"
+            description="Esta acción volverá a reservar el stock de los repuestos de esta cotización tras la emisión de una nota de crédito. ¿Deseas continuar?"
+            confirmText="Sí, re-reservar"
+            cancelText="Cancelar"
+            icon="warning"
+            confirmDisabled={reReserveStockMutation.isPending}
+            onConfirm={() =>
+              reReserveStockMutation.mutate({ quotation_id: orderQuotation.id })
+            }
+          />
+        </>
+      )}
 
       <Separator />
 

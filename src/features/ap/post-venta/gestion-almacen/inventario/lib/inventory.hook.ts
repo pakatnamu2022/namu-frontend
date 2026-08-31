@@ -10,6 +10,7 @@ import {
   getPriceCalculationDetails,
   getStockMovementHistory,
   getReservedStockReport,
+  reReserveStockAfterCreditNote,
 } from "./inventory.actions.ts";
 import {
   CompareDynamicsResponse,
@@ -139,6 +140,26 @@ export const useReservedStockReport = (
     queryFn: () => getReservedStockReport(params),
     refetchOnWindowFocus: false,
     enabled: options?.enabled ?? true,
+  });
+};
+
+export const useReReserveStockAfterCreditNote = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (payload: {
+      work_order_id?: number;
+      quotation_id?: number;
+    }) => reReserveStockAfterCreditNote(payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["inventory-stock"] });
+      queryClient.invalidateQueries({ queryKey: ["reserved-stock-report"] });
+      successToast("Stock re-reservado correctamente");
+    },
+    onError: (error: any) => {
+      errorToast(
+        error?.response?.data?.message || "Error al re-reservar el stock",
+      );
+    },
   });
 };
 

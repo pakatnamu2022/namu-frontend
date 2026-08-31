@@ -333,3 +333,18 @@ export const getReservedStockReport = async (
   );
   return data;
 };
+
+/**
+ * Re-reserva el stock de una orden de trabajo o de una cotización después de
+ * haber emitido una nota de crédito. Se debe enviar exactamente UNO de los dos:
+ * `work_order_id` o `quotation_id`.
+ */
+export async function reReserveStockAfterCreditNote(payload: {
+  work_order_id?: number;
+  quotation_id?: number;
+}): Promise<void> {
+  await api.post(
+    `/ap/postVenta/productWarehouseStock/re-reserve-after-credit-note`,
+    payload,
+  );
+}
