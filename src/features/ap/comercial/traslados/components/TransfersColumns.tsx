@@ -48,8 +48,8 @@ export const TransfersColumns = ({
     },
   },
   {
-    accessorKey: "created_at",
-    header: "Fecha",
+    accessorKey: "issue_date",
+    header: "Fecha de Traslado",
     cell: ({ getValue }) => {
       const date = getValue() as string;
       return date
