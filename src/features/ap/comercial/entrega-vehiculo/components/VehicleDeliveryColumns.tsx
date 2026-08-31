@@ -559,6 +559,17 @@ export const vehicleDeliveryColumns = ({
                 ? "Revisar rechazo"
                 : "Aprobar"}
             </Button>
+            {extraordinary_approved === false && canReschedule && (
+              <Button
+                variant="outline"
+                size="icon"
+                className="size-7"
+                tooltip="Reprogramar entrega"
+                onClick={() => onReschedule!(row.original)}
+              >
+                <CalendarClock className="size-4" />
+              </Button>
+            )}
           </div>
         );
       }
