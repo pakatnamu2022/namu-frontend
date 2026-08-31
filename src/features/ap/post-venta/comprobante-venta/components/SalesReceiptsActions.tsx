@@ -36,6 +36,7 @@ interface SalesReceiptsActionsProps {
   };
   // Filtros tomados de SalesReceiptsOptions para acotar la exportación.
   filters?: Record<string, unknown>;
+  enableAccounting?: boolean;
 }
 
 export default function SalesReceiptsActions({
@@ -46,6 +47,7 @@ export default function SalesReceiptsActions({
   isLoading,
   permissions,
   filters,
+  enableAccounting = true,
 }: SalesReceiptsActionsProps) {
   const syncAccountingMutation = useMutation({
     mutationFn: syncAccountingStatus,
@@ -88,20 +90,21 @@ export default function SalesReceiptsActions({
           )
         }
       />
-
-      <Button
-        size="sm"
-        variant="outline"
-        onClick={() => syncAccountingMutation.mutate()}
-        disabled={syncAccountingMutation.isPending}
-      >
-        <BookCheck
-          className={cn("size-4 mr-2", {
-            "animate-pulse": syncAccountingMutation.isPending,
-          })}
-        />
-        Contabilizaciones
-      </Button>
+      {enableAccounting && (
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={() => syncAccountingMutation.mutate()}
+          disabled={syncAccountingMutation.isPending}
+        >
+          <BookCheck
+            className={cn("size-4 mr-2", {
+              "animate-pulse": syncAccountingMutation.isPending,
+            })}
+          />
+          Contabilizaciones
+        </Button>
+      )}
 
       {(permissions?.canInvoiceOtherSales ||
         permissions?.canRegularizationAdvances) && (

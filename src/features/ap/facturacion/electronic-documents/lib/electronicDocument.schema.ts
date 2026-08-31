@@ -336,6 +336,8 @@ export const CreditNoteSchema = z
     account_plan_id: optionalStringId("Cuenta contable inválida"),
     // Type 07 – Devolución por ítem
     detail_ids: z.array(z.number().int()).optional().nullable(),
+    // Indica si el comprobante original se volverá a refacturar
+    re_invoice: z.boolean().default(false),
     // Legacy fields kept for update flow
     enviar_automaticamente_a_la_sunat: z.boolean().default(false),
     enviar_automaticamente_al_cliente: z.boolean().default(false),
