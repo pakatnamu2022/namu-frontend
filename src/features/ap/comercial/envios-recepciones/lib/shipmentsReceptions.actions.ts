@@ -247,6 +247,18 @@ export async function cancelShippingGuide(
   return data;
 }
 
+// Función para anular guía de remisión (sin reversión en Dynamics)
+export async function annulShippingGuide(
+  id: number,
+  cancellation_reason: string
+): Promise<{ success: boolean; message: string }> {
+  const { data } = await api.post<{ success: boolean; message: string }>(
+    `/ap/commercial/shippingGuides/${id}/annul`,
+    { cancellation_reason }
+  );
+  return data;
+}
+
 // Función para sincronizar guía de remisión con Dynamics
 export async function syncShippingGuideWithDynamics(
   id: number
