@@ -58,6 +58,16 @@ export const TransfersColumns = ({
     },
   },
   {
+    accessorKey: "created_at",
+    header: "Fecha de Creación",
+    cell: ({ getValue }) => {
+      const date = getValue() as string;
+      return date
+        ? format(new Date(date), "dd/MM/yyyy HH:mm", { locale: es })
+        : "-";
+    },
+  },
+  {
     accessorKey: "sede_transmitter",
     header: "Sede Origen",
     cell: ({ row }) => {
