@@ -2,6 +2,7 @@
 
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
 import { useState } from "react";
+import { useScopedFilters } from "@/shared/hooks/useScopedFilters";
 import type { RowSelectionState } from "@tanstack/react-table";
 import PageSkeleton from "@/shared/components/PageSkeleton";
 import TitleComponent from "@/shared/components/TitleComponent";
@@ -47,23 +48,34 @@ export default function WorkOrderCajaPage() {
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
   const [activeView, setActiveView] = useState<WorkOrderCajaView>("OT");
   const [page, setPage] = useState(1);
-  const [sedeId, setSedeId] = useState<string>("");
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
-  const [search, setSearch] = useState("");
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
-  const [typePlanningId, setTypePlanningId] = useState<string>("");
-  const [typeCurrencyId, setTypeCurrencyId] = useState<string>("");
   const { ROUTE, ABSOLUTE_ROUTE } = WORKER_ORDER_CAJA;
   const permissions = useModulePermissions(ROUTE);
   const router = useNavigate();
   const currentDate = new Date();
 
-  const [dateFrom, setDateFrom] = useState<Date | undefined>(
-    getFirstDayOfMonth(currentDate),
+  const { values: filters, setFieldValue: setFilter } = useScopedFilters(
+    ABSOLUTE_ROUTE,
+    {
+      search: "",
+      sedeId: "",
+      typePlanningId: "",
+      typeCurrencyId: "",
+      dateFrom: getFirstDayOfMonth(currentDate) as Date | undefined,
+      dateTo: getCurrentDayOfMonth(currentDate) as Date | undefined,
+    },
   );
-  const [dateTo, setDateTo] = useState<Date | undefined>(
-    getCurrentDayOfMonth(currentDate),
-  );
+  const { search, sedeId, typePlanningId, typeCurrencyId, dateFrom, dateTo } =
+    filters;
+  const setSearch = (value: string) => setFilter("search", value);
+  const setSedeId = (value: string) => setFilter("sedeId", value);
+  const setTypePlanningId = (value: string) =>
+    setFilter("typePlanningId", value);
+  const setTypeCurrencyId = (value: string) =>
+    setFilter("typeCurrencyId", value);
+  const setDateFrom = (value: Date | undefined) => setFilter("dateFrom", value);
+  const setDateTo = (value: Date | undefined) => setFilter("dateTo", value);
 
   const formatDate = (date: Date | undefined) => {
     return date ? date.toLocaleDateString("en-CA") : undefined;
@@ -102,7 +114,7 @@ export default function WorkOrderCajaPage() {
 
   const handleDateFromChange = (date: Date | undefined) => {
     setDateFrom(date);
-    if (date && dateTo && date > dateTo) {
+    if (date && dateTo && date > (dateTo as Date)) {
       setDateTo(date);
       errorToast("La fecha 'Desde' no puede ser mayor que la fecha 'Hasta'.");
     }

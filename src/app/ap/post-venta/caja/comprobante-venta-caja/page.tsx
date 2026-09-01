@@ -63,6 +63,7 @@ export default function SalesReceiptsCajaPage() {
       statusFilter: "",
       consolidationType: "",
       isAccounted: "",
+      migrationStatus: "",
       dateFrom: getFirstDayOfMonth(
         new Date(currentDate.getFullYear(), currentDate.getMonth() - 2, 1),
       ) as Date | undefined,
@@ -75,6 +76,7 @@ export default function SalesReceiptsCajaPage() {
     statusFilter,
     consolidationType,
     isAccounted,
+    migrationStatus,
     dateFrom,
     dateTo,
   } = filters;
@@ -84,6 +86,8 @@ export default function SalesReceiptsCajaPage() {
   const setConsolidationType = (value: string) =>
     setFilter("consolidationType", value);
   const setIsAccounted = (value: string) => setFilter("isAccounted", value);
+  const setMigrationStatus = (value: string) =>
+    setFilter("migrationStatus", value);
   const setDateFrom = (value: Date | undefined) => setFilter("dateFrom", value);
   const setDateTo = (value: Date | undefined) => setFilter("dateTo", value);
 
@@ -115,6 +119,7 @@ export default function SalesReceiptsCajaPage() {
     seriesModel$sede_id: sedeId ? parseInt(sedeId) : undefined,
     consolidation_type: consolidationType || undefined,
     is_accounted: isAccounted !== "" ? isAccounted : undefined,
+    migration_status: migrationStatus || undefined,
   });
 
   const canUpdate = permissions.canUpdate || false;
@@ -292,6 +297,8 @@ export default function SalesReceiptsCajaPage() {
           setConsolidationType={setConsolidationType}
           isAccounted={isAccounted}
           setIsAccounted={setIsAccounted}
+          migrationStatus={migrationStatus}
+          setMigrationStatus={setMigrationStatus}
         />
       </ElectronicDocumentTable>
 

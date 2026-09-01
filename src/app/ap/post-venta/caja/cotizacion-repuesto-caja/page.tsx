@@ -2,6 +2,7 @@
 
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
 import { useEffect, useState } from "react";
+import { useScopedFilters } from "@/shared/hooks/useScopedFilters";
 import PageSkeleton from "@/shared/components/PageSkeleton";
 import TitleComponent from "@/shared/components/TitleComponent";
 import DataTablePagination from "@/shared/components/DataTablePagination";
@@ -37,8 +38,6 @@ export default function OrderQuotationMesonCajaPage() {
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
   const [page, setPage] = useState(1);
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
-  const [search, setSearch] = useState("");
-  const [sedeId, setSedeId] = useState<string>("");
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [selectedOrderQuotationId, setSelectedOrderQuotationId] = useState<
     number | null
@@ -53,12 +52,20 @@ export default function OrderQuotationMesonCajaPage() {
   const router = useNavigate();
   const currentDate = new Date();
 
-  const [dateFrom, setDateFrom] = useState<Date | undefined>(
-    getFirstDayOfMonth(currentDate),
+  const { values: filters, setFieldValue: setFilter } = useScopedFilters(
+    ABSOLUTE_ROUTE,
+    {
+      search: "",
+      sedeId: "",
+      dateFrom: getFirstDayOfMonth(currentDate) as Date | undefined,
+      dateTo: getCurrentDayOfMonth(currentDate) as Date | undefined,
+    },
   );
-  const [dateTo, setDateTo] = useState<Date | undefined>(
-    getCurrentDayOfMonth(currentDate),
-  );
+  const { search, sedeId, dateFrom, dateTo } = filters;
+  const setSearch = (value: string) => setFilter("search", value);
+  const setSedeId = (value: string) => setFilter("sedeId", value);
+  const setDateFrom = (value: Date | undefined) => setFilter("dateFrom", value);
+  const setDateTo = (value: Date | undefined) => setFilter("dateTo", value);
 
   const formatDate = (date: Date | undefined) => {
     return date ? date.toLocaleDateString("en-CA") : undefined; // formato: YYYY-MM-DD
@@ -72,6 +79,7 @@ export default function OrderQuotationMesonCajaPage() {
       setDateTo(dateFrom);
       errorToast("La fecha 'Desde' no puede ser mayor que la fecha 'Hasta'.");
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dateFrom, dateTo]);
 
   useEffect(() => {

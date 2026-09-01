@@ -1,6 +1,9 @@
 import SearchInput from "@/shared/components/SearchInput";
 import { SearchableSelect } from "@/shared/components/SearchableSelect";
-import { DOCUMENT_STATUS } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.constants";
+import {
+  DOCUMENT_STATUS,
+  MIGRATION_STATUS,
+} from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.constants";
 import { SedeResource } from "@/features/gp/maestro-general/sede/lib/sede.interface";
 import FilterWrapper from "@/shared/components/FilterWrapper";
 import { DateRangePickerFilter } from "@/shared/components/DateRangePickerFilter";
@@ -21,6 +24,8 @@ interface Props {
   setConsolidationType?: (value: string) => void;
   isAccounted?: string;
   setIsAccounted?: (value: string) => void;
+  migrationStatus?: string;
+  setMigrationStatus?: (value: string) => void;
 }
 
 const CONSOLIDATION_TYPE_OPTIONS = [
@@ -49,6 +54,8 @@ export default function SalesReceiptsOptions({
   setConsolidationType,
   isAccounted,
   setIsAccounted,
+  migrationStatus,
+  setMigrationStatus,
 }: Props) {
   return (
     <FilterWrapper>
@@ -109,6 +116,19 @@ export default function SalesReceiptsOptions({
           className="min-w-44"
           placeholder="Contabilización"
           options={IS_ACCOUNTED_OPTIONS}
+        />
+      )}
+
+      {setMigrationStatus && (
+        <SearchableSelect
+          onChange={setMigrationStatus}
+          value={migrationStatus ?? ""}
+          className="min-w-44"
+          placeholder="Estado de migración"
+          options={MIGRATION_STATUS.map((status) => ({
+            value: status.value,
+            label: status.label,
+          }))}
         />
       )}
     </FilterWrapper>
