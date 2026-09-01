@@ -12,11 +12,13 @@ export interface AssignmentLeadershipResource {
   month: number;
   assigned_workers: AsesorResource[];
   status: boolean;
+  hierarchy: boolean;
 }
 
 export interface AssignmentLeadershipRequest {
   boss_id: number;
   assigned_workers: AsesorResource[];
+  hierarchy: boolean;
 }
 
 export interface AsesorResource {

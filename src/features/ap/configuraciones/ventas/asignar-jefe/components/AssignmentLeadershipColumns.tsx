@@ -88,6 +88,20 @@ export const assignmentLeadershipColumns = ({
     },
   },
   {
+    accessorKey: "hierarchy",
+    header: "Top-level",
+    cell: ({ getValue }) => {
+      const value = getValue() as boolean;
+      return value ? (
+        <Badge color="default" className="capitalize w-24 flex items-center justify-center">
+          Independiente
+        </Badge>
+      ) : (
+        <span className="text-gray-400 text-xs">Normal</span>
+      );
+    },
+  },
+  {
     accessorKey: "status",
     header: "Estado",
     cell: ({ getValue }) => {

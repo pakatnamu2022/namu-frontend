@@ -61,6 +61,7 @@ export default function UpdateAssignmentLeadershipPage() {
         id: assigned_worker.id,
         name: assigned_worker.name,
       })),
+      hierarchy: data.hierarchy ?? false,
     };
   }
 

@@ -80,7 +80,7 @@ export default function AssignmentLeadershipPage() {
           subtitle={currentView.descripcion}
           icon={currentView.icon}
         />
-        <AssignmentLeadershipActions permissions={permissions} />
+        <AssignmentLeadershipActions permissions={permissions} onSnapshotSuccess={refetch} />
       </HeaderTableWrapper>
       <AssignmentLeadershipTable
         isLoading={isLoading}
