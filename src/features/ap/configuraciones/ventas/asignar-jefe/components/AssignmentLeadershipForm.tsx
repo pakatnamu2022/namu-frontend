@@ -15,6 +15,7 @@ import { Link } from "react-router-dom";
 import { Loader } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { FormSelect } from "@/shared/components/FormSelect";
+import { FormSwitch } from "@/shared/components/FormSwitch";
 import { CheckIcon } from "lucide-react";
 import {
   Tags,
@@ -96,6 +97,7 @@ export const AssignmentLeadershipForm = ({
       assigned_workers: data.assigned_workers.map(
         (assigned_worker: AsesorResource) => assigned_worker.id,
       ),
+      hierarchy: data.hierarchy ?? false,
     };
     onSubmit(payload);
   };
@@ -204,6 +206,16 @@ export const AssignmentLeadershipForm = ({
             )}
           />
         </div>
+        <FormSwitch
+          control={form.control}
+          name="hierarchy"
+          label="Jerarquía"
+          text="Jefe top-level (nodo independiente)"
+          textDescription="Activa esto si el jefe debe aparecer como nodo separado en el reporte diario (ej. jefe de camiones)."
+          size="md"
+          autoHeight
+        />
+
         <div className="flex gap-4 w-full justify-end">
           <Link to={ABSOLUTE_ROUTE!}>
             <Button type="button" variant="outline">

@@ -24,5 +24,6 @@ export const ASSIGNMENT_LEADERSHIP: ModelComplete<AssignmentLeadershipResource> 
       boss_id: 0,
       assigned_workers: [],
       status: true,
+      hierarchy: false,
     },
   };

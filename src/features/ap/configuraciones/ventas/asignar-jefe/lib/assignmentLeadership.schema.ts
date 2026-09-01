@@ -13,6 +13,7 @@ export const assignmentLeadershipSchemaCreate = z.object({
       })
     )
     .min(1, { message: "Debe seleccionar al menos un asesor" }),
+  hierarchy: z.boolean().default(false),
 });
 
 export const assignmentLeadershipSchemaUpdate =
