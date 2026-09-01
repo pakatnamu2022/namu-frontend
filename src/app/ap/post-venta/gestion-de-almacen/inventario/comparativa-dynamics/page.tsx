@@ -184,6 +184,9 @@ export default function ComparativaDynamicsPage() {
   const [foundInFilter, setFoundInFilter] = useState<
     "TODOS" | "AMBOS" | "SOLO_LOCAL" | "SOLO_DYNAMICS"
   >("TODOS");
+  const [matchFilter, setMatchFilter] = useState<
+    "TODOS" | "MATCH" | "NO_MATCH"
+  >("TODOS");
 
   const {
     data: response,
@@ -206,6 +209,8 @@ export default function ComparativaDynamicsPage() {
     return mergedRows.filter((row) => {
       if (foundInFilter !== "TODOS" && row.found_in !== foundInFilter)
         return false;
+      if (matchFilter === "MATCH" && !row.match) return false;
+      if (matchFilter === "NO_MATCH" && row.match) return false;
       if (!q) return true;
       return (
         row.product_dyn_code.toLowerCase().includes(q) ||
@@ -213,7 +218,7 @@ export default function ComparativaDynamicsPage() {
         (row.product_name ?? "").toLowerCase().includes(q)
       );
     });
-  }, [mergedRows, search, foundInFilter]);
+  }, [mergedRows, search, foundInFilter, matchFilter]);
 
   const withDifferenceCount = useMemo(
     () =>
@@ -303,6 +308,23 @@ export default function ComparativaDynamicsPage() {
                   )
                 }
                 placeholder="Encontrado en"
+                className="w-[200px]"
+                showSearch={false}
+                allowClear={false}
+              />
+              <SearchableSelect
+                options={[
+                  { value: "TODOS", label: "Todos" },
+                  { value: "MATCH", label: "Coinciden (✓)" },
+                  { value: "NO_MATCH", label: "No coinciden (✗)" },
+                ]}
+                value={matchFilter}
+                onChange={(value) =>
+                  setMatchFilter(
+                    (value || "TODOS") as "TODOS" | "MATCH" | "NO_MATCH",
+                  )
+                }
+                placeholder="Estado"
                 className="w-[200px]"
                 showSearch={false}
                 allowClear={false}
