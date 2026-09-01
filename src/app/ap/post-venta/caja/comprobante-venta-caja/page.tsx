@@ -62,19 +62,28 @@ export default function SalesReceiptsCajaPage() {
       sedeId: "",
       statusFilter: "",
       consolidationType: "",
+      isAccounted: "",
       dateFrom: getFirstDayOfMonth(
         new Date(currentDate.getFullYear(), currentDate.getMonth() - 2, 1),
       ) as Date | undefined,
       dateTo: getCurrentDayOfMonth(currentDate) as Date | undefined,
     },
   );
-  const { search, sedeId, statusFilter, consolidationType, dateFrom, dateTo } =
-    filters;
+  const {
+    search,
+    sedeId,
+    statusFilter,
+    consolidationType,
+    isAccounted,
+    dateFrom,
+    dateTo,
+  } = filters;
   const setSearch = (value: string) => setFilter("search", value);
   const setSedeId = (value: string) => setFilter("sedeId", value);
   const setStatusFilter = (value: string) => setFilter("statusFilter", value);
   const setConsolidationType = (value: string) =>
     setFilter("consolidationType", value);
+  const setIsAccounted = (value: string) => setFilter("isAccounted", value);
   const setDateFrom = (value: Date | undefined) => setFilter("dateFrom", value);
   const setDateTo = (value: Date | undefined) => setFilter("dateTo", value);
 
@@ -105,6 +114,7 @@ export default function SalesReceiptsCajaPage() {
         : undefined,
     seriesModel$sede_id: sedeId ? parseInt(sedeId) : undefined,
     consolidation_type: consolidationType || undefined,
+    is_accounted: isAccounted !== "" ? isAccounted : undefined,
   });
 
   const canUpdate = permissions.canUpdate || false;
@@ -280,6 +290,8 @@ export default function SalesReceiptsCajaPage() {
           setDateTo={setDateTo}
           consolidationType={consolidationType}
           setConsolidationType={setConsolidationType}
+          isAccounted={isAccounted}
+          setIsAccounted={setIsAccounted}
         />
       </ElectronicDocumentTable>
 
