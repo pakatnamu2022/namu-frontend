@@ -50,3 +50,11 @@ export async function updateAssignmentLeadership(
   );
   return response.data;
 }
+
+export async function deleteAssignmentLeadership(
+  bossId: number,
+  year: number,
+  month: number
+): Promise<void> {
+  await api.delete(`${ENDPOINT}/${bossId}`, { params: { year, month } });
+}
