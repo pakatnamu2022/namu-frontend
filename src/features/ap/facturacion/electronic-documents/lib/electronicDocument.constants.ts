@@ -99,6 +99,7 @@ export const MIGRATION_STATUS = [
   { value: "in_progress", label: "En Proceso", color: "bg-blue-500" },
   { value: "completed", label: "Completado", color: "bg-green-500" },
   { value: "failed", label: "Fallido", color: "bg-red-500" },
+  { value: "updated_with_nc", label: "Actualizado con NC", color: "bg-purple-500" },
 ] as const;
 
 export const MIGRATION_STATUS_VALUE = {
@@ -106,6 +107,7 @@ export const MIGRATION_STATUS_VALUE = {
   IN_PROGRESS: "in_progress",
   COMPLETED: "completed",
   FAILED: "failed",
+  UPDATED_WITH_NC: "updated_with_nc",
 } as const;
 
 export const UNIT_MEASURES = [
