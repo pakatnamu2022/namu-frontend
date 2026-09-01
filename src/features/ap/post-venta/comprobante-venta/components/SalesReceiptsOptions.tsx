@@ -19,11 +19,18 @@ interface Props {
   setDateTo: (date: Date | undefined) => void;
   consolidationType?: string;
   setConsolidationType?: (value: string) => void;
+  isAccounted?: string;
+  setIsAccounted?: (value: string) => void;
 }
 
 const CONSOLIDATION_TYPE_OPTIONS = [
   { value: "massive", label: "Masivo" },
   { value: "simple", label: "Directo" },
+];
+
+const IS_ACCOUNTED_OPTIONS = [
+  { value: "1", label: "Contabilizado" },
+  { value: "0", label: "No contabilizado" },
 ];
 
 export default function SalesReceiptsOptions({
@@ -40,6 +47,8 @@ export default function SalesReceiptsOptions({
   setDateTo,
   consolidationType,
   setConsolidationType,
+  isAccounted,
+  setIsAccounted,
 }: Props) {
   return (
     <FilterWrapper>
@@ -90,6 +99,16 @@ export default function SalesReceiptsOptions({
           className="min-w-24"
           placeholder="Tipo de consolidación"
           options={CONSOLIDATION_TYPE_OPTIONS}
+        />
+      )}
+
+      {setIsAccounted && (
+        <SearchableSelect
+          onChange={setIsAccounted}
+          value={isAccounted ?? ""}
+          className="min-w-44"
+          placeholder="Contabilización"
+          options={IS_ACCOUNTED_OPTIONS}
         />
       )}
     </FilterWrapper>
