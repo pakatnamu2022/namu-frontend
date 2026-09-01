@@ -5,11 +5,12 @@ import {
 } from "../lib/assignmentLeadership.interface";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Pencil } from "lucide-react";
+import { Pencil, Trash2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { ASSIGNMENT_LEADERSHIP } from "../lib/assignmentLeadership.constants";
 import { Switch } from "@/components/ui/switch";
 import { cn } from "@/lib/utils";
+import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
 
 export type AssignmentLeadershipColumns =
   ColumnDef<AssignmentLeadershipResource>;
@@ -21,13 +22,16 @@ interface Props {
     year: number,
     month: number,
   ) => void;
+  onDelete: (bossId: number, year: number, month: number) => void;
   permissions: {
     canUpdate: boolean;
+    canDelete: boolean;
   };
 }
 
 export const assignmentLeadershipColumns = ({
   onToggleStatus,
+  onDelete,
   permissions,
 }: Props): AssignmentLeadershipColumns[] => [
   {
@@ -121,12 +125,11 @@ export const assignmentLeadershipColumns = ({
     header: "Acciones",
     cell: ({ row }) => {
       const router = useNavigate();
-      const { boss_id, year, month, status } = row.original;
+      const { boss_id, year, month, status, boss_name } = row.original as AssignmentLeadershipResource & { boss_name: string };
       const { ROUTE_UPDATE } = ASSIGNMENT_LEADERSHIP;
 
       return (
         <div className="flex items-center justify-center gap-2">
-          {/* Toggle Status */}
           {permissions.canUpdate && (
             <Switch
               checked={status}
@@ -137,7 +140,6 @@ export const assignmentLeadershipColumns = ({
             />
           )}
 
-          {/* Edit */}
           {permissions.canUpdate && (
             <Button
               variant="outline"
@@ -148,6 +150,23 @@ export const assignmentLeadershipColumns = ({
             >
               <Pencil className="size-5" />
             </Button>
+          )}
+
+          {permissions.canDelete && (
+            <ConfirmationDialog
+              trigger={
+                <Button variant="outline" size="icon" className="size-7 text-destructive hover:text-destructive">
+                  <Trash2 className="size-4" />
+                </Button>
+              }
+              title="Eliminar asignación"
+              description={`¿Eliminar todas las asignaciones de ${boss_name} para ${month}/${year}? Esta acción no se puede deshacer.`}
+              confirmText="Eliminar"
+              cancelText="Cancelar"
+              variant="destructive"
+              icon="danger"
+              onConfirm={() => onDelete(boss_id, year, month)}
+            />
           )}
         </div>
       );

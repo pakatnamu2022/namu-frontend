@@ -20,7 +20,7 @@ import {
   generateYear,
   successToast,
 } from "@/core/core.function";
-import { updateAssignmentLeadership } from "@/features/ap/configuraciones/ventas/asignar-jefe/lib/assignmentLeadership.actions";
+import { deleteAssignmentLeadership, updateAssignmentLeadership } from "@/features/ap/configuraciones/ventas/asignar-jefe/lib/assignmentLeadership.actions";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
 import { notFound } from "@/shared/hooks/useNotFound";
 
@@ -46,6 +46,17 @@ export default function AssignmentLeadershipPage() {
     year,
     month,
   });
+
+  const handleDelete = async (bossId: number, year: number, month: number) => {
+    try {
+      await deleteAssignmentLeadership(bossId, year, month);
+      await refetch();
+      successToast("Asignación eliminada correctamente.");
+    } catch (error: any) {
+      const msg = error?.response?.data?.message;
+      errorToast("Error al eliminar la asignación.", msg);
+    }
+  };
 
   const handleToggleStatus = async (
     boss_id: number,
@@ -86,7 +97,8 @@ export default function AssignmentLeadershipPage() {
         isLoading={isLoading}
         columns={assignmentLeadershipColumns({
           onToggleStatus: handleToggleStatus,
-          permissions,
+          onDelete: handleDelete,
+          permissions: { ...permissions, canDelete: permissions.canDelete ?? false },
         })}
         data={data?.data || []}
       >
