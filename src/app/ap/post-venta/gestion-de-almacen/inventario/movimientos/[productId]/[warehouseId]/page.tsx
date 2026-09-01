@@ -16,11 +16,7 @@ import InventoryMovementsOptions from "@/features/ap/post-venta/gestion-almacen/
 import { Button } from "@/components/ui/button.tsx";
 import { ArrowLeft } from "lucide-react";
 import BackButton from "@/shared/components/BackButton.tsx";
-import {
-  errorToast,
-  getCurrentDayOfMonth,
-  getFirstDayOfMonth,
-} from "@/core/core.function.ts";
+import { errorToast, getCurrentDayOfMonth } from "@/core/core.function.ts";
 import { useInventoryMovements } from "@/features/ap/post-venta/gestion-almacen/inventario/lib/inventory.hook.ts";
 import ExportButtons from "@/shared/components/ExportButtons.tsx";
 import { exportProductMovementHistory } from "@/features/ap/post-venta/gestion-almacen/inventario/lib/inventory.actions.ts";
@@ -35,9 +31,11 @@ export default function ProductKardexPage() {
   const params = useParams();
   const currentDate = new Date();
 
-  const [dateFrom, setDateFrom] = useState<Date | undefined>(
-    getFirstDayOfMonth(currentDate),
-  );
+  const [dateFrom, setDateFrom] = useState<Date | undefined>(() => {
+    const date = new Date(currentDate);
+    date.setMonth(date.getMonth() - 3);
+    return date;
+  });
   const [dateTo, setDateTo] = useState<Date | undefined>(
     getCurrentDayOfMonth(currentDate),
   );
