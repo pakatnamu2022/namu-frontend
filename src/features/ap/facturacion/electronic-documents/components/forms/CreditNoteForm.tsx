@@ -310,8 +310,8 @@ export function CreditNoteForm({
                   text="Volver a refacturar"
                   textDescription={
                     form.watch("re_invoice")
-                      ? "Se generará un nuevo comprobante de venta"
-                      : "No se generará un nuevo comprobante de venta"
+                      ? "Se generará un nuevo comprobante de venta (Si volverá stock reservado)"
+                      : "No se generará un nuevo comprobante de venta (No volverá stock reservado)"
                   }
                   autoHeight
                 />
