@@ -12,6 +12,8 @@ export interface GeneralMastersResource {
   description: string;
   type: string;
   value?: string;
+  effective_from?: string | null;
+  effective_to?: string | null;
   status: number;
 }
 
@@ -20,6 +22,8 @@ export interface GeneralMastersRequest {
   description: string;
   type: string;
   value?: string;
+  effective_from?: string | null;
+  effective_to?: string | null;
   status?: boolean;
 }
 

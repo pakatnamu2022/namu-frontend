@@ -36,6 +36,15 @@ export const generalMastersColumns = ({
     cell: ({ row }) => row.original.value || "-",
   },
   {
+    id: "vigencia",
+    header: "Vigencia",
+    cell: ({ row }) => {
+      const { effective_from, effective_to } = row.original;
+      if (!effective_from && !effective_to) return "-";
+      return `${effective_from || "…"} → ${effective_to || "…"}`;
+    },
+  },
+  {
     accessorKey: "status",
     header: "Estado",
     cell: ({ row }) => {

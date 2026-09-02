@@ -495,6 +495,7 @@ import FoodCardPage from "./app/gp/gestion-humana/planillas/tarjeta-de-alimentos
 import AssignFoodCardPage from "./app/gp/gestion-humana/planillas/tarjeta-de-alimentos/asignar/page.tsx";
 import FamilyAllowancePage from "./app/gp/gestion-humana/planillas/asignacion-familiar/page.tsx";
 import AssignFamilyAllowancePage from "./app/gp/gestion-humana/planillas/asignacion-familiar/asignar/page.tsx";
+import ExclusionPage from "./app/gp/gestion-humana/planillas/exclusiones/page.tsx";
 import WorkSchedulesPage from "./app/gp/gestion-humana/planillas/dia-trabajo/page.tsx";
 import PayrollParameterPage from "./app/gp/gestion-humana/planillas/parametros/page.tsx";
 import PayrollRatesPercentagesPage from "./app/gp/gestion-humana/planillas/tasas-porcentajes/page.tsx";
@@ -2322,6 +2323,11 @@ function App() {
               <Route
                 path="planillas/asignacion-familiar/asignar"
                 element={<AssignFamilyAllowancePage />}
+              />
+              {/* Exclusiones */}
+              <Route
+                path="planillas/exclusiones"
+                element={<ExclusionPage />}
               />
               {/* Constantes de Planilla */}
               <Route

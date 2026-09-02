@@ -1,11 +1,16 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Calculator, Loader2, Plus } from "lucide-react";
+import { Calculator, Loader2, Plus, Wallet } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { LIQUIDACION_BBSS } from "../lib/liquidacion-bbss.constant";
-import { calculateGratification } from "../lib/liquidacion-bbss.actions";
+import {
+  calculateCts,
+  calculateGratification,
+  getGratificationStatus,
+  GratificationStatus,
+} from "../lib/liquidacion-bbss.actions";
 import { errorToast, successToast } from "@/core/core.function";
 
 const { MODEL, ROUTE_ADD } = LIQUIDACION_BBSS;
@@ -20,11 +25,32 @@ export default function LiquidacionBbssActions({
   onCalculated,
 }: LiquidacionBbssActionsProps) {
   const push = useNavigate();
-  const [isCalculating, setIsCalculating] = useState(false);
+  const [isCalculatingGrati, setIsCalculatingGrati] = useState(false);
+  const [isCalculatingCts, setIsCalculatingCts] = useState(false);
+  const [ctsStatus, setCtsStatus] = useState<GratificationStatus | null>(
+    null,
+  );
+
+  // La CTS depende de que la gratificación del semestre de referencia ya esté
+  // calculada — se consulta cada vez que cambia el periodo para habilitar/
+  // deshabilitar el botón sin esperar a que el usuario haga clic.
+  useEffect(() => {
+    if (!periodId) {
+      setCtsStatus(null);
+      return;
+    }
+    let cancelled = false;
+    getGratificationStatus(periodId)
+      .then((status) => !cancelled && setCtsStatus(status))
+      .catch(() => !cancelled && setCtsStatus(null));
+    return () => {
+      cancelled = true;
+    };
+  }, [periodId]);
 
   const handleCalculateGratification = async () => {
     if (!periodId) return;
-    setIsCalculating(true);
+    setIsCalculatingGrati(true);
     try {
       const result = await calculateGratification(periodId);
       successToast(
@@ -34,23 +60,52 @@ export default function LiquidacionBbssActions({
             : ""),
       );
       onCalculated?.();
+      const status = await getGratificationStatus(periodId).catch(
+        () => null,
+      );
+      if (status) setCtsStatus(status);
     } catch (error: any) {
       errorToast(
         error?.response?.data?.message ??
           "No se pudo calcular la gratificación.",
       );
     } finally {
-      setIsCalculating(false);
+      setIsCalculatingGrati(false);
     }
   };
 
+  const handleCalculateCts = async () => {
+    if (!periodId) return;
+    setIsCalculatingCts(true);
+    try {
+      const result = await calculateCts(periodId);
+      successToast(
+        `CTS calculada para ${result.workers_processed} trabajador(es).` +
+          (result.skipped.length > 0
+            ? ` ${result.skipped.length} omitido(s): ${result.skipped.join("; ")}`
+            : ""),
+      );
+      onCalculated?.();
+    } catch (error: any) {
+      errorToast(error?.response?.data?.message ?? "No se pudo calcular la CTS.");
+    } finally {
+      setIsCalculatingCts(false);
+    }
+  };
+
+  const ctsDisabled = !periodId || !ctsStatus?.ready || isCalculatingCts;
+  const ctsTooltip = !periodId
+    ? "Seleccione un periodo (Mayo o Noviembre) para calcular"
+    : (ctsStatus?.message ??
+      "Calcula la CTS semestral de todos los trabajadores activos de este periodo");
+
   return (
-    <div className="flex items-center gap-2 w-full md:w-auto md:ml-auto">
+    <div className="flex items-center gap-2 w-full md:w-auto md:ml-auto flex-wrap">
       <Button
         size="sm"
         variant="outline"
         className="w-full md:w-auto"
-        disabled={!periodId || isCalculating}
+        disabled={!periodId || isCalculatingGrati}
         tooltip={
           !periodId
             ? "Seleccione un periodo (Julio o Diciembre) para calcular"
@@ -58,12 +113,27 @@ export default function LiquidacionBbssActions({
         }
         onClick={handleCalculateGratification}
       >
-        {isCalculating ? (
+        {isCalculatingGrati ? (
           <Loader2 className="size-4 mr-2 animate-spin" />
         ) : (
           <Calculator className="size-4 mr-2" />
         )}
         Calcular gratificación
+      </Button>
+      <Button
+        size="sm"
+        variant="outline"
+        className="w-full md:w-auto"
+        disabled={ctsDisabled}
+        tooltip={ctsTooltip}
+        onClick={handleCalculateCts}
+      >
+        {isCalculatingCts ? (
+          <Loader2 className="size-4 mr-2 animate-spin" />
+        ) : (
+          <Wallet className="size-4 mr-2" />
+        )}
+        Calcular CTS
       </Button>
       <Button
         size="sm"

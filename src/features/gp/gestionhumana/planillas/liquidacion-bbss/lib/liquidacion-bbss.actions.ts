@@ -65,3 +65,47 @@ export async function calculateGratification(
   );
   return unwrap<CalculateGratificationResult>(data);
 }
+
+export interface CalculateCtsResult {
+  success: boolean;
+  period_id: number;
+  reference_period_id: number;
+  workers_processed: number;
+  skipped: string[];
+}
+
+export async function calculateCts(
+  periodId: number | string,
+): Promise<CalculateCtsResult> {
+  const { data } = await api.post<any>(
+    `${ENDPOINT}/calculate-cts/${periodId}`,
+  );
+  return unwrap<CalculateCtsResult>(data);
+}
+
+export interface GratificationStatus {
+  ready: boolean;
+  reference_period: { id: number; code: string; name: string } | null;
+  message: string | null;
+}
+
+export async function getGratificationStatus(
+  periodId: number | string,
+): Promise<GratificationStatus> {
+  const { data } = await api.get<any>(
+    `${ENDPOINT}/gratification-status/${periodId}`,
+  );
+  return unwrap<GratificationStatus>(data);
+}
+
+export async function downloadLiquidationBbssPayslip(
+  periodId: number | string,
+  workerId: number | string,
+  type: "cts" | "gratificacion",
+): Promise<Blob> {
+  const { data } = await api.get<Blob>(
+    `${ENDPOINT}/payslip/${periodId}/${workerId}`,
+    { params: { type }, responseType: "blob" },
+  );
+  return data;
+}
