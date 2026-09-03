@@ -36,35 +36,23 @@ export default function VehiclesPage() {
     [],
   );
   const [sedeId, setSedeId] = useState("");
-  const [warehousePhysicalId, setWarehousePhysicalId] = useState("");
   const [familyId, setFamilyId] = useState("");
   const [brandId, setBrandId] = useState("");
   const [year, setYear] = useState("");
   const { MODEL, ROUTE } = VEHICLES;
   const permissions = useModulePermissions(ROUTE);
-  const { canViewBranches } = permissions;
 
   const { data: sedes = [] } = useAllSedes({ empresa_id: EMPRESA_AP.id });
 
   useEffect(() => {
     setPage(1);
-  }, [
-    search,
-    per_page,
-    sedeId,
-    warehousePhysicalId,
-    familyId,
-    brandId,
-    year,
-    ap_vehicle_status_id,
-  ]);
+  }, [search, per_page, sedeId, familyId, brandId, year, ap_vehicle_status_id]);
 
   const filters = {
     search,
     ap_vehicle_status_id: ap_vehicle_status_id,
     type_operation_id: CM_COMERCIAL_ID,
-    warehousePhysical$sede_id: sedeId,
-    warehouse_physical_id: warehousePhysicalId,
+    warehouse$sede_id: sedeId,
     model$family_id: familyId,
     model$family$brand_id: brandId,
     year,
@@ -128,9 +116,6 @@ export default function VehiclesPage() {
           sedes={sedes}
           sedeId={sedeId}
           setSedeId={setSedeId}
-          canViewBranches={canViewBranches}
-          warehousePhysicalId={warehousePhysicalId}
-          setWarehousePhysicalId={setWarehousePhysicalId}
           familyId={familyId}
           setFamilyId={setFamilyId}
           brandId={brandId}

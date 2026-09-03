@@ -1,9 +1,10 @@
 "use client";
 
-import { ColumnDef } from "@tanstack/react-table";
+import { ColumnDef, Column } from "@tanstack/react-table";
 import { useNavigate } from "react-router-dom";
-import { MoreHorizontal, Download } from "lucide-react";
+import { MoreHorizontal, Download, ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -30,6 +31,45 @@ const pen = (val: number | null | undefined) =>
 
 type Row = LiquidacionBbssPivotRow;
 type Col = ColumnDef<Row>;
+
+// ── Header ordenable (clic = asc → desc → sin orden), mismo patrón que
+// PayrollRegisterColumns.tsx para mantener la tabla compacta y consistente ──
+function SortableHeader({
+  column,
+  label,
+  align = "left",
+}: {
+  column: Column<Row, unknown>;
+  label: string;
+  align?: "left" | "right";
+}) {
+  const sorted = column.getIsSorted();
+  return (
+    <Button
+      variant="ghost"
+      size="sm"
+      onClick={column.getToggleSortingHandler()}
+      className={cn(
+        "h-6 px-1 gap-1 text-xs font-semibold text-muted-foreground hover:text-foreground w-full",
+        align === "right" ? "justify-end -mr-1" : "justify-start -ml-1",
+      )}
+    >
+      <span>{label}</span>
+      {sorted === "asc" ? (
+        <ArrowUp className="size-3 shrink-0" />
+      ) : sorted === "desc" ? (
+        <ArrowDown className="size-3 shrink-0" />
+      ) : (
+        <ArrowUpDown className="size-3 shrink-0 opacity-40" />
+      )}
+    </Button>
+  );
+}
+
+const sortableHeader = (label: string, align: "left" | "right" = "left") =>
+  function Header({ column }: { column: Column<Row, unknown> }) {
+    return <SortableHeader column={column} label={label} align={align} />;
+  };
 
 /** Botón "descargar boleta" para un worker+period, si el conjunto de conceptos de la fila
  * incluye CTS y/o gratificación (los únicos dos tipos de boleta que genera el backend). */
@@ -113,28 +153,40 @@ export function liquidacionBbssPivotColumns({
 }): ColumnDef<Row>[] {
   const identity: Col[] = [
     {
+      id: "n",
+      header: "N°",
+      cell: ({ row }) => (
+        <span className="text-muted-foreground">{row.index + 1}</span>
+      ),
+      size: 44,
+      enableSorting: false,
+    },
+    {
       accessorKey: "worker",
-      header: "Trabajador",
+      header: sortableHeader("Trabajador"),
       cell: ({ getValue }) => (
         <span className="font-semibold whitespace-nowrap">
           {(getValue() as string) ?? "—"}
         </span>
       ),
+      size: 220,
     },
     {
       accessorKey: "worker_vat",
-      header: "DNI",
+      header: sortableHeader("DNI"),
       cell: ({ getValue }) => (
         <span className="font-mono text-xs">
           {(getValue() as string) ?? "—"}
         </span>
       ),
+      size: 90,
     },
   ];
 
   const conceptColumns: Col[] = concepts.map(({ code, label }) => ({
     id: code,
-    header: label,
+    header: sortableHeader(label, "right"),
+    accessorFn: (row) => row.amounts[code],
     cell: ({ row }) => {
       const amount = row.original.amounts[code];
       return (
@@ -143,21 +195,25 @@ export function liquidacionBbssPivotColumns({
         </span>
       );
     },
+    size: 120,
   }));
 
   const total: Col = {
     accessorKey: "total",
-    header: "Total",
+    header: sortableHeader("Total", "right"),
     cell: ({ getValue }) => (
       <span className="font-mono text-xs text-right block font-bold text-emerald-700 dark:text-emerald-400">
         {pen(getValue() as number)}
       </span>
     ),
+    size: 110,
   };
 
   const actions: Col = {
     id: "actions",
     header: "Acciones",
+    size: 90,
+    enableSorting: false,
     cell: ({ row }) => {
       // eslint-disable-next-line react-hooks/rules-of-hooks
       const router = useNavigate();

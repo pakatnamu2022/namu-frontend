@@ -25,8 +25,14 @@ export async function getLiquidacionesBbss(
 export async function getLiquidacionesBbssPivot(
   params: Record<string, any>,
 ): Promise<LiquidacionBbssPivotResponse> {
-  const { data } = await api.get<any>(`${ENDPOINT}/pivot`, { params });
-  return unwrap<LiquidacionBbssPivotResponse>(data);
+  // No usar unwrap() aquí: este endpoint ya responde {data, columns} tal cual (no envuelve un
+  // recurso individual dentro de "data" como el resto de endpoints CRUD), así que unwrap()
+  // colapsaría la respuesta al array de filas y perdería "columns".
+  const { data } = await api.get<LiquidacionBbssPivotResponse>(
+    `${ENDPOINT}/pivot`,
+    { params },
+  );
+  return data;
 }
 
 export async function findLiquidacionBbssById(

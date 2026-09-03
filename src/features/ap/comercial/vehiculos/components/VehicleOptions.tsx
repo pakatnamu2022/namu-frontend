@@ -2,15 +2,13 @@ import { useBrands } from "@/features/ap/configuraciones/vehiculos/marcas/lib/br
 import { BrandsResource } from "@/features/ap/configuraciones/vehiculos/marcas/lib/brands.interface";
 import { useFamilies } from "@/features/ap/comercial/oportunidades/lib/opportunities.hook";
 import { FamiliesResource } from "@/features/ap/configuraciones/vehiculos/familias/lib/families.interface";
-import { useWarehouse } from "@/features/ap/configuraciones/maestros-general/almacenes/lib/warehouse.hook";
-import { WarehouseResource } from "@/features/ap/configuraciones/maestros-general/almacenes/lib/warehouse.interface";
 import { SedeResource } from "@/features/gp/maestro-general/sede/lib/sede.interface";
-import { CM_COMERCIAL_ID } from "@/features/ap/ap-master/lib/apMaster.constants";
 import { FilterMultiSelect } from "@/shared/components/FilterMultiSelect";
 import FilterWrapper from "@/shared/components/FilterWrapper";
 import { SearchableSelect } from "@/shared/components/SearchableSelect";
 import { SearchableSelectAsync } from "@/shared/components/SearchableSelectAsync";
 import SearchInput from "@/shared/components/SearchInput";
+import { CM_COMERCIAL_ID } from "@/features/ap/ap-master/lib/apMaster.constants";
 
 const currentYear = new Date().getFullYear();
 const YEAR_OPTIONS = Array.from({ length: 16 }, (_, i) => {
@@ -26,9 +24,6 @@ interface VehicleOptionsProps {
   sedes?: SedeResource[];
   sedeId?: string;
   setSedeId?: (value: string) => void;
-  canViewBranches?: boolean;
-  warehousePhysicalId?: string;
-  setWarehousePhysicalId?: (value: string) => void;
   familyId?: string;
   setFamilyId?: (value: string) => void;
   brandId?: string;
@@ -45,9 +40,6 @@ export default function VehicleOptions({
   sedes = [],
   sedeId = "",
   setSedeId,
-  canViewBranches,
-  warehousePhysicalId = "",
-  setWarehousePhysicalId,
   familyId = "",
   setFamilyId,
   brandId = "",
@@ -63,7 +55,7 @@ export default function VehicleOptions({
         onChange={setSearch}
       />
 
-      {canViewBranches && setSedeId && (
+      {setSedeId && (
         <SearchableSelect
           value={sedeId}
           onChange={setSedeId}
@@ -72,21 +64,6 @@ export default function VehicleOptions({
             label: sede.abreviatura,
             value: sede.id.toString(),
           }))}
-        />
-      )}
-
-      {setWarehousePhysicalId && (
-        <SearchableSelectAsync
-          useQueryHook={useWarehouse}
-          additionalParams={{ type_operation_id: CM_COMERCIAL_ID }}
-          mapOptionFn={(warehouse: WarehouseResource) => ({
-            label: warehouse.description,
-            value: warehouse.id.toString(),
-            description: warehouse.sede,
-          })}
-          placeholder="Almacén"
-          value={warehousePhysicalId}
-          onChange={setWarehousePhysicalId}
         />
       )}
 
@@ -101,6 +78,7 @@ export default function VehicleOptions({
           placeholder="Marca"
           value={brandId}
           onChange={setBrandId}
+          additionalParams={{ type_operation_id: CM_COMERCIAL_ID }}
         />
       )}
 

@@ -28,6 +28,7 @@ import { VehicleColorResource } from "@/features/ap/configuraciones/vehiculos/co
 import { ApprovedAccesoriesResource } from "@/features/ap/post-venta/repuestos/accesorios-homologados/lib/approvedAccessories.interface";
 import { useState } from "react";
 import { warningToast } from "@/core/core.function";
+import { CopyCell } from "@/shared/components/CopyCell";
 import { CM_COMERCIAL_ID } from "@/features/ap/ap-master/lib/apMaster.constants";
 
 interface BonusDiscountRow {
@@ -52,6 +53,7 @@ interface PurchaseRequestQuoteSummaryProps {
   form: UseFormReturn<any>;
   mode: "create" | "update";
   isSubmitting: boolean;
+  correlative?: string;
   sedeLabel?: string;
   selectedHolder?: CustomersResource;
   modelsVn: ModelsVnResource[];
@@ -93,6 +95,7 @@ export function PurchaseRequestQuoteSummary({
   form,
   mode,
   isSubmitting,
+  correlative,
   sedeLabel,
   selectedHolder,
   modelsVn,
@@ -302,6 +305,17 @@ export function PurchaseRequestQuoteSummary({
               {mode === "update" ? "Edición" : "Nuevo"}
             </span>
           </div>
+
+          {mode === "update" && correlative && (
+            <div className="mt-1">
+              <CopyCell
+                value={correlative}
+                size="sm"
+                font="mono"
+                className="font-semibold"
+              />
+            </div>
+          )}
 
           <p className="text-4xl font-semibold tracking-tight tabular-nums mt-1">
             {selectedInvoiceCurrency?.symbol || vehicleCurrency.symbol}{" "}

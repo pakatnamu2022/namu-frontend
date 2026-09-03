@@ -181,6 +181,8 @@ export const PurchaseRequestQuoteForm = ({
     useAllVehiclesWithCosts({
       family_id: selectedFamilyId,
       is_editing: mode === "update" ? true : false,
+      // Restringir los VIN disponibles a la sede de la cotización
+      sede_id: form.watch("sede_id"),
     });
   const { data: currencyTypes = [], isLoading: isLoadingCurrencyTypes } =
     useAllCurrencyTypes({
@@ -1091,6 +1093,7 @@ export const PurchaseRequestQuoteForm = ({
               form={form}
               mode={mode}
               isSubmitting={isSubmitting}
+              correlative={(defaultValues as any)?.correlative}
               sedeLabel={sedeLabel}
               selectedHolder={selectedHolder}
               modelsVn={modelsVn}
