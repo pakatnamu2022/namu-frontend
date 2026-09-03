@@ -20,6 +20,8 @@ const generalMastersSchemaBase = z.object({
       message: "Tipo es requerido",
     }),
   value: z.string().max(255).optional(),
+  effective_from: z.string().optional().nullable(),
+  effective_to: z.string().optional().nullable(),
   status: z.boolean().optional(),
 });
 
@@ -27,6 +29,8 @@ export const generalMastersSchemaCreate = generalMastersSchemaBase.transform(
   (data) => ({
     ...data,
     status: data.status ?? true,
+    effective_from: data.effective_from || null,
+    effective_to: data.effective_to || null,
   })
 );
 

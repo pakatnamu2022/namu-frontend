@@ -432,6 +432,43 @@ export const COMMERCIAL_REPORTS: ReportConfig[] = [
     defaultParams: {},
     fileName: "Reporte_Bonos",
   },
+  {
+    id: "discount-dynamics",
+    title: "Reporte de Descuentos → Dynamics",
+    type: "Dynamics",
+    description:
+      "Verifica si los descuentos registrados en la cotización se están enviando correctamente a Dynamics. Muestra el DescuentoUnitario enviado por ítem, el ArticuloId (cuenta contable) y el estado de sincronización de cada documento.",
+    icon: "Zap",
+    endpoint: "/ap/commercial/reports/discount-dynamics/export",
+    method: "get",
+    fields: [
+      {
+        name: "fecha",
+        label: "Fecha de Cotización",
+        type: "daterange",
+        required: false,
+        nameFrom: "fecha_inicio",
+        nameTo: "fecha_fin",
+        defaultValueFrom: toLocalDateString(getFirstDayOfMonth(new Date())),
+        defaultValueTo: getTodayLocalDateString(),
+      },
+      {
+        name: "sede_id",
+        label: "Sede",
+        type: "multiselect",
+        required: false,
+        placeholder: "Seleccionar sede",
+        endpoint: "/gp/mg/sede/my",
+        multiSelectMapper: (data) =>
+          (data ?? []).map((item: any) => ({
+            id: item.id,
+            name: item.abreviatura,
+          })),
+      },
+    ],
+    defaultParams: {},
+    fileName: "Reporte_Descuentos_Dynamics",
+  },
 ];
 
 export const REPORTS_COMMERCIAL_CONSTANTS: ModelComplete = {
