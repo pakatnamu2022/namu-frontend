@@ -9,8 +9,10 @@ import { EXCLUSION_CONCEPTS } from "../lib/exclusion.constants";
 
 export type ExclusionColumns = ColumnDef<ExclusionResource>;
 
-const conceptLabel = (concept: string) =>
-  EXCLUSION_CONCEPTS.find((c) => c.value === concept)?.label ?? concept;
+const conceptLabel = (concept: string) => {
+  const label = EXCLUSION_CONCEPTS.find((c) => c.value === concept)?.label;
+  return typeof label === "string" ? label : concept;
+};
 
 export const exclusionColumns = ({
   onDelete,

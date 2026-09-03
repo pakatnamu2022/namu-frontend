@@ -13,6 +13,7 @@ export interface LiquidacionBbssResource {
   period_id: number;
   period: string | null;
   amount: number;
+  type: string | null;
   type_id: number;
   status: boolean;
 }
