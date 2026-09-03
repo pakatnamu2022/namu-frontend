@@ -66,6 +66,7 @@ export default function UpdateWarehousePage() {
       article_class_id: String(data.article_class_id),
       inventory_account: String(data.inventory_account),
       counterparty_account: String(data.counterparty_account),
+      asset_account: data.asset_account ? String(data.asset_account) : "",
       parent_warehouse_id: String(data.parent_warehouse_id),
       is_received: Boolean(data.is_received),
       is_physical_warehouse: Boolean(data.is_physical_warehouse),

@@ -3,9 +3,26 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { ButtonGroup } from "@/components/ui/button-group";
-import { Calculator, RefreshCw, Loader2, FileSpreadsheet } from "lucide-react";
+import {
+  Calculator,
+  RefreshCw,
+  Loader2,
+  FileSpreadsheet,
+  Download,
+  FileUp,
+  ChevronDown,
+} from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { SimpleConfirmDialog } from "@/shared/components/SimpleConfirmDialog";
 import {
+  downloadHistoricalSalaryTemplate,
   exportPayrollExcel,
   generatePayrollCalculations,
   recalculatePayrollCalculations,
@@ -13,6 +30,11 @@ import {
 import { errorToast, successToast } from "@/core/core.function";
 import { PayrollPeriodStatus } from "../../periodo-planilla/lib/payroll-period.interface";
 import { PAYROLL_PERIOD_STATUS } from "../../periodo-planilla/lib/payroll-period.constant";
+import PayrollHistoricalTemplateDialog from "./PayrollHistoricalTemplateDialog";
+import PayrollHistoricalImportDialog from "./PayrollHistoricalImportDialog";
+import PayrollHistoricalBonusTemplateDialog from "./PayrollHistoricalBonusTemplateDialog";
+import PayrollHistoricalBonusImportDialog from "./PayrollHistoricalBonusImportDialog";
+import PayrollHistoricalSalaryImportDialog from "./PayrollHistoricalSalaryImportDialog";
 
 export type ActiveView = "attendances" | "totals" | "report";
 export type Quincena = 1 | 2 | null;
@@ -21,6 +43,8 @@ interface Props {
   periodId: number;
   periodCode: string;
   periodStatus: PayrollPeriodStatus;
+  periodYear: number;
+  periodMonth: number;
   biweeklyDate?: string | null;
   activeView?: ActiveView;
   onChangeView?: (view: ActiveView) => void;
@@ -29,23 +53,36 @@ interface Props {
   onSuccess: () => void;
   /** Si se provee, sobreescribe la lógica de status para decidir si hay cálculos en la quincena actual */
   hasQuincenaCalculations?: boolean;
+  companyId?: number;
+  companyName?: string;
 }
 
 export default function PayrollCalculationToolbar({
   periodId,
   periodCode,
   periodStatus,
+  periodYear,
+  periodMonth,
   biweeklyDate,
   quincena,
   onQuincenaChange,
   onSuccess,
   hasQuincenaCalculations,
+  companyId,
+  companyName,
 }: Props) {
   const [isGenerating, setIsGenerating] = useState(false);
   const [isRecalculating, setIsRecalculating] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
   const [showRecalcConfirm, setShowRecalcConfirm] = useState(false);
   const [hasExistingCalculations, setHasExistingCalculations] = useState(false);
+  const [showHistoricalTemplate, setShowHistoricalTemplate] = useState(false);
+  const [showHistoricalImport, setShowHistoricalImport] = useState(false);
+  const [showBonusTemplate, setShowBonusTemplate] = useState(false);
+  const [showBonusImport, setShowBonusImport] = useState(false);
+  const [showSalaryImport, setShowSalaryImport] = useState(false);
+  const [isDownloadingSalaryTemplate, setIsDownloadingSalaryTemplate] =
+    useState(false);
 
   const isClosed = periodStatus === PAYROLL_PERIOD_STATUS.CLOSED;
   const hasCalculationsByStatus =
@@ -122,6 +159,19 @@ export default function PayrollCalculationToolbar({
     }
   };
 
+  const handleDownloadSalaryTemplate = async () => {
+    if (!companyId) return;
+    setIsDownloadingSalaryTemplate(true);
+    try {
+      await downloadHistoricalSalaryTemplate(companyId);
+      successToast("Plantilla descargada correctamente");
+    } catch {
+      errorToast("Error al descargar la plantilla");
+    } finally {
+      setIsDownloadingSalaryTemplate(false);
+    }
+  };
+
   const QUINCENA_OPTIONS: { value: Quincena; label: string }[] = [
     { value: null, label: "Mes completo" },
     { value: 1, label: "1ra quincena" },
@@ -194,7 +244,97 @@ export default function PayrollCalculationToolbar({
             Exportar Excel
           </Button>
         )}
+
+        {companyId && (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="sm">
+                <FileUp className="size-4 mr-1.5" />
+                Históricos
+                <ChevronDown className="size-3.5 ml-1.5" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-72">
+              <DropdownMenuLabel>Conceptos variables</DropdownMenuLabel>
+              <DropdownMenuItem onClick={() => setShowHistoricalTemplate(true)}>
+                <Download className="size-4 mr-2" />
+                Descargar plantilla
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setShowHistoricalImport(true)}>
+                <FileUp className="size-4 mr-2" />
+                Importar Excel
+              </DropdownMenuItem>
+
+              <DropdownMenuSeparator />
+              <DropdownMenuLabel>Bono / comisión (conductores)</DropdownMenuLabel>
+              <DropdownMenuItem onClick={() => setShowBonusTemplate(true)}>
+                <Download className="size-4 mr-2" />
+                Descargar plantilla
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setShowBonusImport(true)}>
+                <FileUp className="size-4 mr-2" />
+                Importar Excel
+              </DropdownMenuItem>
+
+              <DropdownMenuSeparator />
+              <DropdownMenuLabel>Sueldos</DropdownMenuLabel>
+              <DropdownMenuItem
+                onClick={handleDownloadSalaryTemplate}
+                disabled={isDownloadingSalaryTemplate}
+              >
+                <Download className="size-4 mr-2" />
+                Descargar plantilla
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setShowSalaryImport(true)}>
+                <FileUp className="size-4 mr-2" />
+                Importar Excel
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        )}
       </div>
+
+      {companyId && (
+        <>
+          <PayrollHistoricalTemplateDialog
+            open={showHistoricalTemplate}
+            onClose={() => setShowHistoricalTemplate(false)}
+            companyId={companyId}
+            companyName={companyName}
+            defaultYear={periodYear}
+            defaultMonth={periodMonth}
+          />
+          <PayrollHistoricalImportDialog
+            open={showHistoricalImport}
+            onClose={() => setShowHistoricalImport(false)}
+            companyId={companyId}
+            companyName={companyName}
+            onSuccess={onSuccess}
+          />
+          <PayrollHistoricalBonusTemplateDialog
+            open={showBonusTemplate}
+            onClose={() => setShowBonusTemplate(false)}
+            companyId={companyId}
+            companyName={companyName}
+            defaultYear={periodYear}
+            defaultMonth={periodMonth}
+          />
+          <PayrollHistoricalBonusImportDialog
+            open={showBonusImport}
+            onClose={() => setShowBonusImport(false)}
+            companyId={companyId}
+            companyName={companyName}
+            onSuccess={onSuccess}
+          />
+          <PayrollHistoricalSalaryImportDialog
+            open={showSalaryImport}
+            onClose={() => setShowSalaryImport(false)}
+            companyId={companyId}
+            companyName={companyName}
+            onSuccess={onSuccess}
+          />
+        </>
+      )}
 
       <SimpleConfirmDialog
         open={showRecalcConfirm}
