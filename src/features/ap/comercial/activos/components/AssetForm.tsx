@@ -13,26 +13,20 @@ import {
 } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Car, Loader, PackageCheck, TriangleAlert } from "lucide-react";
+import { Loader, TriangleAlert } from "lucide-react";
 import { Link } from "react-router-dom";
 import { FormSelectAsync } from "@/shared/components/FormSelectAsync";
 import { useWorkers } from "@/features/gp/gestionhumana/gestion-de-personal/trabajadores/lib/worker.hook";
 import { ASSETS } from "../lib/assets.constants";
 import { AssetSchema, assetSchemaCreate } from "../lib/assets.schema";
-import { useEligibleVehicles } from "../lib/assets.hook";
+import { useEligibleVehicles, useEligibleVehicleDetail } from "../lib/assets.hook";
 import { EligibleVehicle } from "../lib/assets.interface";
+import { AssetVehicleDetailPanel } from "./AssetVehicleDetailPanel";
 
 interface Props {
   onSubmit: (data: AssetSchema) => void;
   isSubmitting?: boolean;
 }
-
-const Field = ({ label, value }: { label: string; value?: string | null }) => (
-  <div>
-    <p className="text-xs text-muted-foreground">{label}</p>
-    <p className="text-sm font-medium">{value || "—"}</p>
-  </div>
-);
 
 export const AssetForm = ({ onSubmit, isSubmitting = false }: Props) => {
   const { ABSOLUTE_ROUTE } = ASSETS;
@@ -50,101 +44,41 @@ export const AssetForm = ({ onSubmit, isSubmitting = false }: Props) => {
     mode: "onChange",
   });
 
-  const missingAssetAccount =
-    !!selectedVehicle && !selectedVehicle.has_asset_account;
+  const selectedVehicleId = form.watch("ap_vehicle_id");
+  const { data: detail, isFetching: isLoadingDetail } = useEligibleVehicleDetail(
+    selectedVehicleId ? Number(selectedVehicleId) : null,
+  );
+
+  const hasAssetAccount = detail
+    ? detail.has_asset_account
+    : (selectedVehicle?.has_asset_account ?? true);
+  const missingAssetAccount = !!selectedVehicleId && !hasAssetAccount;
 
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 w-full">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="md:col-span-2">
-            <FormSelectAsync
-              name="ap_vehicle_id"
-              label="Vehículo (INVENTARIO VN, sin cotización)"
-              placeholder="Buscar por VIN o placa"
-              control={form.control}
-              required
-              withValue={false}
-              perPage={20}
-              debounceMs={400}
-              useQueryHook={useEligibleVehicles as any}
-              mapOptionFn={(item: EligibleVehicle) => ({
-                value: item.id.toString(),
-                label: `${item.vin}${item.plate ? " · " + item.plate : ""}`,
-                description: [item.brand, item.model, item.sede]
-                  .filter(Boolean)
-                  .join(" · "),
-              })}
-              onValueChange={(_value, item?: EligibleVehicle) =>
-                setSelectedVehicle(item ?? null)
-              }
-            />
-          </div>
-
-          {missingAssetAccount && (
-            <div className="md:col-span-2 flex items-start gap-2 rounded-md bg-amber-50 p-3 text-sm text-amber-800">
-              <TriangleAlert className="size-4 mt-0.5 shrink-0" />
-              <span>
-                El almacén de este vehículo no tiene configurada la{" "}
-                <strong>Cuenta de Activos</strong>. Configúrela en Almacenes
-                antes de registrar el activo.
-              </span>
-            </div>
-          )}
-
-          {selectedVehicle && (
-            <div className="md:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4 rounded-lg bg-muted/40 p-4 shadow-sm">
-              <div className="sm:col-span-2 flex items-center gap-2 text-sm font-semibold">
-                <Car className="size-4 text-muted-foreground" />
-                Información del vehículo
-              </div>
-              <Field label="VIN" value={selectedVehicle.vin} />
-              <Field label="Placa" value={selectedVehicle.plate} />
-              <Field
-                label="Marca / Modelo"
-                value={[selectedVehicle.brand, selectedVehicle.model]
-                  .filter(Boolean)
-                  .join(" · ")}
-              />
-              <Field
-                label="Año"
-                value={selectedVehicle.year ? String(selectedVehicle.year) : null}
-              />
-              <Field label="Color" value={selectedVehicle.color} />
-              <Field
-                label="Almacén / Sede"
-                value={[selectedVehicle.warehouse, selectedVehicle.sede]
-                  .filter(Boolean)
-                  .join(" · ")}
-              />
-
-              <div className="sm:col-span-2 flex items-center gap-2 text-sm font-semibold pt-2">
-                <PackageCheck className="size-4 text-muted-foreground" />
-                Recepción de compra
-              </div>
-              {selectedVehicle.reception ? (
-                <>
-                  <Field
-                    label="Guía de recepción"
-                    value={selectedVehicle.reception.number}
-                  />
-                  <Field
-                    label="Fecha de emisión (fecha de asignación)"
-                    value={selectedVehicle.reception.issue_date}
-                  />
-                  <Field
-                    label="Fecha de recepción"
-                    value={selectedVehicle.reception.received_date}
-                  />
-                </>
-              ) : (
-                <p className="sm:col-span-2 text-sm text-muted-foreground">
-                  Sin guía de recepción de compra registrada. Se usará la fecha
-                  actual como fecha de asignación.
-                </p>
-              )}
-            </div>
-          )}
+          <FormSelectAsync
+            name="ap_vehicle_id"
+            label="VIN"
+            placeholder="Buscar por VIN o placa"
+            control={form.control}
+            required
+            withValue={false}
+            perPage={20}
+            debounceMs={400}
+            useQueryHook={useEligibleVehicles as any}
+            mapOptionFn={(item: EligibleVehicle) => ({
+              value: item.id.toString(),
+              label: `${item.vin}${item.plate ? " · " + item.plate : ""}`,
+              description: [item.brand, item.model, item.sede]
+                .filter(Boolean)
+                .join(" · "),
+            })}
+            onValueChange={(_value, item?: EligibleVehicle) =>
+              setSelectedVehicle(item ?? null)
+            }
+          />
 
           <FormSelectAsync
             name="worker_id"
@@ -159,6 +93,26 @@ export const AssetForm = ({ onSubmit, isSubmitting = false }: Props) => {
               label: item.name,
             })}
           />
+
+          {missingAssetAccount && (
+            <div className="md:col-span-2 flex items-start gap-2 rounded-md bg-amber-50 p-3 text-sm text-amber-800">
+              <TriangleAlert className="size-4 mt-0.5 shrink-0" />
+              <span>
+                El almacén de este vehículo no tiene configurada la{" "}
+                <strong>Cuenta de Activos</strong>. Configúrela en Almacenes
+                antes de registrar el activo.
+              </span>
+            </div>
+          )}
+
+          {selectedVehicleId && (
+            <div className="md:col-span-2">
+              <AssetVehicleDetailPanel
+                detail={detail}
+                isLoading={isLoadingDetail}
+              />
+            </div>
+          )}
 
           <FormField
             control={form.control}

@@ -6,7 +6,7 @@ import {
   AssetRequest,
   AssetResource,
   AssetResponse,
-  EligibleVehicle,
+  AssetVehicleDetail,
   EligibleVehiclesResponse,
   getAssetsProps,
 } from "./assets.interface";
@@ -33,8 +33,8 @@ export async function getEligibleVehicles(
 
 export async function getEligibleVehicleDetail(
   id: number,
-): Promise<EligibleVehicle> {
-  const { data } = await api.get<EligibleVehicle>(
+): Promise<AssetVehicleDetail> {
+  const { data } = await api.get<AssetVehicleDetail>(
     `${ENDPOINT}/eligible-vehicles/${id}`,
   );
   return data;

@@ -1,4 +1,8 @@
 import { type Links, type Meta } from "@/shared/lib/pagination.interface";
+import {
+  VehicleResource,
+  VehicleClientDebtInfo,
+} from "../../vehiculos/lib/vehicles.interface";
 
 export interface AssetVehicle {
   id: number;
@@ -80,6 +84,24 @@ export interface EligibleVehicle {
 
 export interface EligibleVehiclesResponse {
   data: EligibleVehicle[];
+  meta?: {
+    current_page: number;
+    last_page: number;
+    per_page: number;
+    total: number;
+  };
+}
+
+export type AssetReceptionDetail = NonNullable<
+  VehicleClientDebtInfo["reception"]
+>;
+
+export interface AssetVehicleDetail {
+  id: number;
+  has_asset_account: boolean;
+  assigned_date: string | null;
+  vehicle: VehicleResource;
+  reception: AssetReceptionDetail | null;
 }
 
 export interface getAssetsProps {

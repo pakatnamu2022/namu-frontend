@@ -1,10 +1,15 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ASSETS } from "./assets.constants";
-import { AssetResponse, EligibleVehiclesResponse } from "./assets.interface";
+import {
+  AssetResponse,
+  AssetVehicleDetail,
+  EligibleVehiclesResponse,
+} from "./assets.interface";
 import {
   deleteAsset,
   dispatchAssetMigration,
   getAssets,
+  getEligibleVehicleDetail,
   getEligibleVehicles,
   storeAsset,
 } from "./assets.actions";
@@ -23,6 +28,14 @@ export const useEligibleVehicles = (params?: Record<string, any>) => {
   return useQuery<EligibleVehiclesResponse>({
     queryKey: [QUERY_KEY, "eligible-vehicles", params],
     queryFn: () => getEligibleVehicles(params),
+  });
+};
+
+export const useEligibleVehicleDetail = (id: number | null) => {
+  return useQuery<AssetVehicleDetail>({
+    queryKey: [QUERY_KEY, "eligible-vehicle-detail", id],
+    queryFn: () => getEligibleVehicleDetail(id!),
+    enabled: !!id && id > 0,
   });
 };
 
