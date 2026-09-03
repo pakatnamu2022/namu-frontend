@@ -12,7 +12,7 @@ import {
   SUCCESS_MESSAGE,
   successToast,
 } from "@/core/core.function";
-import { DEFAULT_PER_PAGE } from "@/core/core.constants";
+import { DEFAULT_PER_PAGE, EMPRESA_AP } from "@/core/core.constants";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
 import { VEHICLES } from "@/features/ap/comercial/vehiculos/lib/vehicles.constants";
 import { useVehicles } from "@/features/ap/comercial/vehiculos/lib/vehicles.hook";
@@ -24,6 +24,7 @@ import VehicleOptions from "@/features/ap/comercial/vehiculos/components/Vehicle
 import { notFound } from "@/shared/hooks/useNotFound";
 import { CM_COMERCIAL_ID } from "@/features/ap/ap-master/lib/apMaster.constants";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
+import { useAllSedes } from "@/features/gp/maestro-general/sede/lib/sede.hook";
 
 export default function VehiclesPage() {
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
@@ -34,17 +35,39 @@ export default function VehiclesPage() {
   const [ap_vehicle_status_id, set_ap_vehicle_status_id] = useState<string[]>(
     [],
   );
+  const [sedeId, setSedeId] = useState("");
+  const [warehousePhysicalId, setWarehousePhysicalId] = useState("");
+  const [familyId, setFamilyId] = useState("");
+  const [brandId, setBrandId] = useState("");
+  const [year, setYear] = useState("");
   const { MODEL, ROUTE } = VEHICLES;
   const permissions = useModulePermissions(ROUTE);
+  const { canViewBranches } = permissions;
+
+  const { data: sedes = [] } = useAllSedes({ empresa_id: EMPRESA_AP.id });
 
   useEffect(() => {
     setPage(1);
-  }, [search, per_page]);
+  }, [
+    search,
+    per_page,
+    sedeId,
+    warehousePhysicalId,
+    familyId,
+    brandId,
+    year,
+    ap_vehicle_status_id,
+  ]);
 
   const filters = {
     search,
     ap_vehicle_status_id: ap_vehicle_status_id,
     type_operation_id: CM_COMERCIAL_ID,
+    warehousePhysical$sede_id: sedeId,
+    warehouse_physical_id: warehousePhysicalId,
+    model$family_id: familyId,
+    model$family$brand_id: brandId,
+    year,
   };
 
   const { data, isLoading, refetch } = useVehicles(
@@ -102,6 +125,18 @@ export default function VehiclesPage() {
           setSearch={setSearch}
           ap_vehicle_status_id={ap_vehicle_status_id}
           set_ap_vehicle_status_id={set_ap_vehicle_status_id}
+          sedes={sedes}
+          sedeId={sedeId}
+          setSedeId={setSedeId}
+          canViewBranches={canViewBranches}
+          warehousePhysicalId={warehousePhysicalId}
+          setWarehousePhysicalId={setWarehousePhysicalId}
+          familyId={familyId}
+          setFamilyId={setFamilyId}
+          brandId={brandId}
+          setBrandId={setBrandId}
+          year={year}
+          setYear={setYear}
         />
       </VehicleTable>
 
