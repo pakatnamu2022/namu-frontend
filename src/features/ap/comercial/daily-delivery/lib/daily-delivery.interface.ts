@@ -22,6 +22,22 @@ export interface DailyDeliveryHierarchyNode {
   children?: DailyDeliveryHierarchyNode[];
 }
 
+export interface DeliveryDetailItem {
+  delivery_id: number | null;
+  vehicle_id: number | null;
+  vin: string | null;
+  placa: string | null;
+  marca: string | null;
+  modelo: string | null;
+  sede: string | null;
+  cliente: string | null;
+  fecha_programada: string | null;
+  fecha_real: string | null;
+  estado: string | null;
+}
+
+export type DeliveriesDetail = Record<string, DeliveryDetailItem[]>;
+
 export interface BrandReportItem {
   name: string;
   level: "group" | "sede" | "brand";
@@ -128,6 +144,7 @@ export interface DailyDeliveryResponse {
   };
   summary: DailyDeliverySummary;
   advisors: any[];
+  entregas_detalle: DeliveriesDetail;
   hierarchy: DailyDeliveryHierarchyNode[];
   brand_report: BrandReportSection[];
   purchases_report: PurchasesReport;
