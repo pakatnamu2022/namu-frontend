@@ -25,3 +25,24 @@ export interface LiquidacionBbssRequest {
   type_id: number;
   status: boolean;
 }
+
+export interface LiquidacionBbssConceptColumn {
+  code: string;
+  label: string;
+}
+
+export interface LiquidacionBbssPivotRow {
+  worker_id: number;
+  worker: string | null;
+  worker_vat: string | null;
+  period_id: number;
+  period: string | null;
+  amounts: Record<string, number>;
+  ids: Record<string, number>;
+  total: number;
+}
+
+export interface LiquidacionBbssPivotResponse {
+  data: LiquidacionBbssPivotRow[];
+  columns: LiquidacionBbssConceptColumn[];
+}

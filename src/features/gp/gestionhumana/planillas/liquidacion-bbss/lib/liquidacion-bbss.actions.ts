@@ -4,6 +4,7 @@ import type { AxiosRequestConfig } from "axios";
 import {
   LiquidacionBbssResource,
   LiquidacionBbssResponse,
+  LiquidacionBbssPivotResponse,
 } from "./liquidacion-bbss.interface";
 import { LIQUIDACION_BBSS } from "./liquidacion-bbss.constant";
 
@@ -19,6 +20,13 @@ export async function getLiquidacionesBbss(
   const config: AxiosRequestConfig = { params };
   const { data } = await api.get<LiquidacionBbssResponse>(ENDPOINT, config);
   return data;
+}
+
+export async function getLiquidacionesBbssPivot(
+  params: Record<string, any>,
+): Promise<LiquidacionBbssPivotResponse> {
+  const { data } = await api.get<any>(`${ENDPOINT}/pivot`, { params });
+  return unwrap<LiquidacionBbssPivotResponse>(data);
 }
 
 export async function findLiquidacionBbssById(
