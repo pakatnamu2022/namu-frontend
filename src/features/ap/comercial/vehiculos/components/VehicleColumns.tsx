@@ -14,6 +14,7 @@ import {
   MODELS_VN,
   MODELS_VN_POSTVENTA,
 } from "@/features/ap/configuraciones/vehiculos/modelos-vn/lib/modelsVn.constanst";
+import { VEHICLE_STATUS_ID } from "@/features/ap/configuraciones/vehiculos/estados-vehiculo/lib/vehicleStatus.constants";
 
 export type VehicleColumns = ColumnDef<VehicleResource>;
 
@@ -138,7 +139,7 @@ export const vehicleColumns = ({
         warehouse_id,
         warehouse_name,
         model,
-        warehouse_is_received,
+        ap_vehicle_status_id,
       } = row.original;
       // eslint-disable-next-line react-hooks/rules-of-hooks
       const router = useNavigate();
@@ -166,15 +167,16 @@ export const vehicleColumns = ({
           )}
 
           {/* Change Location */}
-          {permissions.canChangeLocation && warehouse_is_received == false && (
-            <ChangeLocationModal
-              vehicleId={id}
-              vehicleVin={vin}
-              apClassArticleId={row.original.model.class_id}
-              currentWarehouseId={warehouse_id}
-              currentWarehouseName={warehouse_name}
-            />
-          )}
+          {permissions.canChangeLocation &&
+            ap_vehicle_status_id === VEHICLE_STATUS_ID.VEHICULO_EN_TRANSITO && (
+              <ChangeLocationModal
+                vehicleId={id}
+                vehicleVin={vin}
+                apClassArticleId={row.original.model.class_id}
+                currentWarehouseId={warehouse_id}
+                currentWarehouseName={warehouse_name}
+              />
+            )}
 
           {/* Work Order History */}
           {permissions.canMaintenance && (
