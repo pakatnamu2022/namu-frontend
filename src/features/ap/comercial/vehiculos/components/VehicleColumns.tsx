@@ -140,10 +140,11 @@ export const vehicleColumns = ({
         warehouse_id,
         warehouse_name,
         model,
+        warehouse_is_received,
       } = row.original;
       // eslint-disable-next-line react-hooks/rules-of-hooks
       const router = useNavigate();
-      const { ROUTE_UPDATE , ABSOLUTE_ROUTE} =
+      const { ROUTE_UPDATE, ABSOLUTE_ROUTE } =
         type_operation_id === CM_COMERCIAL_ID ? MODELS_VN : MODELS_VN_POSTVENTA;
 
       const ROUTE_MODEL =
@@ -167,16 +168,15 @@ export const vehicleColumns = ({
           )}
 
           {/* Change Location */}
-          {permissions.canChangeLocation &&
-            ap_vehicle_status_id === VEHICLE_STATUS_ID.VEHICULO_EN_TRANSITO && (
-              <ChangeLocationModal
-                vehicleId={id}
-                vehicleVin={vin}
-                apClassArticleId={row.original.model.class_id}
-                currentWarehouseId={warehouse_id}
-                currentWarehouseName={warehouse_name}
-              />
-            )}
+          {permissions.canChangeLocation && warehouse_is_received == false && (
+            <ChangeLocationModal
+              vehicleId={id}
+              vehicleVin={vin}
+              apClassArticleId={row.original.model.class_id}
+              currentWarehouseId={warehouse_id}
+              currentWarehouseName={warehouse_name}
+            />
+          )}
 
           {/* Work Order History */}
           {permissions.canMaintenance && (
