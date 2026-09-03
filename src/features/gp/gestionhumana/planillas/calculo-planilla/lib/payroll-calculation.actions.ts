@@ -11,7 +11,11 @@ import {
   PAYROLL_CALCULATION_ENDPOINT,
   PAYROLL_CALCULATION_EXPORT_ENDPOINT,
   PAYROLL_CALCULATION_REPORT_ENDPOINT,
+  PAYROLL_HISTORICAL_BONUS_IMPORT_ENDPOINT,
+  PAYROLL_HISTORICAL_BONUS_TEMPLATE_ENDPOINT,
   PAYROLL_HISTORICAL_IMPORT_ENDPOINT,
+  PAYROLL_HISTORICAL_SALARY_IMPORT_ENDPOINT,
+  PAYROLL_HISTORICAL_SALARY_TEMPLATE_ENDPOINT,
   PAYROLL_HISTORICAL_TEMPLATE_ENDPOINT,
 } from "./payroll-calculation.constant";
 
@@ -159,6 +163,88 @@ export async function importHistoricalCalculations(
   formData.append("company_id", String(companyId));
   const { data } = await api.post<HistoricalImportResponse>(
     PAYROLL_HISTORICAL_IMPORT_ENDPOINT,
+    formData,
+    { headers: { "Content-Type": "multipart/form-data" } },
+  );
+  return data;
+}
+
+/**
+ * GET /calculations/historical-bonus-template?company_id=&periods[]=YYYY-MM
+ * Descarga la plantilla para cargar el histórico mensual de bono/comisión (BONO_CONDUCTOR).
+ */
+export async function downloadHistoricalBonusTemplate(
+  companyId: number,
+  periods: HistoricalPeriodInput[],
+): Promise<void> {
+  const { data } = await api.get(PAYROLL_HISTORICAL_BONUS_TEMPLATE_ENDPOINT, {
+    params: {
+      company_id: companyId,
+      periods: periods.map(
+        (p) => `${p.year}-${String(p.month).padStart(2, "0")}`,
+      ),
+    },
+    responseType: "blob",
+  });
+  const url = URL.createObjectURL(data);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "historico-bono-conductores.xlsx";
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+/**
+ * POST /calculations/historical-bonus-import (multipart: file, company_id)
+ * Sube el Excel con el histórico mensual de bono/comisión y lo registra en gh_payroll_bonuses.
+ */
+export async function importHistoricalBonuses(
+  file: File,
+  companyId: number,
+): Promise<HistoricalImportResponse> {
+  const formData = new FormData();
+  formData.append("file", file);
+  formData.append("company_id", String(companyId));
+  const { data } = await api.post<HistoricalImportResponse>(
+    PAYROLL_HISTORICAL_BONUS_IMPORT_ENDPOINT,
+    formData,
+    { headers: { "Content-Type": "multipart/form-data" } },
+  );
+  return data;
+}
+
+/**
+ * GET /calculations/historical-salary-template?company_id=
+ * Descarga la plantilla para cargar el histórico de sueldos (rrhh_contrato).
+ */
+export async function downloadHistoricalSalaryTemplate(
+  companyId: number,
+): Promise<void> {
+  const { data } = await api.get(PAYROLL_HISTORICAL_SALARY_TEMPLATE_ENDPOINT, {
+    params: { company_id: companyId },
+    responseType: "blob",
+  });
+  const url = URL.createObjectURL(data);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "historico-sueldos.xlsx";
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+/**
+ * POST /calculations/historical-salary-import (multipart: file, company_id)
+ * Sube el Excel con el histórico de sueldos y actualiza el historial de contratos (rrhh_contrato).
+ */
+export async function importHistoricalSalaries(
+  file: File,
+  companyId: number,
+): Promise<HistoricalImportResponse> {
+  const formData = new FormData();
+  formData.append("file", file);
+  formData.append("company_id", String(companyId));
+  const { data } = await api.post<HistoricalImportResponse>(
+    PAYROLL_HISTORICAL_SALARY_IMPORT_ENDPOINT,
     formData,
     { headers: { "Content-Type": "multipart/form-data" } },
   );
