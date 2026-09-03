@@ -42,14 +42,11 @@ export default function AssetsPage() {
   const deleteMutation = useDeleteAsset();
   const dispatchMigrationMutation = useDispatchAssetMigration();
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
     if (!deleteId) return;
-    deleteMutation.mutate(deleteId, {
-      onSettled: () => {
-        refetch();
-        setDeleteId(null);
-      },
-    });
+    await deleteMutation.mutateAsync(deleteId).catch(() => {});
+    await refetch();
+    setDeleteId(null);
   };
 
   if (isLoadingModule) return <PageSkeleton />;
