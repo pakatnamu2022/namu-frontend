@@ -23,18 +23,18 @@ interface VehicleOptionsProps {
   setSearch: (value: string) => void;
   ap_vehicle_status_id: string[];
   set_ap_vehicle_status_id: (value: string[]) => void;
-  sedes: SedeResource[];
-  sedeId: string;
-  setSedeId: (value: string) => void;
-  canViewBranches: boolean;
-  warehousePhysicalId: string;
-  setWarehousePhysicalId: (value: string) => void;
-  familyId: string;
-  setFamilyId: (value: string) => void;
-  brandId: string;
-  setBrandId: (value: string) => void;
-  year: string;
-  setYear: (value: string) => void;
+  sedes?: SedeResource[];
+  sedeId?: string;
+  setSedeId?: (value: string) => void;
+  canViewBranches?: boolean;
+  warehousePhysicalId?: string;
+  setWarehousePhysicalId?: (value: string) => void;
+  familyId?: string;
+  setFamilyId?: (value: string) => void;
+  brandId?: string;
+  setBrandId?: (value: string) => void;
+  year?: string;
+  setYear?: (value: string) => void;
 }
 
 export default function VehicleOptions({
@@ -42,17 +42,17 @@ export default function VehicleOptions({
   setSearch,
   ap_vehicle_status_id,
   set_ap_vehicle_status_id,
-  sedes,
-  sedeId,
+  sedes = [],
+  sedeId = "",
   setSedeId,
   canViewBranches,
-  warehousePhysicalId,
+  warehousePhysicalId = "",
   setWarehousePhysicalId,
-  familyId,
+  familyId = "",
   setFamilyId,
-  brandId,
+  brandId = "",
   setBrandId,
-  year,
+  year = "",
   setYear,
 }: VehicleOptionsProps) {
   return (
@@ -63,7 +63,7 @@ export default function VehicleOptions({
         onChange={setSearch}
       />
 
-      {canViewBranches && (
+      {canViewBranches && setSedeId && (
         <SearchableSelect
           value={sedeId}
           onChange={setSedeId}
@@ -75,49 +75,57 @@ export default function VehicleOptions({
         />
       )}
 
-      <SearchableSelectAsync
-        useQueryHook={useWarehouse}
-        additionalParams={{ type_operation_id: CM_COMERCIAL_ID }}
-        mapOptionFn={(warehouse: WarehouseResource) => ({
-          label: warehouse.description,
-          value: warehouse.id.toString(),
-          description: warehouse.sede,
-        })}
-        placeholder="Almacén"
-        value={warehousePhysicalId}
-        onChange={setWarehousePhysicalId}
-      />
+      {setWarehousePhysicalId && (
+        <SearchableSelectAsync
+          useQueryHook={useWarehouse}
+          additionalParams={{ type_operation_id: CM_COMERCIAL_ID }}
+          mapOptionFn={(warehouse: WarehouseResource) => ({
+            label: warehouse.description,
+            value: warehouse.id.toString(),
+            description: warehouse.sede,
+          })}
+          placeholder="Almacén"
+          value={warehousePhysicalId}
+          onChange={setWarehousePhysicalId}
+        />
+      )}
 
-      <SearchableSelectAsync
-        useQueryHook={useBrands}
-        mapOptionFn={(brand: BrandsResource) => ({
-          label: brand.description,
-          value: brand.id.toString(),
-          description: brand.code,
-        })}
-        placeholder="Marca"
-        value={brandId}
-        onChange={setBrandId}
-      />
+      {setBrandId && (
+        <SearchableSelectAsync
+          useQueryHook={useBrands}
+          mapOptionFn={(brand: BrandsResource) => ({
+            label: brand.description,
+            value: brand.id.toString(),
+            description: brand.code,
+          })}
+          placeholder="Marca"
+          value={brandId}
+          onChange={setBrandId}
+        />
+      )}
 
-      <SearchableSelectAsync
-        useQueryHook={useFamilies}
-        mapOptionFn={(family: FamiliesResource) => ({
-          label: family.description,
-          value: family.id.toString(),
-          description: family.code,
-        })}
-        placeholder="Familia"
-        value={familyId}
-        onChange={setFamilyId}
-      />
+      {setFamilyId && (
+        <SearchableSelectAsync
+          useQueryHook={useFamilies}
+          mapOptionFn={(family: FamiliesResource) => ({
+            label: family.description,
+            value: family.id.toString(),
+            description: family.code,
+          })}
+          placeholder="Familia"
+          value={familyId}
+          onChange={setFamilyId}
+        />
+      )}
 
-      <SearchableSelect
-        value={year}
-        onChange={setYear}
-        placeholder="Año"
-        options={YEAR_OPTIONS}
-      />
+      {setYear && (
+        <SearchableSelect
+          value={year}
+          onChange={setYear}
+          placeholder="Año"
+          options={YEAR_OPTIONS}
+        />
+      )}
 
       <FilterMultiSelect
         placeholder="Estado Vehículo"

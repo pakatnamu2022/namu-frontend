@@ -1,20 +1,19 @@
+import { ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "@/shared/components/DataTable";
-import { LiquidacionBbssColumns } from "./LiquidacionBbssColumns";
-import { LiquidacionBbssResource } from "../lib/liquidacion-bbss.interface";
 
-interface Props {
-  columns: LiquidacionBbssColumns[];
-  data: LiquidacionBbssResource[];
+interface Props<T> {
+  columns: ColumnDef<T>[];
+  data: T[];
   children?: React.ReactNode;
   isLoading?: boolean;
 }
 
-export default function LiquidacionBbssTable({
+export default function LiquidacionBbssTable<T>({
   columns,
   data,
   children,
   isLoading,
-}: Props) {
+}: Props<T>) {
   return (
     <div className="border-none text-muted-foreground max-w-full">
       <DataTable
