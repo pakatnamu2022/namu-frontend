@@ -118,7 +118,10 @@ export default function DailyDeliveryDashboard() {
             </TabsList>
 
             <TabsContent value="hierarchy" className="mt-4">
-              <HierarchyTree hierarchy={data.hierarchy} />
+              <HierarchyTree
+                hierarchy={data.hierarchy}
+                entregasDetalle={data.entregas_detalle}
+              />
             </TabsContent>
 
             <TabsContent value="brands" className="mt-4">

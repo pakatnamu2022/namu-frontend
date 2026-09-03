@@ -10,8 +10,10 @@ import {
 } from "@tanstack/react-table";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
-import { ClipboardList } from "lucide-react";
+import { ClipboardList, ClipboardCopy } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Button } from "@/components/ui/button";
+import { successToast } from "@/core/core.function";
 
 interface Props<T> {
   columns: ColumnDef<T>[];
@@ -60,6 +62,12 @@ export default function LiquidacionBbssTable<T>({
             <thead>
               {table.getHeaderGroups().map((hg) => (
                 <tr key={hg.id} className="bg-muted/60">
+                  {/* Columna temporal de desarrollo: copia la fila como JSON para reportar datos */}
+                  <th
+                    style={{ width: 28 }}
+                    className="border border-border px-1 py-0.5 bg-muted/60"
+                    title="Herramienta temporal de desarrollo"
+                  />
                   {hg.headers.map((header) => (
                     <th
                       key={header.id}
@@ -84,6 +92,28 @@ export default function LiquidacionBbssTable<T>({
                     rowIdx % 2 === 0 ? "bg-background" : "bg-muted/20",
                   )}
                 >
+                  {/* Columna temporal de desarrollo: copia la fila como JSON para reportar datos */}
+                  <td
+                    style={{ width: 28 }}
+                    className="border border-border px-1 py-0.5 text-center"
+                  >
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      className="size-5"
+                      title="Copiar fila (JSON)"
+                      onClick={() => {
+                        navigator.clipboard
+                          .writeText(JSON.stringify(row.original, null, 2))
+                          .then(() =>
+                            successToast("Fila copiada al portapapeles"),
+                          );
+                      }}
+                    >
+                      <ClipboardCopy className="size-3" />
+                    </Button>
+                  </td>
                   {row.getVisibleCells().map((cell) => (
                     <td
                       key={cell.id}

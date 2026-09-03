@@ -1,10 +1,19 @@
 "use client";
 
-import { ChevronDown, ChevronRight, Maximize2, Minimize2 } from "lucide-react";
+import {
+  ChevronDown,
+  ChevronRight,
+  ListTree,
+  Maximize2,
+  Minimize2,
+} from "lucide-react";
 import { useState, createContext, useContext, useMemo } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { DailyDeliveryHierarchyNode } from "../lib/daily-delivery.interface";
+import {
+  DailyDeliveryHierarchyNode,
+  DeliveriesDetail,
+} from "../lib/daily-delivery.interface";
 
 const DEFAULT_POSITION_STYLE = {
   label: "",
@@ -16,6 +25,7 @@ const DEFAULT_POSITION_STYLE = {
 
 interface HierarchyTreeProps {
   hierarchy: DailyDeliveryHierarchyNode[];
+  entregasDetalle?: DeliveriesDetail;
 }
 
 interface HierarchyNodeProps {
@@ -27,12 +37,34 @@ interface HierarchyNodeProps {
 interface ExpandContextType {
   expandedNodes: Set<number | null>;
   toggleNode: (id: number | null) => void;
+  entregasDetalle: DeliveriesDetail;
 }
 
 const ExpandContext = createContext<ExpandContextType>({
   expandedNodes: new Set(),
   toggleNode: () => {},
+  entregasDetalle: {},
 });
+
+const DELIVERY_STATUS_LABELS: Record<string, string> = {
+  delivered: "Entregado",
+  completed: "Entregado",
+  pending: "Pendiente",
+  cancelled: "Anulado",
+};
+
+function formatDateTime(value: string | null): string {
+  if (!value) return "-";
+  const d = new Date(value.replace(" ", "T"));
+  if (Number.isNaN(d.getTime())) return value;
+  return d.toLocaleString("es-PE", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
 
 const POSITION_STYLES: Record<
   string,
@@ -82,19 +114,33 @@ const POSITION_STYLES: Record<
 };
 
 function HierarchyNode({ node, level = 0 }: HierarchyNodeProps) {
-  const { expandedNodes, toggleNode } = useContext(ExpandContext);
+  const { expandedNodes, toggleNode, entregasDetalle } =
+    useContext(ExpandContext);
+  const [showDetail, setShowDetail] = useState(false);
   const hasChildren = node.children && node.children.length > 0;
   const isExpanded = expandedNodes.has(node.id);
   const isManager = node.level === "gerente";
   const positionStyle = POSITION_STYLES[node.level] ?? DEFAULT_POSITION_STYLE;
 
+  const detailKey =
+    node.level === "sin_asesor"
+      ? "sin_asesor"
+      : node.id != null
+        ? String(node.id)
+        : null;
+  const detailRows =
+    node.level === "asesor" || node.level === "sin_asesor"
+      ? (detailKey && entregasDetalle[detailKey]) || []
+      : [];
+  const hasDetail = detailRows.length > 0;
+
   return (
     <div>
       <div
         onClick={() => hasChildren && toggleNode(node.id)}
-        className={`group grid grid-cols-[auto_1fr_120px_300px_100px_100px] gap-4 items-center py-2 px-3 rounded-md hover:bg-accent/50 transition-all cursor-pointer ${
-          level > 0 ? "ml-6" : ""
-        } ${isManager ? "font-medium" : ""}`}
+        className={`group grid grid-cols-[auto_1fr_120px_300px_100px_100px_44px] gap-4 items-center py-2 px-3 rounded-md hover:bg-accent/50 transition-all ${
+          hasChildren ? "cursor-pointer" : ""
+        } ${level > 0 ? "ml-6" : ""} ${isManager ? "font-medium" : ""}`}
       >
         {/* Columna 1: Chevron + Nombre */}
         <div className="flex items-center gap-2 min-w-0 col-span-2">
@@ -170,7 +216,80 @@ function HierarchyNode({ node, level = 0 }: HierarchyNodeProps) {
             {node.facturadas}
           </div>
         </div>
+
+        {/* Columna 6: Detalle de entregas */}
+        <div className="flex justify-center">
+          {hasDetail && (
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              aria-label="Ver detalle de entregas"
+              title="Ver detalle de entregas"
+              className={`h-7 w-7 ${showDetail ? "bg-accent text-foreground" : "text-muted-foreground"}`}
+              onClick={(e) => {
+                e.stopPropagation();
+                setShowDetail((v) => !v);
+              }}
+            >
+              <ListTree className="h-3.5 w-3.5" />
+            </Button>
+          )}
+        </div>
       </div>
+
+      {hasDetail && showDetail && (
+        <div
+          className={`${level > 0 ? "ml-6" : ""} mb-2 mt-1 rounded-md border bg-muted/20`}
+        >
+          <div className="px-3 py-2 text-xs font-semibold text-muted-foreground">
+            Entregas de {node.name} ({detailRows.length})
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full text-xs">
+              <thead>
+                <tr className="border-y bg-muted/40 text-left text-[10px] uppercase tracking-wide text-muted-foreground">
+                  <th className="px-3 py-1.5 font-semibold">VIN</th>
+                  <th className="px-3 py-1.5 font-semibold">Placa</th>
+                  <th className="px-3 py-1.5 font-semibold">Marca / Modelo</th>
+                  <th className="px-3 py-1.5 font-semibold">Cliente</th>
+                  <th className="px-3 py-1.5 font-semibold">Sede</th>
+                  <th className="px-3 py-1.5 font-semibold">Prog. entrega</th>
+                  <th className="px-3 py-1.5 font-semibold">Entrega real</th>
+                  <th className="px-3 py-1.5 font-semibold">Estado</th>
+                </tr>
+              </thead>
+              <tbody>
+                {detailRows.map((row, idx) => (
+                  <tr
+                    key={row.delivery_id ?? `${row.vehicle_id}-${idx}`}
+                    className="border-b last:border-b-0 hover:bg-accent/40"
+                  >
+                    <td className="px-3 py-1.5 font-mono">{row.vin ?? "-"}</td>
+                    <td className="px-3 py-1.5">{row.placa ?? "-"}</td>
+                    <td className="px-3 py-1.5">
+                      {[row.marca, row.modelo].filter(Boolean).join(" · ") || "-"}
+                    </td>
+                    <td className="px-3 py-1.5">{row.cliente ?? "-"}</td>
+                    <td className="px-3 py-1.5">{row.sede ?? "-"}</td>
+                    <td className="px-3 py-1.5 whitespace-nowrap">
+                      {formatDateTime(row.fecha_programada)}
+                    </td>
+                    <td className="px-3 py-1.5 whitespace-nowrap">
+                      {formatDateTime(row.fecha_real)}
+                    </td>
+                    <td className="px-3 py-1.5">
+                      {row.estado
+                        ? (DELIVERY_STATUS_LABELS[row.estado] ?? row.estado)
+                        : "-"}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
 
       {hasChildren && isExpanded && (
         <div>
@@ -188,7 +307,10 @@ function HierarchyNode({ node, level = 0 }: HierarchyNodeProps) {
   );
 }
 
-export default function HierarchyTree({ hierarchy }: HierarchyTreeProps) {
+export default function HierarchyTree({
+  hierarchy,
+  entregasDetalle = {},
+}: HierarchyTreeProps) {
   const [expandedNodes, setExpandedNodes] = useState<Set<number | null>>(() => {
     // Inicialmente expandir todos los nodos
     const allIds = new Set<number | null>();
@@ -239,7 +361,9 @@ export default function HierarchyTree({ hierarchy }: HierarchyTreeProps) {
   };
 
   return (
-    <ExpandContext.Provider value={{ expandedNodes, toggleNode }}>
+    <ExpandContext.Provider
+      value={{ expandedNodes, toggleNode, entregasDetalle }}
+    >
       <div className="rounded-lg border bg-card text-card-foreground">
         <div className="px-4 py-3 border-b flex items-center justify-between">
           <h3 className="text-sm font-semibold">
@@ -268,7 +392,7 @@ export default function HierarchyTree({ hierarchy }: HierarchyTreeProps) {
         </div>
 
         {/* Header de columnas */}
-        <div className="grid grid-cols-[auto_1fr_120px_300px_100px_100px] gap-4 px-3 py-2 border-b bg-muted/30">
+        <div className="grid grid-cols-[auto_1fr_120px_300px_100px_100px_44px] gap-4 px-3 py-2 border-b bg-muted/30">
           <div className="col-span-2">
             <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
               Nombre
