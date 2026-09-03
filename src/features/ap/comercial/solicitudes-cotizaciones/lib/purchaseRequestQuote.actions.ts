@@ -249,10 +249,12 @@ export async function assignVehicleToPurchaseRequestQuote(
 }
 
 export async function unassignVehicleFromPurchaseRequestQuote(
-  id: number
+  id: number,
+  ap_vehicle_id: number
 ): Promise<PurchaseRequestQuoteResource> {
   const response = await api.post<PurchaseRequestQuoteResource>(
-    `${ENDPOINT}/unassignVehicle/${id}`
+    `${ENDPOINT}/unassignVehicle/${id}`,
+    { ap_vehicle_id }
   );
   return response.data;
 }

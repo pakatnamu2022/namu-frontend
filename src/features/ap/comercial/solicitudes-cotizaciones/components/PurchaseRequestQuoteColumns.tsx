@@ -30,7 +30,7 @@ interface Props {
   onApprove: (id: number) => void;
   onDownloadPdf: (id: number) => void;
   onAssignVehicle: (purchaseRequestQuote: PurchaseRequestQuoteResource) => void;
-  onUnassignVehicle: (id: number) => void;
+  onUnassignVehicle: (purchaseRequestQuote: PurchaseRequestQuoteResource) => void;
   onSwapVehicle: (purchaseRequestQuote: PurchaseRequestQuoteResource) => void;
   onViewDetail: (id: number) => void;
   onDuplicate: (purchaseRequestQuote: PurchaseRequestQuoteResource) => void;
@@ -314,7 +314,7 @@ export const purchaseRequestQuoteColumns = ({
           <ButtonAction
             icon={Link2Off}
             tooltip="Desasignar Vehículo"
-            onClick={() => onUnassignVehicle(id)}
+            onClick={() => onUnassignVehicle(row.original)}
             canRender={canUnassignVehicle}
           />
           <ButtonAction
