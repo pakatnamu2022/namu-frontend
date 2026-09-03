@@ -2,12 +2,11 @@
 
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
 import TitleComponent from "@/shared/components/TitleComponent";
-import DataTablePagination from "@/shared/components/DataTablePagination";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import PageSkeleton from "@/shared/components/PageSkeleton";
-import { useLiquidacionesBbss } from "@/features/gp/gestionhumana/planillas/liquidacion-bbss/lib/liquidacion-bbss.hook";
+import { useLiquidacionesBbssPivot } from "@/features/gp/gestionhumana/planillas/liquidacion-bbss/lib/liquidacion-bbss.hook";
 import LiquidacionBbssTable from "@/features/gp/gestionhumana/planillas/liquidacion-bbss/components/LiquidacionBbssTable";
-import { liquidacionBbssColumns } from "@/features/gp/gestionhumana/planillas/liquidacion-bbss/components/LiquidacionBbssColumns";
+import { liquidacionBbssPivotColumns } from "@/features/gp/gestionhumana/planillas/liquidacion-bbss/components/LiquidacionBbssPivotColumns";
 import LiquidacionBbssOptions from "@/features/gp/gestionhumana/planillas/liquidacion-bbss/components/LiquidacionBbssOptions";
 import LiquidacionBbssActions from "@/features/gp/gestionhumana/planillas/liquidacion-bbss/components/LiquidacionBbssActions";
 import { SimpleDeleteDialog } from "@/shared/components/SimpleDeleteDialog";
@@ -17,45 +16,25 @@ import {
   errorToast,
   SUCCESS_MESSAGE,
   successToast,
-  currentYear,
 } from "@/core/core.function";
-import { DEFAULT_PER_PAGE } from "@/core/core.constants";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
 import { notFound } from "@/shared/hooks/useNotFound";
 import { LIQUIDACION_BBSS } from "@/features/gp/gestionhumana/planillas/liquidacion-bbss/lib/liquidacion-bbss.constant";
-import { useAllCompanies } from "@/features/gp/maestro-general/empresa/lib/company.hook";
 
 export default function LiquidacionBbssPage() {
   const { MODEL, ROUTE } = LIQUIDACION_BBSS;
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
-  const [page, setPage] = useState(1);
-  const [per_page, setPerPage] = useState(DEFAULT_PER_PAGE);
   const [search, setSearch] = useState("");
   const [deleteId, setDeleteId] = useState<number | null>(null);
 
-  const [year, setYear] = useState(String(currentYear()));
+  // Sin defaults: hasta que el usuario elija empresa, año y periodo no se carga nada.
+  const [year, setYear] = useState("");
   const [companyId, setCompanyId] = useState("");
   const [periodId, setPeriodId] = useState("");
 
-  const { data: companies } = useAllCompanies();
-
-  useEffect(() => {
-    if (companies && companies.length > 0 && !companyId) {
-      setCompanyId(String(companies[0].id));
-    }
-  }, [companies, companyId]);
-
-  useEffect(() => {
-    setPage(1);
-  }, [search, per_page, year, companyId, periodId]);
-
-  const { data, isLoading, refetch } = useLiquidacionesBbss({
-    page,
-    per_page,
+  const { data, isLoading, refetch } = useLiquidacionesBbssPivot({
     search,
-    year,
-    company_id: companyId,
-    ...(periodId ? { period_id: periodId } : {}),
+    period_id: periodId,
   });
 
   const handleDelete = async () => {
@@ -90,7 +69,8 @@ export default function LiquidacionBbssPage() {
 
       <LiquidacionBbssTable
         isLoading={isLoading}
-        columns={liquidacionBbssColumns({
+        columns={liquidacionBbssPivotColumns({
+          concepts: data?.columns ?? [],
           onDelete: setDeleteId,
         })}
         data={data?.data || []}
@@ -107,6 +87,12 @@ export default function LiquidacionBbssPage() {
         />
       </LiquidacionBbssTable>
 
+      {!periodId && (
+        <p className="text-sm text-muted-foreground px-1">
+          Seleccione empresa, año y periodo para ver las liquidaciones.
+        </p>
+      )}
+
       {deleteId !== null && (
         <SimpleDeleteDialog
           open={true}
@@ -114,15 +100,6 @@ export default function LiquidacionBbssPage() {
           onConfirm={handleDelete}
         />
       )}
-
-      <DataTablePagination
-        page={page}
-        totalPages={data?.meta?.last_page || 1}
-        totalData={data?.meta?.total || 0}
-        onPageChange={setPage}
-        per_page={per_page}
-        setPerPage={setPerPage}
-      />
     </div>
   );
 }
