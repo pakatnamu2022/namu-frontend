@@ -10,7 +10,6 @@ import VehicleMovements from "./VehicleMovements";
 import VehicleWorkOrderHistory from "./VehicleWorkOrderHistory";
 import ChangeLocationModal from "./ChangeLocationModal";
 import { CM_COMERCIAL_ID } from "@/features/ap/ap-master/lib/apMaster.constants";
-import { VEHICLE_STATUS_ID } from "@/features/ap/configuraciones/vehiculos/estados-vehiculo/lib/vehicleStatus.constants";
 import {
   MODELS_VN,
   MODELS_VN_POSTVENTA,
@@ -136,7 +135,6 @@ export const vehicleColumns = ({
         movements,
         type_operation_id,
         vin,
-        ap_vehicle_status_id,
         warehouse_id,
         warehouse_name,
         model,
