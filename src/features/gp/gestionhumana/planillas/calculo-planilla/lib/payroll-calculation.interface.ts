@@ -205,3 +205,17 @@ export interface GenerateCalculationsResponse {
   data: GenerateCalculationsResult;
   message: string;
 }
+
+// --- Histórico de conceptos variables (meses anteriores al sistema) ---
+
+export interface HistoricalPeriodInput {
+  year: number;
+  month: number;
+}
+
+export interface HistoricalImportResponse {
+  success: boolean;
+  rows_processed: number;
+  periods_created: string[];
+  skipped: string[];
+}

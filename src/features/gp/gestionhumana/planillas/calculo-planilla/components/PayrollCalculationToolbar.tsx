@@ -3,7 +3,15 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { ButtonGroup } from "@/components/ui/button-group";
-import { Calculator, RefreshCw, Loader2, FileSpreadsheet } from "lucide-react";
+import {
+  Calculator,
+  RefreshCw,
+  Loader2,
+  FileSpreadsheet,
+  Download,
+  FileUp,
+} from "lucide-react";
+import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
 import { SimpleConfirmDialog } from "@/shared/components/SimpleConfirmDialog";
 import {
   exportPayrollExcel,
@@ -13,6 +21,8 @@ import {
 import { errorToast, successToast } from "@/core/core.function";
 import { PayrollPeriodStatus } from "../../periodo-planilla/lib/payroll-period.interface";
 import { PAYROLL_PERIOD_STATUS } from "../../periodo-planilla/lib/payroll-period.constant";
+import PayrollHistoricalTemplateDialog from "./PayrollHistoricalTemplateDialog";
+import PayrollHistoricalImportDialog from "./PayrollHistoricalImportDialog";
 
 export type ActiveView = "attendances" | "totals" | "report";
 export type Quincena = 1 | 2 | null;
@@ -21,6 +31,8 @@ interface Props {
   periodId: number;
   periodCode: string;
   periodStatus: PayrollPeriodStatus;
+  periodYear: number;
+  periodMonth: number;
   biweeklyDate?: string | null;
   activeView?: ActiveView;
   onChangeView?: (view: ActiveView) => void;
@@ -29,23 +41,31 @@ interface Props {
   onSuccess: () => void;
   /** Si se provee, sobreescribe la lógica de status para decidir si hay cálculos en la quincena actual */
   hasQuincenaCalculations?: boolean;
+  companyId?: number;
+  companyName?: string;
 }
 
 export default function PayrollCalculationToolbar({
   periodId,
   periodCode,
   periodStatus,
+  periodYear,
+  periodMonth,
   biweeklyDate,
   quincena,
   onQuincenaChange,
   onSuccess,
   hasQuincenaCalculations,
+  companyId,
+  companyName,
 }: Props) {
   const [isGenerating, setIsGenerating] = useState(false);
   const [isRecalculating, setIsRecalculating] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
   const [showRecalcConfirm, setShowRecalcConfirm] = useState(false);
   const [hasExistingCalculations, setHasExistingCalculations] = useState(false);
+  const [showHistoricalTemplate, setShowHistoricalTemplate] = useState(false);
+  const [showHistoricalImport, setShowHistoricalImport] = useState(false);
 
   const isClosed = periodStatus === PAYROLL_PERIOD_STATUS.CLOSED;
   const hasCalculationsByStatus =
@@ -194,7 +214,64 @@ export default function PayrollCalculationToolbar({
             Exportar Excel
           </Button>
         )}
+
+        {companyId && (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowHistoricalTemplate(true)}
+              >
+                <Download className="size-4 mr-1.5" />
+                Plantilla Histórico
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              Descargar plantilla para cargar conceptos variables de meses
+              anteriores al sistema
+            </TooltipContent>
+          </Tooltip>
+        )}
+
+        {companyId && (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowHistoricalImport(true)}
+              >
+                <FileUp className="size-4 mr-1.5" />
+                Importar Histórico
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              Importar el histórico de conceptos variables desde Excel
+            </TooltipContent>
+          </Tooltip>
+        )}
       </div>
+
+      {companyId && (
+        <>
+          <PayrollHistoricalTemplateDialog
+            open={showHistoricalTemplate}
+            onClose={() => setShowHistoricalTemplate(false)}
+            companyId={companyId}
+            companyName={companyName}
+            defaultYear={periodYear}
+            defaultMonth={periodMonth}
+          />
+          <PayrollHistoricalImportDialog
+            open={showHistoricalImport}
+            onClose={() => setShowHistoricalImport(false)}
+            companyId={companyId}
+            companyName={companyName}
+            onSuccess={onSuccess}
+          />
+        </>
+      )}
 
       <SimpleConfirmDialog
         open={showRecalcConfirm}

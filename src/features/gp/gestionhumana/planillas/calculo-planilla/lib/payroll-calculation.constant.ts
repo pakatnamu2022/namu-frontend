@@ -8,6 +8,10 @@ export const PAYROLL_CALCULATION_REPORT_QUERY_KEY = "payroll-calculations-report
 export const PAYROLL_CALCULATION_REPORT_ENDPOINT = "/gp/gh/payroll/calculations/report";
 export const PAYROLL_CALCULATION_EXPORT_ENDPOINT = "/gp/gh/payroll/calculations/export-summary";
 
+// Histórico de conceptos variables (para completar meses anteriores al sistema)
+export const PAYROLL_HISTORICAL_TEMPLATE_ENDPOINT = "/gp/gh/payroll/calculations/historical-template";
+export const PAYROLL_HISTORICAL_IMPORT_ENDPOINT = "/gp/gh/payroll/calculations/historical-import";
+
 export const CALCULATION_STATUS_CONFIG: Record<
   PayrollCalculationStatus,
   { label: string; color: "default" | "secondary" | "destructive" | "muted" | "success" | "warning" }
