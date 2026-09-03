@@ -87,6 +87,8 @@ import UpdateShipmentsReceptionsPage from "./app/ap/comercial/envios-recepciones
 import ReceptionCheckListPage from "./app/ap/comercial/envios-recepciones/checklist/[id]/page";
 import TransfersPage from "./app/ap/comercial/traslados/page";
 import AddTransferPage from "./app/ap/comercial/traslados/agregar/page";
+import AssetsPage from "./app/ap/comercial/activos/page";
+import AddAssetPage from "./app/ap/comercial/activos/agregar/page";
 import StoreVisitsPage from "./app/ap/comercial/visitas-tienda/page";
 import AddStoreVisitsPage from "./app/ap/comercial/visitas-tienda/agregar/page";
 import UpdateStoreVisitsPage from "./app/ap/comercial/visitas-tienda/actualizar/[id]/page";
@@ -936,6 +938,10 @@ function App() {
                 path="envios-recepciones/checklist/:id"
                 element={<ReceptionCheckListPage />}
               />
+
+              {/* Activos (vehículo VN → activo fijo) */}
+              <Route path="activos" element={<AssetsPage />} />
+              <Route path="activos/agregar" element={<AddAssetPage />} />
 
               {/* Traslados Internos */}
               <Route path="traslados" element={<TransfersPage />} />
