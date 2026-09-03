@@ -67,14 +67,7 @@ export default function LiquidacionBbssPage() {
         <LiquidacionBbssActions periodId={periodId} onCalculated={refetch} />
       </HeaderTableWrapper>
 
-      <LiquidacionBbssTable
-        isLoading={isLoading}
-        columns={liquidacionBbssPivotColumns({
-          concepts: data?.columns ?? [],
-          onDelete: setDeleteId,
-        })}
-        data={data?.data || []}
-      >
+      <div className="rounded-md border border-border bg-card p-3 space-y-3">
         <LiquidacionBbssOptions
           search={search}
           setSearch={setSearch}
@@ -85,13 +78,22 @@ export default function LiquidacionBbssPage() {
           periodId={periodId}
           setPeriodId={setPeriodId}
         />
-      </LiquidacionBbssTable>
 
-      {!periodId && (
-        <p className="text-sm text-muted-foreground px-1">
-          Seleccione empresa, año y periodo para ver las liquidaciones.
-        </p>
-      )}
+        {!periodId ? (
+          <p className="text-sm text-muted-foreground px-1 py-8 text-center">
+            Seleccione empresa, año y periodo para ver las liquidaciones.
+          </p>
+        ) : (
+          <LiquidacionBbssTable
+            isLoading={isLoading}
+            columns={liquidacionBbssPivotColumns({
+              concepts: data?.columns ?? [],
+              onDelete: setDeleteId,
+            })}
+            data={data?.data || []}
+          />
+        )}
+      </div>
 
       {deleteId !== null && (
         <SimpleDeleteDialog
