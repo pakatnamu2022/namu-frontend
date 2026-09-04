@@ -80,7 +80,7 @@ export const ApprovedAccessoriesTable = ({
     if (lockPaidAccessories && data.type === "ACCESORIO_ADICIONAL") {
       warningToast(
         "Accesorio bloqueado",
-        "La cotización ya está aprobada: solo se pueden agregar obsequios, no accesorios que afecten el precio.",
+        "La cotización ya está facturada: solo se pueden agregar obsequios, no accesorios que afecten el precio.",
       );
       return;
     }
@@ -96,7 +96,7 @@ export const ApprovedAccessoriesTable = ({
     if (lockPaidAccessories && row?.type === "ACCESORIO_ADICIONAL") {
       warningToast(
         "Accesorio bloqueado",
-        "La cotización ya está aprobada: este accesorio no se puede eliminar.",
+        "La cotización ya está facturada: este accesorio no se puede eliminar.",
       );
       return;
     }
@@ -123,7 +123,7 @@ export const ApprovedAccessoriesTable = ({
     ) {
       warningToast(
         "Accesorio bloqueado",
-        "La cotización ya está aprobada: este accesorio no se puede modificar.",
+        "La cotización ya está facturada: este accesorio no se puede modificar.",
       );
       return;
     }
