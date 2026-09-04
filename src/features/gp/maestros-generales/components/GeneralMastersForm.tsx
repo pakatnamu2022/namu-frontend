@@ -59,6 +59,8 @@ export default function GeneralMastersForm({
       description: "",
       type: "",
       value: "",
+      effective_from: "",
+      effective_to: "",
       status: true,
     },
   });
@@ -101,6 +103,25 @@ export default function GeneralMastersForm({
           label="Valor"
           placeholder="Ingrese el valor (opcional)"
         />
+
+        <div className="grid grid-cols-2 gap-4">
+          <FormInput
+            control={form.control}
+            name="effective_from"
+            type="date"
+            label="Vigente desde"
+            optional
+            tooltip="Déjelo vacío si este valor no cambia por fecha. Para versionar un parámetro que ya existe (ej. RMV, UIT), cierre la vigencia de la fila actual (Vigente hasta) y cree una nueva fila con el mismo código y esta fecha."
+          />
+          <FormInput
+            control={form.control}
+            name="effective_to"
+            type="date"
+            label="Vigente hasta"
+            optional
+            tooltip="Déjelo vacío si sigue vigente indefinidamente."
+          />
+        </div>
 
         <div className="flex justify-end gap-4">
           <Button type="button" variant="outline" onClick={onCancel}>

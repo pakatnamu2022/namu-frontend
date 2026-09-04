@@ -1,7 +1,0 @@
-{
-  "permissions": {
-    "allow": [
-      "Bash(ls -la /e/pakatnamu/namu-frontend/src/*.css)"
-    ]
-  }
-}

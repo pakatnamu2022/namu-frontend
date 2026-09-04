@@ -84,6 +84,10 @@ export default function PayrollCalculationPanel({
               periodId={period.id}
               periodCode={period.code}
               periodStatus={period.status}
+              periodYear={period.year}
+              periodMonth={period.month}
+              companyId={period.company?.id}
+              companyName={period.company?.name}
               activeView={activeView}
               onChangeView={handleChangeView}
               onSuccess={handleSuccess}

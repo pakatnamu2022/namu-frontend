@@ -62,6 +62,7 @@ export default function UpdatePurchaseRequestQuotePage() {
     data: PurchaseRequestQuoteResource,
   ): any {
     return {
+      correlative: data.correlative,
       sede_id: String(data.sede_id),
       type_document: data.type_document,
       opportunity_id: String(data.opportunity_id || ""),

@@ -128,6 +128,12 @@ export const WarehouseForm = ({
                 label="Cuenta de Contrapartida"
                 placeholder="Ej: 0211111"
               />
+              <FormInput
+                control={form.control}
+                name="asset_account"
+                label="Cuenta de Activos"
+                placeholder="Ej: 3341100"
+              />
               <FormSelect
                 name="article_class_id"
                 label="Clase de Artículo"

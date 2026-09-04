@@ -59,9 +59,8 @@ export default function PurchaseRequestQuotePage() {
     useState<PurchaseRequestQuoteResource | null>(null);
   const [swapVehicleQuote, setSwapVehicleQuote] =
     useState<PurchaseRequestQuoteResource | null>(null);
-  const [unassignVehicleId, setUnassignVehicleId] = useState<number | null>(
-    null,
-  );
+  const [unassignVehicleQuote, setUnassignVehicleQuote] =
+    useState<PurchaseRequestQuoteResource | null>(null);
   const [detailQuote, setDetailQuote] = useState<number | null>(null);
   const [duplicateQuote, setDuplicateQuote] =
     useState<PurchaseRequestQuoteResource | null>(null);
@@ -156,16 +155,19 @@ export default function PurchaseRequestQuotePage() {
   };
 
   const handleUnassignVehicle = async () => {
-    if (!unassignVehicleId) return;
+    if (!unassignVehicleQuote?.ap_vehicle_id) return;
     try {
-      await unassignVehicleFromPurchaseRequestQuote(unassignVehicleId);
+      await unassignVehicleFromPurchaseRequestQuote(
+        unassignVehicleQuote.id,
+        unassignVehicleQuote.ap_vehicle_id,
+      );
       await refetch();
       successToast("Vehículo desvinculado correctamente");
     } catch (error: any) {
       const msg = error?.response?.data?.message || "";
       errorToast(ERROR_MESSAGE(MODEL, "fetch", msg));
     } finally {
-      setUnassignVehicleId(null);
+      setUnassignVehicleQuote(null);
     }
   };
 
@@ -198,7 +200,7 @@ export default function PurchaseRequestQuotePage() {
           onApprove: setApproveId,
           onDownloadPdf: handleDownloadPdf,
           onAssignVehicle: setAssignVehicleQuote,
-          onUnassignVehicle: setUnassignVehicleId,
+          onUnassignVehicle: setUnassignVehicleQuote,
           onSwapVehicle: setSwapVehicleQuote,
           onViewDetail: setDetailQuote,
           onDuplicate: setDuplicateQuote,
@@ -308,7 +310,7 @@ export default function PurchaseRequestQuotePage() {
         />
       )}
 
-      {unassignVehicleId !== null && (
+      {unassignVehicleQuote !== null && (
         <ConfirmationDialog
           trigger={<span className="hidden" />}
           title="¿Está seguro de desvincular este vehículo?"
@@ -319,7 +321,7 @@ export default function PurchaseRequestQuotePage() {
           variant="destructive"
           icon="warning"
           open={true}
-          onOpenChange={(open) => !open && setUnassignVehicleId(null)}
+          onOpenChange={(open) => !open && setUnassignVehicleQuote(null)}
         />
       )}
 

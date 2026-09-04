@@ -16,6 +16,7 @@ export const warehouseSchemaCreate = z
       }),
     inventory_account: z.string().max(100).optional(),
     counterparty_account: z.string().max(100).optional(),
+    asset_account: z.string().max(50).optional(),
     type_operation_id: z.string().optional(),
     sede_id: z.string().optional(),
     article_class_id: z.string().optional(),

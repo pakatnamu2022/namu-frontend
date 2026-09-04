@@ -132,6 +132,10 @@ export default function PayrollCalculationPage() {
             periodId={period.id}
             periodCode={period.code}
             periodStatus={period.status}
+            periodYear={period.year}
+            periodMonth={period.month}
+            companyId={period.company?.id}
+            companyName={period.company?.name}
             biweeklyDate={period.biweekly_date}
             quincena={quincena}
             onQuincenaChange={setQuincena}

@@ -87,6 +87,8 @@ import UpdateShipmentsReceptionsPage from "./app/ap/comercial/envios-recepciones
 import ReceptionCheckListPage from "./app/ap/comercial/envios-recepciones/checklist/[id]/page";
 import TransfersPage from "./app/ap/comercial/traslados/page";
 import AddTransferPage from "./app/ap/comercial/traslados/agregar/page";
+import AssetsPage from "./app/ap/comercial/activos/page";
+import AddAssetPage from "./app/ap/comercial/activos/agregar/page";
 import StoreVisitsPage from "./app/ap/comercial/visitas-tienda/page";
 import AddStoreVisitsPage from "./app/ap/comercial/visitas-tienda/agregar/page";
 import UpdateStoreVisitsPage from "./app/ap/comercial/visitas-tienda/actualizar/[id]/page";
@@ -402,6 +404,12 @@ import UpdateViewPage from "./app/gp/gestion-del-sistema/vistas/actualizar/[id]/
 import ViewPermissionsPage from "./app/gp/gestion-del-sistema/vistas/permisos/[id]/page.tsx";
 import WorkersPage from "./app/gp/gestion-humana/gestion-de-personal/trabajadores/page.tsx";
 import UpdateWorkerSignaturePage from "./app/gp/gestion-humana/gestion-de-personal/trabajadores/actualizar/[id]/page.tsx";
+import RecruitmentProcessPage from "./app/gp/gestion-humana/gestion-de-personal/procesos-postulacion/page.tsx";
+import AddRecruitmentProcessPage from "./app/gp/gestion-humana/gestion-de-personal/procesos-postulacion/agregar/page.tsx";
+import UpdateRecruitmentProcessPage from "./app/gp/gestion-humana/gestion-de-personal/procesos-postulacion/actualizar/[id]/page.tsx";
+import ApplicantPage from "./app/gp/gestion-humana/gestion-de-personal/postulantes/page.tsx";
+import AddApplicantPage from "./app/gp/gestion-humana/gestion-de-personal/postulantes/agregar/page.tsx";
+import UpdateApplicantPage from "./app/gp/gestion-humana/gestion-de-personal/postulantes/actualizar/[id]/page.tsx";
 import PerDiemCategoryPage from "./app/gp/gestion-humana/viaticos/categoria-viaticos/page.tsx";
 import PerDiemPolicyPage from "./app/gp/gestion-humana/viaticos/politica-viaticos/page.tsx";
 import AddPerDiemPolicyPage from "./app/gp/gestion-humana/viaticos/politica-viaticos/agregar/page.tsx";
@@ -495,6 +503,7 @@ import FoodCardPage from "./app/gp/gestion-humana/planillas/tarjeta-de-alimentos
 import AssignFoodCardPage from "./app/gp/gestion-humana/planillas/tarjeta-de-alimentos/asignar/page.tsx";
 import FamilyAllowancePage from "./app/gp/gestion-humana/planillas/asignacion-familiar/page.tsx";
 import AssignFamilyAllowancePage from "./app/gp/gestion-humana/planillas/asignacion-familiar/asignar/page.tsx";
+import ExclusionPage from "./app/gp/gestion-humana/planillas/exclusiones/page.tsx";
 import WorkSchedulesPage from "./app/gp/gestion-humana/planillas/dia-trabajo/page.tsx";
 import PayrollParameterPage from "./app/gp/gestion-humana/planillas/parametros/page.tsx";
 import PayrollRatesPercentagesPage from "./app/gp/gestion-humana/planillas/tasas-porcentajes/page.tsx";
@@ -935,6 +944,10 @@ function App() {
                 path="envios-recepciones/checklist/:id"
                 element={<ReceptionCheckListPage />}
               />
+
+              {/* Activos (vehículo VN → activo fijo) */}
+              <Route path="activos" element={<AssetsPage />} />
+              <Route path="activos/agregar" element={<AddAssetPage />} />
 
               {/* Traslados Internos */}
               <Route path="traslados" element={<TransfersPage />} />
@@ -2053,6 +2066,18 @@ function App() {
                 path="gestion-de-personal/trabajadores/actualizar/:id"
                 element={<UpdateWorkerSignaturePage />}
               />
+              {RouterCrud(
+                "gestion-de-personal/procesos-postulacion",
+                <RecruitmentProcessPage />,
+                <AddRecruitmentProcessPage />,
+                <UpdateRecruitmentProcessPage />,
+              )}
+              {RouterCrud(
+                "gestion-de-personal/postulantes",
+                <ApplicantPage />,
+                <AddApplicantPage />,
+                <UpdateApplicantPage />,
+              )}
               <Route
                 path="viaticos"
                 element={
@@ -2322,6 +2347,11 @@ function App() {
               <Route
                 path="planillas/asignacion-familiar/asignar"
                 element={<AssignFamilyAllowancePage />}
+              />
+              {/* Exclusiones */}
+              <Route
+                path="planillas/exclusiones"
+                element={<ExclusionPage />}
               />
               {/* Constantes de Planilla */}
               <Route
