@@ -62,5 +62,11 @@ export const productDetailSchema = z.object({
     .max(100),
 });
 
+// En edición, el repuesto y el precio lista ya no son editables (solo lectura),
+// por lo que no deben re-validarse contra los mínimos que aplican al crear.
+export const productDetailEditSchema = productDetailSchema.extend({
+  retail_price_external: z.coerce.number().min(0),
+});
+
 export type LaborDetailSchema = z.infer<typeof laborDetailSchema>;
 export type ProductDetailSchema = z.infer<typeof productDetailSchema>;

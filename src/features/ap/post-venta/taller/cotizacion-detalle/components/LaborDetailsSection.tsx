@@ -1,8 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { useState } from "react";
 import {
   Plus,
   Wrench,
@@ -11,11 +9,12 @@ import {
   CheckCircle,
   XCircle,
   Undo2,
+  ArrowUpDown,
+  Check,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Form } from "@/components/ui/form";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import {
@@ -25,10 +24,8 @@ import {
   SUCCESS_MESSAGE,
 } from "@/core/core.function";
 import { DEFAULT_APPROVED_DISCOUNT } from "@/core/core.constants";
-import { CURRENCY_TYPE_IDS } from "@/features/ap/configuraciones/maestros-general/tipos-moneda/lib/CurrencyTypes.constants";
 import { useAuthStore } from "@/features/auth/lib/auth.store";
 import {
-  DESCRIPTION_MATERIALES,
   ITEM_TYPE_LABOR,
   ITEM_TYPE_MATERIAL,
   ITEM_TYPE_TRANSLATOR,
@@ -38,15 +35,12 @@ import {
   storeOrderQuotationDetails,
   updateOrderQuotationDetails,
 } from "../lib/proformaDetails.actions";
+import { reorderOrderQuotationDetails } from "../../cotizacion/lib/proforma.actions";
 import { OrderQuotationDetailsResource } from "../lib/proformaDetails.interface";
-import {
-  laborDetailSchema,
-  LaborDetailSchema,
-} from "../lib/proformaDetails.schema";
-import { FormInput } from "@/shared/components/FormInput";
-import { FormCombobox } from "@/shared/components/FormCombobox";
-import { EditableCell } from "@/shared/components/EditableCell";
+import { LaborDetailSchema } from "../lib/proformaDetails.schema";
 import { QuotationItemsTable } from "./QuotationItemsTable";
+import LaborDetailSheet from "./LaborDetailSheet";
+import BulkDiscountModal from "./BulkDiscountModal";
 import { DiscountRequestOrderQuotationResource } from "@/features/ap/post-venta/repuestos/descuento-cotizacion-meson/lib/discountRequestMeson.interface";
 import { DiscountRequestModal } from "@/features/ap/post-venta/repuestos/descuento-cotizacion-meson/components/DiscountRequestModal";
 import {
@@ -105,6 +99,16 @@ export default function LaborDetailsSection({
   const queryClient = useQueryClient();
   const { user } = useAuthStore();
 
+  // Sheet de agregar/editar ítem
+  const [detailSheetOpen, setDetailSheetOpen] = useState(false);
+  const [editingDetail, setEditingDetail] =
+    useState<OrderQuotationDetailsResource | null>(null);
+
+  // Modo ordenar (drag & drop)
+  const [isSorting, setIsSorting] = useState(false);
+  const [sortedIds, setSortedIds] = useState<number[] | null>(null);
+  const [isReordering, setIsReordering] = useState(false);
+
   // Estado del modal de descuento
   const [modalOpen, setModalOpen] = useState(false);
   const [modalType, setModalType] = useState<"GLOBAL" | "PARTIAL">(TYPE_GLOBAL);
@@ -113,38 +117,8 @@ export default function LaborDetailsSection({
   const [editingRequest, setEditingRequest] =
     useState<DiscountRequestOrderQuotationResource | null>(null);
 
-  const form = useForm({
-    resolver: zodResolver(laborDetailSchema),
-    defaultValues: {
-      order_quotation_id: quotationId,
-      item_type: ITEM_TYPE_MATERIAL,
-      description: "",
-      quantity: 1,
-      unit_measure: "Horas",
-      unit_price: constManHours,
-      discount_percentage: undefined,
-      exchange_rate: exchangeRate,
-      observations: "",
-    },
-  });
-
-  // Descripción de "Materiales" a modo de opción rápida en el combobox.
-  const descriptionOptions = [
-    { label: DESCRIPTION_MATERIALES, value: DESCRIPTION_MATERIALES },
-  ];
-
-  const description = form.watch("description");
-
-  // El tipo se infiere de la descripción: solo si se seleccionó exactamente
-  // la opción "Materiales" del combobox; cualquier otro texto es Mano de Obra.
-  useEffect(() => {
-    const autoType =
-      description === DESCRIPTION_MATERIALES
-        ? ITEM_TYPE_MATERIAL
-        : ITEM_TYPE_LABOR;
-
-    form.setValue("item_type", autoType, { shouldValidate: true });
-  }, [description, form]);
+  // Modal de descuento masivo
+  const [bulkDiscountOpen, setBulkDiscountOpen] = useState(false);
 
   const { mutate: doApprove, isPending: isApproving } = useMutation({
     mutationFn: approveDiscountRequestOrderQuotation,
@@ -222,115 +196,6 @@ export default function LaborDetailsSection({
     setEditingRequest(null);
   };
 
-  const handleDiscountUpdate = async (
-    detail: OrderQuotationDetailsResource,
-    newPct: number,
-  ) => {
-    try {
-      await updateOrderQuotationDetails(detail.id, {
-        order_quotation_id: detail.order_quotation_id,
-        item_type: detail.item_type,
-        description: detail.description,
-        quantity: detail.quantity,
-        unit_measure: detail.unit_measure,
-        retail_price_external: detail.retail_price_external,
-        freight_commission: detail.freight_commission,
-        exchange_rate: detail.exchange_rate,
-        unit_price: detail.unit_price,
-        discount_percentage: newPct,
-        observations: detail.observations ?? undefined,
-      });
-      successToast("Descuento actualizado correctamente");
-      await onRefresh();
-    } catch (error: any) {
-      const msg = error?.response?.data?.message || "";
-      errorToast(msg || "Error al actualizar el descuento");
-    }
-  };
-
-  const handleQuantityUpdate = async (
-    detail: OrderQuotationDetailsResource,
-    newQty: number,
-  ) => {
-    try {
-      await updateOrderQuotationDetails(detail.id, {
-        order_quotation_id: detail.order_quotation_id,
-        item_type: detail.item_type,
-        description: detail.description,
-        quantity: newQty,
-        unit_measure: detail.unit_measure,
-        retail_price_external: detail.retail_price_external,
-        freight_commission: detail.freight_commission,
-        exchange_rate: detail.exchange_rate,
-        unit_price: detail.unit_price,
-        discount_percentage: Number(detail.discount_percentage || 0),
-        observations: detail.observations ?? undefined,
-      });
-      successToast("Horas actualizadas correctamente");
-
-      await onRefresh();
-    } catch (error: any) {
-      const msg = error?.response?.data?.message || "";
-      errorToast(msg || "Error al actualizar las horas");
-    }
-  };
-
-  const handlePriceUpdate = async (
-    detail: OrderQuotationDetailsResource,
-    newPrice: number,
-  ) => {
-    try {
-      await updateOrderQuotationDetails(detail.id, {
-        order_quotation_id: detail.order_quotation_id,
-        item_type: detail.item_type,
-        description: detail.description,
-        quantity: detail.quantity,
-        unit_measure: detail.unit_measure,
-        retail_price_external: detail.retail_price_external,
-        freight_commission: detail.freight_commission,
-        exchange_rate: detail.exchange_rate,
-        unit_price: newPrice,
-        discount_percentage: Number(detail.discount_percentage || 0),
-        observations: detail.observations ?? undefined,
-      });
-      successToast("Precio actualizado correctamente");
-      await onRefresh();
-    } catch (error: any) {
-      const msg = error?.response?.data?.message || "";
-      errorToast(msg || "Error al actualizar el precio");
-    }
-  };
-
-  const onSubmit = async (data: LaborDetailSchema) => {
-    try {
-      setIsSaving(true);
-
-      await storeOrderQuotationDetails({
-        ...data,
-        product_id: undefined,
-      });
-
-      successToast(SUCCESS_MESSAGE(ORDER_QUOTATION_DETAILS.MODEL, "create"));
-      form.reset({
-        order_quotation_id: quotationId,
-        item_type: ITEM_TYPE_MATERIAL,
-        description: "",
-        quantity: 1,
-        unit_measure: "Horas",
-        unit_price: undefined,
-        discount_percentage: undefined,
-        exchange_rate: exchangeRate,
-        observations: "",
-      });
-      await onRefresh();
-    } catch (error: any) {
-      const msg = error?.response?.data?.message || "";
-      errorToast(ERROR_MESSAGE(ORDER_QUOTATION_DETAILS.MODEL, "create", msg));
-    } finally {
-      setIsSaving(false);
-    }
-  };
-
   const formatCurrency = (amount: string | number | null | undefined) => {
     const value = Number(amount) || 0;
     return `${currencySymbol} ${value.toFixed(2)}`;
@@ -340,6 +205,13 @@ export default function LaborDetailsSection({
     (d) =>
       d.item_type === ITEM_TYPE_LABOR || d.item_type === ITEM_TYPE_MATERIAL,
   );
+
+  // Mientras se está en modo ordenar, refleja el orden local (optimista) elegido por el usuario
+  const displayedDetails = (() => {
+    if (!isSorting || !sortedIds) return laborDetails;
+    const byId = new Map(laborDetails.map((d) => [d.id, d]));
+    return sortedIds.map((id) => byId.get(id)).filter(Boolean) as OrderQuotationDetailsResource[];
+  })();
 
   const globalBaseAmount = laborDetails.reduce(
     (sum, d) => sum + Number(d.net_amount || 0),
@@ -375,120 +247,127 @@ export default function LaborDetailsSection({
 
   const maxDiscountForModal = maxDiscountAllowed;
 
+  const openCreateSheet = () => {
+    setEditingDetail(null);
+    setDetailSheetOpen(true);
+  };
+
+  const openEditSheet = (detail: OrderQuotationDetailsResource) => {
+    setEditingDetail(detail);
+    setDetailSheetOpen(true);
+  };
+
+  const closeDetailSheet = () => {
+    setDetailSheetOpen(false);
+    setEditingDetail(null);
+  };
+
+  const handleConfirmDetail = async (data: LaborDetailSchema) => {
+    try {
+      setIsSaving(true);
+
+      if (editingDetail) {
+        await updateOrderQuotationDetails(editingDetail.id, {
+          ...data,
+          product_id: undefined,
+        });
+        successToast(SUCCESS_MESSAGE(ORDER_QUOTATION_DETAILS.MODEL, "update"));
+      } else {
+        await storeOrderQuotationDetails({
+          ...data,
+          product_id: undefined,
+        });
+        successToast(SUCCESS_MESSAGE(ORDER_QUOTATION_DETAILS.MODEL, "create"));
+      }
+
+      await onRefresh();
+      closeDetailSheet();
+    } catch (error: any) {
+      const msg = error?.response?.data?.message || "";
+      const action = editingDetail ? "update" : "create";
+      errorToast(ERROR_MESSAGE(ORDER_QUOTATION_DETAILS.MODEL, action, msg));
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const toggleSortMode = async () => {
+    if (isSorting) {
+      if (sortedIds) {
+        try {
+          setIsReordering(true);
+          await reorderOrderQuotationDetails(quotationId, {
+            items: sortedIds.map((id, index) => ({ id, order: index })),
+          });
+          successToast("Orden actualizado correctamente");
+          await onRefresh();
+        } catch (error: any) {
+          const message =
+            error?.response?.data?.message || "Error al actualizar el orden";
+          errorToast(message);
+        } finally {
+          setIsReordering(false);
+        }
+      }
+      setIsSorting(false);
+      setSortedIds(null);
+    } else {
+      setSortedIds(laborDetails.map((d) => d.id));
+      setIsSorting(true);
+    }
+  };
+
+  const handleReorder = (orderedIds: number[]) => {
+    setSortedIds(orderedIds);
+  };
+
   return (
     <Card className="p-6">
-      <div className="flex items-center gap-2">
-        <Wrench className="h-5 w-5 text-primary" />
-        <h3 className="text-lg font-semibold">Mano de Obra</h3>
+      <div className="flex items-center justify-between flex-wrap gap-2">
+        <div className="flex items-center gap-2">
+          <Wrench className="h-5 w-5 text-primary" />
+          <h3 className="text-lg font-semibold">Mano de Obra</h3>
+        </div>
+
+        <div className="flex items-center gap-2">
+          {!isSorting && hasMultipleItems && permissions.canEditDiscount && (
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => setBulkDiscountOpen(true)}
+            >
+              <Percent className="h-4 w-4 lg:mr-2" />
+              <span className="hidden lg:inline">Descuento masivo</span>
+            </Button>
+          )}
+          {laborDetails.length > 1 && (
+            <Button
+              type="button"
+              variant={isSorting ? "default" : "outline"}
+              size="sm"
+              onClick={toggleSortMode}
+              disabled={isReordering}
+            >
+              {isSorting ? (
+                <>
+                  <Check className="h-4 w-4 lg:mr-2" />
+                  <span className="hidden lg:inline">Listo</span>
+                </>
+              ) : (
+                <>
+                  <ArrowUpDown className="h-4 w-4 lg:mr-2" />
+                  <span className="hidden lg:inline">Ordenar</span>
+                </>
+              )}
+            </Button>
+          )}
+          <Button type="button" size="sm" onClick={openCreateSheet}>
+            <Plus className="h-4 w-4 lg:mr-2" />
+            <span className="hidden lg:inline">Agregar</span>
+          </Button>
+        </div>
       </div>
-
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-          {/* Descripción - ancho completo */}
-          <FormCombobox
-            control={form.control}
-            name="description"
-            label={() => (
-              <div className="flex items-center gap-2 mb-1">
-                <span className="text-xs md:text-sm">Descripción</span>
-                <Badge
-                  color={ITEM_TYPE_TRANSLATOR[form.watch("item_type")]?.color}
-                  className="text-[10px]"
-                >
-                  {ITEM_TYPE_TRANSLATOR[form.watch("item_type")]?.label}
-                </Badge>
-              </div>
-            )}
-            placeholder="Ej: Cambio de aceite"
-            options={descriptionOptions}
-            allowCreate={true}
-            className="h-9 text-xs"
-          />
-
-          {/* Campos de entrada en una sola línea */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-3">
-            <div className="sm:col-span-1 lg:col-span-3">
-              <FormInput
-                control={form.control}
-                name="quantity"
-                label="Cant. (Horas)"
-                placeholder="Ej: 1.5"
-                className="h-9 text-xs"
-                inputMode="numeric"
-                type="number"
-              />
-            </div>
-
-            <div className="sm:col-span-1 lg:col-span-3">
-              <FormInput
-                control={form.control}
-                name="unit_price"
-                label="Tarifa/Hora (S/.)"
-                placeholder="Ej: Horas"
-                className="h-9 text-xs"
-                type="number"
-                description={
-                  currencyId === Number(CURRENCY_TYPE_IDS.DOLLARS)
-                    ? "Ingresa la tarifa en soles, el sistema la convertirá automáticamente"
-                    : undefined
-                }
-              />
-            </div>
-
-            <div className="sm:col-span-1 lg:col-span-2 space-y-1">
-              <FormInput
-                control={form.control}
-                name="discount_percentage"
-                label="Desc. %"
-                placeholder="Ej: 0.00"
-                className={
-                  globalApprovedRequest
-                    ? "h-9 text-xs border-green-400"
-                    : "h-9 text-xs"
-                }
-                inputMode="numeric"
-                type="number"
-                min={0}
-                max={maxDiscountAllowed}
-                onChange={(e) => {
-                  const val = e.target.value ? Number(e.target.value) : 0;
-                  if (val > maxDiscountAllowed) {
-                    form.setValue("discount_percentage", maxDiscountAllowed);
-                  } else {
-                    form.setValue("discount_percentage", val);
-                  }
-                }}
-              />
-              <p className="text-[10px] font-medium text-green-600">
-                Máx. {globalApprovedRequest ? "aprobado" : "permitido"}:{" "}
-                {maxDiscountAllowed.toFixed(2)}%
-              </p>
-            </div>
-
-            <div className="sm:col-span-1 lg:col-span-3">
-              <FormInput
-                control={form.control}
-                name="observations"
-                label="Observaciones"
-                placeholder="Ej: Observaciones adicionales"
-                className="h-9 text-xs"
-              />
-            </div>
-
-            <div className="sm:col-span-2 lg:col-span-1 flex items-center">
-              <Button
-                type="submit"
-                disabled={isSaving}
-                className="h-9 w-full lg:h-10 lg:rounded-md lg:px-3 lg:font-semibold lg:shadow-sm"
-                size="sm"
-              >
-                <Plus className="h-4 w-4 lg:h-3.5 lg:w-3.5" />
-                <span className="hidden lg:inline text-xs">Agregar</span>
-              </Button>
-            </div>
-          </div>
-        </form>
-      </Form>
 
       {/* Lista de Mano de Obra en formato tabla */}
       <div className="mt-6">
@@ -503,7 +382,7 @@ export default function LaborDetailsSection({
             </Badge>
           </div>
 
-          {hasMultipleItems && laborDetails.length > 0 && (
+          {!isSorting && hasMultipleItems && laborDetails.length > 0 && (
             <div className="flex items-center gap-2 flex-wrap">
               {globalRequest ? (
                 <div className="flex items-center gap-2 text-sm border rounded-md px-3 py-1.5">
@@ -657,12 +536,11 @@ export default function LaborDetailsSection({
         </div>
 
         <QuotationItemsTable
-          details={laborDetails}
+          details={displayedDetails}
           isLoading={isLoadingDetails}
           emptyIcon={<Wrench className="h-10 w-10" />}
           emptyMessage="No hay items de mano de obra"
           formatCurrency={formatCurrency}
-          maxDiscountAllowed={maxDiscountAllowed}
           discountRequests={activeDiscountRequests}
           globalRequest={globalRequest}
           permissions={permissions}
@@ -670,11 +548,12 @@ export default function LaborDetailsSection({
           isApproving={isApproving}
           isRejecting={isRejecting}
           isReverting={isReverting}
-          onDiscountUpdate={handleDiscountUpdate}
-          onPriceUpdate={handlePriceUpdate}
           onDelete={onDelete}
           onOpenCreate={handleOpenCreate}
           onOpenEdit={handleOpenEdit}
+          onEditDetail={openEditSheet}
+          sortable={isSorting}
+          onReorder={handleReorder}
           onApprove={(id) => doApprove(id)}
           onReject={(id) => doReject(id)}
           onRevert={(id, reason) => doRevert({ id, reason })}
@@ -702,13 +581,7 @@ export default function LaborDetailsSection({
             </div>
           )}
           getQuantity={(detail) => (
-            <EditableCell
-              id={detail.id}
-              value={detail.quantity}
-              min={0.01}
-              widthClass="w-14"
-              onUpdate={(_id, val) => handleQuantityUpdate(detail, Number(val))}
-            />
+            <span className="tabular-nums">{detail.quantity}</span>
           )}
           getPrice={(detail) => formatCurrency(detail.unit_price)}
           getTotal={(detail) => detail.net_amount}
@@ -734,6 +607,40 @@ export default function LaborDetailsSection({
         />
       </div>
 
+      <LaborDetailSheet
+        open={detailSheetOpen}
+        onClose={closeDetailSheet}
+        onConfirm={handleConfirmDetail}
+        mode={editingDetail ? "edit" : "create"}
+        quotationId={quotationId}
+        constManHours={constManHours}
+        currencyId={currencyId}
+        exchangeRate={exchangeRate}
+        maxDiscountAllowed={maxDiscountAllowed}
+        isApprovedDiscount={!!globalApprovedRequest}
+        isSaving={isSaving}
+        initialValue={
+          editingDetail
+            ? {
+                order_quotation_id: editingDetail.order_quotation_id,
+                item_type:
+                  editingDetail.item_type === ITEM_TYPE_MATERIAL
+                    ? ITEM_TYPE_MATERIAL
+                    : ITEM_TYPE_LABOR,
+                description: editingDetail.description,
+                quantity: Number(editingDetail.quantity),
+                unit_measure: editingDetail.unit_measure,
+                unit_price: Number(editingDetail.unit_price),
+                discount_percentage: Number(
+                  editingDetail.discount_percentage || 0,
+                ),
+                exchange_rate: Number(editingDetail.exchange_rate),
+                observations: editingDetail.observations ?? "",
+              }
+            : undefined
+        }
+      />
+
       <DiscountRequestModal
         open={modalOpen}
         onClose={handleClose}
@@ -745,6 +652,15 @@ export default function LaborDetailsSection({
         existingRequest={editingRequest ?? undefined}
         itemType={ITEM_TYPE_DCT_LABOR}
         maxDiscount={maxDiscountForModal}
+      />
+
+      <BulkDiscountModal
+        open={bulkDiscountOpen}
+        onClose={() => setBulkDiscountOpen(false)}
+        quotationId={quotationId}
+        type="labor"
+        maxDiscount={maxDiscountAllowed}
+        onSuccess={onRefresh}
       />
     </Card>
   );

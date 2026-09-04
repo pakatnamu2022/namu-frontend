@@ -1,5 +1,6 @@
 "use client";
 
+import type { HTMLAttributes } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -8,7 +9,14 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { ChevronDown, ChevronUp, Pencil, Trash2, Truck } from "lucide-react";
+import {
+  ChevronDown,
+  ChevronUp,
+  GripVertical,
+  Pencil,
+  Trash2,
+  Truck,
+} from "lucide-react";
 import { StockByProductIdsResponse } from "@/features/ap/post-venta/gestion-almacen/inventario/lib/inventory.interface";
 import { StockWarehousesCard } from "@/features/ap/post-venta/gestion-almacen/inventario/components/StockWarehousesCard";
 import { ProductDetailMesonSchema } from "../lib/quotationMeson.schema";
@@ -28,6 +36,10 @@ interface ProductDetailRowProps {
   onToggleTraverse?: (value: boolean) => void;
   isDetailsDisabled?: boolean;
   sedeId?: string;
+  /** Activa el modo "ordenar": muestra el handle de arrastre y oculta acciones/almacenes */
+  sortable?: boolean;
+  /** Props del handle de arrastre (dnd-kit listeners/attributes) */
+  dragHandleProps?: HTMLAttributes<HTMLButtonElement>;
 }
 
 export default function ProductDetailRow({
@@ -43,8 +55,12 @@ export default function ProductDetailRow({
   onToggleTraverse,
   isDetailsDisabled = false,
   sedeId,
+  sortable = false,
+  dragHandleProps,
 }: ProductDetailRowProps) {
   if (!detail) return null;
+
+  const stockVisible = showStock && !sortable;
 
   const supplyTypeBadge = (className: string) => {
     const badge = (
@@ -177,7 +193,20 @@ export default function ProductDetailRow({
     >
       {/* Vista Desktop */}
       <div className="hidden md:grid grid-cols-12 gap-3 px-4 py-3 items-center">
-        <div className="col-span-4 flex items-center gap-2 min-w-0">
+        {sortable && (
+          <div className="col-span-1 flex justify-center">
+            <button
+              type="button"
+              className="cursor-grab touch-none text-muted-foreground hover:text-foreground active:cursor-grabbing"
+              {...dragHandleProps}
+            >
+              <GripVertical className="size-4" />
+            </button>
+          </div>
+        )}
+        <div
+          className={`${sortable ? "col-span-3" : "col-span-4"} flex items-center gap-2 min-w-0`}
+        >
           <span className="shrink-0 inline-flex items-center justify-center size-5 rounded-full bg-primary/10 text-primary text-[10px] font-bold">
             {index + 1}
           </span>
@@ -219,48 +248,54 @@ export default function ProductDetailRow({
           {selectedCurrency?.symbol || "S/."} {computedTotal.toFixed(2)}
         </div>
 
-        <div className="col-span-2 flex justify-center items-center gap-1">
-          {hasStock && (
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon"
-              className={`h-8 w-8 transition-colors ${showStock ? "text-primary hover:text-primary/80 hover:bg-primary/10" : "text-gray-400 hover:text-primary hover:bg-primary/10"}`}
-              onClick={onToggleStock}
-              tooltip={showStock ? "Ocultar almacenes" : "Ver almacenes"}
-            >
-              {showStock ? (
-                <ChevronUp className="h-4 w-4" />
-              ) : (
-                <ChevronDown className="h-4 w-4" />
+        <div
+          className={`${sortable ? "col-span-1" : "col-span-2"} flex justify-center items-center gap-1`}
+        >
+          {!sortable && (
+            <>
+              {hasStock && (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  className={`h-8 w-8 transition-colors ${stockVisible ? "text-primary hover:text-primary/80 hover:bg-primary/10" : "text-gray-400 hover:text-primary hover:bg-primary/10"}`}
+                  onClick={onToggleStock}
+                  tooltip={stockVisible ? "Ocultar almacenes" : "Ver almacenes"}
+                >
+                  {stockVisible ? (
+                    <ChevronUp className="h-4 w-4" />
+                  ) : (
+                    <ChevronDown className="h-4 w-4" />
+                  )}
+                </Button>
               )}
-            </Button>
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8 text-primary hover:bg-primary/10"
+                onClick={onEdit}
+                disabled={isDetailsDisabled}
+                tooltip="Editar repuesto"
+              >
+                <Pencil className="h-4 w-4" />
+              </Button>
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50"
+                onClick={onRemove}
+                disabled={isDetailsDisabled}
+                tooltip="Eliminar repuesto"
+              >
+                <Trash2 className="h-4 w-4" />
+              </Button>
+            </>
           )}
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon"
-            className="h-8 w-8 text-primary hover:bg-primary/10"
-            onClick={onEdit}
-            disabled={isDetailsDisabled}
-            tooltip="Editar repuesto"
-          >
-            <Pencil className="h-4 w-4" />
-          </Button>
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon"
-            className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50"
-            onClick={onRemove}
-            disabled={isDetailsDisabled}
-            tooltip="Eliminar repuesto"
-          >
-            <Trash2 className="h-4 w-4" />
-          </Button>
         </div>
 
-        {hasStock && showStock && (
+        {hasStock && stockVisible && (
           <div className="col-span-12">
             <StockWarehousesCard stock={currentProductStock!} />
           </div>
@@ -271,49 +306,60 @@ export default function ProductDetailRow({
       <div className="md:hidden p-4 space-y-2">
         <div className="flex items-start justify-between gap-2">
           <div className="flex items-center gap-2 min-w-0">
+            {sortable && (
+              <button
+                type="button"
+                className="shrink-0 cursor-grab touch-none text-muted-foreground hover:text-foreground active:cursor-grabbing"
+                {...dragHandleProps}
+              >
+                <GripVertical className="size-4" />
+              </button>
+            )}
             <Badge color="secondary" className="text-xs shrink-0">
               #{index + 1}
             </Badge>
             <p className="text-sm font-medium truncate">{productLabel}</p>
           </div>
-          <div className="flex items-center gap-1 shrink-0">
-            {hasStock && (
+          {!sortable && (
+            <div className="flex items-center gap-1 shrink-0">
+              {hasStock && (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  className={`h-8 w-8 transition-colors ${stockVisible ? "text-primary hover:text-primary/80 hover:bg-primary/10" : "text-gray-400 hover:text-primary hover:bg-primary/10"}`}
+                  onClick={onToggleStock}
+                  tooltip={stockVisible ? "Ocultar almacenes" : "Ver almacenes"}
+                >
+                  {stockVisible ? (
+                    <ChevronUp className="h-4 w-4" />
+                  ) : (
+                    <ChevronDown className="h-4 w-4" />
+                  )}
+                </Button>
+              )}
               <Button
                 type="button"
                 variant="ghost"
                 size="icon"
-                className={`h-8 w-8 transition-colors ${showStock ? "text-primary hover:text-primary/80 hover:bg-primary/10" : "text-gray-400 hover:text-primary hover:bg-primary/10"}`}
-                onClick={onToggleStock}
-                tooltip={showStock ? "Ocultar almacenes" : "Ver almacenes"}
+                className="h-8 w-8 text-primary hover:bg-primary/10"
+                onClick={onEdit}
+                disabled={isDetailsDisabled}
               >
-                {showStock ? (
-                  <ChevronUp className="h-4 w-4" />
-                ) : (
-                  <ChevronDown className="h-4 w-4" />
-                )}
+                <Pencil className="h-4 w-4" />
               </Button>
-            )}
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon"
-              className="h-8 w-8 text-primary hover:bg-primary/10"
-              onClick={onEdit}
-              disabled={isDetailsDisabled}
-            >
-              <Pencil className="h-4 w-4" />
-            </Button>
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon"
-              className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50"
-              onClick={onRemove}
-              disabled={isDetailsDisabled}
-            >
-              <Trash2 className="h-4 w-4" />
-            </Button>
-          </div>
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50"
+                onClick={onRemove}
+                disabled={isDetailsDisabled}
+              >
+                <Trash2 className="h-4 w-4" />
+              </Button>
+            </div>
+          )}
         </div>
 
         <div className="flex items-center gap-1.5 flex-wrap">
@@ -358,7 +404,7 @@ export default function ProductDetailRow({
           </span>
         </div>
 
-        {hasStock && showStock && (
+        {hasStock && stockVisible && (
           <StockWarehousesCard stock={currentProductStock!} />
         )}
       </div>

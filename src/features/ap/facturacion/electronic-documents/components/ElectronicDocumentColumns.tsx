@@ -507,27 +507,24 @@ export const electronicDocumentColumns = ({
               )}
 
               {/* Sincronizar contabilización */}
-              {document.is_accounted && (
-                <ConfirmationDialog
-                  title="Confirmar sincronización"
-                  description="¿Está seguro de que desea sincronizar el estado contable de este documento? Esto puede afectar inventario y órdenes de trabajo/cotización relacionadas."
-                  onConfirm={() =>
-                    onSyncAccountingStatus &&
-                    onSyncAccountingStatus(document.id)
-                  }
-                  icon="info"
-                  confirmText="Sí, sincronizar"
-                  cancelText="No, cancelar"
-                  trigger={
-                    <ButtonAction
-                      tooltip="Sincronizar Contabilización"
-                      icon={BookCheck}
-                      canRender={canSyncAccountingStatus}
-                      color="indigo"
-                    />
-                  }
-                />
-              )}
+              <ConfirmationDialog
+                title="Confirmar sincronización"
+                description="¿Está seguro de que desea sincronizar el estado contable de este documento? Esto puede afectar inventario y órdenes de trabajo/cotización relacionadas."
+                onConfirm={() =>
+                  onSyncAccountingStatus && onSyncAccountingStatus(document.id)
+                }
+                icon="info"
+                confirmText="Sí, sincronizar"
+                cancelText="No, cancelar"
+                trigger={
+                  <ButtonAction
+                    tooltip="Sincronizar Contabilización"
+                    icon={BookCheck}
+                    canRender={canSyncAccountingStatus}
+                    color="indigo"
+                  />
+                }
+              />
             </div>
           );
         }

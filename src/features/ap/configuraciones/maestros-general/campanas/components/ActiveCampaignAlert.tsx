@@ -22,8 +22,9 @@ interface ActiveCampaignAlertProps {
  * Alerta compacta que informa si hay una campaña activa para un área
  * (ap_master.area_id). Si existe, muestra un aviso informativo con el
  * mensaje de la API y un botón para ver el detalle completo en un
- * GeneralModal. Si la API responde 404 (sin campaña activa), muestra
- * una alerta de advertencia con el mensaje devuelto por el backend.
+ * GeneralModal. Si no hay campaña activa, muestra una alerta de
+ * advertencia con el mensaje devuelto por el backend (la API responde
+ * 200 con data: null en ese caso).
  */
 export function ActiveCampaignAlert({
   areaId,
@@ -32,15 +33,11 @@ export function ActiveCampaignAlert({
   const [showDetails, setShowDetails] = useState(false);
   const {
     data: activeCampaign,
-    error,
+    message,
     isLoading,
   } = useActiveCampaign({ area_id: areaId });
 
   if (isLoading) return null;
-
-  const apiErrorMessage = (error as any)?.response?.data?.message as
-    | string
-    | undefined;
 
   if (!activeCampaign) {
     return (
@@ -48,7 +45,7 @@ export function ActiveCampaignAlert({
         <AlertTriangle />
         <AlertTitle>Sin campaña activa</AlertTitle>
         <AlertDescription>
-          {apiErrorMessage || "No hay una campaña activa para esta área."}
+          {message || "No hay una campaña activa para esta área."}
         </AlertDescription>
       </Alert>
     );

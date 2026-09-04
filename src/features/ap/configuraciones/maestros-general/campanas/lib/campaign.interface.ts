@@ -49,3 +49,8 @@ export interface getCampaignProps {
 export interface getActiveCampaignProps {
   params?: Record<string, any>;
 }
+
+export interface ActiveCampaignResponse {
+  message: string;
+  data: CampaignResource | null;
+}

@@ -38,6 +38,7 @@ export interface OrderQuotationResource {
   collection_date: string;
   observations: string | null;
   notes: string | null;
+  is_take_ot?: boolean | number;
   details: OrderQuotationDetailsResource[];
   vouchers: ProformaDocumentsTreeResource;
   items_invoice?: OrderQuotationInvoiceItemResource[];
@@ -151,6 +152,18 @@ export interface OrderQuotationRequest {
 
 export interface getOrderQuotationProps {
   params?: Record<string, any>;
+}
+
+export interface ReorderOrderQuotationDetailsRequest {
+  items: {
+    id: number;
+    order: number;
+  }[];
+}
+
+export interface ApplyBulkDiscountRequest {
+  type: "labor" | "product";
+  discount_percentage: number;
 }
 
 // Tipos de modificación

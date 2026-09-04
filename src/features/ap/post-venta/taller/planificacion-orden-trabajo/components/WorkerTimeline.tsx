@@ -29,6 +29,7 @@ import {
   Package,
   Pencil,
   CheckCircle,
+  Calendar,
 } from "lucide-react";
 import {
   HoverCard,
@@ -83,6 +84,7 @@ import { WORK_ORDER_PLANNING } from "../lib/workOrderPlanning.constants";
 import {
   ERROR_MESSAGE,
   errorToast,
+  formatDate,
   SUCCESS_MESSAGE,
   successToast,
 } from "@/core/core.function";
@@ -1122,15 +1124,23 @@ export function WorkerTimeline({
                                 )}
                               />
                               <div className="flex items-center gap-2">
+                                <div className="min-w-0">
+                                  <p className="truncate text-sm font-medium">
+                                    {wo.vehicle.plate}
+                                  </p>
+                                  <p className="flex items-center gap-1 text-xs text-muted-foreground">
+                                    <Calendar className="h-3 w-3" />
+                                    {wo.opening_date
+                                      ? formatDate(wo.opening_date)
+                                      : "Sin fecha"}
+                                  </p>
+                                </div>
                                 <Badge
                                   variant="outline"
                                   className="font-mono text-xs"
                                 >
                                   {wo.correlative}
                                 </Badge>
-                                <span className="text-sm">
-                                  {wo.vehicle.plate}
-                                </span>
                               </div>
                             </CommandItem>
                           ))

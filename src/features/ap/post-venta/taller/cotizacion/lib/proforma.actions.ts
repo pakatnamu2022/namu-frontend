@@ -2,11 +2,13 @@ import type { AxiosRequestConfig } from "axios";
 import { api } from "@/core/api";
 import { GeneralResponse } from "@/shared/lib/response.interface";
 import {
+  ApplyBulkDiscountRequest,
   ApprovalRequest,
   getOrderQuotationProps,
   OrderQuotationRequest,
   OrderQuotationResource,
   OrderQuotationResponse,
+  ReorderOrderQuotationDetailsRequest,
 } from "./proforma.interface";
 import { ORDER_QUOTATION_TALLER } from "./proforma.constants";
 
@@ -68,6 +70,15 @@ export async function findOrderQuotationById(
   return response.data;
 }
 
+export async function findOrderQuotationSimpleById(
+  id: number,
+): Promise<OrderQuotationResource> {
+  const response = await api.get<OrderQuotationResource>(
+    `${ENDPOINT}/${id}/show-simple`,
+  );
+  return response.data;
+}
+
 export async function storeOrderQuotation(
   data: OrderQuotationRequest,
 ): Promise<OrderQuotationResource> {
@@ -113,6 +124,28 @@ export async function sendNotificationManagement(
 ): Promise<OrderQuotationResource> {
   const response = await api.post<OrderQuotationResource>(
     `${ENDPOINT}/${id}/send-notification`,
+  );
+  return response.data;
+}
+
+export async function reorderOrderQuotationDetails(
+  id: number,
+  data: ReorderOrderQuotationDetailsRequest,
+): Promise<GeneralResponse> {
+  const response = await api.patch<GeneralResponse>(
+    `${ENDPOINT}/${id}/reorder-details`,
+    data,
+  );
+  return response.data;
+}
+
+export async function applyBulkDiscountOrderQuotation(
+  id: number,
+  data: ApplyBulkDiscountRequest,
+): Promise<GeneralResponse> {
+  const response = await api.patch<GeneralResponse>(
+    `${ENDPOINT}/${id}/apply-bulk-discount`,
+    data,
   );
   return response.data;
 }

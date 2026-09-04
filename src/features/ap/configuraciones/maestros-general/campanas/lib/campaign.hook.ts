@@ -1,6 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
 import { CAMPAIGN } from "./campaign.constants";
-import { CampaignResource, CampaignResponse } from "./campaign.interface";
+import {
+  ActiveCampaignResponse,
+  CampaignResponse,
+} from "./campaign.interface";
 import {
   findCampaignById,
   getActiveCampaign,
@@ -36,10 +39,16 @@ export const useCampaignById = (id: number) => {
 };
 
 export const useActiveCampaign = (params?: Record<string, any>) => {
-  return useQuery<CampaignResource | null>({
+  const query = useQuery<ActiveCampaignResponse>({
     queryKey: [QUERY_KEY, "active", params],
     queryFn: () => getActiveCampaign({ params }),
     refetchOnWindowFocus: false,
     enabled: !!params?.area_id,
   });
+
+  return {
+    ...query,
+    data: query.data?.data ?? null,
+    message: query.data?.message,
+  };
 };
