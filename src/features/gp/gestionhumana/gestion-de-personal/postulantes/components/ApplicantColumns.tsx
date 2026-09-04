@@ -60,10 +60,9 @@ export const applicantColumns = ({
       const color = STATUS_COLOR[row.original.tipo_trabajador_id] ?? "#64748b";
       return (
         <Badge
-          variant="outline"
+          variant="default"
           style={{
-            backgroundColor: `${color}20`,
-            color,
+            backgroundColor: color,
             borderColor: color,
           }}
         >

@@ -256,6 +256,29 @@ export const ShipmentsReceptionsColumns = ({
     header: "Serie",
   },
   {
+    accessorKey: "dyn_series",
+    header: "Serie Dynamics",
+    cell: ({ row }) => {
+      const dynSeries = row.getValue("dyn_series") as string | null;
+      if (!dynSeries) return "-";
+      const isReversal = dynSeries.endsWith("*");
+      return (
+        <div className="flex items-center gap-1.5">
+          <CopyCell value={dynSeries} />
+          {isReversal && (
+            <Badge
+              variant="outline"
+              color="orange"
+              tooltip="Serie de reversión (anulación contabilizada en Dynamics)"
+            >
+              Reversión
+            </Badge>
+          )}
+        </div>
+      );
+    },
+  },
+  {
     accessorKey: "issuer_type",
     header: "Tipo Emisor",
     cell: ({ row }) => (
@@ -519,11 +542,28 @@ export const ShipmentsReceptionsColumns = ({
     accessorKey: "is_accounted",
     header: "Contabilización",
     cell: ({ row }) => {
-      const { id, migration_status, is_accounted } = row.original;
+      const { id, migration_status, is_accounted, dyn_series } = row.original;
       const was_migrated = migration_status === "completed";
       const isAnnulled = row.original.is_annulled || !row.original.status;
+      // Cuando Dynamics confirma la reversión, dyn_series pasa a tener el
+      // sufijo "*" — a partir de ese momento ya no hay nada más que sincronizar.
+      const reversalConfirmed = !!dyn_series?.endsWith("*");
 
       if (isAnnulled) {
+        if (!reversalConfirmed && was_migrated && onSyncWithDynamics) {
+          return (
+            <Button
+              variant="outline"
+              size="xs"
+              color="blue"
+              onClick={() => onSyncWithDynamics(id)}
+            >
+              <CloudUpload className="size-3.5" />
+              Sincronizar reversión
+            </Button>
+          );
+        }
+
         return (
           <Badge color="gray" icon={Ban}>
             Anulado
@@ -666,8 +706,34 @@ export const ShipmentsReceptionsColumns = ({
         row.original.is_accounted === true;
 
       if (isAnnulled) {
+        // Una guía anulada sigue necesitando: ver detalle, consultar el historial
+        // de migración y (mientras la reversión no esté confirmada en Dynamics)
+        // reintentar la sincronización contra la nueva serie (dyn_series + "*").
+        const reversalConfirmed = !!row.original.dyn_series?.endsWith("*");
+        const canSyncReversal =
+          !!onSyncWithDynamics &&
+          row.original.migration_status === "completed" &&
+          !reversalConfirmed;
+
         return (
           <div className="flex items-center gap-2">
+            <ButtonAction
+              icon={Eye}
+              tooltip="Ver detalles"
+              onClick={() => onViewDetails(row.original)}
+              canRender={canView}
+            />
+
+            {canViewHistory && <ShippingGuideHistory shippingGuideId={id} />}
+
+            <ButtonAction
+              icon={CloudUpload}
+              tooltip="Sincronizar reversión con Dynamics"
+              color="blue"
+              onClick={() => onSyncWithDynamics && onSyncWithDynamics(id)}
+              canRender={canSyncReversal}
+            />
+
             <Badge color="gray" icon={Ban}>
               Anulado
             </Badge>

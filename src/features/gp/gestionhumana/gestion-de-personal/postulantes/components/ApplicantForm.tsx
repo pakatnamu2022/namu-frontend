@@ -1,17 +1,29 @@
 "use client";
 
+import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { Loader, IdCard, Phone, MapPin, GraduationCap, Car, Briefcase } from "lucide-react";
+import {
+  Loader,
+  IdCard,
+  Phone,
+  MapPin,
+  GraduationCap,
+  Car,
+  Briefcase,
+} from "lucide-react";
 import { FormInput } from "@/shared/components/FormInput";
 import { FormSelect } from "@/shared/components/FormSelect";
 import { FormSelectAsync } from "@/shared/components/FormSelectAsync";
 import { GroupFormSection } from "@/shared/components/GroupFormSection";
 import { DatePickerFormField } from "@/shared/components/DatePickerFormField";
 import { useRecruitmentProcesses } from "@/features/gp/gestionhumana/gestion-de-personal/procesos-postulacion/lib/recruitmentProcess.hook";
+import { useDniValidation } from "@/shared/hooks/useDocumentValidation";
+import { DocumentValidationStatus } from "@/shared/components/DocumentValidationStatus";
+import { ValidationIndicator } from "@/shared/components/ValidationIndicator";
 import {
   ApplicantSchema,
   applicantSchemaCreate,
@@ -25,12 +37,25 @@ const SEXO_OPTIONS = [
   { value: "F", label: "Femenino" },
 ];
 
+const NUM_DIGITS_DNI = 8;
+
+// Factiliza/RENIEC devuelve la fecha como "DD/MM/YYYY"; nuestro DatePicker espera "YYYY-MM-DD".
+function toIsoDate(value?: string | null): string {
+  if (!value) return "";
+  if (/^\d{4}-\d{2}-\d{2}$/.test(value)) return value;
+  const [day, month, year] = value.split("/");
+  if (!day || !month || !year) return "";
+  return `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
+}
+
 interface ApplicantFormProps {
   defaultValues: Partial<ApplicantSchema>;
   onSubmit: (data: any) => void;
   isSubmitting?: boolean;
   mode?: "create" | "update";
   defaultProcessOption?: Option;
+  lockProcess?: boolean;
+  cancelRoute?: string;
 }
 
 export const ApplicantForm = ({
@@ -39,8 +64,13 @@ export const ApplicantForm = ({
   isSubmitting = false,
   mode = "create",
   defaultProcessOption,
+  lockProcess = false,
+  cancelRoute,
 }: ApplicantFormProps) => {
   const { ABSOLUTE_ROUTE } = APPLICANT;
+  // En edición no se debe disparar la consulta a RENIEC ni sobrescribir los
+  // datos ya guardados al abrir el formulario.
+  const [isFirstLoad, setIsFirstLoad] = useState(mode === "update");
 
   const form = useForm<any>({
     resolver: zodResolver(
@@ -58,6 +88,48 @@ export const ApplicantForm = ({
   const useOpenProcesses = (params: Record<string, any>) =>
     useRecruitmentProcesses({ ...params, status_id: undefined });
 
+  const vat = form.watch("vat");
+  // En edición, solo se dispara la consulta automática cuando el usuario
+  // realmente cambia el DNI guardado, no al cargar el formulario.
+  const initialVatRef = useRef(defaultValues.vat ?? "");
+  useEffect(() => {
+    if (isFirstLoad && vat !== initialVatRef.current) {
+      setIsFirstLoad(false);
+    }
+  }, [vat, isFirstLoad]);
+
+  const shouldTriggerDni = !isFirstLoad && vat?.length === NUM_DIGITS_DNI;
+
+  const {
+    data: dniData,
+    isLoading: isDniLoading,
+    error: dniError,
+  } = useDniValidation(vat, shouldTriggerDni, false);
+
+  // Auto-completa los datos personales apenas RENIEC responde, sin necesidad
+  // de un botón de búsqueda (mismo patrón que CustomersForm).
+  useEffect(() => {
+    if (isFirstLoad) return;
+
+    if (dniData?.success && dniData.data) {
+      const p = dniData.data;
+      form.setValue("nombre_completo", p.names ?? "", {
+        shouldValidate: true,
+      });
+      if (p.gender) form.setValue("sexo", p.gender);
+      const birthDate = toIsoDate(p.birth_date);
+      if (birthDate) form.setValue("fecha_nacimiento", birthDate);
+      if (p.department) form.setValue("departamento", p.department);
+      if (p.province) form.setValue("provincia", p.province);
+      if (p.district) form.setValue("distrito", p.district);
+      if (p.address) form.setValue("direccion_principal", p.address);
+    } else if (dniData && !dniData.success) {
+      form.setValue("nombre_completo", "", { shouldValidate: true });
+    }
+  }, [dniData, isFirstLoad, form]);
+
+  const shouldDisablePersonalFields = Boolean(dniData?.success && dniData.data);
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 w-full">
@@ -74,18 +146,64 @@ export const ApplicantForm = ({
               description: [p.sede, p.cargo].filter(Boolean).join(" · "),
             })}
             defaultOption={defaultProcessOption}
-            disabled={mode === "update"}
+            disabled={mode === "update" || lockProcess}
             required
           />
         </GroupFormSection>
 
         <GroupFormSection title="Identidad" icon={IdCard} color="violet" cols={{ sm: 2, md: 3 }}>
-          <FormInput control={form.control} name="nombre_completo" label="Nombre completo" required />
-          <FormInput control={form.control} name="vat" label="DNI / Documento" required />
+          <FormInput
+            control={form.control}
+            name="vat"
+            label={
+              <div className="flex items-center justify-between gap-2 w-full">
+                DNI / Documento
+                <DocumentValidationStatus
+                  shouldValidate
+                  documentNumber={vat ?? ""}
+                  expectedDigits={NUM_DIGITS_DNI}
+                  isValidating={isDniLoading}
+                />
+              </div>
+            }
+            required
+            inputMode="numeric"
+            maxLength={NUM_DIGITS_DNI}
+            onInput={(e: React.ChangeEvent<HTMLInputElement>) => {
+              e.target.value = e.target.value.replace(/\D/g, "");
+            }}
+            addonEnd={
+              <ValidationIndicator
+                show={!!vat}
+                isValidating={isDniLoading}
+                isValid={!!dniData?.success && !!dniData.data}
+                hasError={!!dniError || (dniData && !dniData.success)}
+              />
+            }
+          />
+          <FormInput
+            control={form.control}
+            name="nombre_completo"
+            label="Nombre completo"
+            required
+            disabled={shouldDisablePersonalFields}
+          />
           <FormInput control={form.control} name="vat2" label="Brevete" />
           <FormInput control={form.control} name="vat3" label="Pasaporte / C.E." />
-          <FormSelect control={form.control} name="sexo" label="Sexo" placeholder="Seleccionar..." options={SEXO_OPTIONS} />
-          <DatePickerFormField control={form.control} name="fecha_nacimiento" label="Fecha de nacimiento" />
+          <FormSelect
+            control={form.control}
+            name="sexo"
+            label="Sexo"
+            placeholder="Seleccionar..."
+            options={SEXO_OPTIONS}
+            disabled={shouldDisablePersonalFields}
+          />
+          <DatePickerFormField
+            control={form.control}
+            name="fecha_nacimiento"
+            label="Fecha de nacimiento"
+            disabled={shouldDisablePersonalFields}
+          />
           <FormInput control={form.control} name="nacionalidad" label="Nacionalidad" />
           <FormInput control={form.control} name="lugar_nacimiento" label="Lugar de nacimiento" />
           <FormInput control={form.control} name="estado_civil" label="Estado civil" />
@@ -100,11 +218,31 @@ export const ApplicantForm = ({
         </GroupFormSection>
 
         <GroupFormSection title="Domicilio" icon={MapPin} color="green" cols={{ sm: 2, md: 3 }}>
-          <FormInput control={form.control} name="direccion_principal" label="Dirección principal" />
+          <FormInput
+            control={form.control}
+            name="direccion_principal"
+            label="Dirección principal"
+            disabled={shouldDisablePersonalFields}
+          />
           <FormInput control={form.control} name="direccion_ref" label="Referencia" />
-          <FormInput control={form.control} name="distrito" label="Distrito" />
-          <FormInput control={form.control} name="provincia" label="Provincia" />
-          <FormInput control={form.control} name="departamento" label="Departamento" />
+          <FormInput
+            control={form.control}
+            name="distrito"
+            label="Distrito"
+            disabled={shouldDisablePersonalFields}
+          />
+          <FormInput
+            control={form.control}
+            name="provincia"
+            label="Provincia"
+            disabled={shouldDisablePersonalFields}
+          />
+          <FormInput
+            control={form.control}
+            name="departamento"
+            label="Departamento"
+            disabled={shouldDisablePersonalFields}
+          />
         </GroupFormSection>
 
         <GroupFormSection title="Brevete / MATPEL" icon={Car} color="red" cols={{ sm: 2, md: 3 }}>
@@ -121,12 +259,12 @@ export const ApplicantForm = ({
         </GroupFormSection>
 
         <div className="flex gap-4 w-full justify-end">
-          <Link to={ABSOLUTE_ROUTE}>
+          <Link to={cancelRoute ?? ABSOLUTE_ROUTE}>
             <Button type="button" variant="outline">
               Cancelar
             </Button>
           </Link>
-          <Button type="submit" disabled={isSubmitting || !form.formState.isValid}>
+          <Button type="submit" disabled={isSubmitting || !form.formState.isValid || isDniLoading}>
             <Loader className={`mr-2 h-4 w-4 ${!isSubmitting ? "hidden" : "animate-spin"}`} />
             {isSubmitting ? "Guardando" : "Guardar Postulante"}
           </Button>

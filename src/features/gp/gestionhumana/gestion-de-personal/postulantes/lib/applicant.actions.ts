@@ -30,10 +30,8 @@ export async function getApplicants({
 export async function findApplicantById(
   id: string,
 ): Promise<ApplicantResource> {
-  const { data } = await api.get<{ data: ApplicantResource }>(
-    `${ENDPOINT}/${id}`,
-  );
-  return data.data;
+  const { data } = await api.get<ApplicantResource>(`${ENDPOINT}/${id}`);
+  return data;
 }
 
 export async function storeApplicant(
