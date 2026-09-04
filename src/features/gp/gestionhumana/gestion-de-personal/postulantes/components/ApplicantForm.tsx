@@ -128,7 +128,11 @@ export const ApplicantForm = ({
 
   // Consulta de licencia de conducir por el mismo DNI: si la persona tiene
   // brevete, se autocompleta; si no lo tiene, el campo queda editable.
-  const { data: licenseData } = useLicenseValidation(vat, shouldTriggerDni, false);
+  const { data: licenseData } = useLicenseValidation(
+    vat,
+    shouldTriggerDni,
+    false,
+  );
 
   // Auto-completa los datos personales apenas RENIEC responde, sin necesidad
   // de un botón de búsqueda (mismo patrón que CustomersForm).
@@ -170,7 +174,9 @@ export const ApplicantForm = ({
   useEffect(() => {
     if (isFirstLoad) return;
 
-    const licencia = licenseData?.success ? licenseData.data?.licencia : undefined;
+    const licencia = licenseData?.success
+      ? licenseData.data?.licencia
+      : undefined;
     if (licencia?.numero) {
       form.setValue("vat2", toUpperAscii(licencia.numero));
     }
@@ -314,6 +320,7 @@ export const ApplicantForm = ({
                 control={form.control}
                 name="fecha_estado_civil"
                 label="Fecha estado civil"
+                captionLayout="dropdown"
               />
               <FormInput
                 control={form.control}
@@ -380,16 +387,19 @@ export const ApplicantForm = ({
                 control={form.control}
                 name="cel_personal"
                 label="Celular personal"
+                maxLength={9}
               />
               <FormInput
                 control={form.control}
                 name="cel_refencia"
                 label="Celular de referencia"
+                maxLength={9}
               />
               <FormInput
                 control={form.control}
                 name="tel_referencia_2"
                 label="Teléfono referencia 2"
+                maxLength={9}
               />
             </GroupFormSection>
 
