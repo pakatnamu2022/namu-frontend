@@ -33,11 +33,10 @@ export async function getAllOrderQuotationDetails({
       ...params,
     },
   };
-  const { data } = await api.get<OrderQuotationDetailsResource[]>(
-    ENDPOINT,
-    config
-  );
-  return data;
+  const { data } = await api.get<
+    OrderQuotationDetailsResource[] | { data: OrderQuotationDetailsResource[] }
+  >(ENDPOINT, config);
+  return Array.isArray(data) ? data : data.data;
 }
 
 export async function findOrderQuotationDetailsById(

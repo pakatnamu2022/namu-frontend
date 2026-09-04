@@ -26,7 +26,7 @@ interface Props {
 
 const getQuotationStatus = (
   quotationDate: string | null | undefined,
-  isTake: boolean,
+  isTakeOt: boolean,
 ): "Aperturada" | "Vencida" | "Aceptada" => {
   if (!quotationDate) return "Aperturada";
 
@@ -39,7 +39,7 @@ const getQuotationStatus = (
   const today = new Date();
   const expired = today > expirationByRule;
 
-  if (expired && isTake) return "Aceptada";
+  if (isTakeOt) return "Aceptada";
   if (expired) return "Vencida";
   return "Aperturada";
 };
@@ -181,8 +181,8 @@ export const orderQuotationColumns = ({
     id: "status",
     header: "Estado",
     cell: ({ row }) => {
-      const isTake = !!(row.getValue("is_take") as boolean | undefined);
-      const status = getQuotationStatus(row.original.quotation_date, isTake);
+      const isTakeOt = Boolean(row.original.is_take_ot);
+      const status = getQuotationStatus(row.original.quotation_date, isTakeOt);
 
       return (
         <Badge

@@ -197,7 +197,10 @@ export async function updateInvoiceTo(
   return response.data;
 }
 
-export async function downloadDeliveryPdf(id: number): Promise<void> {
+export async function downloadDeliveryPdf(
+  id: number,
+  correlative: string,
+): Promise<void> {
   let response;
   try {
     response = await api.get(`${ENDPOINT}/${id}/delivery-report`, {
@@ -225,7 +228,7 @@ export async function downloadDeliveryPdf(id: number): Promise<void> {
   const url = window.URL.createObjectURL(blob);
   const link = document.createElement("a");
   link.href = url;
-  link.setAttribute("download", `reporte-entrega-${id}.pdf`);
+  link.setAttribute("download", `RE-${correlative}.pdf`);
 
   // Hacer clic automáticamente para iniciar la descarga
   document.body.appendChild(link);

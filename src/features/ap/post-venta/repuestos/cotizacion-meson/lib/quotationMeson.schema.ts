@@ -35,6 +35,7 @@ export const productDetailMesonSchema = z.object({
     "CENTRAL_IMPORTACION",
   ]),
   is_traverse: z.boolean().default(false),
+  order: z.number().int().min(0).nullable().optional(),
 });
 
 // Schema para crear cotización con productos

@@ -80,6 +80,7 @@ export function WorkOrderActionCell({
   } = useAuthorizeInternalNoteRevert();
   const {
     id,
+    correlative,
     is_inspection_completed,
     status_id,
     is_delivery,
@@ -95,7 +96,7 @@ export function WorkOrderActionCell({
   const handleDownloadPdf = async () => {
     setIsDownloading(true);
     try {
-      await downloadDeliveryPdf(id);
+      await downloadDeliveryPdf(id, correlative);
       successToast("PDF descargado exitosamente");
     } catch (error: any) {
       const message =

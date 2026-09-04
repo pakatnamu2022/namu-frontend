@@ -12,12 +12,14 @@ import {
   successToast,
   ERROR_MESSAGE,
   SUCCESS_MESSAGE,
+  formatDate,
+  formatMoney,
 } from "@/core/core.function.ts";
 import { IGV } from "@/core/core.constants.ts";
 import { CURRENCY_TYPE_IDS } from "@/features/ap/configuraciones/maestros-general/tipos-moneda/lib/CurrencyTypes.constants.ts";
 import { ORDER_QUOTATION_TALLER } from "@/features/ap/post-venta/taller/cotizacion/lib/proforma.constants.ts";
 import { ORDER_QUOTATION_DETAILS } from "@/features/ap/post-venta/taller/cotizacion-detalle/lib/proformaDetails.constants.ts";
-import { findOrderQuotationById } from "@/features/ap/post-venta/taller/cotizacion/lib/proforma.actions.ts";
+import { findOrderQuotationSimpleById } from "@/features/ap/post-venta/taller/cotizacion/lib/proforma.actions.ts";
 import { recalculateOrderQuotationTotals } from "@/features/ap/post-venta/repuestos/cotizacion-meson/lib/quotationMeson.actions";
 import {
   getAllOrderQuotationDetails,
@@ -27,8 +29,6 @@ import { OrderQuotationResource } from "@/features/ap/post-venta/taller/cotizaci
 import { OrderQuotationDetailsResource } from "@/features/ap/post-venta/taller/cotizacion-detalle/lib/proformaDetails.interface.ts";
 import LaborDetailsSection from "@/features/ap/post-venta/taller/cotizacion-detalle/components/LaborDetailsSection.tsx";
 import ProductDetailsSection from "@/features/ap/post-venta/taller/cotizacion-detalle/components/ProductDetailsSection.tsx";
-import { format } from "date-fns";
-import { es } from "date-fns/locale";
 import { useDiscountRequestsQuotation } from "@/features/ap/post-venta/repuestos/descuento-cotizacion-meson/lib/discountRequestMeson.hook";
 import {
   ITEM_TYPE_DCT_LABOR,
@@ -68,7 +68,7 @@ export default function ManageQuotationPage() {
         setIsLoading(true);
       }
       const [quotationData, detailsData] = await Promise.all([
-        findOrderQuotationById(quotationId),
+        findOrderQuotationSimpleById(quotationId),
         getAllOrderQuotationDetails({
           params: { order_quotation_id: quotationId },
         }),
@@ -130,21 +130,6 @@ export default function ManageQuotationPage() {
     }
   };
 
-  const formatDate = (dateString: string) => {
-    try {
-      return format(new Date(dateString), "dd/MM/yyyy", { locale: es });
-    } catch {
-      return dateString;
-    }
-  };
-
-  const formatCurrency = (
-    amount: number,
-    quotation: OrderQuotationResource,
-  ) => {
-    return `${quotation.type_currency.symbol} ${amount.toFixed(2)}`;
-  };
-
   // Calcular el total actual desde los detalles
   const currentTotal = details.reduce((sum, detail) => {
     return sum + (Number(detail.net_amount) || 0);
@@ -181,14 +166,14 @@ export default function ManageQuotationPage() {
         </Button>
         <TitleComponent
           title="Gestionar Cotización"
-          subtitle={`Cotización: ${quotation.quotation_number}`}
+          subtitle={quotation.quotation_number}
         />
       </div>
 
       {/* Información de la Cotización */}
       <section className="overflow-hidden rounded-3xl border border-border bg-linear-to-br from-primary/5 via-background to-background">
         <div className="grid grid-cols-1 lg:grid-cols-[360px_minmax(0,1fr)]">
-          <div className="border-b border-border/80 bg-primary/5 p-6 md:p-7 lg:border-b-0 lg:border-r lg:border-border/80">
+          <div className="border-b border-border/80 bg-primary/5 p-6 lg:border-b-0 lg:border-r lg:border-border/80">
             <div className="flex items-center justify-between gap-2">
               <div className="flex items-center gap-2">
                 <div className="size-8 rounded-full bg-background/80 flex items-center justify-center">
@@ -260,7 +245,7 @@ export default function ManageQuotationPage() {
               <div className="flex items-center justify-between gap-3">
                 <p className="text-sm text-muted-foreground">Monto Total</p>
                 <p className="text-lg font-semibold text-foreground">
-                  {formatCurrency(currentTotal, quotation)}
+                  {formatMoney(currentTotal, 2, quotation.type_currency.symbol)}
                 </p>
               </div>
               <div className="flex items-center justify-between gap-3">
@@ -268,7 +253,7 @@ export default function ManageQuotationPage() {
                   IGV ({(IGV.RATE * 100).toFixed(0)}%)
                 </p>
                 <p className="text-base font-medium text-foreground">
-                  {formatCurrency(igvAmount, quotation)}
+                  {formatMoney(igvAmount, 2, quotation.type_currency.symbol)}
                 </p>
               </div>
               <div className="pt-3 border-t border-dashed border-border flex items-center justify-between gap-3">
@@ -276,7 +261,11 @@ export default function ManageQuotationPage() {
                   Total Propuesta
                 </p>
                 <p className="text-2xl font-bold text-primary">
-                  {formatCurrency(proposalTotal, quotation)}
+                  {formatMoney(
+                    proposalTotal,
+                    2,
+                    quotation.type_currency.symbol,
+                  )}
                 </p>
               </div>
             </div>
@@ -294,7 +283,7 @@ export default function ManageQuotationPage() {
           </div>
 
           {quotation.vehicle && (
-            <div className="p-6 md:p-7">
+            <div className="p-4 md:p-7">
               <div className="flex items-center gap-2">
                 <Car className="h-5 w-5 text-primary" />
                 <h3 className="text-base md:text-lg font-semibold text-foreground">

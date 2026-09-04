@@ -33,8 +33,31 @@ import {
   ChevronDown,
   ChevronUp,
   Percent,
+  ArrowUpDown,
+  Check,
 } from "lucide-react";
-import { useState, useEffect } from "react";
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  SortableContext,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+import {
+  useState,
+  useEffect,
+  type HTMLAttributes,
+  type ReactNode,
+} from "react";
 import {
   DEFAULT_APPROVED_DISCOUNT,
   EMPRESA_AP,
@@ -168,10 +191,12 @@ export default function ProformaMesonForm({
     mode: "onChange",
   });
 
-  const { fields, append, remove, update } = useFieldArray({
+  const { fields, append, remove, update, move } = useFieldArray({
     control: form.control,
     name: "details",
   });
+
+  const [isSorting, setIsSorting] = useState(false);
 
   const quotationDate = form.watch("quotation_date");
   const currencyId = form.watch("currency_id");
@@ -321,6 +346,28 @@ export default function ProformaMesonForm({
     closeSheet();
   };
 
+  const toggleSortMode = () => {
+    setIsSorting((prev) => !prev);
+  };
+
+  const sortSensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    }),
+  );
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+
+    const oldIndex = fields.findIndex((f) => f.id === active.id);
+    const newIndex = fields.findIndex((f) => f.id === over.id);
+    if (oldIndex === -1 || newIndex === -1) return;
+
+    move(oldIndex, newIndex);
+  };
+
   const applyGlobalDiscount = () => {
     const parsed = Number(globalDiscountValue);
     if (Number.isNaN(parsed) || parsed < 0) return;
@@ -425,9 +472,19 @@ export default function ProformaMesonForm({
 
   if (isLoadingMySedes) return <FormSkeleton />;
 
+  const handleSubmit = (data: QuotationMesonWithProductsSchema) => {
+    onSubmit({
+      ...data,
+      details: data.details?.map((detail, index) => ({
+        ...detail,
+        order: index,
+      })),
+    });
+  };
+
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
         {/* Información de la Cotización */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
           <FormSelect
@@ -651,7 +708,29 @@ export default function ProformaMesonForm({
             <h3 className="text-lg font-semibold">Repuestos</h3>
           </div>
           <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center">
-            {fields.length > 0 && (
+            {fields.length > 1 && (
+              <Button
+                type="button"
+                variant={isSorting ? "default" : "outline"}
+                size="sm"
+                className="w-full sm:w-auto"
+                onClick={toggleSortMode}
+                disabled={isDetailsDisabled}
+              >
+                {isSorting ? (
+                  <>
+                    <Check className="h-4 w-4 mr-2" />
+                    Listo
+                  </>
+                ) : (
+                  <>
+                    <ArrowUpDown className="h-4 w-4 mr-2" />
+                    Ordenar
+                  </>
+                )}
+              </Button>
+            )}
+            {fields.length > 0 && !isSorting && (
               <Button
                 type="button"
                 size="sm"
@@ -675,7 +754,7 @@ export default function ProformaMesonForm({
                 {globalShowStock ? "Contraer almacenes" : "Expandir almacenes"}
               </Button>
             )}
-            {fields.length > 0 && (
+            {fields.length > 0 && !isSorting && (
               <Popover
                 open={globalDiscountOpen}
                 onOpenChange={(next) => {
@@ -738,27 +817,31 @@ export default function ProformaMesonForm({
                 </PopoverContent>
               </Popover>
             )}
-            <Button
-              type="button"
-              onClick={() => setIsPartModalOpen(true)}
-              size="sm"
-              variant="outline"
-              className="w-full sm:w-auto"
-              disabled={isDetailsDisabled}
-            >
-              <PackagePlus className="h-4 w-4 mr-2" />
-              Crear Repuesto
-            </Button>
-            <Button
-              type="button"
-              onClick={openAddSheet}
-              size="sm"
-              className="w-full sm:w-auto"
-              disabled={!quotationDate || isDetailsDisabled}
-            >
-              <Plus className="h-4 w-4 mr-2" />
-              Agregar Repuesto
-            </Button>
+            {!isSorting && (
+              <Button
+                type="button"
+                onClick={() => setIsPartModalOpen(true)}
+                size="sm"
+                variant="outline"
+                className="w-full sm:w-auto"
+                disabled={isDetailsDisabled}
+              >
+                <PackagePlus className="h-4 w-4 mr-2" />
+                Crear Repuesto
+              </Button>
+            )}
+            {!isSorting && (
+              <Button
+                type="button"
+                onClick={openAddSheet}
+                size="sm"
+                className="w-full sm:w-auto"
+                disabled={!quotationDate || isDetailsDisabled}
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                Agregar Repuesto
+              </Button>
+            )}
           </div>
         </div>
 
@@ -801,7 +884,10 @@ export default function ProformaMesonForm({
           <div className="space-y-3">
             {/* Cabecera de tabla - Solo Desktop */}
             <div className="hidden md:grid grid-cols-12 gap-3 bg-gray-100 px-4 py-2 rounded-t-lg text-xs font-semibold text-gray-700 border-b">
-              <div className="col-span-4">Repuesto</div>
+              {isSorting && <div className="col-span-1" />}
+              <div className={isSorting ? "col-span-3" : "col-span-4"}>
+                Repuesto
+              </div>
               <div className="col-span-1 text-center">Cant.</div>
               <div className="col-span-2 text-center">
                 P. Unit. ({selectedCurrency?.symbol || "S/."})
@@ -810,55 +896,86 @@ export default function ProformaMesonForm({
               <div className="col-span-2 text-center">
                 Total ({selectedCurrency?.symbol || "S/."})
               </div>
-              <div className="col-span-2 text-center">Acción</div>
+              <div className={isSorting ? "col-span-1" : "col-span-2"}>
+                {isSorting ? "" : "Acción"}
+              </div>
             </div>
 
             {/* Items */}
-            <div className="space-y-2">
-              {fields.map((field, index) => {
-                const isStockVisible =
-                  itemStockVisible[index] !== undefined
-                    ? itemStockVisible[index]
-                    : globalShowStock;
+            <DndContext
+              sensors={sortSensors}
+              collisionDetection={closestCenter}
+              onDragEnd={handleDragEnd}
+            >
+              <SortableContext
+                items={fields.map((f) => f.id)}
+                strategy={verticalListSortingStrategy}
+              >
+                <div className="space-y-2">
+                  {fields.map((field, index) => {
+                    const isStockVisible = isSorting
+                      ? false
+                      : itemStockVisible[index] !== undefined
+                        ? itemStockVisible[index]
+                        : globalShowStock;
 
-                return (
-                  <ProductDetailRow
-                    key={field.id}
-                    index={index}
-                    detail={watchedDetails?.[index] as ProductDetailMesonSchema}
-                    selectedCurrency={selectedCurrency}
-                    stockData={stockData}
-                    showStock={isStockVisible}
-                    onToggleStock={() =>
-                      setItemStockVisible((prev) => ({
-                        ...prev,
-                        [index]: !isStockVisible,
-                      }))
-                    }
-                    onEdit={() => openEditSheet(index)}
-                    onRemove={() => remove(index)}
-                    onChangeSupplyType={(value) =>
-                      form.setValue(
-                        `details.${index}.supply_type`,
-                        value as any,
-                        {
-                          shouldValidate: true,
-                          shouldDirty: true,
-                        },
-                      )
-                    }
-                    onToggleTraverse={(value) =>
-                      form.setValue(`details.${index}.is_traverse`, value, {
-                        shouldValidate: true,
-                        shouldDirty: true,
-                      })
-                    }
-                    isDetailsDisabled={isDetailsDisabled}
-                    sedeId={sedeId}
-                  />
-                );
-              })}
-            </div>
+                    return (
+                      <SortableProductDetailRow
+                        key={field.id}
+                        id={field.id}
+                        sortable={isSorting}
+                      >
+                        {(dragHandleProps) => (
+                          <ProductDetailRow
+                            index={index}
+                            detail={
+                              watchedDetails?.[
+                                index
+                              ] as ProductDetailMesonSchema
+                            }
+                            selectedCurrency={selectedCurrency}
+                            stockData={stockData}
+                            showStock={isStockVisible}
+                            onToggleStock={() =>
+                              setItemStockVisible((prev) => ({
+                                ...prev,
+                                [index]: !isStockVisible,
+                              }))
+                            }
+                            onEdit={() => openEditSheet(index)}
+                            onRemove={() => remove(index)}
+                            onChangeSupplyType={(value) =>
+                              form.setValue(
+                                `details.${index}.supply_type`,
+                                value as any,
+                                {
+                                  shouldValidate: true,
+                                  shouldDirty: true,
+                                },
+                              )
+                            }
+                            onToggleTraverse={(value) =>
+                              form.setValue(
+                                `details.${index}.is_traverse`,
+                                value,
+                                {
+                                  shouldValidate: true,
+                                  shouldDirty: true,
+                                },
+                              )
+                            }
+                            isDetailsDisabled={isDetailsDisabled}
+                            sedeId={sedeId}
+                            sortable={isSorting}
+                            dragHandleProps={dragHandleProps}
+                          />
+                        )}
+                      </SortableProductDetailRow>
+                    );
+                  })}
+                </div>
+              </SortableContext>
+            </DndContext>
 
             {/* Total General */}
             <div className="flex justify-end pt-4">
@@ -992,5 +1109,40 @@ export default function ProformaMesonForm({
         }
       />
     </Form>
+  );
+}
+
+/** Envuelve un item con soporte de drag-and-drop cuando `sortable` está activo. */
+function SortableProductDetailRow({
+  id,
+  sortable,
+  children,
+}: {
+  id: string;
+  sortable: boolean;
+  children: (dragHandleProps: HTMLAttributes<HTMLButtonElement>) => ReactNode;
+}) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id, disabled: !sortable });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  };
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      className={isDragging ? "z-10 opacity-80" : ""}
+    >
+      {children({ ...attributes, ...listeners })}
+    </div>
   );
 }

@@ -3,6 +3,7 @@ import { api } from "@/core/api";
 import { GeneralResponse } from "@/shared/lib/response.interface";
 import { CAMPAIGN } from "./campaign.constants";
 import {
+  ActiveCampaignResponse,
   CampaignResource,
   CampaignResponse,
   getActiveCampaignProps,
@@ -61,8 +62,8 @@ export async function deleteCampaign(id: number): Promise<GeneralResponse> {
 
 export async function getActiveCampaign({
   params,
-}: getActiveCampaignProps): Promise<CampaignResource | null> {
-  const { data } = await api.get<CampaignResource | null>(
+}: getActiveCampaignProps): Promise<ActiveCampaignResponse> {
+  const { data } = await api.get<ActiveCampaignResponse>(
     `${ENDPOINT}/active`,
     { params: { ...params } },
   );
