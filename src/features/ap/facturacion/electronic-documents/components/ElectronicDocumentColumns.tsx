@@ -424,8 +424,7 @@ export const electronicDocumentColumns = ({
         const router = useNavigate();
         const document = row.original;
 
-        const canMigrate =
-          onMigrate && document.migration_status !== "completed";
+        const canMigrate = onMigrate && document.status !== "draft";
 
         const canResetMigration =
           !!onResetMigration &&
