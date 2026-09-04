@@ -44,7 +44,6 @@ interface Props {
   onDelete: (id: number) => void;
   onView?: (id: number) => void;
   onApprove: (id: number) => void;
-  onDownloadPdf: (id: number) => Promise<void>;
   permissions: {
     canApprove: boolean;
     canUpdate: boolean;
@@ -59,7 +58,6 @@ export const supplierOrderColumns = ({
   onDelete,
   onView,
   onApprove,
-  onDownloadPdf,
   permissions,
   routeUpdate,
   routeReception,
@@ -211,7 +209,6 @@ export const supplierOrderColumns = ({
         onDelete={onDelete}
         onView={onView}
         onApprove={onApprove}
-        onDownloadPdf={onDownloadPdf}
         permissions={permissions}
         routeUpdate={routeUpdate}
         routeReception={routeReception}

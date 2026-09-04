@@ -113,6 +113,7 @@ export async function uploadInspectionPhoto(
 
 export async function downloadVehicleInspectionPdf(
   workOrderId: number,
+  correlative: string,
 ): Promise<void> {
   const response = await api.get(
     `${WORK_ORDER_ENDPOINT}/${workOrderId}/reception-report`,
@@ -128,7 +129,7 @@ export async function downloadVehicleInspectionPdf(
   const url = window.URL.createObjectURL(blob);
   const link = document.createElement("a");
   link.href = url;
-  link.setAttribute("download", `recepcion-vehiculo-${workOrderId}.pdf`);
+  link.setAttribute("download", `OR-${correlative}.pdf`);
 
   // Hacer clic automáticamente para iniciar la descarga
   document.body.appendChild(link);
@@ -141,6 +142,7 @@ export async function downloadVehicleInspectionPdf(
 
 export async function downloadOrderReceiptPdf(
   workOrderId: number,
+  correlative: string,
 ): Promise<void> {
   const response = await api.get(
     `${WORK_ORDER_ENDPOINT}/${workOrderId}/order-receipt`,
@@ -154,7 +156,7 @@ export async function downloadOrderReceiptPdf(
   const url = window.URL.createObjectURL(blob);
   const link = document.createElement("a");
   link.href = url;
-  link.setAttribute("download", `orden-recepcion-personal-${workOrderId}.pdf`);
+  link.setAttribute("download", `OR-${correlative}.pdf`);
 
   document.body.appendChild(link);
   link.click();

@@ -748,7 +748,7 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
                   {globalRequest ? (
                     <div className="flex items-center gap-2 text-sm border rounded-md px-3 py-1.5">
                       <span className="text-muted-foreground text-xs">
-                        Desc. global:
+                        Solicitar Desc. global:
                       </span>
                       <span className="font-semibold">
                         {Number(
@@ -826,7 +826,7 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
                         className="gap-2"
                       >
                         <Percent className="size-4" />
-                        Desc. global
+                        Solicitar Desc. global
                       </Button>
                     )
                   )}
@@ -861,8 +861,7 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
               {filteredParts.map((part) => {
                 const partialRequest = getPartialRequest(part.id);
                 const isCampaignDiscount =
-                  Number(part.discount_percentage ?? 0) >
-                  maxDiscountPercentage;
+                  Number(part.discount_percentage ?? 0) > maxDiscountPercentage;
                 return (
                   <TableRow
                     key={part.id}

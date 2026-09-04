@@ -41,7 +41,7 @@ export const PurchaseRequestActionsCell = ({
   onCancel,
   onNotifyManagers,
 }: ActionsCellProps) => {
-  const { id, ap_order_quotation_id, status, approved } = row;
+  const { id, request_number, ap_order_quotation_id, status, approved } = row;
   const [isDownloadingPdf, setIsDownloadingPdf] = useState(false);
 
   const hasQuotation = ap_order_quotation_id !== null;
@@ -60,7 +60,7 @@ export const PurchaseRequestActionsCell = ({
   const handleDownloadPdf = async () => {
     setIsDownloadingPdf(true);
     try {
-      await downloadPurchaseRequestPdf(id);
+      await downloadPurchaseRequestPdf(id, request_number);
       successToast("PDF descargado correctamente para la solicitud de compra");
     } catch {
       errorToast("Error al descargar el PDF");

@@ -89,7 +89,10 @@ export default function ReceptionTab({ workOrderId }: ReceptionTabProps) {
 
     try {
       setIsDownloading(true);
-      await downloadVehicleInspectionPdf(workOrderId);
+      await downloadVehicleInspectionPdf(
+        workOrderId,
+        workOrder?.correlative || "N/A",
+      );
       successToast("PDF descargado exitosamente");
     } catch (error) {
       console.error("Error al descargar PDF:", error);

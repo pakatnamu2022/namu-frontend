@@ -292,7 +292,10 @@ export default function OpeningTab({
 
     try {
       setIsDownloading(true);
-      await downloadOrderReceiptPdf(workOrderId);
+      await downloadOrderReceiptPdf(
+        workOrderId,
+        workOrder?.correlative || "N/A",
+      );
       successToast("PDF descargado exitosamente");
     } catch (error) {
       console.error("Error al descargar PDF:", error);

@@ -170,6 +170,7 @@ export async function downloadOrderQuotationPdf(
   id: number,
   show_codes: boolean,
   format: "pdf" | "excel" = "pdf",
+  correlative: string,
 ): Promise<void> {
   const response = await api.get(`${ENDPOINT}/${id}/pdf`, {
     responseType: "blob",
@@ -192,7 +193,7 @@ export async function downloadOrderQuotationPdf(
   const url = window.URL.createObjectURL(blob);
   const link = document.createElement("a");
   link.href = url;
-  link.setAttribute("download", `cotizacion-${id}.${extension}`);
+  link.setAttribute("download", `${correlative}.${extension}`);
 
   // Hacer clic automáticamente para iniciar la descarga
   document.body.appendChild(link);
@@ -207,6 +208,7 @@ export async function downloadOrderQuotationRepuestoPdf(
   id: number,
   show_codes: boolean,
   format: "pdf" | "excel" = "pdf",
+  correlative: string,
 ): Promise<void> {
   const response = await api.get(`${ENDPOINT}/${id}/pdf-repuesto`, {
     responseType: "blob",
@@ -229,7 +231,7 @@ export async function downloadOrderQuotationRepuestoPdf(
   const url = window.URL.createObjectURL(blob);
   const link = document.createElement("a");
   link.href = url;
-  link.setAttribute("download", `cotizacion-${id}.${extension}`);
+  link.setAttribute("download", `${correlative}.${extension}`);
 
   // Hacer clic automáticamente para iniciar la descarga
   document.body.appendChild(link);

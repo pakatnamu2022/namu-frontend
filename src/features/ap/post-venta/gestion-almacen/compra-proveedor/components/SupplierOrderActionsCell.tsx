@@ -12,7 +12,9 @@ import {
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog.tsx";
 import { Link } from "react-router-dom";
 import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
+import { errorToast, successToast } from "@/core/core.function.ts";
 import { SupplierOrderResource } from "../lib/supplierOrder.interface.ts";
+import { downloadSupplierOrderPdf } from "../lib/supplierOrder.actions.ts";
 import { DiscardSupplierOrderModal } from "./DiscardSupplierOrderModal";
 
 interface SupplierOrderActionsCellProps {
@@ -20,7 +22,6 @@ interface SupplierOrderActionsCellProps {
   onDelete: (id: number) => void;
   onView?: (id: number) => void;
   onApprove: (id: number) => void;
-  onDownloadPdf: (id: number) => Promise<void>;
   permissions: {
     canApprove: boolean;
     canUpdate: boolean;
@@ -36,13 +37,13 @@ export const SupplierOrderActionsCell = ({
   onDelete,
   onView,
   onApprove,
-  onDownloadPdf,
   permissions,
   routeUpdate,
   routeReception,
 }: SupplierOrderActionsCellProps) => {
   const {
     id,
+    order_number,
     order_number_external,
     has_receptions,
     has_receptions_active,
@@ -67,7 +68,10 @@ export const SupplierOrderActionsCell = ({
   const handleDownloadPdf = async () => {
     setIsDownloadingPdf(true);
     try {
-      await onDownloadPdf(id);
+      await downloadSupplierOrderPdf(id, order_number);
+      successToast("PDF descargado correctamente para la solicitud de compra");
+    } catch {
+      errorToast("Error al descargar el PDF");
     } finally {
       setIsDownloadingPdf(false);
     }

@@ -11,10 +11,7 @@ import {
   SUCCESS_MESSAGE,
   successToast,
 } from "@/core/core.function.ts";
-import {
-  approveSupplierOrder,
-  downloadSupplierOrderPdf,
-} from "@/features/ap/post-venta/gestion-almacen/compra-proveedor/lib/supplierOrder.actions.ts";
+import { approveSupplierOrder } from "@/features/ap/post-venta/gestion-almacen/compra-proveedor/lib/supplierOrder.actions.ts";
 import PageSkeleton from "@/shared/components/PageSkeleton.tsx";
 import TitleComponent from "@/shared/components/TitleComponent.tsx";
 import { SimpleDeleteDialog } from "@/shared/components/SimpleDeleteDialog.tsx";
@@ -115,15 +112,6 @@ export default function SupplierOrderPage() {
     setViewOrderId(id);
   };
 
-  const handleDownloadPdf = async (id: number) => {
-    try {
-      await downloadSupplierOrderPdf(id);
-      successToast(`PDF descargado correctamente para la solicitud de compra`);
-    } catch {
-      errorToast("Error al descargar el PDF");
-    }
-  };
-
   const handleApprove = async (id: number) => {
     try {
       await approveSupplierOrder(id);
@@ -156,7 +144,6 @@ export default function SupplierOrderPage() {
           onDelete: setDeleteId,
           onView: handleView,
           onApprove: handleApprove,
-          onDownloadPdf: handleDownloadPdf,
           permissions,
           routeUpdate: ROUTE_UPDATE,
           routeReception: `${ABSOLUTE_ROUTE}/recepcionar`,
