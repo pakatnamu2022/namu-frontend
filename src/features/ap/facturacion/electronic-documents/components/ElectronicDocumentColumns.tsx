@@ -507,7 +507,7 @@ export const electronicDocumentColumns = ({
               )}
 
               {/* Sincronizar contabilización */}
-              {canSyncAccountingStatus && (
+              {document.is_accounted && (
                 <ConfirmationDialog
                   title="Confirmar sincronización"
                   description="¿Está seguro de que desea sincronizar el estado contable de este documento? Esto puede afectar inventario y órdenes de trabajo/cotización relacionadas."
