@@ -99,18 +99,14 @@ export async function deletePurchaseRequest(
 export async function approvePurchaseRequest(
   id: number,
 ): Promise<GeneralResponse> {
-  const { data } = await api.put<GeneralResponse>(
-    `${ENDPOINT}/${id}/approve`,
-  );
+  const { data } = await api.put<GeneralResponse>(`${ENDPOINT}/${id}/approve`);
   return data;
 }
 
 export async function cancelPurchaseRequest(
   id: number,
 ): Promise<GeneralResponse> {
-  const { data } = await api.put<GeneralResponse>(
-    `${ENDPOINT}/${id}/cancel`,
-  );
+  const { data } = await api.put<GeneralResponse>(`${ENDPOINT}/${id}/cancel`);
   return data;
 }
 
@@ -132,7 +128,10 @@ export async function notifyManagersPurchaseRequest(
   return data;
 }
 
-export async function downloadPurchaseRequestPdf(id: number): Promise<void> {
+export async function downloadPurchaseRequestPdf(
+  id: number,
+  correlative: string,
+): Promise<void> {
   const response = await api.get(`${ENDPOINT}/${id}/pdf`, {
     responseType: "blob",
   });
@@ -144,7 +143,7 @@ export async function downloadPurchaseRequestPdf(id: number): Promise<void> {
   const url = window.URL.createObjectURL(blob);
   const link = document.createElement("a");
   link.href = url;
-  link.setAttribute("download", `solicitud-compra-${id}.pdf`);
+  link.setAttribute("download", `${correlative}.pdf`);
 
   // Hacer clic automáticamente para iniciar la descarga
   document.body.appendChild(link);

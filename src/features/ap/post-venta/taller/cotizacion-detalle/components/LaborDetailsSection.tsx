@@ -210,7 +210,9 @@ export default function LaborDetailsSection({
   const displayedDetails = (() => {
     if (!isSorting || !sortedIds) return laborDetails;
     const byId = new Map(laborDetails.map((d) => [d.id, d]));
-    return sortedIds.map((id) => byId.get(id)).filter(Boolean) as OrderQuotationDetailsResource[];
+    return sortedIds
+      .map((id) => byId.get(id))
+      .filter(Boolean) as OrderQuotationDetailsResource[];
   })();
 
   const globalBaseAmount = laborDetails.reduce(
@@ -387,7 +389,7 @@ export default function LaborDetailsSection({
               {globalRequest ? (
                 <div className="flex items-center gap-2 text-sm border rounded-md px-3 py-1.5">
                   <span className="text-muted-foreground text-xs">
-                    Desc. global:
+                    Solicitar Desc. global:
                   </span>
                   <span className="font-semibold">
                     {Number(
@@ -527,7 +529,7 @@ export default function LaborDetailsSection({
                     className="gap-2"
                   >
                     <Percent className="size-4" />
-                    Desc. global
+                    Solicitar Desc. global
                   </Button>
                 )
               )}

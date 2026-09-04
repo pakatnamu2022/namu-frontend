@@ -102,7 +102,10 @@ export async function discardSupplierOrder(
   return data;
 }
 
-export async function downloadSupplierOrderPdf(id: number): Promise<void> {
+export async function downloadSupplierOrderPdf(
+  id: number,
+  correlative: string,
+): Promise<void> {
   const response = await api.get(`${ENDPOINT}/${id}/pdf`, {
     responseType: "blob",
   });
@@ -114,7 +117,7 @@ export async function downloadSupplierOrderPdf(id: number): Promise<void> {
   const url = window.URL.createObjectURL(blob);
   const link = document.createElement("a");
   link.href = url;
-  link.setAttribute("download", `orden-compra-${id}.pdf`);
+  link.setAttribute("download", `${correlative}.pdf`);
 
   // Hacer clic automáticamente para iniciar la descarga
   document.body.appendChild(link);

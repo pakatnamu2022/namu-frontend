@@ -55,6 +55,7 @@ export const ProformaActionsCell = ({
 }: ActionsCellProps) => {
   const {
     id,
+    quotation_number,
     chief_approval_by,
     manager_approval_by,
     has_management_discount,
@@ -83,7 +84,7 @@ export const ProformaActionsCell = ({
   ) => {
     setIsDownloadingPdf(true);
     try {
-      await downloadOrderQuotationPdf(id, withCode, format);
+      await downloadOrderQuotationPdf(id, withCode, format, quotation_number);
       successToast(
         format === "excel"
           ? "Excel descargado correctamente"

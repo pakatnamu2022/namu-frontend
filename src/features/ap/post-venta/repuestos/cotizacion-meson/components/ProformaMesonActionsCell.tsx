@@ -76,6 +76,7 @@ export const ProformaMesonActionsCell = ({
 }: ActionsCellProps) => {
   const {
     id,
+    quotation_number,
     is_fully_paid,
     status,
     delivery_document_number,
@@ -176,7 +177,12 @@ export const ProformaMesonActionsCell = ({
   ) => {
     setIsDownloadingPdf(true);
     try {
-      await downloadOrderQuotationRepuestoPdf(id, withCode, format);
+      await downloadOrderQuotationRepuestoPdf(
+        id,
+        withCode,
+        format,
+        quotation_number,
+      );
       successToast(
         format === "excel"
           ? "Excel descargado correctamente"
