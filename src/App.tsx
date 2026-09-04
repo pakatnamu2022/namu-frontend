@@ -407,6 +407,9 @@ import UpdateWorkerSignaturePage from "./app/gp/gestion-humana/gestion-de-person
 import RecruitmentProcessPage from "./app/gp/gestion-humana/gestion-de-personal/procesos-postulacion/page.tsx";
 import AddRecruitmentProcessPage from "./app/gp/gestion-humana/gestion-de-personal/procesos-postulacion/agregar/page.tsx";
 import UpdateRecruitmentProcessPage from "./app/gp/gestion-humana/gestion-de-personal/procesos-postulacion/actualizar/[id]/page.tsx";
+import ApplicantPage from "./app/gp/gestion-humana/gestion-de-personal/postulantes/page.tsx";
+import AddApplicantPage from "./app/gp/gestion-humana/gestion-de-personal/postulantes/agregar/page.tsx";
+import UpdateApplicantPage from "./app/gp/gestion-humana/gestion-de-personal/postulantes/actualizar/[id]/page.tsx";
 import PerDiemCategoryPage from "./app/gp/gestion-humana/viaticos/categoria-viaticos/page.tsx";
 import PerDiemPolicyPage from "./app/gp/gestion-humana/viaticos/politica-viaticos/page.tsx";
 import AddPerDiemPolicyPage from "./app/gp/gestion-humana/viaticos/politica-viaticos/agregar/page.tsx";
@@ -2068,6 +2071,12 @@ function App() {
                 <RecruitmentProcessPage />,
                 <AddRecruitmentProcessPage />,
                 <UpdateRecruitmentProcessPage />,
+              )}
+              {RouterCrud(
+                "gestion-de-personal/postulantes",
+                <ApplicantPage />,
+                <AddApplicantPage />,
+                <UpdateApplicantPage />,
               )}
               <Route
                 path="viaticos"
