@@ -504,6 +504,25 @@ export const electronicDocumentColumns = ({
               {document.consolidation_type === "massive" && (
                 <WorkOrdersSheet documentId={document.id} />
               )}
+
+              {canMigrate && (
+                <ConfirmationDialog
+                  title="Confirmar migración"
+                  description="¿Está seguro de que desea migrar este documento?"
+                  onConfirm={() => onMigrate(document.id)}
+                  icon="info"
+                  confirmText="Sí, enviar"
+                  cancelText="No, cancelar"
+                  trigger={
+                    <ButtonAction
+                      tooltip="Migrar"
+                      icon={ArrowRightLeft}
+                      canRender={canMigrate}
+                      color="indigo"
+                    />
+                  }
+                />
+              )}
             </div>
           );
         }
