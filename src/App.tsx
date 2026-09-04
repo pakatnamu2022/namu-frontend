@@ -407,6 +407,7 @@ import UpdateWorkerSignaturePage from "./app/gp/gestion-humana/gestion-de-person
 import RecruitmentProcessPage from "./app/gp/gestion-humana/gestion-de-personal/procesos-postulacion/page.tsx";
 import AddRecruitmentProcessPage from "./app/gp/gestion-humana/gestion-de-personal/procesos-postulacion/agregar/page.tsx";
 import UpdateRecruitmentProcessPage from "./app/gp/gestion-humana/gestion-de-personal/procesos-postulacion/actualizar/[id]/page.tsx";
+import ProcessApplicantsPage from "./app/gp/gestion-humana/gestion-de-personal/procesos-postulacion/postulantes/page.tsx";
 import ApplicantPage from "./app/gp/gestion-humana/gestion-de-personal/postulantes/page.tsx";
 import AddApplicantPage from "./app/gp/gestion-humana/gestion-de-personal/postulantes/agregar/page.tsx";
 import UpdateApplicantPage from "./app/gp/gestion-humana/gestion-de-personal/postulantes/actualizar/[id]/page.tsx";
@@ -2072,6 +2073,10 @@ function App() {
                 <AddRecruitmentProcessPage />,
                 <UpdateRecruitmentProcessPage />,
               )}
+              <Route
+                path="gestion-de-personal/procesos-postulacion/postulantes"
+                element={<ProcessApplicantsPage />}
+              />
               {RouterCrud(
                 "gestion-de-personal/postulantes",
                 <ApplicantPage />,

@@ -29,10 +29,10 @@ export async function getAllRecruitmentProcesses({
 export async function findRecruitmentProcessById(
   id: string,
 ): Promise<RecruitmentProcessResource> {
-  const { data } = await api.get<{ data: RecruitmentProcessResource }>(
+  const { data } = await api.get<RecruitmentProcessResource>(
     `${ENDPOINT}/${id}`,
   );
-  return data.data;
+  return data;
 }
 
 export async function storeRecruitmentProcess(

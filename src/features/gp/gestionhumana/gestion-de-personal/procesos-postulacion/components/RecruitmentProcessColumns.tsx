@@ -4,7 +4,7 @@ import type { ColumnDef } from "@tanstack/react-table";
 import { RecruitmentProcessResource } from "../lib/recruitmentProcess.interface.ts";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { CheckCheck, Pencil } from "lucide-react";
+import { CheckCheck, Pencil, Users } from "lucide-react";
 import { Link } from "react-router-dom";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
 import { ButtonAction } from "@/shared/components/ButtonAction";
@@ -85,11 +85,16 @@ export const recruitmentProcessColumns = ({
     id: "actions",
     header: "Acciones",
     cell: ({ row }) => {
-      const { ROUTE_UPDATE } = RECRUITMENT_PROCESS;
+      const { ROUTE_UPDATE, ABSOLUTE_ROUTE } = RECRUITMENT_PROCESS;
       const { id, is_open } = row.original;
 
       return (
         <div className="flex items-center gap-2">
+          <Button asChild variant="outline" size="icon" className="size-7">
+            <Link to={`${ABSOLUTE_ROUTE}/postulantes?proceso_id=${id}`}>
+              <Users className="size-4" />
+            </Link>
+          </Button>
           {is_open && (
             <Button asChild variant="outline" size="icon" className="size-7">
               <Link to={`${ROUTE_UPDATE}/${id}`}>

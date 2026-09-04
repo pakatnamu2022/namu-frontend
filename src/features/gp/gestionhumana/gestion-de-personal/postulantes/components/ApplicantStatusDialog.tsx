@@ -3,14 +3,7 @@
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { GeneralModal } from "@/shared/components/GeneralModal";
 import { Form } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { Loader } from "lucide-react";
@@ -59,53 +52,52 @@ export default function ApplicantStatusDialog({
     await onConfirm(data);
   };
 
+  const handleClose = () => onOpenChange(false);
+
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Cambiar estado del postulante</DialogTitle>
-          <DialogDescription>
-            {applicant?.nombre_completo} — {applicant?.proceso}
-          </DialogDescription>
-        </DialogHeader>
+    <GeneralModal
+      open={open}
+      onClose={handleClose}
+      title="Cambiar estado del postulante"
+      subtitle={
+        applicant
+          ? `${applicant.nombre_completo} — ${applicant.proceso}`
+          : undefined
+      }
+      icon="ShieldCheck"
+    >
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(submit)} className="space-y-4">
+          <FormSelect
+            control={form.control}
+            name="tipo_trabajador_id"
+            label="Nuevo estado"
+            placeholder="Seleccionar estado..."
+            options={APPLICANT_STATUS_OPTIONS}
+            required
+          />
+          <FormInput
+            control={form.control}
+            name="motivo_status"
+            label="Motivo / observación"
+          />
 
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(submit)} className="space-y-4">
-            <FormSelect
-              control={form.control}
-              name="tipo_trabajador_id"
-              label="Nuevo estado"
-              placeholder="Seleccionar estado..."
-              options={APPLICANT_STATUS_OPTIONS}
-              required
-            />
-            <FormInput
-              control={form.control}
-              name="motivo_status"
-              label="Motivo / observación"
-            />
-
-            <DialogFooter>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => onOpenChange(false)}
-              >
-                Cancelar
-              </Button>
-              <Button
-                type="submit"
-                disabled={isLoading || !form.formState.isValid}
-              >
-                <Loader
-                  className={`mr-2 h-4 w-4 ${!isLoading ? "hidden" : "animate-spin"}`}
-                />
-                Guardar
-              </Button>
-            </DialogFooter>
-          </form>
-        </Form>
-      </DialogContent>
-    </Dialog>
+          <div className="flex justify-end gap-2 pt-2">
+            <Button type="button" variant="outline" onClick={handleClose}>
+              Cancelar
+            </Button>
+            <Button
+              type="submit"
+              disabled={isLoading || !form.formState.isValid}
+            >
+              <Loader
+                className={`mr-2 h-4 w-4 ${!isLoading ? "hidden" : "animate-spin"}`}
+              />
+              Guardar
+            </Button>
+          </div>
+        </form>
+      </Form>
+    </GeneralModal>
   );
 }
