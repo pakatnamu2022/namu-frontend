@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { CAMPAIGN } from "./campaign.constants";
 import {
   ActiveCampaignResponse,
+  CampaignResource,
   CampaignResponse,
 } from "./campaign.interface";
 import {
