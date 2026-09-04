@@ -45,11 +45,11 @@ export function DateRangePickerFilter({
       ? `${format(dateRange.from, dateFormat, { locale: es })} - ${format(
           dateRange.to,
           dateFormat,
-          { locale: es }
+          { locale: es },
         )}`
       : dateRange.from
-      ? `${format(dateRange.from, dateFormat, { locale: es })} - ...`
-      : placeholder;
+        ? `${format(dateRange.from, dateFormat, { locale: es })} - ...`
+        : placeholder;
 
   const handleSelect = (range: DateRange | undefined) => {
     // Always update both dates, even if one is undefined
@@ -64,10 +64,10 @@ export function DateRangePickerFilter({
           variant="outline"
           size={size ? size : "sm"}
           className={cn(
-            "w-full justify-start text-left font-normal",
+            "w-full justify-start text-left font-normal md:w-fit",
             !dateRange.from && "text-muted-foreground",
             dateRange.from && dateRange.to && "bg-muted font-medium",
-            className
+            className,
           )}
         >
           {displayValue}
