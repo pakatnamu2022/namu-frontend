@@ -404,6 +404,12 @@ import UpdateViewPage from "./app/gp/gestion-del-sistema/vistas/actualizar/[id]/
 import ViewPermissionsPage from "./app/gp/gestion-del-sistema/vistas/permisos/[id]/page.tsx";
 import WorkersPage from "./app/gp/gestion-humana/gestion-de-personal/trabajadores/page.tsx";
 import UpdateWorkerSignaturePage from "./app/gp/gestion-humana/gestion-de-personal/trabajadores/actualizar/[id]/page.tsx";
+import RecruitmentProcessPage from "./app/gp/gestion-humana/gestion-de-personal/procesos-postulacion/page.tsx";
+import AddRecruitmentProcessPage from "./app/gp/gestion-humana/gestion-de-personal/procesos-postulacion/agregar/page.tsx";
+import UpdateRecruitmentProcessPage from "./app/gp/gestion-humana/gestion-de-personal/procesos-postulacion/actualizar/[id]/page.tsx";
+import ApplicantPage from "./app/gp/gestion-humana/gestion-de-personal/postulantes/page.tsx";
+import AddApplicantPage from "./app/gp/gestion-humana/gestion-de-personal/postulantes/agregar/page.tsx";
+import UpdateApplicantPage from "./app/gp/gestion-humana/gestion-de-personal/postulantes/actualizar/[id]/page.tsx";
 import PerDiemCategoryPage from "./app/gp/gestion-humana/viaticos/categoria-viaticos/page.tsx";
 import PerDiemPolicyPage from "./app/gp/gestion-humana/viaticos/politica-viaticos/page.tsx";
 import AddPerDiemPolicyPage from "./app/gp/gestion-humana/viaticos/politica-viaticos/agregar/page.tsx";
@@ -2060,6 +2066,18 @@ function App() {
                 path="gestion-de-personal/trabajadores/actualizar/:id"
                 element={<UpdateWorkerSignaturePage />}
               />
+              {RouterCrud(
+                "gestion-de-personal/procesos-postulacion",
+                <RecruitmentProcessPage />,
+                <AddRecruitmentProcessPage />,
+                <UpdateRecruitmentProcessPage />,
+              )}
+              {RouterCrud(
+                "gestion-de-personal/postulantes",
+                <ApplicantPage />,
+                <AddApplicantPage />,
+                <UpdateApplicantPage />,
+              )}
               <Route
                 path="viaticos"
                 element={
