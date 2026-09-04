@@ -1,6 +1,7 @@
 "use client";
 
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule.ts";
+import { useScopedFilters } from "@/shared/hooks/useScopedFilters.ts";
 import { useEffect, useState } from "react";
 import {
   ERROR_MESSAGE,
@@ -42,8 +43,21 @@ export default function ProductTransferPage() {
   const navigate = useNavigate();
   const [page, setPage] = useState(1);
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
-  const [search, setSearch] = useState("");
-  const [warehouseId, setWarehouseId] = useState<string>("");
+  const currentDate = new Date();
+  const { values: filters, setFieldValue: setFilter } = useScopedFilters(
+    PRODUCT_TRANSFER.ABSOLUTE_ROUTE,
+    {
+      search: "",
+      warehouseId: "",
+      dateFrom: getFirstDayOfMonth(currentDate) as Date | undefined,
+      dateTo: getCurrentDayOfMonth(currentDate) as Date | undefined,
+    },
+  );
+  const { search, warehouseId, dateFrom, dateTo } = filters;
+  const setSearch = (value: string) => setFilter("search", value);
+  const setWarehouseId = (value: string) => setFilter("warehouseId", value);
+  const setDateFrom = (value: Date | undefined) => setFilter("dateFrom", value);
+  const setDateTo = (value: Date | undefined) => setFilter("dateTo", value);
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [sendToNubefactId, setSendToNubefactId] = useState<number | null>(null);
   const [viewId, setViewId] = useState<number>(0);
@@ -54,14 +68,6 @@ export default function ProductTransferPage() {
   const sendToNubefactMutation = useSendShippingGuideToNubefact();
   const queryFromNubefactMutation = useQueryShippingGuideFromNubefact();
   const cancelMutation = useCancelProductTransfer();
-  const currentDate = new Date();
-
-  const [dateFrom, setDateFrom] = useState<Date | undefined>(
-    getFirstDayOfMonth(currentDate),
-  );
-  const [dateTo, setDateTo] = useState<Date | undefined>(
-    getCurrentDayOfMonth(currentDate),
-  );
 
   // Obtener mis almacenes físicos de postventa
   const { data: warehouses = [], isLoading: isLoadingWarehouses } =
@@ -84,6 +90,7 @@ export default function ProductTransferPage() {
       setDateTo(dateFrom);
       errorToast("La fecha 'Desde' no puede ser mayor que la fecha 'Hasta'.");
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dateFrom, dateTo]);
 
   const { data, isLoading, isFetching, refetch } = useProductTransfers(
@@ -189,7 +196,9 @@ export default function ProductTransferPage() {
           isFetching={isFetching && !isLoading}
           onRefresh={refetch}
           permissions={permissions}
-          sedeId={warehouses.find((w) => w.id.toString() === warehouseId)?.sede_id?.toString()}
+          sedeId={warehouses
+            .find((w) => w.id.toString() === warehouseId)
+            ?.sede_id?.toString()}
         />
       </HeaderTableWrapper>
       <ProductTransferTable

@@ -43,6 +43,7 @@ export interface InventoryMovementListElectronicDocument {
   cliente_numero_de_documento: string | null;
   credit_note_id: number | null;
   credit_note_number: string | null;
+  credit_note_status: string | null;
 }
 
 /** Referencia slim para SALE / ADJUSTMENT_OUT desde una cotización de taller. */
