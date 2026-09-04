@@ -424,7 +424,8 @@ export const electronicDocumentColumns = ({
         const router = useNavigate();
         const document = row.original;
 
-        const canMigrate = onMigrate && document.status !== "draft";
+        const canMigrate =
+          onMigrate && document.migration_status !== "completed";
 
         const canResetMigration =
           !!onResetMigration &&
@@ -505,19 +506,23 @@ export const electronicDocumentColumns = ({
                 <WorkOrdersSheet documentId={document.id} />
               )}
 
-              {canMigrate && (
+              {/* Sincronizar contabilización */}
+              {canSyncAccountingStatus && (
                 <ConfirmationDialog
-                  title="Confirmar migración"
-                  description="¿Está seguro de que desea migrar este documento?"
-                  onConfirm={() => onMigrate(document.id)}
+                  title="Confirmar sincronización"
+                  description="¿Está seguro de que desea sincronizar el estado contable de este documento? Esto puede afectar inventario y órdenes de trabajo/cotización relacionadas."
+                  onConfirm={() =>
+                    onSyncAccountingStatus &&
+                    onSyncAccountingStatus(document.id)
+                  }
                   icon="info"
-                  confirmText="Sí, enviar"
+                  confirmText="Sí, sincronizar"
                   cancelText="No, cancelar"
                   trigger={
                     <ButtonAction
-                      tooltip="Migrar"
-                      icon={ArrowRightLeft}
-                      canRender={canMigrate}
+                      tooltip="Sincronizar Contabilización"
+                      icon={BookCheck}
+                      canRender={canSyncAccountingStatus}
                       color="indigo"
                     />
                   }
