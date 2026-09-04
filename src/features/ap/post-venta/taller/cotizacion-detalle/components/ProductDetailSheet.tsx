@@ -471,38 +471,48 @@ export default function ProductDetailSheet({
                     </span>
                   </div>
                 ) : (
-                  <FormSelectAsync
-                    name="ap_product_id"
-                    label="Repuesto"
-                    placeholder="Buscar producto en el almacén..."
-                    control={apForm.control}
-                    useQueryHook={useInventory}
-                    additionalParams={{
-                      warehouse_id: warehouseId?.toString() ?? "",
-                    }}
-                    mapOptionFn={(inventory: InventoryResource) => ({
-                      label: () => (
-                        <div className="flex items-center justify-between gap-2 w-full">
-                          <span className="font-medium truncate">
-                            {inventory.product.code} - {inventory.product.name}
-                          </span>
-                          <span
-                            className={`text-xs font-semibold px-2 py-0.5 rounded shrink-0 ${
-                              inventory.available_quantity > 0
-                                ? "bg-green-100 text-green-700"
-                                : "bg-red-100 text-red-700"
-                            }`}
-                          >
-                            Stock: {inventory.available_quantity}
-                          </span>
-                        </div>
-                      ),
-                      value: inventory.product_id.toString(),
-                    })}
-                    perPage={10}
-                    debounceMs={500}
-                    onValueChange={handleApInventoryChange}
-                  />
+                  <div className="flex flex-col gap-1">
+                    <FormSelectAsync
+                      name="ap_product_id"
+                      label="Repuesto"
+                      placeholder="Buscar producto en el almacén..."
+                      control={apForm.control}
+                      useQueryHook={useInventory}
+                      disabled={!warehouseId}
+                      additionalParams={{
+                        warehouse_id: warehouseId,
+                      }}
+                      mapOptionFn={(inventory: InventoryResource) => ({
+                        label: () => (
+                          <div className="flex items-center justify-between gap-2 w-full">
+                            <span className="font-medium truncate">
+                              {inventory.product.code} -{" "}
+                              {inventory.product.name}
+                            </span>
+                            <span
+                              className={`text-xs font-semibold px-2 py-0.5 rounded shrink-0 ${
+                                inventory.available_quantity > 0
+                                  ? "bg-green-100 text-green-700"
+                                  : "bg-red-100 text-red-700"
+                              }`}
+                            >
+                              Stock: {inventory.available_quantity}
+                            </span>
+                          </div>
+                        ),
+                        value: inventory.product_id.toString(),
+                      })}
+                      perPage={10}
+                      debounceMs={500}
+                      onValueChange={handleApInventoryChange}
+                    />
+                    {!warehouseId && (
+                      <p className="text-xs font-medium text-destructive">
+                        Esta cotización no tiene un almacén asignado, no se
+                        puede buscar stock por almacén.
+                      </p>
+                    )}
+                  </div>
                 )}
 
                 <div className="flex flex-col gap-1">
