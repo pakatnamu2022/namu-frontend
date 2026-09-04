@@ -491,6 +491,13 @@ export const electronicDocumentColumns = ({
 
         const isAnnulled = document.anulado || document.status === "cancelled";
 
+        // En documentos anulados no se exige !is_accounted: normalmente ya
+        // están contabilizados y lo que se busca es resincronizar ese estado.
+        const canSyncAccountingStatusAnnulled =
+          !!onSyncAccountingStatus &&
+          !!permissions.canMigrate &&
+          document.migration_status === "completed";
+
         if (isAnnulled) {
           return (
             <div className="flex items-center gap-1">
@@ -520,7 +527,7 @@ export const electronicDocumentColumns = ({
                   <ButtonAction
                     tooltip="Sincronizar Contabilización"
                     icon={BookCheck}
-                    canRender={canSyncAccountingStatus}
+                    canRender={canSyncAccountingStatusAnnulled}
                     color="indigo"
                   />
                 }
