@@ -11,6 +11,11 @@ export const ATTENDANCE = {
   PERSON_ABSOLUTE_ROUTE: "/gp/gestion-humana/asistencias/asistencias",
 } as const;
 
+export const ATTENDANCE_EXPORT = {
+  ENDPOINT_EXPORT_EXCEL: `${ATTENDANCE.ENDPOINT}/export?format=excel`,
+  ENDPOINT_EXPORT_PDF: `${ATTENDANCE.ENDPOINT}/export?format=pdf`,
+};
+
 export const MARK_TYPE_LABELS: Record<MarkType, string> = {
   check_in: "Entrada",
   lunch_out: "Salida almuerzo",

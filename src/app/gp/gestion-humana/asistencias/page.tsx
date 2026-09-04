@@ -1,16 +1,21 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { CalendarPlus, RefreshCw } from "lucide-react";
 import { format } from "date-fns";
+import type { DateRange } from "react-day-picker";
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
 import TitleComponent from "@/shared/components/TitleComponent";
 import PageSkeleton from "@/shared/components/PageSkeleton";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
 import { notFound } from "@/shared/hooks/useNotFound";
 import { Button } from "@/components/ui/button";
-import { ATTENDANCE } from "@/features/gp/gestionhumana/asistencias/lib/attendance.constants";
+import ExportButtons from "@/shared/components/ExportButtons";
+import {
+  ATTENDANCE,
+  ATTENDANCE_EXPORT,
+} from "@/features/gp/gestionhumana/asistencias/lib/attendance.constants";
 import { useAttendanceRecords } from "@/features/gp/gestionhumana/asistencias/lib/attendance.hook";
 import { getAttendanceColumns } from "@/features/gp/gestionhumana/asistencias/components/AttendanceColumns";
 import AttendanceFilters from "@/features/gp/gestionhumana/asistencias/components/AttendanceFilters";
@@ -34,9 +39,10 @@ export default function AttendancePage() {
   const { ROUTE, PERSON_ABSOLUTE_ROUTE } = ATTENDANCE;
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
 
-  const [date, setDate] = useState<Date | undefined>(new Date());
-  const [dateFrom, setDateFrom] = useState<Date | undefined>(undefined);
-  const [dateTo, setDateTo] = useState<Date | undefined>(undefined);
+  const [dateRange, setDateRange] = useState<DateRange | undefined>({
+    from: new Date(),
+    to: new Date(),
+  });
   const [filters, setFilters] = useState<
     Omit<AttendanceFiltersProps, "date" | "date_from" | "date_to">
   >({
@@ -47,14 +53,24 @@ export default function AttendancePage() {
 
   const { data, isLoading, isFetching, refetch } = useAttendanceRecords({
     ...filters,
-    date: toDateStr(date),
-    date_from: toDateStr(dateFrom),
-    date_to: toDateStr(dateTo),
+    date_from: toDateStr(dateRange?.from),
+    date_to: toDateStr(dateRange?.to),
   });
 
   const handleFiltersChange = (partial: Partial<typeof filters>) => {
     setFilters((prev) => ({ ...prev, ...partial, page: 1 }));
   };
+
+  const exportFilters = useMemo(
+    () => ({
+      search: filters.search,
+      mark_type: filters.mark_type,
+      person$sede_id: filters.person$sede_id,
+      date_from: toDateStr(dateRange?.from),
+      date_to: toDateStr(dateRange?.to),
+    }),
+    [filters.search, filters.mark_type, filters.person$sede_id, dateRange],
+  );
 
   const columns = getAttendanceColumns({
     onRowClick: (row: AttendanceRecord) => setSelectedId(row.id),
@@ -85,7 +101,14 @@ export default function AttendancePage() {
             />
             Actualizar
           </Button>
-          <AttendanceAbsentReportButton date={toDateStr(date)} />
+          <AttendanceAbsentReportButton date={toDateStr(dateRange?.from)} />
+          <ExportButtons
+            excelEndpoint={ATTENDANCE_EXPORT.ENDPOINT_EXPORT_EXCEL}
+            pdfEndpoint={ATTENDANCE_EXPORT.ENDPOINT_EXPORT_PDF}
+            excelFileName="asistencias.xlsx"
+            pdfFileName="asistencias.pdf"
+            filters={exportFilters}
+          />
           <Button size="sm" variant="outline" asChild>
             <Link to={ATTENDANCE.BULK_STORE_ABSOLUTE_ROUTE}>
               <CalendarPlus className="size-4 mr-1.5" />
@@ -111,12 +134,8 @@ export default function AttendancePage() {
       >
         <AttendanceFilters
           filters={filters}
-          date={date}
-          setDate={setDate}
-          dateFrom={dateFrom}
-          setDateFrom={setDateFrom}
-          dateTo={dateTo}
-          setDateTo={setDateTo}
+          dateRange={dateRange}
+          onDateRangeChange={setDateRange}
           onFiltersChange={handleFiltersChange}
         />
       </AttendanceTable>

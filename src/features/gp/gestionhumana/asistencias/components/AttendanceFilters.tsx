@@ -1,7 +1,8 @@
 import { useMemo } from "react";
+import type { DateRange } from "react-day-picker";
 import { SearchableSelect } from "@/shared/components/SearchableSelect";
 import FilterWrapper from "@/shared/components/FilterWrapper";
-import DatePicker from "@/shared/components/DatePicker";
+import { DateRangePickerFilter } from "@/shared/components/DateRangePickerFilter";
 import SearchInput from "@/shared/components/SearchInput";
 import { useAllSedes } from "@/features/gp/maestro-general/sede/lib/sede.hook";
 import { MARK_TYPE_OPTIONS } from "../lib/attendance.constants";
@@ -14,12 +15,8 @@ type OtherFilters = Omit<
 
 interface Props {
   filters: OtherFilters;
-  date: Date | undefined;
-  setDate: (date: Date | undefined) => void;
-  dateFrom: Date | undefined;
-  setDateFrom: (date: Date | undefined) => void;
-  dateTo: Date | undefined;
-  setDateTo: (date: Date | undefined) => void;
+  dateRange: DateRange | undefined;
+  onDateRangeChange: (range: DateRange | undefined) => void;
   onFiltersChange: (filters: Partial<OtherFilters>) => void;
 }
 
@@ -30,12 +27,8 @@ const MARK_TYPE_SELECT_OPTIONS = MARK_TYPE_OPTIONS.map((o) => ({
 
 export default function AttendanceFilters({
   filters,
-  date,
-  setDate,
-  dateFrom,
-  setDateFrom,
-  dateTo,
-  setDateTo,
+  dateRange,
+  onDateRangeChange,
   onFiltersChange,
 }: Props) {
   const { data: sedes = [] } = useAllSedes();
@@ -54,32 +47,13 @@ export default function AttendanceFilters({
       <SearchInput
         value={filters.search ?? ""}
         onChange={(v) => onFiltersChange({ search: v || undefined })}
-        placeholder="Buscar..."
+        placeholder="Filtrar por nombre o código"
       />
-      <DatePicker
-        value={date}
-        onChange={(d) => {
-          setDate(d);
-          setDateFrom(undefined);
-          setDateTo(undefined);
-        }}
-        placeholder="Fecha exacta"
-      />
-      <DatePicker
-        value={dateFrom}
-        onChange={(d) => {
-          setDateFrom(d);
-          setDate(undefined);
-        }}
-        placeholder="Desde"
-      />
-      <DatePicker
-        value={dateTo}
-        onChange={(d) => {
-          setDateTo(d);
-          setDate(undefined);
-        }}
-        placeholder="Hasta"
+      <DateRangePickerFilter
+        dateFrom={dateRange?.from}
+        dateTo={dateRange?.to}
+        onDateChange={(from, to) => onDateRangeChange({ from, to })}
+        placeholder="Filtrar por fecha"
       />
       <SearchableSelect
         options={MARK_TYPE_SELECT_OPTIONS}
@@ -89,13 +63,13 @@ export default function AttendanceFilters({
             mark_type: (v as AttendanceFiltersProps["mark_type"]) || undefined,
           })
         }
-        placeholder="Tipo"
+        placeholder="Filtrar por tipo de marca"
       />
       <SearchableSelect
         options={sedeOptions}
         value={filters.person$sede_id ? String(filters.person$sede_id) : ""}
         onChange={(v) => onFiltersChange({ person$sede_id: v || undefined })}
-        placeholder="Sede"
+        placeholder="Filtrar por sede"
       />
     </FilterWrapper>
   );
