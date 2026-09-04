@@ -87,6 +87,10 @@ export const inventoryMovementsColumns = (): InventoryMovementColumns[] => [
         const electronicDoc = movement.electronic_document;
         const isCancelled = electronicDoc?.status === "cancelled";
         const Icon = returnIcon ? RotateCcw : XCircle;
+        // Si la NC está anulada, no cuenta como NC vigente: no se pinta en rojo.
+        const hasActiveCreditNote =
+          !!electronicDoc?.credit_note_id &&
+          electronicDoc?.credit_note_status !== "cancelled";
 
         return (
           <div className="flex flex-col text-sm">
@@ -104,7 +108,7 @@ export const inventoryMovementsColumns = (): InventoryMovementColumns[] => [
                   <Icon className="h-3 w-3 text-red-500 shrink-0" />
                 )}
                 <span>Factura: {electronicDoc.full_number}</span>
-                {electronicDoc.credit_note_id && (
+                {hasActiveCreditNote && (
                   <span className="text-red-400 font-medium">
                     · NC {electronicDoc.credit_note_number}
                   </span>
@@ -268,6 +272,10 @@ export const inventoryMovementsColumns = (): InventoryMovementColumns[] => [
         const internalNote = reference as InternalNoteResource;
         const electronicDoc = movement.electronic_document;
         const isCancelled = electronicDoc?.status === "cancelled";
+        // Si la NC está anulada, no cuenta como NC vigente: no se pinta en rojo.
+        const hasActiveCreditNote =
+          !!electronicDoc?.credit_note_id &&
+          electronicDoc?.credit_note_status !== "cancelled";
 
         return (
           <div className="flex flex-col text-sm">
@@ -290,7 +298,7 @@ export const inventoryMovementsColumns = (): InventoryMovementColumns[] => [
                   <XCircle className="h-3 w-3 text-red-500 shrink-0" />
                 )}
                 <span>Factura: {electronicDoc.full_number}</span>
-                {electronicDoc.credit_note_id && (
+                {hasActiveCreditNote && (
                   <span className="text-red-400 font-medium">
                     · NC {electronicDoc.credit_note_number}
                   </span>
