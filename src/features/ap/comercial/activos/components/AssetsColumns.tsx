@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { RefreshCcw } from "lucide-react";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
 import MigrationStatusBadge from "@/features/ap/facturacion/electronic-documents/components/MigrationStatusBadge";
+import AssetMigrationHistory from "./AssetMigrationHistory";
 import { AssetResource } from "../lib/assets.interface";
 
 export type AssetsColumn = ColumnDef<AssetResource>;
@@ -94,12 +95,13 @@ export const AssetsColumns = ({
       const { id, migration_status } = row.original;
       return (
         <div className="flex items-center gap-2">
+          <AssetMigrationHistory assetId={id} />
           {migration_status !== "completed" && (
             <Button
               variant="outline"
               size="icon"
               className="size-7"
-              title="Reintentar migración"
+              tooltip="Reintentar migración"
               onClick={() => onDispatchMigration(id)}
             >
               <RefreshCcw className="size-4" />

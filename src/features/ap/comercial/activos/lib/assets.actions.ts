@@ -3,6 +3,7 @@ import { api } from "@/core/api";
 import { GeneralResponse } from "@/shared/lib/response.interface";
 import { ASSETS } from "./assets.constants";
 import {
+  AssetMigrationLogsResponse,
   AssetRequest,
   AssetResource,
   AssetResponse,
@@ -49,6 +50,15 @@ export async function storeAsset(
 
 export async function deleteAsset(id: number): Promise<GeneralResponse> {
   const { data } = await api.delete<GeneralResponse>(`${ENDPOINT}/${id}`);
+  return data;
+}
+
+export async function getAssetMigrationLogs(
+  id: number,
+): Promise<AssetMigrationLogsResponse> {
+  const { data } = await api.get<AssetMigrationLogsResponse>(
+    `${ENDPOINT}/${id}/migration-logs`,
+  );
   return data;
 }
 
