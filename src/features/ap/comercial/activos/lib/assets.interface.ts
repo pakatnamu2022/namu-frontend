@@ -39,7 +39,7 @@ export interface AssetResponse {
 export interface AssetRequest {
   ap_vehicle_id: number;
   worker_id: number;
-  assigned_date?: string;
+  assigned_date: string;
   observation?: string;
 }
 
