@@ -13,6 +13,32 @@ const getInitialToken = () => {
   return undefined;
 };
 
+const readJSON = <T,>(key: string, fallback: T): T => {
+  if (typeof window === "undefined") return fallback;
+  try {
+    const raw = localStorage.getItem(key);
+    return raw ? (JSON.parse(raw) as T) : fallback;
+  } catch {
+    return fallback;
+  }
+};
+
+// Hidratación síncrona desde localStorage: si hay token, el sidebar y los
+// permisos salen al instante en un refresh mientras authenticate() revalida.
+const hasToken = !!getInitialToken();
+const cachedPermissions = hasToken
+  ? readJSON<import("./auth.interface").PermissionsResponse | null>(
+      "permissions",
+      null,
+    )
+  : null;
+const cachedUser = hasToken
+  ? readJSON<UserResource>("user", {} as UserResource)
+  : ({} as UserResource);
+const cachedGeneral = hasToken
+  ? readJSON<{ freight_commission: number } | undefined>("general", undefined)
+  : undefined;
+
 interface AuthState {
   token?: string;
   isAuthenticated: boolean;
@@ -31,12 +57,12 @@ interface AuthState {
 }
 
 export const useAuthStore = create<AuthState>((set, get) => ({
-  token: "",
-  isAuthenticated: !!getInitialToken(),
-  user: {} as UserResource,
-  permissions: [],
-  permissionsModules: [],
-  general: undefined,
+  token: getInitialToken() ?? "",
+  isAuthenticated: hasToken,
+  user: cachedUser,
+  permissions: cachedPermissions?.access_tree ?? [],
+  permissionsModules: cachedPermissions?.permissions_modules ?? [],
+  general: cachedGeneral,
   isHydrated: false,
   hasPermission: (permissionCode: string) => {
     const { permissionsModules } = get();
@@ -158,6 +184,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     if (user) {
       localStorage.setItem("user", JSON.stringify(user));
       localStorage.setItem("general", JSON.stringify(general));
+      localStorage.setItem("permissions", JSON.stringify(permissions));
       set({
         user,
         permissions: permissions?.access_tree || [],
