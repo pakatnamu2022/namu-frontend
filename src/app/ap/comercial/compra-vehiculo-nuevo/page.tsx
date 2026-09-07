@@ -133,6 +133,7 @@ export default function VehiclePurchaseOrderPage() {
           isFetching={isFetching && !isLoading}
           onRefresh={refetch}
           canExport={permissions.canExport}
+          canImport={permissions.canImport}
           exportParams={{
             search: search || undefined,
             sede_id: sedeId !== "all" ? sedeId : undefined,

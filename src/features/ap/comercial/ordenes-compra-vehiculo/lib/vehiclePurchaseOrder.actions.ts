@@ -7,6 +7,7 @@ import {
   MigrationHistoryResponse,
   MigrationLogsResponse,
   NextCorrelativeResponse,
+  OcsiInvoiceByVinResponse,
   VehiclePurchaseOrderResource,
   VehiclePurchaseOrderResponse,
 } from "./vehiclePurchaseOrder.interface";
@@ -183,6 +184,21 @@ export async function exportVehiclePurchaseOrder({
   link.click();
   link.remove();
   URL.revokeObjectURL(url);
+}
+
+export async function updateOcsiInvoiceByVin(
+  file: File,
+  dryRun: boolean,
+): Promise<OcsiInvoiceByVinResponse> {
+  const formData = new FormData();
+  formData.append("file", file);
+  formData.append("dry_run", dryRun ? "1" : "0");
+  const { data } = await api.post<OcsiInvoiceByVinResponse>(
+    `/ap/commercial/vehicles/update-ocsi-invoice-by-vin`,
+    formData,
+    { headers: { "Content-Type": "multipart/form-data" } },
+  );
+  return data;
 }
 
 export async function getNextCorrelative(

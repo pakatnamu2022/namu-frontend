@@ -1,6 +1,8 @@
 import { Button } from "@/components/ui/button";
-import { Plus, RefreshCcw, Send } from "lucide-react";
+import { Plus, RefreshCcw, Send, Upload } from "lucide-react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import OcsiInvoiceUpdateByVinSheet from "./OcsiInvoiceUpdateByVinSheet";
 import ActionsWrapper from "@/shared/components/ActionsWrapper";
 import ExportButtons from "@/shared/components/ExportButtons";
 import { VEHICLE_PURCHASE_ORDER } from "../lib/vehiclePurchaseOrder.constants";
@@ -17,6 +19,7 @@ interface Props {
   onRefresh: () => void;
   exportParams?: Record<string, any>;
   canExport?: boolean;
+  canImport?: boolean;
 }
 
 export default function VehiclePurchaseOrderActions({
@@ -24,9 +27,11 @@ export default function VehiclePurchaseOrderActions({
   isFetching,
   exportParams,
   canExport = true,
+  canImport = false,
 }: Props) {
   const router = useNavigate();
   const { ROUTE_ADD } = VEHICLE_PURCHASE_ORDER;
+  const [ocsiOpen, setOcsiOpen] = useState(false);
 
   const dispatchAllMutation = useMutation({
     mutationFn: dispatchAllVehiclePurchaseOrders,
@@ -60,6 +65,23 @@ export default function VehiclePurchaseOrderActions({
         />
         Migrar Todo
       </Button>
+      {canImport && (
+        <>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => setOcsiOpen(true)}
+          >
+            <Upload className="size-4 mr-2" />
+            Importar Fecha/Factura OCSI
+          </Button>
+          <OcsiInvoiceUpdateByVinSheet
+            open={ocsiOpen}
+            onClose={() => setOcsiOpen(false)}
+            onSuccess={onRefresh}
+          />
+        </>
+      )}
       {canExport && (
         <ExportButtons
           onExcelDownload={() =>
