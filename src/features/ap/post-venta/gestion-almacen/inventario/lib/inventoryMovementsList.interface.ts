@@ -118,3 +118,21 @@ export interface InventoryMovementListResponse {
   product?: InventoryMovementListProduct;
   warehouse?: InventoryMovementListWarehouseInfo;
 }
+
+/**
+ * Fila del listado de movimientos DESCARTADOS
+ * (`GET /inventoryMovements/ignored`). Reutiliza la fila slim del list y añade
+ * la metadata del descarte que devuelve el backend.
+ */
+export interface InventoryMovementIgnoredRow extends InventoryMovementListRow {
+  discarded_reason?: string | null;
+  discarded_by_name?: string | null;
+  discarded_at?: string | null;
+}
+
+/** Respuesta paginada del listado de movimientos descartados. */
+export interface InventoryMovementIgnoredResponse {
+  data: InventoryMovementIgnoredRow[];
+  links: Links;
+  meta: Meta;
+}
