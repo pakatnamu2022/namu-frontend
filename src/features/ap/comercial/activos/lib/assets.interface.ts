@@ -39,7 +39,7 @@ export interface AssetResponse {
 export interface AssetRequest {
   ap_vehicle_id: number;
   worker_id: number;
-  assigned_date?: string;
+  assigned_date: string;
   observation?: string;
 }
 
@@ -106,4 +106,37 @@ export interface AssetVehicleDetail {
 
 export interface getAssetsProps {
   params?: Record<string, any>;
+}
+
+export interface AssetMigrationLog {
+  id: number;
+  step: string;
+  step_name: string;
+  status: string;
+  status_name: string;
+  table_name: string;
+  external_id: string;
+  proceso_estado: number;
+  proceso_estado_name: string | null;
+  error_message: string | null;
+  attempts: number;
+  last_attempt_at: string | null;
+  completed_at: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface AssetMigrationLogsResponse {
+  asset: {
+    id: number;
+    vin: string | null;
+    plate: string | null;
+    transaction_id: string;
+    dyn_series: string | null;
+    worker: string | null;
+    assigned_date: string | null;
+    migration_status: string;
+    created_at: string | null;
+  };
+  logs: AssetMigrationLog[];
 }

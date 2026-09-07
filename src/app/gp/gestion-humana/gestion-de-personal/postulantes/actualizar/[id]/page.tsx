@@ -5,7 +5,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { errorToast, successToast } from "@/core/core.function";
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
 import { notFound } from "@/shared/hooks/useNotFound";
-import FormWrapper from "@/shared/components/FormWrapper";
+import PageWrapper from "@/shared/components/PageWrapper";
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import TitleFormComponent from "@/shared/components/TitleFormComponent";
 import { APPLICANT } from "@/features/gp/gestionhumana/gestion-de-personal/postulantes/lib/applicant.constant";
@@ -81,7 +81,7 @@ export default function UpdateApplicantPage() {
   if (!currentView) notFound();
 
   return (
-    <FormWrapper>
+    <PageWrapper>
       <TitleFormComponent
         title={currentView.descripcion}
         mode="edit"
@@ -101,6 +101,6 @@ export default function UpdateApplicantPage() {
         isSubmitting={isPending}
         mode="update"
       />
-    </FormWrapper>
+    </PageWrapper>
   );
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -16,6 +16,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Loader, TriangleAlert } from "lucide-react";
 import { Link } from "react-router-dom";
 import { FormSelectAsync } from "@/shared/components/FormSelectAsync";
+import { DatePickerFormField } from "@/shared/components/DatePickerFormField";
 import { useWorkers } from "@/features/gp/gestionhumana/gestion-de-personal/trabajadores/lib/worker.hook";
 import { ASSETS } from "../lib/assets.constants";
 import { AssetSchema, assetSchemaCreate } from "../lib/assets.schema";
@@ -39,6 +40,7 @@ export const AssetForm = ({ onSubmit, isSubmitting = false }: Props) => {
     defaultValues: {
       ap_vehicle_id: "",
       worker_id: "",
+      assigned_date: "",
       observation: "",
     },
     mode: "onChange",
@@ -48,6 +50,34 @@ export const AssetForm = ({ onSubmit, isSubmitting = false }: Props) => {
   const { data: detail, isFetching: isLoadingDetail } = useEligibleVehicleDetail(
     selectedVehicleId ? Number(selectedVehicleId) : null,
   );
+
+  // Fecha mínima = fecha de recepción del vehículo (guía de recepción de compra).
+  const minDate = useMemo(() => {
+    const received = detail?.reception?.received_date;
+    if (!received) return undefined;
+    const d = new Date(received);
+    return isNaN(d.getTime())
+      ? undefined
+      : new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  }, [detail?.reception?.received_date]);
+
+  // Fecha máxima = hoy.
+  const today = useMemo(() => {
+    const n = new Date();
+    return new Date(n.getFullYear(), n.getMonth(), n.getDate());
+  }, []);
+
+  // Al cargar el detalle, precargar la fecha con la fecha de recepción.
+  useEffect(() => {
+    if (!minDate) return;
+    const y = minDate.getFullYear();
+    const m = String(minDate.getMonth() + 1).padStart(2, "0");
+    const day = String(minDate.getDate()).padStart(2, "0");
+    form.setValue("assigned_date", `${y}-${m}-${day}`, {
+      shouldValidate: true,
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [minDate]);
 
   const hasAssetAccount = detail
     ? detail.has_asset_account
@@ -92,6 +122,24 @@ export const AssetForm = ({ onSubmit, isSubmitting = false }: Props) => {
               value: item.id.toString(),
               label: item.name,
             })}
+          />
+
+          <DatePickerFormField
+            control={form.control}
+            name="assigned_date"
+            label="Fecha de asignación"
+            disabled={!selectedVehicleId || isLoadingDetail}
+            disabledRange={[
+              ...(minDate ? [{ before: minDate }] : []),
+              { after: today },
+            ]}
+            startMonth={minDate}
+            endMonth={today}
+            description={
+              minDate
+                ? "Entre la fecha de recepción del vehículo y hoy."
+                : "No puede ser posterior a hoy."
+            }
           />
 
           {missingAssetAccount && (

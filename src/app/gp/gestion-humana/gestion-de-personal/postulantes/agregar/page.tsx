@@ -10,7 +10,7 @@ import {
 } from "@/core/core.function";
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
 import { notFound } from "@/shared/hooks/useNotFound";
-import FormWrapper from "@/shared/components/FormWrapper";
+import PageWrapper from "@/shared/components/PageWrapper";
 import TitleFormComponent from "@/shared/components/TitleFormComponent";
 import { RECRUITMENT_PROCESS } from "@/features/gp/gestionhumana/gestion-de-personal/procesos-postulacion/lib/recruitmentProcess.constant";
 import { findRecruitmentProcessById } from "@/features/gp/gestionhumana/gestion-de-personal/procesos-postulacion/lib/recruitmentProcess.actions";
@@ -59,7 +59,7 @@ export default function AddApplicantPage() {
   if (!currentView) notFound();
 
   return (
-    <FormWrapper>
+    <PageWrapper>
       <TitleFormComponent
         title={currentView.descripcion}
         mode="create"
@@ -82,6 +82,6 @@ export default function AddApplicantPage() {
         lockProcess={!!procesoId}
         cancelRoute={scopedRoute}
       />
-    </FormWrapper>
+    </PageWrapper>
   );
 }

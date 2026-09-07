@@ -28,6 +28,7 @@ export default function AddAssetPage() {
       {
         ap_vehicle_id: Number(data.ap_vehicle_id),
         worker_id: Number(data.worker_id),
+        assigned_date: data.assigned_date,
         observation: data.observation || undefined,
       },
       {
