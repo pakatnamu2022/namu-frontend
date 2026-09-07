@@ -226,3 +226,23 @@ export interface MigrationHistoryResponse {
     timeline: MigrationTimelineStep[];
   };
 }
+
+export interface OcsiInvoiceByVinRow {
+  row: number;
+  vin: string;
+  status: "ok" | "error";
+  message: string | null;
+  oc_number: string | null;
+  current_emission_date: string | null;
+  new_emission_date: string | null;
+  current_invoice: string | null;
+  new_invoice: string | null;
+}
+
+export interface OcsiInvoiceByVinResponse {
+  updated: number;
+  rows_processed: number;
+  errors: string[];
+  dry_run: boolean;
+  rows: OcsiInvoiceByVinRow[];
+}
