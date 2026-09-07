@@ -17,7 +17,6 @@ import {
   SidebarRail,
 } from "@/components/ui/sidebar";
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
-import DashboardSkeleton from "@/shared/components/DashboardSkeleton";
 import { useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { BookOpen } from "lucide-react";
@@ -28,7 +27,6 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   const {
-    isLoadingModule,
     company,
     moduleSlug,
     subModuleSlug,
@@ -80,16 +78,9 @@ export default function DashboardLayout({
 
       <SidebarInset>
         <DashboardHeader />
-        {isLoadingModule ? (
-          <div className="flex items-start justify-center h-full">
-            <DashboardSkeleton />
-          </div>
-        ) : (
-          <div className="flex flex-1 flex-col gap-4 p-4 bg-background w-full overflow-x-auto max-w-(--breakpoint-3xl) mx-auto">
-            {/* <div className="flex flex-1 flex-col gap-4 p-4 bg-linear-to-br from-slate-50 to-primary/5 w-full overflow-x-auto"> */}
-            {children}
-          </div>
-        )}
+        <div className="flex flex-1 flex-col gap-4 p-4 bg-background w-full overflow-x-auto max-w-(--breakpoint-3xl) mx-auto">
+          {children}
+        </div>
       </SidebarInset>
     </SidebarProvider>
   );
