@@ -1,18 +1,21 @@
 import { NumberFormat } from "@/shared/components/NumberFormat";
+import { cn } from "@/lib/utils";
 import { PurchaseRequestQuoteResource } from "../../lib/purchaseRequestQuote.interface";
 
 interface Props {
   quote: PurchaseRequestQuoteResource;
+  /** "grid" para ancho completo; "list" para el panel lateral (fila label/valor). */
+  layout?: "grid" | "list";
 }
 
 /**
  * Resumen informativo (solo lectura) de cómo se arma el margen de la
  * cotización: precio de venta, bonos/descuentos vigentes, accesorios y
  * otros costos. Se muestra en las vistas de ajuste de margen para dar
- * contexto — desde ahí solo pueden modificarse los bonos/descuentos, el
- * resto de componentes es referencial.
+ * contexto — desde ahí solo pueden modificarse los bonos/descuentos y
+ * obsequios, el resto de componentes es referencial.
  */
-export default function QuoteMarginSummary({ quote }: Props) {
+export default function QuoteMarginSummary({ quote, layout = "grid" }: Props) {
   const currencySymbol = quote.doc_type_currency_symbol || "S/";
 
   const bonuses = quote.bonus_discounts?.filter((b) => !b.is_negative) ?? [];
@@ -36,71 +39,77 @@ export default function QuoteMarginSummary({ quote }: Props) {
   const othersTotal =
     quote.others?.reduce((sum, o) => sum + Number(o.amount), 0) ?? 0;
 
+  const marginAmount = Number(quote.margin_amount) || 0;
+  const marginPct = Number(quote.margin_pct) || 0;
+
+  const rows: { label: string; value: number; tone?: "bonus" | "discount" }[] = [
+    { label: "Precio de Venta", value: Number(quote.sale_price) || 0 },
+    { label: "Bonos vigentes", value: bonusTotal, tone: "bonus" },
+    { label: "Descuentos vigentes", value: discountTotal, tone: "discount" },
+    { label: "Accesorios pagados", value: paidAccessoriesTotal },
+    { label: "Accesorios obsequio", value: giftAccessoriesTotal },
+    { label: "Otros costos", value: othersTotal },
+  ];
+
+  const toneClass = (tone?: "bonus" | "discount") =>
+    cn(
+      tone === "bonus" && "text-emerald-600 dark:text-emerald-400",
+      tone === "discount" && "text-red-600 dark:text-red-400",
+    );
+
   return (
-    <div className="rounded-xl border p-4 space-y-4">
-      <div className="flex items-center justify-between">
-        <p className="text-sm font-semibold">Cómo se arma el margen</p>
-        <span className="text-xs text-muted-foreground">
-          Referencial — solo bonos/descuentos son editables aquí
-        </span>
+    <div className="rounded-2xl bg-card shadow-md p-5 space-y-4">
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <p className="text-sm font-semibold leading-tight">
+            Cómo se arma el margen
+          </p>
+          <p className="text-xs text-muted-foreground leading-tight">
+            {quote.ap_model_vn || "—"}
+            {quote.ap_vehicle?.vin ? ` · VIN ${quote.ap_vehicle.vin}` : ""}
+          </p>
+        </div>
+        <div className="rounded-xl bg-primary/10 px-3 py-2 text-right">
+          <p className="text-[11px] uppercase tracking-wide text-muted-foreground">
+            Margen actual
+          </p>
+          <p className="text-base font-bold text-primary">
+            {currencySymbol} <NumberFormat value={marginAmount.toFixed(2)} />{" "}
+            <span className="text-xs font-medium">
+              (<NumberFormat value={marginPct.toFixed(2)} />%)
+            </span>
+          </p>
+        </div>
       </div>
 
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-        <div>
-          <p className="text-xs text-muted-foreground">Vehículo</p>
-          <p className="text-sm font-medium">{quote.ap_model_vn || "—"}</p>
-          {quote.ap_vehicle?.vin && (
-            <p className="text-xs text-muted-foreground">
-              VIN {quote.ap_vehicle.vin}
-            </p>
-          )}
+      {layout === "list" ? (
+        <div className="divide-y divide-muted">
+          {rows.map((r) => (
+            <div
+              key={r.label}
+              className="flex items-center justify-between py-1.5 text-sm"
+            >
+              <span className="text-muted-foreground">{r.label}</span>
+              <span className={cn("font-medium", toneClass(r.tone))}>
+                {currencySymbol} <NumberFormat value={r.value.toFixed(2)} />
+              </span>
+            </div>
+          ))}
         </div>
-        <div>
-          <p className="text-xs text-muted-foreground">Precio de Venta</p>
-          <p className="text-sm font-medium">
-            {currencySymbol} <NumberFormat value={Number(quote.sale_price).toFixed(2)} />
-          </p>
+      ) : (
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+          {rows.map((r) => (
+            <div key={r.label} className="rounded-xl bg-muted/40 px-3 py-2.5">
+              <p className="text-[11px] uppercase tracking-wide text-muted-foreground">
+                {r.label}
+              </p>
+              <p className={cn("text-sm font-semibold", toneClass(r.tone))}>
+                {currencySymbol} <NumberFormat value={r.value.toFixed(2)} />
+              </p>
+            </div>
+          ))}
         </div>
-        <div>
-          <p className="text-xs text-muted-foreground">Bonos vigentes</p>
-          <p className="text-sm font-medium text-emerald-600">
-            {currencySymbol} <NumberFormat value={bonusTotal.toFixed(2)} />
-          </p>
-        </div>
-        <div>
-          <p className="text-xs text-muted-foreground">Descuentos vigentes</p>
-          <p className="text-sm font-medium text-red-600">
-            {currencySymbol} <NumberFormat value={discountTotal.toFixed(2)} />
-          </p>
-        </div>
-        <div>
-          <p className="text-xs text-muted-foreground">Accesorios pagados</p>
-          <p className="text-sm font-medium">
-            {currencySymbol}{" "}
-            <NumberFormat value={paidAccessoriesTotal.toFixed(2)} />
-          </p>
-        </div>
-        <div>
-          <p className="text-xs text-muted-foreground">Accesorios obsequio</p>
-          <p className="text-sm font-medium">
-            {currencySymbol}{" "}
-            <NumberFormat value={giftAccessoriesTotal.toFixed(2)} />
-          </p>
-        </div>
-        <div>
-          <p className="text-xs text-muted-foreground">Otros costos</p>
-          <p className="text-sm font-medium">
-            {currencySymbol} <NumberFormat value={othersTotal.toFixed(2)} />
-          </p>
-        </div>
-        <div>
-          <p className="text-xs text-muted-foreground">Margen actual</p>
-          <p className="text-sm font-semibold text-primary">
-            {currencySymbol} <NumberFormat value={quote.margin_amount.toFixed(2)} />{" "}
-            (<NumberFormat value={quote.margin_pct.toFixed(2)} />%)
-          </p>
-        </div>
-      </div>
+      )}
     </div>
   );
 }

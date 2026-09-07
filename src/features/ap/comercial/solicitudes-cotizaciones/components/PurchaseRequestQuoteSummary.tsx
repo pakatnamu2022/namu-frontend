@@ -4,8 +4,6 @@ import { OthersRow } from "./OthersTable";
 import { FileCheck, TrendingUp } from "lucide-react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
-import { Input } from "@/components/ui/input";
 import {
   FormField,
   FormItem,
@@ -13,13 +11,8 @@ import {
   FormControl,
   FormMessage,
 } from "@/components/ui/form";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
+import MarginBreakdownModal from "./MarginBreakdownModal";
 import { CustomersResource } from "../../clientes/lib/customers.interface";
 import { ModelsVnResource } from "@/features/ap/configuraciones/vehiculos/modelos-vn/lib/modelsVn.interface";
 import { VehicleResourceWithCosts } from "../../vehiculos/lib/vehicles.interface";
@@ -123,7 +116,6 @@ export function PurchaseRequestQuoteSummary({
 }: PurchaseRequestQuoteSummaryProps) {
   const { data: allCurrencyTypes = [] } = useAllCurrencyTypes();
   const [isMarginModalOpen, setIsMarginModalOpen] = useState(false);
-  const [simulationAdj, setSimulationAdj] = useState("");
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
 
   const getValidationErrors = (errors: Record<string, any>): string[] => {
@@ -258,12 +250,6 @@ export function PurchaseRequestQuoteSummary({
     ? (realMarginAmount / netSalePrice) * 100
     : 0;
 
-  // Simulación hipotética
-  const simAdj = parseFloat(simulationAdj) || 0;
-  const simMarginAmount = realMarginAmount + simAdj;
-  const simMarginPct =
-    netSalePrice > 0 ? (simMarginAmount / netSalePrice) * 100 : 0;
-
   const marginColor = (pct: number) =>
     pct >= 4
       ? {
@@ -281,7 +267,6 @@ export function PurchaseRequestQuoteSummary({
           };
 
   const realColor = marginColor(realMarginPct);
-  const simColor = marginColor(simMarginPct);
 
   const marginButtonColor = !hasMarginData ? "" : realColor.btn;
 
@@ -531,277 +516,62 @@ export function PurchaseRequestQuoteSummary({
       />
 
       {/* Modal de Detalle de Margen */}
-      <Dialog
+      <MarginBreakdownModal
         open={isMarginModalOpen}
-        onOpenChange={(open) => {
-          setIsMarginModalOpen(open);
-          if (!open) setSimulationAdj("");
-        }}
-      >
-        <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <TrendingUp className="size-5" />
-              Detalle del Margen Real
-            </DialogTitle>
-          </DialogHeader>
-
-          <div className="space-y-3 pt-1">
-            {/* ── INGRESOS ── */}
-            <div className="space-y-1.5 p-3 rounded-lg bg-muted/30 border border-muted-foreground/10">
-              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">
-                Ingresos
-              </p>
-
-              {/* Precio de venta base */}
-              <div className="flex justify-between items-center text-sm">
-                <span className="text-muted-foreground">Precio de Venta</span>
-                <span className="font-medium">
-                  {vehicleCurrency.symbol} {fmt(totals.salePrice)}
-                </span>
-              </div>
-
-              {/* Descuentos al cliente */}
-              {discountRows.map((row) => (
-                <div
-                  key={row.id}
-                  className="flex justify-between items-center text-sm"
-                >
-                  <span className="text-muted-foreground truncate max-w-[210px]">
-                    Desc. {row.concept_label}
-                    {row.isPercentage && ` (${row.valor}%)`}
-                  </span>
-                  <span className="font-medium text-red-600">
-                    − {vehicleCurrency.symbol} {fmt(rowAmount(row))}
-                  </span>
-                </div>
-              ))}
-
-              {/* Accesorios cobrados al cliente (uno por uno) */}
-              {paidAccessories.map((acc) => (
-                <div
-                  key={acc.id}
-                  className="flex justify-between items-center text-sm"
-                >
-                  <span className="text-muted-foreground truncate max-w-[210px]">
-                    {acc.name} × {acc.quantity}
-                  </span>
-                  <span className="font-medium text-primary">
-                    + {vehicleCurrency.symbol} {fmt(acc.total)}
-                  </span>
-                </div>
-              ))}
-
-              <Separator className="my-1.5" />
-
-              <div className="flex justify-between items-center text-sm font-semibold">
-                <span>Subtotal cliente</span>
-                <span>
-                  {vehicleCurrency.symbol} {fmt(clientRevenue)}
-                </span>
-              </div>
-
-              {/* Bonos de marca */}
-              {bonusRows.length > 0 && (
-                <>
-                  <Separator className="my-1.5" />
-                  <p className="text-xs text-muted-foreground font-medium">
-                    Bonos de marca
-                  </p>
-                  {bonusRows.map((row) => (
-                    <div
-                      key={row.id}
-                      className="flex justify-between items-center text-sm"
-                    >
-                      <span className="text-muted-foreground truncate max-w-[210px]">
-                        {row.concept_label}
-                        {row.isPercentage && ` (${row.valor}%)`}
-                      </span>
-                      <span className="font-medium text-green-600">
-                        + {vehicleCurrency.symbol} {fmt(rowAmount(row))}
-                      </span>
-                    </div>
-                  ))}
-                </>
-              )}
-
-              <Separator className="my-1.5" />
-              <div className="flex justify-between items-center text-sm font-bold">
-                <span>Total Ingresos</span>
-                <span>
-                  {vehicleCurrency.symbol} {fmt(totalIncome)}
-                </span>
-              </div>
-            </div>
-
-            {/* ── COSTOS ── */}
-            <div className="space-y-1.5 p-3 rounded-lg bg-muted/30 border border-muted-foreground/10">
-              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">
-                Costos
-              </p>
-
-              <div className="flex justify-between items-center text-sm">
-                <span className="text-muted-foreground">Costo de Compra</span>
-                <span className="font-medium text-red-600">
-                  − {vehicleCurrency.symbol} {fmt(billedCost)}
-                </span>
-              </div>
-
-              {/* Obsequios (costo para el dealer) */}
-              {giftAccessories.map((acc) => (
-                <div
-                  key={acc.id}
-                  className="flex justify-between items-center text-sm"
-                >
-                  <span className="text-muted-foreground truncate max-w-[210px]">
-                    Obsequio: {acc.name} × {acc.quantity}
-                  </span>
-                  <span className="font-medium text-red-600">
-                    − {vehicleCurrency.symbol} {fmt(acc.total)}
-                  </span>
-                </div>
-              ))}
-
-              {/* Otros costos internos (no flete): se tratan como obsequio */}
-              {extraCostRows.map((row) => {
-                const amt =
-                  row.type === "FIJO"
-                    ? row.value
-                    : (totals.salePrice * row.value) / 100;
-                return (
-                  <div
-                    key={row.id}
-                    className="flex justify-between items-center text-sm"
-                  >
-                    <span className="text-muted-foreground truncate max-w-[210px]">
-                      {row.description || "Costo interno"}
-                    </span>
-                    <span className="font-medium text-red-600">
-                      − {vehicleCurrency.symbol} {fmt(amt)}
-                    </span>
-                  </div>
-                );
-              })}
-
-              {vehicleCosts !== billedCost && (
-                <>
-                  <Separator className="my-1.5" />
-                  <div className="flex justify-between items-center text-sm font-bold">
-                    <span>Total Costos</span>
-                    <span className="text-red-600">
-                      − {vehicleCurrency.symbol} {fmt(vehicleCosts)}
-                    </span>
-                  </div>
-                </>
-              )}
-            </div>
-
-            {/* ── UTILIDAD NETA ── */}
-            <div className="space-y-1.5 p-3 rounded-lg bg-muted/30 border border-muted-foreground/10">
-              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">
-                Utilidad Neta
-              </p>
-              <div className="flex justify-between items-center text-sm">
-                <span className="text-muted-foreground">
-                  (Ingresos − Costos) ÷ 1.18
-                </span>
-                <span className="font-medium">
-                  {vehicleCurrency.symbol} {fmt(netDiff)}
-                </span>
-              </div>
-              {fleteRows.map((row) => {
-                const amt =
-                  row.type === "FIJO"
-                    ? row.value
-                    : (netSalePrice * row.value) / 100;
-                return (
-                  <div
-                    key={row.id}
-                    className="flex justify-between items-center text-sm"
-                  >
-                    <span className="text-muted-foreground">
-                      {row.description}
-                    </span>
-                    <span className="font-medium text-red-600">
-                      − {vehicleCurrency.symbol} {fmt(amt)}
-                    </span>
-                  </div>
-                );
-              })}
-              <Separator className="my-1.5" />
-              <div className="flex justify-between items-center text-sm font-bold">
-                <span>Utilidad Neta</span>
-                <span
-                  className={
-                    realMarginAmount >= 0 ? "text-green-700" : "text-red-600"
-                  }
-                >
-                  {vehicleCurrency.symbol} {fmt(realMarginAmount)}
-                </span>
-              </div>
-            </div>
-
-            {/* ── MARGEN REAL ── */}
-            <div className={`p-3 rounded-lg border ${realColor.badge}`}>
-              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">
-                Margen Comercial
-              </p>
-              <div className="flex justify-between items-center">
-                <div className="text-sm text-muted-foreground">
-                  <p>
-                    {vehicleCurrency.symbol} {fmt(realMarginAmount)}
-                  </p>
-                  <p className="text-xs">
-                    ÷ (PV {vehicleCurrency.symbol} {fmt(totals.salePrice)} ÷
-                    1.18)
-                  </p>
-                </div>
-                <p className="text-2xl font-bold">
-                  {realMarginPct >= 0 ? "+" : ""}
-                  {realMarginPct.toFixed(2)}%
-                </p>
-              </div>
-            </div>
-
-            {/* ── SIMULACIÓN ── */}
-            <div className="space-y-2 p-3 rounded-lg border border-dashed border-muted-foreground/30 bg-muted/10">
-              <p className="text-xs text-muted-foreground font-medium">
-                Simular ajuste hipotético
-              </p>
-              <div className="flex items-center gap-2">
-                <span className="text-sm text-muted-foreground w-4">±</span>
-                <Input
-                  type="number"
-                  placeholder="0.00"
-                  value={simulationAdj}
-                  onChange={(e) => setSimulationAdj(e.target.value)}
-                  className="h-8 text-sm"
-                />
-                <span className="text-xs text-muted-foreground whitespace-nowrap">
-                  {vehicleCurrency.symbol}
-                </span>
-              </div>
-
-              {simAdj !== 0 && (
-                <div
-                  className={`mt-2 p-2 rounded-md border flex justify-between items-center text-sm ${simColor.badge}`}
-                >
-                  <span className="font-semibold">Margen simulado</span>
-                  <div className="text-right">
-                    <p className="font-bold">
-                      {vehicleCurrency.symbol} {fmt(simMarginAmount)}
-                    </p>
-                    <p className="text-xs font-semibold">
-                      ({simMarginPct >= 0 ? "+" : ""}
-                      {simMarginPct.toFixed(2)}%)
-                    </p>
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
+        onClose={() => setIsMarginModalOpen(false)}
+        currencySymbol={vehicleCurrency.symbol}
+        salePrice={totals.salePrice}
+        billedCost={billedCost}
+        discounts={discountRows.map((row) => ({
+          id: row.id,
+          label: row.concept_label,
+          amount: rowAmount(row),
+          isPercentage: row.isPercentage,
+          valor: row.valor,
+        }))}
+        bonuses={bonusRows.map((row) => ({
+          id: row.id,
+          label: row.concept_label,
+          amount: rowAmount(row),
+          isPercentage: row.isPercentage,
+          valor: row.valor,
+        }))}
+        paidAccessories={paidAccessories.map((acc) => ({
+          id: acc.id,
+          name: acc.name,
+          quantity: acc.quantity,
+          total: acc.total,
+        }))}
+        giftAccessories={giftAccessories.map((acc) => ({
+          id: acc.id,
+          name: acc.name,
+          quantity: acc.quantity,
+          total: acc.total,
+        }))}
+        extraCosts={extraCostRows.map((row) => ({
+          id: row.id,
+          label: row.description || "Costo interno",
+          amount:
+            row.type === "FIJO"
+              ? row.value
+              : (totals.salePrice * row.value) / 100,
+        }))}
+        fleteItems={fleteRows.map((row) => ({
+          id: row.id,
+          label: row.description,
+          amount:
+            row.type === "FIJO"
+              ? row.value
+              : (netSalePrice * row.value) / 100,
+        }))}
+        clientRevenue={clientRevenue}
+        totalIncome={totalIncome}
+        vehicleCosts={vehicleCosts}
+        netDiff={netDiff}
+        netSalePrice={netSalePrice}
+        realMarginAmount={realMarginAmount}
+        realMarginPct={realMarginPct}
+      />
     </>
   );
 }
