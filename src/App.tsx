@@ -24,35 +24,19 @@ const lazyPage = (loader: Loader) => {
   return lazy(loader);
 };
 
-// Mantiene el overlay de arranque (#app-boot) hasta que la app está lista:
-// login visible, o dashboard con permisos cargados. Así no se ve el salto
-// "pantalla vacía → sidebar armándose → vista". Se revela todo de una.
+// Quita el overlay del logo apenas React montó y pintó el shell.
+// No espera datos: la app aparece "vacía" y se va llenando sola sin loaders.
 function BootScreen() {
-  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
-  const permissions = useAuthStore((s) => s.permissions);
-  const ready = !isAuthenticated || !!permissions?.length;
-
   useEffect(() => {
-    const hide = () => {
-      const el = document.getElementById("app-boot");
-      if (!el) return;
-      el.classList.add("app-boot-hide");
-      window.setTimeout(() => el.remove(), 300);
-    };
-    // Safety: nunca dejar el overlay pegado.
-    const safety = window.setTimeout(hide, 10000);
-    if (ready) {
-      const t = window.setTimeout(() => {
-        requestAnimationFrame(() => requestAnimationFrame(hide));
-      }, 150);
-      return () => {
-        window.clearTimeout(t);
-        window.clearTimeout(safety);
-      };
-    }
-    return () => window.clearTimeout(safety);
-  }, [ready]);
-
+    const el = document.getElementById("app-boot");
+    if (!el) return;
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        el.classList.add("app-boot-hide");
+        window.setTimeout(() => el.remove(), 250);
+      });
+    });
+  }, []);
   return null;
 }
 
