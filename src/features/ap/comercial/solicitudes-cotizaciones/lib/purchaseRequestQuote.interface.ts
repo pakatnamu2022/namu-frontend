@@ -98,6 +98,8 @@ export interface PurchaseRequestQuoteResource {
   vehicle_color: string;
   ap_models_vn_id: number;
   ap_model_vn: string;
+  /** Carrocería del modelo: precio homologado del accesorio depende de ella. */
+  body_type_id?: number | null;
   brand_id: number;
   ap_vehicle_purchase_order_id: null;
   ap_vehicle_purchase_order: null;

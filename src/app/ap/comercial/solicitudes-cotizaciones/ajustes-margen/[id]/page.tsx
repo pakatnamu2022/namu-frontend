@@ -8,16 +8,17 @@ import { notFound } from "@/shared/hooks/useNotFound";
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import FormWrapper from "@/shared/components/FormWrapper";
 import TitleFormComponent from "@/shared/components/TitleFormComponent";
+import { ListChecks, User, MessageSquare, CheckCircle2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
-import { NumberFormat } from "@/shared/components/NumberFormat";
 import { ERROR_MESSAGE, errorToast, successToast } from "@/core/core.function";
 import { PURCHASE_REQUEST_QUOTE_ADJUSTMENT } from "@/features/ap/comercial/solicitudes-cotizaciones/ajustes-margen/lib/purchaseRequestQuoteAdjustment.constants";
 import { PURCHASE_REQUEST_QUOTE } from "@/features/ap/comercial/solicitudes-cotizaciones/lib/purchaseRequestQuote.constants";
 import { usePurchaseRequestQuoteById } from "@/features/ap/comercial/solicitudes-cotizaciones/lib/purchaseRequestQuote.hook";
 import QuoteMarginSummary from "@/features/ap/comercial/solicitudes-cotizaciones/ajustes-margen/components/QuoteMarginSummary";
+import AdjustmentMarginPreview from "@/features/ap/comercial/solicitudes-cotizaciones/ajustes-margen/components/AdjustmentMarginPreview";
 import {
   useAdjustmentRequestById,
   useApproveAdjustmentRequest,
@@ -56,7 +57,9 @@ export default function AdjustmentRequestDetailPage() {
     try {
       await approveMutation.mutateAsync(request.id);
       await refetch();
-      successToast("Ajuste aprobado: los bonos/descuentos fueron actualizados.");
+      successToast(
+        "Ajuste aprobado: los bonos/descuentos/obsequios fueron actualizados.",
+      );
     } catch (error: any) {
       errorToast(ERROR_MESSAGE(MODEL, error?.response?.data?.message || ""));
     } finally {
@@ -90,10 +93,42 @@ export default function AdjustmentRequestDetailPage() {
   if (isLoading || !request) return <FormSkeleton />;
 
   const isPending = request.status === ADJUSTMENT_STATUS_PENDING;
-  const marginDelta = request.margin_amount_after - request.margin_amount_before;
+  const marginProjection = {
+    amountBefore: request.margin_amount_before,
+    pctBefore: request.margin_pct_before,
+    amountAfter: request.margin_amount_after,
+    pctAfter: request.margin_pct_after,
+    amountDelta: request.margin_amount_after - request.margin_amount_before,
+    pctDelta: request.margin_pct_after - request.margin_pct_before,
+  };
+
+  const canResolve =
+    isPending &&
+    (permissions.canApproveAdjustment || permissions.canRejectAdjustment);
+
+  const metaRow = (
+    icon: typeof User,
+    label: string,
+    value: React.ReactNode,
+  ) => {
+    const Icon = icon;
+    return (
+      <div className="flex gap-3">
+        <span className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-muted text-muted-foreground">
+          <Icon className="h-3.5 w-3.5" />
+        </span>
+        <div className="min-w-0">
+          <p className="text-[11px] uppercase tracking-wide text-muted-foreground">
+            {label}
+          </p>
+          <p className="text-sm font-medium break-words">{value}</p>
+        </div>
+      </div>
+    );
+  };
 
   return (
-    <FormWrapper>
+    <FormWrapper maxWidth="max-w-(--breakpoint-2xl)">
       <TitleFormComponent
         title={`Ajuste de Margen — ${request.quote_correlative}`}
         subtitle={`Solicitado por ${request.requested_by_name} el ${new Date(request.created_at).toLocaleDateString("es-PE")}`}
@@ -105,107 +140,117 @@ export default function AdjustmentRequestDetailPage() {
         </Badge>
       </TitleFormComponent>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div className="rounded-xl border p-4">
-          <p className="text-sm text-muted-foreground">Titular</p>
-          <p className="font-semibold">{request.holder_name}</p>
-        </div>
-        <div className="rounded-xl border p-4">
-          <p className="text-sm text-muted-foreground">Motivo</p>
-          <p className="font-medium">{request.reason || "—"}</p>
-        </div>
-      </div>
-
-      {quote && <QuoteMarginSummary quote={quote} />}
-
-      <div className="rounded-xl border p-4 space-y-2">
-        <p className="text-sm font-semibold">Impacto en el Margen</p>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <div>
-            <p className="text-xs text-muted-foreground">Antes</p>
-            <p className="text-lg font-semibold">
-              {request.currency_symbol}{" "}
-              <NumberFormat value={request.margin_amount_before.toFixed(2)} />{" "}
-              ({request.margin_pct_before.toFixed(2)}%)
-            </p>
+      <div className="grid gap-5">
+        <div className="grid gap-4 lg:grid-cols-3">
+          <div className="rounded-2xl bg-card shadow-md p-5 space-y-4 lg:col-span-1">
+            {metaRow(User, "Titular", request.holder_name || "—")}
+            {metaRow(
+              User,
+              "Solicitado por",
+              `${request.requested_by_name ?? "—"} · ${new Date(request.created_at).toLocaleDateString("es-PE")}`,
+            )}
+            {metaRow(MessageSquare, "Motivo", request.reason || "—")}
+            {!isPending &&
+              request.resolved_by_name &&
+              metaRow(
+                CheckCircle2,
+                `${ADJUSTMENT_STATUS_LABEL[request.status] ?? request.status} por`,
+                `${request.resolved_by_name}${
+                  request.resolved_at
+                    ? ` · ${new Date(request.resolved_at).toLocaleDateString("es-PE")}`
+                    : ""
+                }`,
+              )}
           </div>
-          <div>
-            <p className="text-xs text-muted-foreground">Después</p>
-            <p className="text-lg font-semibold">
-              {request.currency_symbol}{" "}
-              <NumberFormat value={request.margin_amount_after.toFixed(2)} />{" "}
-              ({request.margin_pct_after.toFixed(2)}%)
-            </p>
-          </div>
-          <div>
-            <p className="text-xs text-muted-foreground">Variación</p>
-            <p
-              className={`text-lg font-semibold ${marginDelta >= 0 ? "text-emerald-600" : "text-red-600"}`}
-            >
-              {marginDelta >= 0 ? "+" : ""}
-              {request.currency_symbol}{" "}
-              <NumberFormat value={marginDelta.toFixed(2)} />
-            </p>
+
+          <div className="lg:col-span-2">
+            <AdjustmentMarginPreview
+              projection={marginProjection}
+              currencySymbol={request.currency_symbol}
+              changeCount={request.items.length}
+              subtitle={
+                isPending
+                  ? "Proyección · pendiente de aprobación"
+                  : "Impacto aplicado tras la aprobación"
+              }
+            />
           </div>
         </div>
-      </div>
 
-      <div className="rounded-xl border overflow-hidden">
-        <table className="w-full text-sm">
-          <thead className="bg-muted">
-            <tr>
-              <th className="text-left px-4 py-2">Cambio</th>
-              <th className="text-left px-4 py-2">Concepto</th>
-              <th className="text-right px-4 py-2">Antes</th>
-              <th className="text-right px-4 py-2">Después</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y">
-            {request.items.map((item) => (
-              <tr key={item.id}>
-                <td className="px-4 py-2">
-                  {ADJUSTMENT_ACTION_LABEL[item.action] ?? item.action}
-                </td>
-                <td className="px-4 py-2">{item.concept_code ?? "—"}</td>
-                <td className="px-4 py-2 text-right">
-                  {item.previous_precio_unitario != null
-                    ? `${request.currency_symbol} ${Number(item.previous_precio_unitario).toFixed(2)}`
-                    : "—"}
-                </td>
-                <td className="px-4 py-2 text-right">
-                  {item.new_precio_unitario != null
-                    ? `${request.currency_symbol} ${Number(item.new_precio_unitario).toFixed(2)}`
-                    : "—"}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+        <div className="rounded-2xl bg-card shadow-md overflow-hidden">
+            <div className="flex items-center gap-2.5 px-5 py-3.5">
+              <span className="flex h-7 w-7 items-center justify-center rounded-full bg-primary/10 text-primary">
+                <ListChecks className="h-4 w-4" />
+              </span>
+              <div>
+                <p className="text-sm font-semibold leading-tight">
+                  Cambios solicitados
+                </p>
+                <p className="text-xs text-muted-foreground leading-tight">
+                  {request.items.length}{" "}
+                  {request.items.length === 1 ? "línea" : "líneas"}
+                </p>
+              </div>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead className="bg-muted/60">
+                  <tr>
+                    <th className="text-left px-5 py-2.5 font-medium">Cambio</th>
+                    <th className="text-left px-4 py-2.5 font-medium">
+                      Concepto
+                    </th>
+                    <th className="text-right px-4 py-2.5 font-medium">Antes</th>
+                    <th className="text-right px-5 py-2.5 font-medium">
+                      Después
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-muted">
+                  {request.items.map((item) => (
+                    <tr key={item.id}>
+                      <td className="px-5 py-2.5">
+                        {ADJUSTMENT_ACTION_LABEL[item.action] ?? item.action}
+                      </td>
+                      <td className="px-4 py-2.5">
+                        {item.item_type === "gift"
+                          ? `Obsequio: ${item.accessory_label ?? "Accesorio"}${
+                              item.quantity ? ` (x${item.quantity})` : ""
+                            }`
+                          : (item.concept_code ?? "—")}
+                      </td>
+                      <td className="px-4 py-2.5 text-right tabular-nums">
+                        {item.previous_precio_unitario != null
+                          ? `${request.currency_symbol} ${Number(item.previous_precio_unitario).toFixed(2)}`
+                          : "—"}
+                      </td>
+                      <td className="px-5 py-2.5 text-right tabular-nums">
+                        {item.new_precio_unitario != null
+                          ? `${request.currency_symbol} ${Number(item.new_precio_unitario).toFixed(2)}`
+                          : "—"}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
 
-      {!isPending && request.resolved_by_name && (
-        <div className="rounded-xl border p-4">
-          <p className="text-sm text-muted-foreground">
-            {ADJUSTMENT_STATUS_LABEL[request.status] ?? request.status} por
-          </p>
-          <p className="font-medium">
-            {request.resolved_by_name}
-            {request.resolved_at &&
-              ` · ${new Date(request.resolved_at).toLocaleDateString("es-PE")}`}
-          </p>
-        </div>
-      )}
+        {quote && <QuoteMarginSummary quote={quote} layout="grid" />}
 
-      {request.status === "rejected" && request.rejection_reason && (
-        <div className="rounded-xl border border-red-200 bg-red-50 p-4">
-          <p className="text-sm font-semibold text-red-700">Motivo del rechazo</p>
-          <p className="text-sm text-red-700">{request.rejection_reason}</p>
-        </div>
-      )}
+        {request.status === "rejected" && request.rejection_reason && (
+          <div className="rounded-2xl bg-red-50 dark:bg-red-500/10 shadow-md p-4">
+            <p className="text-sm font-semibold text-red-700 dark:text-red-400">
+              Motivo del rechazo
+            </p>
+            <p className="text-sm text-red-700 dark:text-red-400">
+              {request.rejection_reason}
+            </p>
+          </div>
+        )}
 
-      {isPending &&
-        (permissions.canApproveAdjustment || permissions.canRejectAdjustment) && (
-          <div className="flex justify-end gap-2">
+        {canResolve && (
+          <div className="flex items-center justify-end gap-2 rounded-2xl bg-card shadow-md p-4 sm:sticky sm:bottom-4">
             {permissions.canRejectAdjustment && (
               <Button variant="destructive" onClick={() => setRejectOpen(true)}>
                 Rechazar
@@ -216,12 +261,13 @@ export default function AdjustmentRequestDetailPage() {
             )}
           </div>
         )}
+      </div>
 
       {approveOpen && (
         <ConfirmationDialog
           trigger={<span className="hidden" />}
           title="¿Aprobar ajuste de margen?"
-          description="Se aplicarán los cambios de bono/descuento solicitados y se actualizará el margen real de la cotización."
+          description="Se aplicarán los cambios de bono/descuento/obsequio solicitados y se actualizará el margen real de la cotización."
           confirmText="Sí, aprobar"
           cancelText="Cancelar"
           onConfirm={handleApprove}

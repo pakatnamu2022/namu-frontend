@@ -2,16 +2,23 @@ import { type Links, type Meta } from "@/shared/lib/pagination.interface";
 
 export type AdjustmentAction = "create" | "update" | "delete";
 export type AdjustmentStatus = "pending" | "approved" | "rejected";
+export type AdjustmentItemType = "bonus_discount" | "gift";
 
 export interface AdjustmentItemResource {
   id: number;
   action: AdjustmentAction;
+  item_type: AdjustmentItemType;
   discount_coupon_id: number | null;
   concept_code_id: number | null;
   concept_code: string | null;
   type: "FIJO" | "PORCENTAJE" | null;
   is_negative: boolean;
   has_retention: boolean;
+  accessory_detail_id: number | null;
+  approved_accessory_id: number | null;
+  accessory_label: string | null;
+  quantity: number | null;
+  additional_price: number | null;
   previous_valor_unitario: number | null;
   new_valor_unitario: number | null;
   previous_precio_unitario: number | null;
@@ -48,11 +55,18 @@ export interface AdjustmentRequestResponse {
 
 export interface AdjustmentItemPayload {
   action: AdjustmentAction;
+  item_type: AdjustmentItemType;
+  // Bono / descuento
   discount_coupon_id?: number | null;
   concept_code_id?: number | null;
   type?: "FIJO" | "PORCENTAJE" | null;
   value?: number;
   has_retention?: boolean;
+  // Obsequio
+  accessory_detail_id?: number | null;
+  approved_accessory_id?: number | null;
+  quantity?: number | null;
+  additional_price?: number | null;
 }
 
 export interface CreateAdjustmentRequestPayload {

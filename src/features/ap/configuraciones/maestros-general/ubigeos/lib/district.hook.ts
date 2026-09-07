@@ -30,6 +30,7 @@ export const useDistrictById = (id: number) => {
     queryKey: [QUERY_KEY, id],
     queryFn: () => findDistrictById(id),
     refetchOnWindowFocus: false,
+    enabled: !!id && id > 0,
   });
 };
 
