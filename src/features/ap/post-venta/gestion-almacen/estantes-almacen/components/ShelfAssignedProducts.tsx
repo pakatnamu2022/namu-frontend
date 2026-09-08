@@ -1,11 +1,10 @@
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import {
   Card,
   CardContent,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card.tsx";
-import { Input } from "@/components/ui/input.tsx";
 import { Badge } from "@/components/ui/badge.tsx";
 import {
   Tooltip,
@@ -14,6 +13,7 @@ import {
 } from "@/components/ui/tooltip.tsx";
 import { PackageSearch, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils.ts";
+import { EditableCell } from "@/shared/components/EditableCell.tsx";
 import { ShelfProductItem } from "@/features/ap/post-venta/gestion-almacen/estantes-almacen/lib/productShelf.interface.ts";
 
 interface Props {
@@ -49,34 +49,16 @@ export default function ShelfAssignedProducts({
   onUpdatePosition,
   removingStockId,
 }: Props) {
-  const [drafts, setDrafts] = useState<Record<number, string>>({});
-
   const shelves = useMemo(() => groupIntoShelves(products), [products]);
 
-  const getValue = (item: ShelfProductItem) => {
-    const stockId = item.product_warehouse_stock_id;
-    return drafts[stockId] ?? item.position ?? "";
+  const handlePositionUpdate = (stockId: number, value: any) => {
+    onUpdatePosition(
+      stockId,
+      String(value ?? "")
+        .trim()
+        .toUpperCase(),
+    );
   };
-
-  const commit = (item: ShelfProductItem) => {
-    const stockId = item.product_warehouse_stock_id;
-    const draft = drafts[stockId];
-    if (draft === undefined) return;
-    const next = draft.trim();
-    setDrafts((prev) => {
-      const clone = { ...prev };
-      delete clone[stockId];
-      return clone;
-    });
-    if (next !== (item.position ?? "")) onUpdatePosition(stockId, next);
-  };
-
-  const clearDraft = (stockId: number) =>
-    setDrafts((prev) => {
-      const clone = { ...prev };
-      delete clone[stockId];
-      return clone;
-    });
 
   return (
     <Card className="border-[#e7ddc8] bg-[#fdfbf4]">
@@ -153,26 +135,15 @@ export default function ShelfAssignedProducts({
                           </span>
                           <Tooltip>
                             <TooltipTrigger asChild>
-                              <Input
-                                value={getValue(item)}
-                                onChange={(e) =>
-                                  setDrafts((prev) => ({
-                                    ...prev,
-                                    [stockId]: e.target.value.toUpperCase(),
-                                  }))
-                                }
-                                onBlur={() => commit(item)}
-                                onKeyDown={(e) => {
-                                  if (e.key === "Enter") e.currentTarget.blur();
-                                  if (e.key === "Escape") {
-                                    clearDraft(stockId);
-                                    e.currentTarget.blur();
-                                  }
-                                }}
-                                maxLength={6}
-                                placeholder="—"
-                                className="h-7 w-14 px-1 text-center text-xs font-semibold uppercase"
-                              />
+                              <div>
+                                <EditableCell
+                                  id={stockId}
+                                  value={item.position ?? ""}
+                                  isNumber={false}
+                                  onUpdate={handlePositionUpdate}
+                                  widthClass="w-14"
+                                />
+                              </div>
                             </TooltipTrigger>
                             <TooltipContent>
                               Posición en el estante

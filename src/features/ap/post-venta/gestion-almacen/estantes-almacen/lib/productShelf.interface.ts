@@ -69,3 +69,9 @@ export interface RemoveShelfProductRequest {
   product_shelf_id: number;
   product_warehouse_stock_id: number;
 }
+
+export interface UpdateShelfProductPositionRequest {
+  product_shelf_id: number;
+  product_warehouse_stock_id: number;
+  position?: string | null;
+}

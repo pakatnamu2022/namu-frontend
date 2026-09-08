@@ -10,6 +10,7 @@ import {
   ProductShelfResponse,
   RemoveShelfProductRequest,
   ShelfProductItem,
+  UpdateShelfProductPositionRequest,
 } from "./productShelf.interface.ts";
 
 const { ENDPOINT } = PRODUCT_SHELF;
@@ -90,6 +91,16 @@ export async function removeShelfProduct(
 ): Promise<GeneralResponse> {
   const { data } = await api.post<GeneralResponse>(
     `${ENDPOINT}/remove-product`,
+    payload,
+  );
+  return data;
+}
+
+export async function updateShelfProductPosition(
+  payload: UpdateShelfProductPositionRequest,
+): Promise<GeneralResponse> {
+  const { data } = await api.post<GeneralResponse>(
+    `${ENDPOINT}/update-position`,
     payload,
   );
   return data;

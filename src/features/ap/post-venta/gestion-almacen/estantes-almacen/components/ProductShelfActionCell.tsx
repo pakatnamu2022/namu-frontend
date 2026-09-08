@@ -15,6 +15,8 @@ interface Props {
   onManage: (id: number) => void;
   onToggleStatus: (id: number, newStatus: boolean) => void;
   permissions: {
+    canExport: boolean;
+    canManage: boolean;
     canUpdate: boolean;
     canDelete: boolean;
   };
@@ -59,31 +61,35 @@ export function ProductShelfActionCell({
       )}
 
       {/* Exportar a Excel */}
-      <Button
-        variant="outline"
-        size="icon"
-        className="size-7"
-        onClick={handleExport}
-        disabled={isExporting}
-        tooltip={isExporting ? "Exportando..." : "Exportar a Excel"}
-      >
-        {isExporting ? (
-          <Loader2 className="size-5 animate-spin" />
-        ) : (
-          <Download className="size-5" />
-        )}
-      </Button>
+      {permissions.canExport && (
+        <Button
+          variant="outline"
+          size="icon"
+          className="size-7"
+          onClick={handleExport}
+          disabled={isExporting}
+          tooltip={isExporting ? "Exportando..." : "Exportar a Excel"}
+        >
+          {isExporting ? (
+            <Loader2 className="size-5 animate-spin" />
+          ) : (
+            <Download className="size-5" />
+          )}
+        </Button>
+      )}
 
       {/* Organizar repuestos */}
-      <Button
-        variant="outline"
-        size="icon"
-        className="size-7"
-        tooltip="Organizar repuestos"
-        onClick={() => onManage(id)}
-      >
-        <LayoutGrid className="size-5" />
-      </Button>
+      {permissions.canManage && (
+        <Button
+          variant="outline"
+          size="icon"
+          className="size-7"
+          tooltip="Organizar repuestos"
+          onClick={() => onManage(id)}
+        >
+          <LayoutGrid className="size-5" />
+        </Button>
+      )}
 
       {/* Edit */}
       {permissions.canUpdate && (
@@ -99,9 +105,7 @@ export function ProductShelfActionCell({
       )}
 
       {/* Delete */}
-      {permissions.canDelete && (
-        <DeleteButton onClick={() => onDelete(id)} />
-      )}
+      {permissions.canDelete && <DeleteButton onClick={() => onDelete(id)} />}
     </div>
   );
 }

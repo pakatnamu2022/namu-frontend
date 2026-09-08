@@ -11,6 +11,8 @@ interface Props {
   onManage: (id: number) => void;
   onToggleStatus: (id: number, newStatus: boolean) => void;
   permissions: {
+    canExport: boolean;
+    canManage: boolean;
     canUpdate: boolean;
     canDelete: boolean;
   };

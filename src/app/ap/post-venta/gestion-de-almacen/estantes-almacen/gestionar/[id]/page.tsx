@@ -17,6 +17,7 @@ import {
 import {
   assignShelfProducts,
   removeShelfProduct,
+  updateShelfProductPosition,
 } from "@/features/ap/post-venta/gestion-almacen/estantes-almacen/lib/productShelf.actions.ts";
 import ShelfAssignedProducts from "@/features/ap/post-venta/gestion-almacen/estantes-almacen/components/ShelfAssignedProducts.tsx";
 import ShelfProductPicker from "@/features/ap/post-venta/gestion-almacen/estantes-almacen/components/ShelfProductPicker.tsx";
@@ -73,14 +74,10 @@ export default function ManageShelfProductsPage() {
   const handleUpdatePosition = async (stockId: number, position: string) => {
     setIsAssigning(true);
     try {
-      await assignShelfProducts({
+      await updateShelfProductPosition({
         product_shelf_id: shelfId,
-        products: [
-          {
-            product_warehouse_stock_id: stockId,
-            position: position || undefined,
-          },
-        ],
+        product_warehouse_stock_id: stockId,
+        position: position || null,
       });
       await refetchProducts();
       successToast("Posición actualizada correctamente.");
