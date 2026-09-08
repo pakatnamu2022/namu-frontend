@@ -90,6 +90,7 @@ export function WorkOrderActionCell({
   const isClosed = status_id == String(STATUS_WORK_ORDER.CERRADO);
   const isOpen = status_id == String(STATUS_WORK_ORDER.APERTURADO);
   const isCancelled = status_id == String(STATUS_WORK_ORDER.ANULADO);
+  const isFinished = status_id == String(STATUS_WORK_ORDER.TERMINADO);
   const isDelivery = is_delivery;
   const firstItemPlanning = items?.[0]?.type_planning;
 
@@ -196,7 +197,8 @@ export function WorkOrderActionCell({
 
   const isOpenForEdit = permissions.canUpdate && isOpen;
 
-  const idVisibleCancel = !isCancelled && !isClosed && !isDelivery;
+  const idVisibleCancel =
+    !isCancelled && !isClosed && (isFinished || !isDelivery);
 
   return (
     <div className="flex items-center gap-2">
