@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Car, Loader, Plus } from "lucide-react";
+import { Car, Loader, Lock, Plus } from "lucide-react";
 import { FormSelect } from "@/shared/components/FormSelect";
 import { FormSelectAsync } from "@/shared/components/FormSelectAsync";
 import FormSkeleton from "@/shared/components/FormSkeleton";
@@ -44,10 +44,14 @@ import { CustomersResource } from "../../clientes/lib/customers.interface";
 import CustomerModal from "../../clientes/components/CustomerModal";
 import { CUSTOMERS } from "../../clientes/lib/customers.constants";
 import { VehicleResource } from "../lib/vehicles.interface";
-import { CM_POSTVENTA_ID } from "@/features/ap/ap-master/lib/apMaster.constants";
+import {
+  CM_COMERCIAL_ID,
+  CM_POSTVENTA_ID,
+} from "@/features/ap/ap-master/lib/apMaster.constants";
 import { FormInput } from "@/shared/components/FormInput";
 import { FormSwitch } from "@/shared/components/FormSwitch";
 import { BRAND_ID } from "@/features/ap/configuraciones/vehiculos/grupos-marcas/lib/brandGroup.constants";
+import { Badge } from "@/components/ui/badge";
 
 interface VehiclePVFormProps {
   defaultValues: Partial<VehicleSchema>;
@@ -162,6 +166,11 @@ export const VehiclePVForm = ({
   const vinWatch = form.watch("vin");
   const isVinDisabled = issuccessfulResponse && vinWatch?.length === 17;
 
+  // Un vehículo comercial no puede editar sus campos críticos desde postventa
+  const isComercial =
+    mode === "update" &&
+    Number(vehicleData?.type_operation_id) === CM_COMERCIAL_ID;
+
   const isLoading = isLoadingEngineTypes || isLoadingMySedes;
 
   if (isLoading) return <FormSkeleton />;
@@ -173,7 +182,25 @@ export const VehiclePVForm = ({
           title="Información del Vehículo"
           icon={Car}
           cols={{ sm: 1, md: 2 }}
+          headerExtra={
+            mode === "update" && vehicleData?.type_operation_id ? (
+              <Badge color={isComercial ? "blue" : "emerald"} size="sm">
+                {isComercial ? "Comercial" : "Postventa"}
+              </Badge>
+            ) : undefined
+          }
         >
+          {isComercial && (
+            <div className="col-span-full flex items-start gap-2 rounded-md border border-blue-200 bg-blue-50 px-3 py-2 text-xs text-blue-700 dark:border-blue-900 dark:bg-blue-950 dark:text-blue-200">
+              <Lock className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+              <span>
+                Este vehículo pertenece al área <strong>Comercial</strong>,
+                por lo que el VIN, modelo, color y tipo de motor no se pueden
+                editar desde Postventa.
+              </span>
+            </div>
+          )}
+
           <FormSelect
             name="sede_id"
             label="Sede"
@@ -229,7 +256,7 @@ export const VehiclePVForm = ({
             label="VIN"
             placeholder="Ej: 1HGBH41AX1N109189"
             control={form.control}
-            disabled={isVinDisabled}
+            disabled={isVinDisabled || isComercial}
           />
 
           <FormInput
@@ -293,17 +320,20 @@ export const VehiclePVForm = ({
                 item?.brand_id === BRAND_ID.JAC_CAMIONES,
               );
             }}
+            disabled={isComercial}
           >
-            <Button
-              type="button"
-              variant="outline"
-              size="icon-lg"
-              className="aspect-square"
-              onClick={() => setIsModelModalOpen(true)}
-              tooltip="Agregar nuevo modelo"
-            >
-              <Plus className="h-4 w-4" />
-            </Button>
+            {!isComercial && (
+              <Button
+                type="button"
+                variant="outline"
+                size="icon-lg"
+                className="aspect-square"
+                onClick={() => setIsModelModalOpen(true)}
+                tooltip="Agregar nuevo modelo"
+              >
+                <Plus className="h-4 w-4" />
+              </Button>
+            )}
           </FormSelectAsync>
 
           <FormSelectAsync
@@ -335,17 +365,20 @@ export const VehiclePVForm = ({
                   }
                 : undefined
             }
+            disabled={isComercial}
           >
-            <Button
-              type="button"
-              variant="outline"
-              size="icon-lg"
-              className="aspect-square"
-              onClick={() => setIsColorModalOpen(true)}
-              tooltip="Agregar nuevo color"
-            >
-              <Plus className="h-4 w-4" />
-            </Button>
+            {!isComercial && (
+              <Button
+                type="button"
+                variant="outline"
+                size="icon-lg"
+                className="aspect-square"
+                onClick={() => setIsColorModalOpen(true)}
+                tooltip="Agregar nuevo color"
+              >
+                <Plus className="h-4 w-4" />
+              </Button>
+            )}
           </FormSelectAsync>
 
           <FormSelect
@@ -357,6 +390,7 @@ export const VehiclePVForm = ({
               value: type.id.toString(),
               label: type.description,
             }))}
+            disabled={isComercial}
           />
 
           <FormSelectAsync
