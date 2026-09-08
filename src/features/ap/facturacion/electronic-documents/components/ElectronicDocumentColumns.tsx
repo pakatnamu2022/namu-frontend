@@ -412,6 +412,14 @@ export const electronicDocumentColumns = ({
           } as ElectronicDocumentColumn,
         ]
       : []),
+    ...(!isCommercial
+      ? [
+          {
+            accessorKey: "advisor_name",
+            header: "Asesor",
+          } as ElectronicDocumentColumn,
+        ]
+      : []),
     {
       accessorKey: "internal_note",
       header: "Comentario",
