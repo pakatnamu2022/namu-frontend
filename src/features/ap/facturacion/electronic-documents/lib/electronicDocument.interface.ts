@@ -150,6 +150,66 @@ export interface ElectronicDocumentResource {
   guides?: ElectronicDocumentGuide[];
   installments?: ElectronicDocumentInstallment[];
   vehicle_movement?: VehicleMovement;
+
+  // Datos enriquecidos del detalle (endpoint show)
+  net_amount?: number;
+  credit_note_total?: number | null;
+  debit_note_total?: number | null;
+  credit_note_type_id?: number | null;
+  error_message?: string | null;
+  cadena_para_codigo_qr?: string | null;
+  codigo_hash?: string | null;
+  enlace?: string | null;
+  creator_name?: string | null;
+  updater_name?: string | null;
+  sede_shop?: string | null;
+  sede_abrev?: string | null;
+  exchange_rate?: {
+    id: number;
+    date: string;
+    type: string;
+    rate: number;
+  } | null;
+  vehicle?: ElectronicDocumentVehicle | null;
+  purchase_request_quote?: ElectronicDocumentQuoteInfo | null;
+  order_quotation?: { id: number; number: string | null } | null;
+  work_order?: { id: number; number: string | null } | null;
+  original_document?: {
+    id: number;
+    full_number: string;
+    document_type?: string | null;
+    total: number;
+  } | null;
+}
+
+export interface ElectronicDocumentVehicle {
+  id: number;
+  vin: string | null;
+  plate: string | null;
+  engine_number: string | null;
+  year: number | string | null;
+  mileage: number | string | null;
+  color: string | null;
+  engine_type: string | null;
+  status: string | null;
+  status_color: string | null;
+  model_code: string | null;
+  model_version: string | null;
+  brand: string | null;
+  family: string | null;
+  warehouse: string | null;
+}
+
+export interface ElectronicDocumentQuoteInfo {
+  id: number;
+  correlative: string | null;
+  internal_code: string | null;
+  sale_price: number;
+  base_selling_price: number;
+  down_payment: number;
+  opportunity_code: string | null;
+  advisor: string | null;
+  holder: string | null;
 }
 
 export interface ElectronicDocumentItem {
@@ -175,12 +235,14 @@ export interface ElectronicDocumentItem {
   anticipo_documento_serie?: string;
   anticipo_documento_numero?: number;
   igvType?: SunatConceptsResource;
+  igv_type?: SunatConceptsResource;
 }
 
 export interface ElectronicDocumentGuide {
   id?: number;
   ap_billing_electronic_document_id?: number;
   guia_tipo: number;
+  guia_tipo_descripcion?: string;
   guia_serie_numero: string;
 }
 
