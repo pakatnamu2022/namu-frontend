@@ -64,9 +64,18 @@ export default function BreadCrumbHeader() {
 
   // 3. Módulo
   if (currentModule) {
+    // Un módulo "tiene submódulos" solo si alguno de sus hijos tiene hijos.
+    // Si es plano, el breadcrumb debe ir a su vista raíz (/empresa/modulo),
+    // no a la grilla de submódulos (/modules/empresa/modulo).
+    const hasSubmodules = currentModule.children?.some(
+      (child) => Array.isArray(child.children) && child.children.length > 0
+    );
+
     breadcrumbs.push({
       key: "modulo",
-      link: `/modules/${currentCompany?.empresa_abreviatura}/${currentModule.slug}`,
+      link: hasSubmodules
+        ? `/modules/${currentCompany?.empresa_abreviatura}/${currentModule.slug}`
+        : `/${currentCompany?.empresa_abreviatura}/${currentModule.slug}`,
       label: currentModule.descripcion || "Módulo",
       isLast: !currentSubmodule && !currentView,
     });

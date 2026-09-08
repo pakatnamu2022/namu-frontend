@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
@@ -133,6 +133,18 @@ export function AccesorySheet({
   const selectedAccessory = accessories.find(
     (acc) => acc.id === form.accessory_id,
   );
+
+  // El precio homologado depende de la carrocería del modelo/VIN. El accesorio
+  // cacheado puede traer solo `prices[]` (item crudo del buscador) y no el
+  // `price` ya calculado, así que lo resolvemos aquí para el panel informativo.
+  const resolvedUnitPrice = useMemo(() => {
+    if (!selectedAccessory) return 0;
+    const priceRow =
+      (selectedAccessory.prices ?? []).find(
+        (p) => p.body_type_id === modelBodyTypeId,
+      ) ?? (selectedAccessory.prices ?? [])[0];
+    return Number(priceRow?.price ?? selectedAccessory.price ?? 0);
+  }, [selectedAccessory, modelBodyTypeId]);
 
   return (
     <GeneralSheet
@@ -292,13 +304,11 @@ export function AccesorySheet({
                 </div>
                 <div>
                   <span className="text-muted-foreground uppercase text-xs">
-                    Precio Unitario
+                    Precio Mínimo (carrocería)
                   </span>
                   <p className="font-medium">
                     {selectedAccessory.currency_symbol}{" "}
-                    <NumberFormat
-                      value={Number(selectedAccessory.price).toFixed(2)}
-                    />
+                    <NumberFormat value={resolvedUnitPrice.toFixed(2)} />
                   </p>
                 </div>
                 {(form.additional_price ?? 0) > 0 && (
@@ -310,8 +320,7 @@ export function AccesorySheet({
                       {selectedAccessory.currency_symbol}{" "}
                       <NumberFormat
                         value={(
-                          Number(selectedAccessory.price) +
-                          (form.additional_price ?? 0)
+                          resolvedUnitPrice + (form.additional_price ?? 0)
                         ).toFixed(2)}
                       />
                     </p>

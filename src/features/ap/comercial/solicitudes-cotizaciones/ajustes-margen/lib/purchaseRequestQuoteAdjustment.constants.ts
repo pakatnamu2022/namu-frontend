@@ -44,3 +44,11 @@ export const ADJUSTMENT_ACTION_LABEL: Record<string, string> = {
   update: "Editar",
   delete: "Eliminar",
 };
+
+export const ADJUSTMENT_ITEM_TYPE_BONUS_DISCOUNT = "bonus_discount";
+export const ADJUSTMENT_ITEM_TYPE_GIFT = "gift";
+
+export const ADJUSTMENT_ITEM_TYPE_LABEL: Record<string, string> = {
+  [ADJUSTMENT_ITEM_TYPE_BONUS_DISCOUNT]: "Bono / Descuento",
+  [ADJUSTMENT_ITEM_TYPE_GIFT]: "Obsequio",
+};

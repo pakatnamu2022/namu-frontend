@@ -5,10 +5,39 @@
     <link rel="icon" type="image/svg+xml" href="/logos/sianlogo.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="preconnect" href="https://api.grupopakatnamu.com" crossorigin />
+    <link rel="dns-prefetch" href="https://api.grupopakatnamu.com" />
     <meta name="theme-color" content="#FEFEFF" />
     <title>Sian</title>
+    <style>
+      #app-boot {
+        position: fixed;
+        inset: 0;
+        z-index: 9999;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: oklch(1 0 0);
+        transition: opacity 0.2s ease;
+      }
+      html.dark #app-boot { background: oklch(0.21 0.034 264.665); }
+      #app-boot img { width: 56px; height: 56px; opacity: 0.9; }
+      #app-boot.app-boot-hide { opacity: 0; pointer-events: none; }
+    </style>
+    <script>
+      // Aplica el tema antes del primer pintado para que el overlay use el color correcto.
+      try {
+        var t = localStorage.getItem("vite-ui-theme");
+        if (t === "dark" || (t === "system" && window.matchMedia("(prefers-color-scheme: dark)").matches)) {
+          document.documentElement.classList.add("dark");
+        }
+      } catch (e) {}
+    </script>
   </head>
   <body>
+    <div id="app-boot">
+      <img src="/logos/sianlogo.svg" alt="Sian" />
+    </div>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
