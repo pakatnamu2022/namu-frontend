@@ -540,3 +540,26 @@ export interface DynamicsPayloadPreviewResource {
   preview: DynamicsPayloadPreview;
   summary: DynamicsPayloadSummary;
 }
+
+export interface HistoricalFinalSaleBulkRow {
+  row: number;
+  vin: string;
+  status: "ok" | "skipped" | "error";
+  message: string | null;
+  asesor: string | null;
+  cliente: string | null;
+  comprobante: string | null;
+  fecha: string | null;
+  beneficio: string | null;
+  total: string | null;
+  quote_action: string | null;
+}
+
+export interface HistoricalFinalSaleBulkResponse {
+  created: number;
+  skipped: number;
+  errors: string[];
+  rows_processed: number;
+  dry_run: boolean;
+  rows: HistoricalFinalSaleBulkRow[];
+}
