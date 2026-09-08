@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import {
   ERROR_MESSAGE,
   errorToast,
+  formatDateFilter,
   getCurrentDayOfMonth,
   getFirstDayOfMonth,
   SUCCESS_MESSAGE,
@@ -56,10 +57,6 @@ export default function SupplierOrderPage() {
   const setDateFrom = (value: Date | undefined) => setFilter("dateFrom", value);
   const setDateTo = (value: Date | undefined) => setFilter("dateTo", value);
 
-  const formatDate = (date: Date | undefined) => {
-    return date ? date.toLocaleDateString("en-CA") : undefined; // formato: YYYY-MM-DD
-  };
-
   // Obtener mis almacenes físicos de postventa
   const { data: mySedes = [], isLoading: isLoadingSedes } = useMySedes({
     company: EMPRESA_AP.id,
@@ -87,7 +84,7 @@ export default function SupplierOrderPage() {
       per_page,
       order_date:
         dateFrom && dateTo
-          ? [formatDate(dateFrom), formatDate(dateTo)]
+          ? [formatDateFilter(dateFrom), formatDateFilter(dateTo)]
           : undefined,
       sede_id: sedeId || undefined,
     },

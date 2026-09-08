@@ -12,6 +12,7 @@ import {
   successToast,
   getFirstDayOfMonth,
   getCurrentDayOfMonth,
+  formatDateFilter,
 } from "@/core/core.function.ts";
 import { DEFAULT_PER_PAGE, EMPRESA_AP } from "@/core/core.constants.ts";
 import {
@@ -91,10 +92,6 @@ export default function SalesReceiptsCajaPage() {
   const setDateFrom = (value: Date | undefined) => setFilter("dateFrom", value);
   const setDateTo = (value: Date | undefined) => setFilter("dateTo", value);
 
-  const formatDate = (date: Date | undefined) => {
-    return date ? date.toLocaleDateString("en-CA") : undefined;
-  };
-
   const { data: sedes = [], isLoading: isLoadingSedes } = useMySedes({
     company: EMPRESA_AP.id,
   });
@@ -114,7 +111,7 @@ export default function SalesReceiptsCajaPage() {
     area_id: [AREA_TALLER, AREA_MESON, AREA_POSTVENTA], // Filtrar por ambas áreas
     fecha_de_emision:
       dateFrom && dateTo
-        ? [formatDate(dateFrom), formatDate(dateTo)]
+        ? [formatDateFilter(dateFrom), formatDateFilter(dateTo)]
         : undefined,
     seriesModel$sede_id: sedeId ? parseInt(sedeId) : undefined,
     consolidation_type: consolidationType || undefined,
@@ -221,7 +218,7 @@ export default function SalesReceiptsCajaPage() {
     seriesModel$sede_id: sedeId ? parseInt(sedeId) : undefined,
     fecha_de_emision:
       dateFrom && dateTo
-        ? [formatDate(dateFrom), formatDate(dateTo)]
+        ? [formatDateFilter(dateFrom), formatDateFilter(dateTo)]
         : undefined,
   };
 

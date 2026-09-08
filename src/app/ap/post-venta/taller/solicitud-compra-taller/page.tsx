@@ -9,6 +9,7 @@ import { SimpleDeleteDialog } from "@/shared/components/SimpleDeleteDialog.tsx";
 import {
   ERROR_MESSAGE,
   errorToast,
+  formatDateFilter,
   getCurrentDayOfMonth,
   getFirstDayOfMonth,
   SUCCESS_MESSAGE,
@@ -70,10 +71,6 @@ export default function PurchaseRequestPVPage() {
     }
   }, [dateFrom, dateTo]);
 
-  const formatDate = (date: Date | undefined) => {
-    return date ? date.toLocaleDateString("en-CA") : undefined; // formato: YYYY-MM-DD
-  };
-
   // Obtener mis almacenes físicos de postventa
   const { data: warehouses = [], isLoading: isLoadingWarehouses } =
     useMyPhysicalWarehouse();
@@ -84,7 +81,7 @@ export default function PurchaseRequestPVPage() {
     per_page,
     requested_date:
       dateFrom && dateTo
-        ? [formatDate(dateFrom), formatDate(dateTo)]
+        ? [formatDateFilter(dateFrom), formatDateFilter(dateTo)]
         : undefined,
     warehouse_id: warehouseId,
     area_id: AREA_TALLER,

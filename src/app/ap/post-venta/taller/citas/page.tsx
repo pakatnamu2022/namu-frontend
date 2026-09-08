@@ -10,6 +10,7 @@ import { SimpleDeleteDialog } from "@/shared/components/SimpleDeleteDialog";
 import {
   ERROR_MESSAGE,
   errorToast,
+  formatDateFilter,
   getCurrentDayOfMonth,
   getFirstDayOfMonth,
   SUCCESS_MESSAGE,
@@ -88,10 +89,6 @@ export default function AppointmentPlanningPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mySedes]);
 
-  const formatDate = (date: Date | undefined) => {
-    return date ? date.toLocaleDateString("en-CA") : undefined; // formato: YYYY-MM-DD
-  };
-
   useEffect(() => {
     setPage(1);
   }, [search, sedeId, advisorId, dateFrom, dateTo]);
@@ -103,7 +100,7 @@ export default function AppointmentPlanningPage() {
       per_page,
       date_appointment:
         dateFrom && dateTo
-          ? [formatDate(dateFrom), formatDate(dateTo)]
+          ? [formatDateFilter(dateFrom), formatDateFilter(dateTo)]
           : undefined,
       sede_id: sedeId || undefined,
       advisor_id: advisorId || undefined,
@@ -176,7 +173,7 @@ export default function AppointmentPlanningPage() {
                 search,
                 created_at:
                   dateFrom && dateTo
-                    ? [formatDate(dateFrom), formatDate(dateTo)]
+                    ? [formatDateFilter(dateFrom), formatDateFilter(dateTo)]
                     : undefined,
                 sede_id: sedeId || undefined,
                 advisor_id: advisorId || undefined,

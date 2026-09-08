@@ -10,6 +10,7 @@ import { VehicleInspectionSelectionTable } from "./VehicleInspectionSelectionTab
 import type { ColumnDef } from "@tanstack/react-table";
 import {
   errorToast,
+  formatDateFilter,
   formatDateTime,
   getMonday,
   getSunday,
@@ -43,10 +44,6 @@ export const VehicleInspectionSelectionModal = ({
     getSunday(currentDate),
   );
 
-  const formatDate = (date: Date | undefined) => {
-    return date ? date.toLocaleDateString("en-CA") : undefined;
-  };
-
   useEffect(() => {
     if (open) {
       // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -67,7 +64,7 @@ export const VehicleInspectionSelectionModal = ({
     is_cancelled: 0,
     inspection_date:
       dateFrom || dateTo
-        ? [formatDate(dateFrom), formatDate(dateTo)]
+        ? [formatDateFilter(dateFrom), formatDateFilter(dateTo)]
         : undefined,
     createdByWorkOrder$sede_id: sedeId,
     createdByWorkOrder$vehicle_id: vehicleId || undefined,

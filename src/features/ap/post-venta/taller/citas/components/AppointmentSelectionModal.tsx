@@ -11,6 +11,7 @@ import type { ColumnDef } from "@tanstack/react-table";
 import {
   errorToast,
   formatDate,
+  formatDateFilter,
   getMonday,
   getSunday,
 } from "@/core/core.function";
@@ -39,10 +40,6 @@ export const AppointmentSelectionModal = ({
   const [dateTo, setDateTo] = useState<Date | undefined>(
     getSunday(currentDate),
   );
-
-  const formatDateFilter = (date: Date | undefined) => {
-    return date ? date.toLocaleDateString("en-CA") : undefined; // formato: YYYY-MM-DD
-  };
 
   useEffect(() => {
     if (open) {

@@ -9,6 +9,7 @@ import TitleComponent from "@/shared/components/TitleComponent";
 import DataTablePagination from "@/shared/components/DataTablePagination";
 import {
   errorToast,
+  formatDateFilter,
   getCurrentDayOfMonth,
   getFirstDayOfMonth,
 } from "@/core/core.function";
@@ -77,10 +78,6 @@ export default function WorkOrderCajaPage() {
   const setDateFrom = (value: Date | undefined) => setFilter("dateFrom", value);
   const setDateTo = (value: Date | undefined) => setFilter("dateTo", value);
 
-  const formatDate = (date: Date | undefined) => {
-    return date ? date.toLocaleDateString("en-CA") : undefined;
-  };
-
   const { data: mySedes = [], isLoading: isLoadingSedes } = useMySedes({
     company: EMPRESA_AP.id,
     has_workshop: true,
@@ -133,7 +130,7 @@ export default function WorkOrderCajaPage() {
     per_page,
     opening_date:
       dateFrom && dateTo
-        ? [formatDate(dateFrom), formatDate(dateTo)]
+        ? [formatDateFilter(dateFrom), formatDateFilter(dateTo)]
         : undefined,
     sede_id: effectiveSedeId || undefined,
     currency_id: efecctiveTypeCurrencyId || undefined,
@@ -146,7 +143,7 @@ export default function WorkOrderCajaPage() {
       per_page,
       opening_date:
         dateFrom && dateTo
-          ? [formatDate(dateFrom), formatDate(dateTo)]
+          ? [formatDateFilter(dateFrom), formatDateFilter(dateTo)]
           : undefined,
       sede_id: effectiveSedeId || undefined,
       currency_id: efecctiveTypeCurrencyId || undefined,

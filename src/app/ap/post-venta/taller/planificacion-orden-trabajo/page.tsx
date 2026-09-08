@@ -45,6 +45,7 @@ import { SimpleDeleteDialog } from "@/shared/components/SimpleDeleteDialog";
 import {
   ERROR_MESSAGE,
   errorToast,
+  formatDateFilter,
   SUCCESS_MESSAGE,
   successToast,
 } from "@/core/core.function";
@@ -103,10 +104,6 @@ export default function PlanningPage() {
     sede$empresa_id: EMPRESA_AP.id,
   });
 
-  const formatDate = (date: Date | undefined) => {
-    return date ? date.toLocaleDateString("en-CA") : undefined; // formato: YYYY-MM-DD
-  };
-
   const { data, isLoading, refetch } = useGetWorkOrderPlanning({
     params: {
       page,
@@ -116,7 +113,7 @@ export default function PlanningPage() {
       ...(sedeId && { workOrder$sede_id: sedeId }),
       planned_start_datetime:
         dateFrom && dateTo
-          ? [formatDate(dateFrom), formatDate(dateTo)]
+          ? [formatDateFilter(dateFrom), formatDateFilter(dateTo)]
           : undefined,
     },
     enabled: !!sedeId,
