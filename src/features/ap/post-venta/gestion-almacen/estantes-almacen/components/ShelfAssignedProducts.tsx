@@ -1,15 +1,19 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import {
   Card,
   CardContent,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card.tsx";
-import { Button } from "@/components/ui/button.tsx";
 import { Input } from "@/components/ui/input.tsx";
 import { Badge } from "@/components/ui/badge.tsx";
-import { Check, PackageSearch, Pencil, Trash2, X } from "lucide-react";
-import TableSkeleton from "@/shared/components/TableSkeleton.tsx";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip.tsx";
+import { PackageSearch, Trash2 } from "lucide-react";
+import { cn } from "@/lib/utils.ts";
 import { ShelfProductItem } from "@/features/ap/post-venta/gestion-almacen/estantes-almacen/lib/productShelf.interface.ts";
 
 interface Props {
@@ -20,6 +24,24 @@ interface Props {
   removingStockId: number | null;
 }
 
+const NO_SHELF = "—";
+
+/** Agrupa por la letra inicial de la posición (A1, A2 → balda "A"). Sin letra → una sola balda. */
+function groupIntoShelves(products: ShelfProductItem[]) {
+  const groups = new Map<string, ShelfProductItem[]>();
+  for (const item of products) {
+    const pos = (item.position ?? "").trim().toUpperCase();
+    const key = /^[A-Z]/.test(pos) ? pos[0] : NO_SHELF;
+    if (!groups.has(key)) groups.set(key, []);
+    groups.get(key)!.push(item);
+  }
+  return [...groups.entries()].sort(([a], [b]) => {
+    if (a === NO_SHELF) return 1;
+    if (b === NO_SHELF) return -1;
+    return a.localeCompare(b);
+  });
+}
+
 export default function ShelfAssignedProducts({
   products,
   isLoading,
@@ -27,116 +49,142 @@ export default function ShelfAssignedProducts({
   onUpdatePosition,
   removingStockId,
 }: Props) {
-  const [editing, setEditing] = useState<number | null>(null);
-  const [positionDraft, setPositionDraft] = useState("");
+  const [drafts, setDrafts] = useState<Record<number, string>>({});
 
-  const startEdit = (item: ShelfProductItem) => {
-    setEditing(item.product_warehouse_stock_id);
-    setPositionDraft(item.position ?? "");
+  const shelves = useMemo(() => groupIntoShelves(products), [products]);
+
+  const getValue = (item: ShelfProductItem) => {
+    const stockId = item.product_warehouse_stock_id;
+    return drafts[stockId] ?? item.position ?? "";
   };
 
-  const confirmEdit = (stockId: number) => {
-    onUpdatePosition(stockId, positionDraft.trim());
-    setEditing(null);
+  const commit = (item: ShelfProductItem) => {
+    const stockId = item.product_warehouse_stock_id;
+    const draft = drafts[stockId];
+    if (draft === undefined) return;
+    const next = draft.trim();
+    setDrafts((prev) => {
+      const clone = { ...prev };
+      delete clone[stockId];
+      return clone;
+    });
+    if (next !== (item.position ?? "")) onUpdatePosition(stockId, next);
   };
+
+  const clearDraft = (stockId: number) =>
+    setDrafts((prev) => {
+      const clone = { ...prev };
+      delete clone[stockId];
+      return clone;
+    });
 
   return (
-    <Card>
+    <Card className="border-[#e7ddc8] bg-[#fdfbf4]">
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-base">
           <PackageSearch className="size-5" />
-          Productos en el estante
+          El estante
           <Badge className="ml-1">{products.length}</Badge>
         </CardTitle>
       </CardHeader>
       <CardContent>
         {isLoading ? (
-          <TableSkeleton rows={5} columns={3} />
+          <div className="space-y-3 rounded-xl border border-[#e7ddc8] bg-[#faf6ec] p-3">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <div
+                key={i}
+                className="h-28 animate-pulse rounded-md bg-[#efe8d5]"
+              />
+            ))}
+          </div>
         ) : products.length === 0 ? (
-          <div className="text-center py-10 text-muted-foreground">
-            <PackageSearch className="size-10 mx-auto mb-2 opacity-40" />
+          <div className="rounded-xl border border-[#e7ddc8] bg-[#faf6ec] py-12 text-center text-muted-foreground">
+            <PackageSearch className="mx-auto mb-2 size-10 opacity-40" />
             <p className="text-sm font-medium">Este estante está vacío</p>
-            <p className="text-xs mt-1">
-              Usa el panel de la derecha para agregar productos.
+            <p className="mt-1 text-xs">
+              Agrega repuestos desde el panel de arriba.
             </p>
           </div>
         ) : (
-          <div className="border rounded-md divide-y max-h-128 overflow-y-auto">
-            {products.map((item) => {
-              const stockId = item.product_warehouse_stock_id;
-              const isEditing = editing === stockId;
-              return (
-                <div
-                  key={item.id}
-                  className="flex items-center gap-3 p-3 hover:bg-muted/50"
-                >
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium truncate">
-                      {item.product?.name}
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      Cód: {item.product?.code ?? "-"} · Stock:{" "}
-                      {item.product?.quantity ?? 0} · Disp:{" "}
-                      {item.product?.available_quantity ?? 0}
-                    </p>
-                  </div>
-
-                  {/* Posición */}
-                  {isEditing ? (
-                    <div className="flex items-center gap-1">
-                      <Input
-                        value={positionDraft}
-                        onChange={(e) => setPositionDraft(e.target.value)}
-                        placeholder="Posición"
-                        className="w-32 h-8 text-xs"
-                        autoFocus
-                      />
-                      <Button
-                        type="button"
-                        size="icon"
-                        variant="ghost"
-                        className="size-7 text-green-600"
-                        onClick={() => confirmEdit(stockId)}
+          <div className="divide-y divide-[#e7ddc8] rounded-md bg-[#faf6ec]">
+            {shelves.map(([shelfKey, items]) => (
+              <div key={shelfKey} className="relative px-3 pb-3 pt-3">
+                {shelfKey !== NO_SHELF && (
+                  <span className="mb-2 inline-block rounded bg-[#e7ddc8] px-1.5 py-0.5 text-[10px] font-bold text-[#6b6350]">
+                    Balda {shelfKey}
+                  </span>
+                )}
+                <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 xl:grid-cols-4">
+                  {items.map((item) => {
+                    const stockId = item.product_warehouse_stock_id;
+                    const isRemoving = removingStockId === stockId;
+                    return (
+                      <div
+                        key={item.id}
+                        className={cn(
+                          "group relative flex flex-col gap-1.5 rounded-md border border-[#e7ddc8] bg-card p-2.5 shadow-sm transition-colors hover:border-primary/40",
+                          isRemoving && "pointer-events-none opacity-50",
+                        )}
                       >
-                        <Check className="size-4" />
-                      </Button>
-                      <Button
-                        type="button"
-                        size="icon"
-                        variant="ghost"
-                        className="size-7"
-                        onClick={() => setEditing(null)}
-                      >
-                        <X className="size-4" />
-                      </Button>
-                    </div>
-                  ) : (
-                    <button
-                      type="button"
-                      onClick={() => startEdit(item)}
-                      className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
-                    >
-                      <Badge color={item.position ? "default" : "secondary"}>
-                        {item.position || "Sin posición"}
-                      </Badge>
-                      <Pencil className="size-3" />
-                    </button>
-                  )}
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <button
+                              type="button"
+                              onClick={() => onRemove(stockId)}
+                              disabled={isRemoving}
+                              className="absolute right-1.5 top-1.5 rounded-md p-1 text-muted-foreground opacity-0 transition hover:bg-red-50 hover:text-red-600 focus-visible:opacity-100 group-hover:opacity-100"
+                            >
+                              <Trash2 className="size-3.5" />
+                            </button>
+                          </TooltipTrigger>
+                          <TooltipContent>Quitar del estante</TooltipContent>
+                        </Tooltip>
 
-                  {/* Quitar */}
-                  <Button
-                    type="button"
-                    size="icon"
-                    variant="ghost"
-                    className="size-7 text-red-600 hover:text-red-700 hover:bg-red-50"
-                    onClick={() => onRemove(stockId)}
-                    disabled={removingStockId === stockId}
-                  >
-                    <Trash2 className="size-4" />
-                  </Button>
+                        <p
+                          className="line-clamp-2 `min-h-10 pr-5 text-xs font-medium leading-tight"
+                          title={item.product?.name}
+                        >
+                          {item.product?.name}
+                        </p>
+
+                        <div className="flex items-center justify-between gap-1">
+                          <span className="truncate font-mono text-[10px] text-muted-foreground">
+                            {item.product?.code ?? "—"}
+                          </span>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Input
+                                value={getValue(item)}
+                                onChange={(e) =>
+                                  setDrafts((prev) => ({
+                                    ...prev,
+                                    [stockId]: e.target.value.toUpperCase(),
+                                  }))
+                                }
+                                onBlur={() => commit(item)}
+                                onKeyDown={(e) => {
+                                  if (e.key === "Enter") e.currentTarget.blur();
+                                  if (e.key === "Escape") {
+                                    clearDraft(stockId);
+                                    e.currentTarget.blur();
+                                  }
+                                }}
+                                maxLength={6}
+                                placeholder="—"
+                                className="h-7 w-14 px-1 text-center text-xs font-semibold uppercase"
+                              />
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              Posición en el estante
+                            </TooltipContent>
+                          </Tooltip>
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
-              );
-            })}
+              </div>
+            ))}
           </div>
         )}
       </CardContent>

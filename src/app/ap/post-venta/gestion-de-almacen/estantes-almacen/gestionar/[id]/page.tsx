@@ -137,19 +137,19 @@ export default function ManageShelfProductsPage() {
         </p>
       )}
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 items-start">
+      <div className="space-y-4">
+        <ShelfProductPicker
+          warehouseId={shelf.warehouse_id}
+          assignedStockIds={assignedStockIds}
+          onAssign={handleAssign}
+          isAssigning={isAssigning}
+        />
         <ShelfAssignedProducts
           products={products}
           isLoading={isLoadingProducts}
           onRemove={handleRemove}
           onUpdatePosition={handleUpdatePosition}
           removingStockId={removingStockId}
-        />
-        <ShelfProductPicker
-          warehouseId={shelf.warehouse_id}
-          assignedStockIds={assignedStockIds}
-          onAssign={handleAssign}
-          isAssigning={isAssigning}
         />
       </div>
     </div>

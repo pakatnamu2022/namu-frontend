@@ -91,12 +91,12 @@ export const productShelfColumns = ({
             />
           )}
 
-          {/* Organizar productos */}
+          {/* Organizar repuestos */}
           <Button
             variant="outline"
             size="icon"
             className="size-7"
-            tooltip="Organizar productos"
+            tooltip="Organizar repuestos"
             onClick={() => onManage(id)}
           >
             <LayoutGrid className="size-5" />
