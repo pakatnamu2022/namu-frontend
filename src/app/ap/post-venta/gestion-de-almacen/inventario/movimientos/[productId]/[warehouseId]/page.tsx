@@ -112,7 +112,7 @@ export default function ProductKardexPage() {
       <HeaderTableWrapper>
         <TitleComponent
           title="Movimiento de Producto"
-          subtitle={`Movimientos de ${productName} en ${warehouseName}`}
+          subtitle={`${productName} en ${warehouseName}`}
           icon={currentView.icon}
         />
         <div className="flex items-center gap-2">
