@@ -75,6 +75,10 @@ export default function ElectronicDocumentsPage() {
   const { data, isLoading, isFetching, refetch } = useElectronicDocuments({
     page,
     per_page,
+    // Ordena por fecha de emisión (no por id): los registros históricos se
+    // crean hoy pero su fecha es antigua, así que deben quedar al final.
+    sort: "fecha_de_emision",
+    direction: "desc",
     search,
     status: statusFilter,
     migration_status: migrationStatusFilter,
