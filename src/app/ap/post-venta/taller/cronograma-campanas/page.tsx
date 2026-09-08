@@ -68,7 +68,6 @@ export default function CampaignSchedulePage() {
     if (mySedes.length > 0 && !sedeId) {
       setSedeId(mySedes[0].id.toString());
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mySedes, sedeId]);
 
   const { data, isLoading, refetch } = useCampaignSchedule({

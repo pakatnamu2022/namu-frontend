@@ -55,8 +55,6 @@ export default function OrderQuotationMesonOptions({
         value={sedeId}
         onChange={setSedeId}
         placeholder="Filtrar por sede"
-        className="min-w-56"
-        classNameOption="text-xs"
       />
       <DateRangePickerFilter
         dateFrom={dateFrom}
@@ -65,7 +63,6 @@ export default function OrderQuotationMesonOptions({
           setDateFrom(from);
           setDateTo(to);
         }}
-        className="w-auto min-w-56"
       />
       {setStatusGroups && (
         <FilterMultiSelect
@@ -73,7 +70,6 @@ export default function OrderQuotationMesonOptions({
           value={statusGroups || []}
           onChange={setStatusGroups}
           placeholder="Abiertas / Facturadas / Segmentadas"
-          className="min-w-48"
         />
       )}
     </FilterWrapper>

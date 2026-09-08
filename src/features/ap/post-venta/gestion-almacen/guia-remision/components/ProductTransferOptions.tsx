@@ -42,8 +42,6 @@ export default function ProductTransferOptions({
         value={warehouseId}
         onChange={setWarehouseId}
         placeholder="Filtrar por almacén"
-        className="min-w-72"
-        classNameOption="text-xs"
         allowClear={false}
       />
       <DateRangePickerFilter
@@ -53,7 +51,6 @@ export default function ProductTransferOptions({
           setDateFrom(from);
           setDateTo(to);
         }}
-        className="w-auto min-w-56"
       />
     </FilterWrapper>
   );

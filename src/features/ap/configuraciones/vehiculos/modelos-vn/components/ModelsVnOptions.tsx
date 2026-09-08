@@ -33,8 +33,6 @@ export default function ModelsVnOptions({
         value={brandId}
         onChange={setBrandId}
         placeholder="Filtrar por marca"
-        className="min-w-72"
-        classNameOption="text-xs"
       />
     </FilterWrapper>
   );

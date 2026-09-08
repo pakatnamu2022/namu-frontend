@@ -63,8 +63,6 @@ export default function CampaignScheduleOptions({
         value={sedeId}
         onChange={setSedeId}
         placeholder="Filtrar por sede"
-        className="min-w-48"
-        classNameOption="text-xs"
         allowClear={true}
       />
     </div>

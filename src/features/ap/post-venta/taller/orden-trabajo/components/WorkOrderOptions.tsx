@@ -102,8 +102,6 @@ export default function WorkOrderOptions({
         value={sedeId}
         onChange={setSedeId}
         placeholder="Filtrar por sede"
-        className="min-w-48"
-        classNameOption="text-xs"
         allowClear={allowClearSede}
       />
       {setAdvisorId && (
@@ -115,8 +113,6 @@ export default function WorkOrderOptions({
           value={advisorId!}
           onChange={setAdvisorId}
           placeholder="Filtrar por asesor de servicio"
-          className="min-w-72"
-          classNameOption="text-xs"
           disabled={isAdvisorLocked}
         />
       )}
@@ -129,8 +125,6 @@ export default function WorkOrderOptions({
           value={typePlanningId!}
           onChange={setTypePlanningId}
           placeholder="Filtrar por tipo de planificación"
-          className="min-w-72"
-          classNameOption="text-xs"
           allowClear={allowClearTypePlanning}
         />
       )}
@@ -143,8 +137,6 @@ export default function WorkOrderOptions({
           value={typeCurrencyId!}
           onChange={setTypeCurrencyId}
           placeholder="Filtrar por tipo de moneda"
-          className="min-w-48"
-          classNameOption="text-xs"
           allowClear={false}
         />
       )}
@@ -155,7 +147,6 @@ export default function WorkOrderOptions({
           setDateFrom(from);
           setDateTo(to);
         }}
-        className="w-auto min-w-56"
       />
       {setDateField && dateField && (
         <RadioButton
@@ -176,8 +167,6 @@ export default function WorkOrderOptions({
           value={statusFilter!}
           onChange={setStatusFilter}
           placeholder="Filtrar por estado"
-          className="min-w-48"
-          classNameOption="text-xs"
           allowClear={false}
         />
       )}
@@ -186,8 +175,7 @@ export default function WorkOrderOptions({
           options={STATUS_GROUP_OPTIONS}
           value={statusGroups || []}
           onChange={setStatusGroups}
-          placeholder="OTs Abiertas / Cerradas"
-          className="min-w-48"
+          placeholder="OTs Abiertas / Cerradas / Anuladas"
         />
       )}
     </FilterWrapper>

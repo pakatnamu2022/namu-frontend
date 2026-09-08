@@ -14,6 +14,7 @@ import InventoryOptions from "@/features/ap/post-venta/gestion-almacen/inventari
 import { useMyPhysicalWarehouse } from "@/features/ap/configuraciones/maestros-general/almacenes/lib/warehouse.hook.ts";
 import { INVENTORY } from "@/features/ap/post-venta/gestion-almacen/inventario/lib/inventory.constants.ts";
 import { useInventory } from "@/features/ap/post-venta/gestion-almacen/inventario/lib/inventory.hook.ts";
+import { useAllProductShelves } from "@/features/ap/post-venta/gestion-almacen/estantes-almacen/lib/productShelf.hook.ts";
 import InventoryTable from "@/features/ap/post-venta/gestion-almacen/inventario/components/InventoryTable.tsx";
 import { inventoryColumns } from "@/features/ap/post-venta/gestion-almacen/inventario/components/InventoryColumns.tsx";
 import InventoryActions from "@/features/ap/post-venta/gestion-almacen/inventario/components/InventoryActions.tsx";
@@ -30,11 +31,13 @@ export default function InventoryPage() {
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
   const { values: filters, setFieldValue: setFilter } = useScopedFilters(
     INVENTORY.ABSOLUTE_ROUTE,
-    { search: "", warehouseId: "" },
+    { search: "", warehouseId: "", productShelfId: "all" },
   );
-  const { search, warehouseId } = filters;
+  const { search, warehouseId, productShelfId } = filters;
   const setSearch = (value: string) => setFilter("search", value);
   const setWarehouseId = (value: string) => setFilter("warehouseId", value);
+  const setProductShelfId = (value: string) =>
+    setFilter("productShelfId", value);
   const [stockMinMaxSelected, setStockMinMaxSelected] =
     useState<InventoryResource | null>(null);
   const [reservedStockSelected, setReservedStockSelected] = useState<{
@@ -57,6 +60,18 @@ export default function InventoryPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isLoadingWarehouses, warehouses, warehouseId]);
 
+  // Estantes del almacén seleccionado (filtro adicional del inventario)
+  const { data: shelves = [] } = useAllProductShelves(
+    { warehouse_id: warehouseId, status: 1 },
+    { enabled: !!warehouseId },
+  );
+
+  // Resetear el filtro de estante al cambiar de almacén
+  useEffect(() => {
+    if (productShelfId !== "all") setProductShelfId("all");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [warehouseId]);
+
   // Extraer order_by_stock del sorting state
   const orderByStock =
     sorting.length > 0 && sorting[0].id === "quantity"
@@ -73,6 +88,7 @@ export default function InventoryPage() {
       warehouse_id: warehouseId,
       sort: "quantity",
       ...(orderByStock && { direction: orderByStock }),
+      ...(productShelfId !== "all" && { product_shelf_id: productShelfId }),
     },
     {
       enabled: !!warehouseId,
@@ -144,6 +160,9 @@ export default function InventoryPage() {
           warehouses={warehouses}
           warehouseId={warehouseId}
           setWarehouseId={setWarehouseId}
+          shelves={shelves}
+          productShelfId={productShelfId}
+          setProductShelfId={setProductShelfId}
         />
       </InventoryTable>
 

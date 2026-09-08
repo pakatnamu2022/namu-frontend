@@ -42,8 +42,6 @@ export default function SupplierOrderOptions({
         value={sedeId}
         onChange={setSedeId}
         placeholder="Filtrar por sede"
-        className="min-w-72"
-        classNameOption="text-xs"
         allowClear={false}
       />
       <DateRangePickerFilter
@@ -53,7 +51,6 @@ export default function SupplierOrderOptions({
           setDateFrom(from);
           setDateTo(to);
         }}
-        className="w-auto min-w-56"
       />
     </FilterWrapper>
   );
