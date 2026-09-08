@@ -23,6 +23,7 @@ import {
   RegisterHistoricalFinalSaleResponse,
   NubefactPreviewResource,
   DynamicsPayloadPreviewResource,
+  HistoricalFinalSaleBulkResponse,
 } from "./electronicDocument.interface";
 import { ParamsProps } from "@/core/core.interface";
 
@@ -488,6 +489,21 @@ export async function registerHistoricalFinalSale(
       data,
     );
   return response;
+}
+
+export async function bulkRegisterHistoricalFinalSale(
+  file: File,
+  dryRun: boolean,
+): Promise<HistoricalFinalSaleBulkResponse> {
+  const formData = new FormData();
+  formData.append("file", file);
+  formData.append("dry_run", dryRun ? "1" : "0");
+  const { data } = await api.post<HistoricalFinalSaleBulkResponse>(
+    `${ENDPOINT}/bulk-register-historical-final-sale`,
+    formData,
+    { headers: { "Content-Type": "multipart/form-data" } },
+  );
+  return data;
 }
 
 export async function previewNubefactElectronicDocument(

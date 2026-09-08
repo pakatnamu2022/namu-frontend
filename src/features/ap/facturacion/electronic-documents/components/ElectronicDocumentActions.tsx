@@ -36,6 +36,7 @@ import { useState } from "react";
 import GeneralSheet from "@/shared/components/GeneralSheet";
 import HistoricalAdvancePaymentSheet from "./HistoricalAdvancePaymentSheet";
 import HistoricalFinalSaleSheet from "./HistoricalFinalSaleSheet";
+import HistoricalFinalSaleBulkSheet from "./HistoricalFinalSaleBulkSheet";
 
 interface ElectronicDocumentActionsProps {
   onRefresh: () => void;
@@ -62,6 +63,8 @@ export default function ElectronicDocumentActions({
     useState<MigrationAllResponse | null>(null);
   const [historicalAdvanceOpen, setHistoricalAdvanceOpen] = useState(false);
   const [historicalFinalSaleOpen, setHistoricalFinalSaleOpen] =
+    useState(false);
+  const [historicalFinalSaleBulkOpen, setHistoricalFinalSaleBulkOpen] =
     useState(false);
 
   const dispatchAllMutation = useMutation({
@@ -127,6 +130,11 @@ export default function ElectronicDocumentActions({
       <HistoricalFinalSaleSheet
         open={historicalFinalSaleOpen}
         onClose={() => setHistoricalFinalSaleOpen(false)}
+        onSuccess={onRefresh}
+      />
+      <HistoricalFinalSaleBulkSheet
+        open={historicalFinalSaleBulkOpen}
+        onClose={() => setHistoricalFinalSaleBulkOpen(false)}
         onSuccess={onRefresh}
       />
 
@@ -217,6 +225,15 @@ export default function ElectronicDocumentActions({
                 >
                   <History className="size-4 mr-2" />
                   Venta Final Histórica
+                </DropdownMenuItem>
+              )}
+
+              {permissions.canManage && (
+                <DropdownMenuItem
+                  onClick={() => setHistoricalFinalSaleBulkOpen(true)}
+                >
+                  <History className="size-4 mr-2" />
+                  Ventas Históricas (masivo)
                 </DropdownMenuItem>
               )}
             </DropdownMenuContent>
