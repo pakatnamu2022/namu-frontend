@@ -22,6 +22,7 @@ import {
 import BackButton from "@/shared/components/BackButton.tsx";
 import {
   errorToast,
+  formatDateFilter,
   formatMoney,
   getCurrentDayOfMonth,
   getFirstDayOfMonth,
@@ -51,16 +52,12 @@ export default function PurchaseHistoryPage() {
   const productId = parseInt(params.productId as string);
   const warehouseId = parseInt(params.warehouseId as string);
 
-  const formatDate = (date: Date | undefined) => {
-    return date ? date.toLocaleDateString("en-CA") : undefined;
-  };
-
   const { data, isLoading } = useProductPurchaseHistory(
     productId,
     warehouseId,
     {
-      date_from: formatDate(dateFrom),
-      date_to: formatDate(dateTo),
+      date_from: formatDateFilter(dateFrom),
+      date_to: formatDateFilter(dateTo),
       search: search || undefined,
     },
     {
@@ -123,8 +120,8 @@ export default function PurchaseHistoryPage() {
           <ExportButtons
             onExcelDownload={() =>
               exportProductPurchaseHistory(productId, warehouseId, {
-                date_from: formatDate(dateFrom),
-                date_to: formatDate(dateTo),
+                date_from: formatDateFilter(dateFrom),
+                date_to: formatDateFilter(dateTo),
               })
             }
           />

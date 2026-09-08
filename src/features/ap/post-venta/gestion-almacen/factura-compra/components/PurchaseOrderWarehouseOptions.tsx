@@ -43,8 +43,6 @@ export default function PurchaseOrderWarehouseOptions({
         value={sedeId}
         onChange={setSedeId}
         placeholder="Seleccionar sede"
-        className="min-w-[250px]"
-        classNameOption="text-xs"
       />
 
       <DateRangePickerFilter
@@ -54,7 +52,6 @@ export default function PurchaseOrderWarehouseOptions({
           setDateFrom(from);
           setDateTo(to);
         }}
-        className="w-auto min-w-56"
       />
     </FilterWrapper>
   );

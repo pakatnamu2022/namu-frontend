@@ -72,8 +72,6 @@ export default function SalesReceiptsOptions({
         value={sedeId}
         onChange={setSedeId}
         placeholder="Filtrar por sede"
-        className="min-w-56"
-        classNameOption="text-xs"
       />
 
       <DateRangePickerFilter
@@ -83,7 +81,6 @@ export default function SalesReceiptsOptions({
           setDateFrom(from);
           setDateTo(to);
         }}
-        className="w-auto min-w-56"
       />
 
       {setStatusFilter && (
@@ -103,7 +100,6 @@ export default function SalesReceiptsOptions({
         <SearchableSelect
           onChange={setConsolidationType}
           value={consolidationType ?? ""}
-          className="min-w-24"
           placeholder="Tipo de consolidación"
           options={CONSOLIDATION_TYPE_OPTIONS}
         />
@@ -113,7 +109,6 @@ export default function SalesReceiptsOptions({
         <SearchableSelect
           onChange={setIsAccounted}
           value={isAccounted ?? ""}
-          className="min-w-44"
           placeholder="Contabilización"
           options={IS_ACCOUNTED_OPTIONS}
         />
@@ -123,7 +118,6 @@ export default function SalesReceiptsOptions({
         <SearchableSelect
           onChange={setMigrationStatus}
           value={migrationStatus ?? ""}
-          className="min-w-44"
           placeholder="Estado de migración"
           options={MIGRATION_STATUS.map((status) => ({
             value: status.value,

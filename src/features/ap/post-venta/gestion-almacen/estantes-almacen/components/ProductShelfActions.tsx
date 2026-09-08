@@ -9,7 +9,7 @@ import { WarehouseResource } from "@/features/ap/configuraciones/maestros-genera
 
 interface Props {
   permissions: {
-    canManage: boolean;
+    canCreate: boolean;
   };
   warehouses: WarehouseResource[];
   defaultWarehouseId?: string;
@@ -22,7 +22,7 @@ export default function ProductShelfActions({
 }: Props) {
   const [open, setOpen] = useState(false);
 
-  if (!permissions.canManage) {
+  if (!permissions.canCreate) {
     return null;
   }
 

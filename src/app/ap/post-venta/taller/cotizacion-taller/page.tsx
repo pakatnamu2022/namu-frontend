@@ -10,6 +10,7 @@ import { SimpleDeleteDialog } from "@/shared/components/SimpleDeleteDialog.tsx";
 import {
   ERROR_MESSAGE,
   errorToast,
+  formatDateFilter,
   getCurrentDayOfMonth,
   getFirstDayOfMonth,
   SUCCESS_MESSAGE,
@@ -59,10 +60,6 @@ export default function OrderQuotationPage() {
   const setDateFrom = (value: Date | undefined) => setFilter("dateFrom", value);
   const setDateTo = (value: Date | undefined) => setFilter("dateTo", value);
 
-  const formatDate = (date: Date | undefined) => {
-    return date ? date.toLocaleDateString("en-CA") : undefined; // formato: YYYY-MM-DD
-  };
-
   // Obtener mis sedes de postventa
   const { data: mySedes = [], isLoading: isLoadingSedes } = useMySedes({
     company: EMPRESA_AP.id,
@@ -91,7 +88,7 @@ export default function OrderQuotationPage() {
       per_page,
       quotation_date:
         dateFrom && dateTo
-          ? [formatDate(dateFrom), formatDate(dateTo)]
+          ? [formatDateFilter(dateFrom), formatDateFilter(dateTo)]
           : undefined,
       area_id: AREA_TALLER.toString(),
       sede_id: sedeId || undefined,

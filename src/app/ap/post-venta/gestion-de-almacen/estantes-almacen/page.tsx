@@ -46,6 +46,13 @@ export default function ProductShelfPage() {
   const { data: warehouses = [], isLoading: isLoadingWarehouses } =
     useMyPhysicalWarehouse();
 
+  // Setear automáticamente el primer almacén cuando se carguen
+  useEffect(() => {
+    if (!isLoadingWarehouses && warehouses.length > 0 && !warehouseId) {
+      setWarehouseId(warehouses[0].id.toString());
+    }
+  }, [isLoadingWarehouses, warehouses, warehouseId]);
+
   useEffect(() => {
     setPage(1);
   }, [search, per_page, warehouseId, status]);
@@ -55,7 +62,7 @@ export default function ProductShelfPage() {
     search,
     per_page,
     warehouse_id: warehouseId || undefined,
-    status: status === "" ? undefined : status === "1",
+    status: status || undefined,
   });
 
   const handleToggleStatus = async (id: number, newStatus: boolean) => {

@@ -16,7 +16,11 @@ import InventoryMovementsOptions from "@/features/ap/post-venta/gestion-almacen/
 import { Button } from "@/components/ui/button.tsx";
 import { ArrowLeft, Archive } from "lucide-react";
 import BackButton from "@/shared/components/BackButton.tsx";
-import { errorToast, getCurrentDayOfMonth } from "@/core/core.function.ts";
+import {
+  errorToast,
+  formatDateFilter,
+  getCurrentDayOfMonth,
+} from "@/core/core.function.ts";
 import { useInventoryMovements } from "@/features/ap/post-venta/gestion-almacen/inventario/lib/inventory.hook.ts";
 import ExportButtons from "@/shared/components/ExportButtons.tsx";
 import { exportProductMovementHistory } from "@/features/ap/post-venta/gestion-almacen/inventario/lib/inventory.actions.ts";
@@ -47,10 +51,6 @@ export default function ProductKardexPage() {
   const productId = parseInt(params.productId as string);
   const warehouseId = parseInt(params.warehouseId as string);
 
-  const formatDate = (date: Date | undefined) => {
-    return date ? date.toLocaleDateString("en-CA") : undefined; // formato: YYYY-MM-DD
-  };
-
   const { data, isLoading } = useInventoryMovements(
     productId,
     warehouseId,
@@ -58,8 +58,8 @@ export default function ProductKardexPage() {
       page,
       search,
       per_page,
-      date_from: formatDate(dateFrom),
-      date_to: formatDate(dateTo),
+      date_from: formatDateFilter(dateFrom),
+      date_to: formatDateFilter(dateTo),
     },
     {
       enabled: !isNaN(productId) && !isNaN(warehouseId),
@@ -112,15 +112,15 @@ export default function ProductKardexPage() {
       <HeaderTableWrapper>
         <TitleComponent
           title="Movimiento de Producto"
-          subtitle={`Movimientos de ${productName} en ${warehouseName}`}
+          subtitle={`${productName} en ${warehouseName}`}
           icon={currentView.icon}
         />
         <div className="flex items-center gap-2">
           <ExportButtons
             onExcelDownload={() =>
               exportProductMovementHistory(productId, warehouseId, {
-                date_from: formatDate(dateFrom),
-                date_to: formatDate(dateTo),
+                date_from: formatDateFilter(dateFrom),
+                date_to: formatDateFilter(dateTo),
               })
             }
           />

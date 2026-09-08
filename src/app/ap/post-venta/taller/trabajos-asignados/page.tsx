@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { useAuthStore } from "@/features/auth/lib/auth.store";
 import {
   errorToast,
+  formatDateFilter,
   getCurrentDayOfMonth,
   getFirstDayOfMonth,
   successToast,
@@ -98,10 +99,6 @@ export default function AssignedWorkPage() {
     !!sedeId,
   ); // Solo cargar trabajadores si hay una sede seleccionada
 
-  const formatDate = (date: Date | undefined) => {
-    return date ? date.toLocaleDateString("en-CA") : undefined; // formato: YYYY-MM-DD
-  };
-
   // Si el partner_id del usuario coincide con algún worker, pre-seleccionar y bloquear el select
   const matchedWorker = workers.find((w) => w.id === user?.partner_id);
   const isWorkerLocked = !!matchedWorker;
@@ -122,7 +119,7 @@ export default function AssignedWorkPage() {
       workOrder$sede_id: sedeId,
       planned_start_datetime:
         dateFrom && dateTo
-          ? [formatDate(dateFrom), formatDate(dateTo)]
+          ? [formatDateFilter(dateFrom), formatDateFilter(dateTo)]
           : undefined,
     },
     enabled: !!sedeId, // Solo habilitar la consulta si hay una sede seleccionada

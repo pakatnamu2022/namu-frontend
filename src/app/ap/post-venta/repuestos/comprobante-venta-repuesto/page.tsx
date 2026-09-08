@@ -12,6 +12,7 @@ import {
   successToast,
   getFirstDayOfMonth,
   getCurrentDayOfMonth,
+  formatDateFilter,
 } from "@/core/core.function";
 import { DEFAULT_PER_PAGE, EMPRESA_AP } from "@/core/core.constants";
 import {
@@ -68,10 +69,6 @@ export default function SalesReceiptsRepuestoPage() {
   const setDateFrom = (value: Date | undefined) => setFilter("dateFrom", value);
   const setDateTo = (value: Date | undefined) => setFilter("dateTo", value);
 
-  const formatDate = (date: Date | undefined) => {
-    return date ? date.toLocaleDateString("en-CA") : undefined;
-  };
-
   const { data, isLoading, isFetching, refetch } = useElectronicDocuments({
     page,
     per_page,
@@ -80,7 +77,7 @@ export default function SalesReceiptsRepuestoPage() {
     area_id: [String(AREA_MESON)],
     fecha_de_emision:
       dateFrom && dateTo
-        ? [formatDate(dateFrom), formatDate(dateTo)]
+        ? [formatDateFilter(dateFrom), formatDateFilter(dateTo)]
         : undefined,
     seriesModel$sede_id: sedeId ? parseInt(sedeId) : undefined,
   });

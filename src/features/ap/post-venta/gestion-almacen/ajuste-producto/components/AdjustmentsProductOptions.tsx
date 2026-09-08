@@ -42,8 +42,6 @@ export default function AdjustmentsProductOptions({
         value={warehouseId}
         onChange={setWarehouseId}
         placeholder="Filtrar por almacén"
-        className="min-w-72"
-        classNameOption="text-xs"
       />
       <DateRangePickerFilter
         dateFrom={dateFrom}
@@ -52,7 +50,6 @@ export default function AdjustmentsProductOptions({
           setDateFrom(from);
           setDateTo(to);
         }}
-        className="w-auto min-w-56"
       />
     </FilterWrapper>
   );

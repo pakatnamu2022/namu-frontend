@@ -8,8 +8,12 @@ import {
 import { Button } from "@/components/ui/button.tsx";
 import { Input } from "@/components/ui/input.tsx";
 import { Badge } from "@/components/ui/badge.tsx";
-import { Loader, PackagePlus, Plus } from "lucide-react";
-import TableSkeleton from "@/shared/components/TableSkeleton.tsx";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip.tsx";
+import { Check, Loader, PackagePlus, Plus, ShoppingCart, X } from "lucide-react";
 import SearchInput from "@/shared/components/SearchInput.tsx";
 import { useInventory } from "@/features/ap/post-venta/gestion-almacen/inventario/lib/inventory.hook.ts";
 
@@ -104,113 +108,148 @@ export default function ShelfProductPicker({
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-base">
           <PackagePlus className="size-5" />
-          Agregar productos al estante
+          Agregar repuestos
         </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-4">
-        {/* Buscador */}
-        <SearchInput
-          value={search}
-          onChange={setSearch}
-          placeholder="Buscar producto por nombre o código..."
-        />
-
-        {/* Resultados de búsqueda */}
-        <div className="border rounded-md divide-y max-h-72 overflow-y-auto">
-          {isLoading ? (
-            <div className="p-4">
-              <TableSkeleton rows={4} columns={2} />
-            </div>
-          ) : rows.length === 0 ? (
-            <p className="p-4 text-sm text-muted-foreground text-center">
-              No hay productos disponibles para agregar.
-            </p>
-          ) : (
-            rows.map((row) => (
-              <div
-                key={row.id}
-                className="flex items-center justify-between gap-3 p-3 hover:bg-muted/50"
-              >
-                <div className="min-w-0">
-                  <p className="text-sm font-medium truncate">
-                    {row.product_name}
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    Cód: {row.product?.code ?? "-"} · Stock: {row.quantity} ·
-                    Disp: {row.available_quantity}
-                  </p>
-                </div>
-                <Button
-                  type="button"
-                  size="sm"
-                  variant="outline"
-                  onClick={() => addToDraft(row)}
-                >
-                  <Plus className="size-4 mr-1" /> Agregar
-                </Button>
-              </div>
-            ))
-          )}
-        </div>
-
-        {/* Productos seleccionados para asignar */}
-        {draftList.length > 0 && (
+      <CardContent>
+        <div className="grid gap-4 lg:grid-cols-[1fr_20rem]">
+          {/* Buscador + resultados */}
           <div className="space-y-3">
-            <p className="text-sm font-semibold">
-              Por asignar
-              <Badge className="ml-2">{draftList.length}</Badge>
-            </p>
-            <div className="space-y-2">
-              {draftList.map((d) => (
-                <div
-                  key={d.stockId}
-                  className="flex flex-col sm:flex-row sm:items-center gap-2 p-3 border rounded-md bg-muted/30"
-                >
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium truncate">
-                      {d.productName}
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      Cód: {d.productCode || "-"}
-                    </p>
-                  </div>
-                  <Input
-                    value={d.position}
-                    onChange={(e) =>
-                      setDraftPosition(d.stockId, e.target.value)
-                    }
-                    placeholder="Posición (ej: A1, Nivel 2)"
-                    className="sm:w-48 h-8 text-xs"
-                  />
-                  <Button
-                    type="button"
-                    size="sm"
-                    variant="ghost"
-                    className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                    onClick={() => removeFromDraft(d.stockId)}
-                  >
-                    Quitar
-                  </Button>
+            <SearchInput
+              value={search}
+              onChange={setSearch}
+              placeholder="Buscar por nombre o código..."
+            />
+
+            <div className="max-h-[26rem] overflow-y-auto pr-1">
+              {isLoading ? (
+                <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 xl:grid-cols-4">
+                  {Array.from({ length: 8 }).map((_, i) => (
+                    <div
+                      key={i}
+                      className="h-[4.5rem] animate-pulse rounded-lg border bg-muted/40"
+                    />
+                  ))}
                 </div>
-              ))}
+              ) : rows.length === 0 ? (
+                <p className="py-10 text-center text-sm text-muted-foreground">
+                  No hay repuestos disponibles para agregar.
+                </p>
+              ) : (
+                <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 xl:grid-cols-4">
+                  {rows.map((row) => (
+                    <button
+                      key={row.id}
+                      type="button"
+                      onClick={() => addToDraft(row)}
+                      className="group relative flex flex-col gap-1 rounded-lg border bg-card p-2.5 text-left transition-colors hover:border-primary/50 hover:bg-primary/5"
+                    >
+                      <span
+                        className="line-clamp-2 min-h-[2.5rem] pr-5 text-xs font-medium leading-tight"
+                        title={row.product_name}
+                      >
+                        {row.product_name}
+                      </span>
+                      <span className="truncate font-mono text-[10px] text-muted-foreground">
+                        {row.product?.code ?? "—"}
+                      </span>
+                      <span className="absolute right-1.5 top-1.5 rounded-md bg-primary/10 p-1 text-primary transition group-hover:bg-primary group-hover:text-primary-foreground">
+                        <Plus className="size-3.5" />
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
-            <Button
-              type="button"
-              className="w-full"
-              onClick={handleConfirm}
-              disabled={isAssigning}
-            >
-              <Loader
-                className={`mr-2 h-4 w-4 ${
-                  !isAssigning ? "hidden" : "animate-spin"
-                }`}
-              />
-              {isAssigning
-                ? "Asignando..."
-                : `Asignar ${draftList.length} producto(s) al estante`}
-            </Button>
           </div>
-        )}
+
+          {/* Carrito lateral: por asignar */}
+          <div className="flex flex-col rounded-lg border bg-muted/30 lg:max-h-[30rem]">
+            <div className="flex items-center gap-2 border-b px-3 py-2 text-sm font-semibold">
+              <ShoppingCart className="size-4" />
+              Por asignar
+              <Badge className="ml-auto">{draftList.length}</Badge>
+            </div>
+
+            {draftList.length === 0 ? (
+              <p className="flex-1 px-3 py-8 text-center text-xs text-muted-foreground">
+                Haz clic en un repuesto para agregarlo aquí.
+              </p>
+            ) : (
+              <div className="flex-1 space-y-1.5 overflow-y-auto p-2">
+                {draftList.map((d) => (
+                  <div
+                    key={d.stockId}
+                    className="flex items-center gap-2 rounded-md border bg-card p-2"
+                  >
+                    <div className="min-w-0 flex-1">
+                      <p
+                        className="truncate text-xs font-medium leading-tight"
+                        title={d.productName}
+                      >
+                        {d.productName}
+                      </p>
+                      <p className="truncate font-mono text-[10px] text-muted-foreground">
+                        {d.productCode || "—"}
+                      </p>
+                    </div>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Input
+                          value={d.position}
+                          onChange={(e) =>
+                            setDraftPosition(
+                              d.stockId,
+                              e.target.value.toUpperCase(),
+                            )
+                          }
+                          maxLength={6}
+                          placeholder="—"
+                          className="h-7 w-14 px-1 text-center text-xs font-semibold uppercase"
+                        />
+                      </TooltipTrigger>
+                      <TooltipContent>Posición (opcional)</TooltipContent>
+                    </Tooltip>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <button
+                          type="button"
+                          onClick={() => removeFromDraft(d.stockId)}
+                          className="rounded-md p-1 text-muted-foreground transition hover:bg-red-50 hover:text-red-600"
+                        >
+                          <X className="size-3.5" />
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent>Quitar</TooltipContent>
+                    </Tooltip>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            <div className="border-t p-2">
+              <Button
+                type="button"
+                className="w-full"
+                size="sm"
+                onClick={handleConfirm}
+                disabled={isAssigning || draftList.length === 0}
+              >
+                {isAssigning ? (
+                  <Loader className="mr-2 size-4 animate-spin" />
+                ) : (
+                  <Check className="mr-2 size-4" />
+                )}
+                {isAssigning
+                  ? "Asignando..."
+                  : `Asignar ${draftList.length || ""} repuesto(s)`.replace(
+                      "  ",
+                      " ",
+                    )}
+              </Button>
+            </div>
+          </div>
+        </div>
       </CardContent>
     </Card>
   );

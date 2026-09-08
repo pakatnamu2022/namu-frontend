@@ -5,6 +5,7 @@ import ActionsWrapper from "@/shared/components/ActionsWrapper";
 import { STORE_VISITS } from "../lib/storeVisits.constants";
 import { downloadStoreVisitsFile } from "../lib/storeVisits.actions";
 import ExportButtons from "@/shared/components/ExportButtons";
+import { formatDateFilter } from "@/core/core.function";
 
 interface StoreVisitsActionsProps {
   dateFrom?: Date;
@@ -23,12 +24,10 @@ export default function StoreVisitsActions({
   const router = useNavigate();
   const { ROUTE_ADD } = STORE_VISITS;
 
-  const formatDate = (date: Date | undefined) => {
-    return date ? date.toLocaleDateString("en-CA") : undefined;
-  };
-
   const getDateRange = () =>
-    dateFrom && dateTo ? [formatDate(dateFrom), formatDate(dateTo)] : undefined;
+    dateFrom && dateTo
+      ? [formatDateFilter(dateFrom), formatDateFilter(dateTo)]
+      : undefined;
 
   return (
     <ActionsWrapper>

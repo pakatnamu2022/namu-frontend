@@ -5,7 +5,11 @@ import { useState } from "react";
 import ManageLeadsModal from "./ManageLeadsModal";
 import ManageLeadsRefreshSheet from "./ManageLeadsRefreshSheet";
 import { ImportedLeadResource } from "../lib/manageLeads.interface";
-import { errorToast, successToast } from "@/core/core.function";
+import {
+  errorToast,
+  formatDateFilter,
+  successToast,
+} from "@/core/core.function";
 import { downloadManageLeadsFile } from "../lib/manageLeads.actions";
 import ExportButtons from "@/shared/components/ExportButtons";
 
@@ -44,15 +48,11 @@ export default function ManageLeadsActions({
     document.body.removeChild(link);
   };
 
-  const formatDate = (date: Date | undefined) => {
-    return date ? date.toLocaleDateString("en-CA") : undefined; // formato: YYYY-MM-DD
-  };
-
   const handleExcelDownload = async () => {
     try {
       const created_at =
         dateFrom && dateTo
-          ? [formatDate(dateFrom), formatDate(dateTo)]
+          ? [formatDateFilter(dateFrom), formatDateFilter(dateTo)]
           : undefined;
 
       await downloadManageLeadsFile({
@@ -71,7 +71,7 @@ export default function ManageLeadsActions({
     try {
       const created_at =
         dateFrom && dateTo
-          ? [formatDate(dateFrom), formatDate(dateTo)]
+          ? [formatDateFilter(dateFrom), formatDateFilter(dateTo)]
           : undefined;
 
       await downloadManageLeadsFile({
