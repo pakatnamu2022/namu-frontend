@@ -61,7 +61,7 @@ function RoutePrefetcher() {
       const i = idx++;
       if (i >= pageLoaders.length) return;
       pageLoaders[i]()
-        .catch(() => {})
+        .catch(() => { })
         .finally(() => {
           if (!cancelled) window.setTimeout(runNext, GAP_MS);
         });
@@ -606,6 +606,7 @@ import { CONTROL_UNITS } from "./features/ap/comercial/control-unidades/lib/cont
 const MonitoreoPage = lazyPage(() => import("./app/tp/comercial-tp/monitoreo/page.tsx"));
 import { LocationTracker } from "./features/tp/comercial/Monitoreo/LocationTracker.tsx";
 import { DeviceInactiveAlert } from "./features/tp/comercial/Monitoreo/components/DeviceInactiveAlert.tsx";
+import SupplyControlPage from "./app/tp/comercial-tp/control-abastecimiento/page.tsx";
 const ExitGuidePage = lazyPage(() => import("./app/ap/comercial/entrega-vehiculo/guia-salida/page.tsx"));
 const ControlTipoVehiculoPage = lazyPage(() => import("./app/tp/configuraciones/control-tipo-vehiculo/page.tsx"));
 const ControlVehiculoPage = lazyPage(() => import("./app/tp/configuraciones/control-vehiculo/page.tsx"));
@@ -2600,6 +2601,7 @@ function App() {
               <Route path="control-viajes" element={<ControlTravelPage />} />
               <Route path="control-fletes" element={<ControlFreightPage />} />
               <Route path="control-metas" element={<ControlGoalPage />} />
+              <Route path="control-abastecimiento" element={<SupplyControlPage />} />
               <Route
                 path="control-asignacionVehiculos"
                 element={<ControlVehicleAssignmentPage />}
