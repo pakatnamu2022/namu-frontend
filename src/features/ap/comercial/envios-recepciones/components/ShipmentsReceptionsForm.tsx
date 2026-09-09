@@ -1043,7 +1043,11 @@ export const ShipmentsReceptionsForm = ({
             control={form.control}
             name="issue_date"
             label="Fecha de Traslado"
-            disabledRange={{ before: new Date() }}
+            disabledRange={
+              watchIssuerType === "PROVEEDOR"
+                ? undefined
+                : { before: new Date() }
+            }
           />
 
           <FormInput
