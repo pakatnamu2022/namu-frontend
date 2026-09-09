@@ -74,6 +74,9 @@ export const SuppliersForm = ({
     mode: "onChange",
   });
   const [isFirstLoad, setIsFirstLoad] = useState(mode === "update");
+  const [prevTypePerson, setPrevTypePerson] = useState(
+    defaultValues?.type_person_id,
+  );
   const [companyStatus, setCompanyStatus] = useState("-");
   const [companyCondition, setCompanyCondition] = useState("-");
   const [initialDocumentNumber] = useState(defaultValues.num_doc);
@@ -195,8 +198,14 @@ export const SuppliersForm = ({
   useEffect(() => {
     if (isFirstLoad) {
       setIsFirstLoad(false);
+      setPrevTypePerson(typePersonWatch);
       return;
     }
+
+    // Solo reaccionar cuando el usuario realmente cambia el tipo de persona,
+    // no en el re-render que dispara setIsFirstLoad(false) al cargar la edición.
+    if (typePersonWatch === prevTypePerson) return;
+    setPrevTypePerson(typePersonWatch);
 
     if (typePersonWatch && mode === "create") {
       form.setValue("num_doc", "");
@@ -210,7 +219,7 @@ export const SuppliersForm = ({
     if (typePersonWatch === BUSINESS_PARTNERS.TYPE_PERSON_NATURAL_ID) {
       form.setValue("document_type_id", BUSINESS_PARTNERS.TYPE_DOCUMENT_DNI_ID);
     }
-  }, [form, isFirstLoad, typePersonWatch]);
+  }, [form, isFirstLoad, typePersonWatch, prevTypePerson, mode]);
 
   // Efecto para auto-completar campos cuando se obtienen datos válidos
   useEffect(() => {
