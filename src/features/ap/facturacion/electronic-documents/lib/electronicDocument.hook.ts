@@ -43,11 +43,12 @@ export const useInvoicesAndTicketsElectronicDocuments = (
   });
 };
 
-export const useElectronicDocument = (id: number) => {
+export const useElectronicDocument = (id: number, enabled = true) => {
   return useQuery<ElectronicDocumentResource>({
     queryKey: [QUERY_KEY, id],
     queryFn: () => findElectronicDocumentById(id),
     refetchOnWindowFocus: false,
+    enabled: enabled && !!id && id > 0,
   });
 };
 
