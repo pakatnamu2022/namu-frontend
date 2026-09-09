@@ -233,7 +233,7 @@ function MetricStrip({
       {items.map((it, i) => (
         <div
           key={i}
-          className="min-w-[9rem] flex-1 rounded-lg bg-muted/50 px-3 py-2"
+          className="min-w-36 flex-1 rounded-lg bg-muted/50 px-3 py-2"
         >
           <p className="text-[11px] text-muted-foreground">{it.label}</p>
           <p
