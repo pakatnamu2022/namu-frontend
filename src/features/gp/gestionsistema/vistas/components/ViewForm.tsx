@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -73,6 +73,22 @@ export const ViewForm = ({
   // Observar cambios en el campo descripcion
   const descripcion = form.watch("descripcion");
 
+  // Empresa seleccionada: las vistas padre se filtran en base a ella
+  const companyId = form.watch("company_id");
+  const skipCompanyReset = useRef(true);
+
+  // Al cambiar la empresa, limpiar las vistas padre seleccionadas
+  useEffect(() => {
+    if (skipCompanyReset.current) {
+      skipCompanyReset.current = false;
+      return;
+    }
+    form.setValue("parent_id", "", { shouldValidate: true });
+    form.setValue("idPadre", "");
+    form.setValue("idSubPadre", "");
+    form.setValue("idHijo", "");
+  }, [companyId, form]);
+
   // Auto-generar slug para el campo route cuando cambia descripcion
   useEffect(() => {
     if (descripcion && mode === "create") {
@@ -85,6 +101,22 @@ export const ViewForm = ({
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 w-full">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <FormSelect
+            control={form.control}
+            name="company_id"
+            label={() => (
+              <FormLabel className="inline-flex">
+                Empresa <RequiredField />
+              </FormLabel>
+            )}
+            description="Selecciona primero la empresa: las vistas padre se filtran según ella"
+            placeholder="Selecciona la empresa"
+            options={companies.map((company) => ({
+              label: company.name,
+              value: company.id.toString(),
+            }))}
+          />
+
           <FormInput
             control={form.control}
             name="descripcion"
@@ -124,32 +156,24 @@ export const ViewForm = ({
           <FormSelectAsync
             control={form.control}
             name="parent_id"
-            description="Selecciona el módulo padre al que pertenece esta vista"
+            description={
+              companyId
+                ? "Selecciona el módulo padre al que pertenece esta vista"
+                : "Selecciona primero una empresa"
+            }
             label="Módulo Superior"
             required={true}
-            placeholder="Selecciona la vista padre"
+            disabled={!companyId}
+            placeholder={
+              companyId ? "Selecciona la vista padre" : "Selecciona una empresa"
+            }
+            additionalParams={{ company_id: companyId }}
             useQueryHook={useViews}
             mapOptionFn={(v) => ({
               label: v.descripcion,
               value: String(v.id),
               description: `${v.parent ? v.parent + " | " : ""} ${v.company}`,
             })}
-          />
-
-          <FormSelect
-            control={form.control}
-            name="company_id"
-            label={() => (
-              <FormLabel className="inline-flex">
-                Empresa <RequiredField />
-              </FormLabel>
-            )}
-            description="Empresa a la que pertenece este módulo"
-            placeholder="Selecciona la empresa"
-            options={companies.map((company) => ({
-              label: company.name,
-              value: company.id.toString(),
-            }))}
           />
 
           <FormSwitch
@@ -185,6 +209,8 @@ export const ViewForm = ({
             label="Padre"
             description="Módulo padre en la jerarquía de Milla"
             placeholder="Seleccionar padre"
+            disabled={!companyId}
+            additionalParams={{ company_id: companyId }}
             useQueryHook={useViews}
             mapOptionFn={(v) => ({
               label: v.descripcion,
@@ -199,6 +225,8 @@ export const ViewForm = ({
             label="Sub Padre"
             description="Módulo sub-padre en la jerarquía de Milla"
             placeholder="Seleccionar sub padre"
+            disabled={!companyId}
+            additionalParams={{ company_id: companyId }}
             useQueryHook={useViews}
             mapOptionFn={(v) => ({
               label: v.descripcion,
@@ -213,6 +241,8 @@ export const ViewForm = ({
             label="Hijo"
             description="Módulo hijo en la jerarquía de Milla"
             placeholder="Seleccionar hijo"
+            disabled={!companyId}
+            additionalParams={{ company_id: companyId }}
             useQueryHook={useViews}
             mapOptionFn={(v) => ({
               label: v.descripcion,
