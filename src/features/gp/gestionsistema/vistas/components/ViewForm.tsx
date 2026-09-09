@@ -84,9 +84,6 @@ export const ViewForm = ({
       return;
     }
     form.setValue("parent_id", "", { shouldValidate: true });
-    form.setValue("idPadre", "");
-    form.setValue("idSubPadre", "");
-    form.setValue("idHijo", "");
   }, [companyId, form]);
 
   // Auto-generar slug para el campo route cuando cambia descripcion
@@ -209,8 +206,6 @@ export const ViewForm = ({
             label="Padre"
             description="Módulo padre en la jerarquía de Milla"
             placeholder="Seleccionar padre"
-            disabled={!companyId}
-            additionalParams={{ company_id: companyId }}
             useQueryHook={useViews}
             mapOptionFn={(v) => ({
               label: v.descripcion,
@@ -225,8 +220,6 @@ export const ViewForm = ({
             label="Sub Padre"
             description="Módulo sub-padre en la jerarquía de Milla"
             placeholder="Seleccionar sub padre"
-            disabled={!companyId}
-            additionalParams={{ company_id: companyId }}
             useQueryHook={useViews}
             mapOptionFn={(v) => ({
               label: v.descripcion,
@@ -241,8 +234,6 @@ export const ViewForm = ({
             label="Hijo"
             description="Módulo hijo en la jerarquía de Milla"
             placeholder="Seleccionar hijo"
-            disabled={!companyId}
-            additionalParams={{ company_id: companyId }}
             useQueryHook={useViews}
             mapOptionFn={(v) => ({
               label: v.descripcion,
