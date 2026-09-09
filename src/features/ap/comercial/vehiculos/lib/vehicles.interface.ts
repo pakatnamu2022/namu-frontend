@@ -44,6 +44,7 @@ export interface VehicleResource {
   status_color: string;
   warehouse_id?: number;
   warehouse_name?: string;
+  warehouse_is_received: boolean;
   warehouse_physical_id?: number;
   warehouse_physical_name?: string;
   sede_name_warehouse_physical?: string;
@@ -82,7 +83,7 @@ export interface VehicleResourceWithCosts {
   warehouse_physical: string;
   billed_cost: string;
   freight_cost: string;
-  warehouse:string;
+  warehouse: string;
 }
 
 export interface VehicleRequest {
