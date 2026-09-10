@@ -2,6 +2,7 @@ import {
   ProductSchema,
   productSchemaCreate,
   productSchemaUpdate,
+  PVP_MODE_OPTIONS,
 } from "@/features/ap/post-venta/gestion-almacen/productos/lib/product.schema.ts";
 import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -54,6 +55,7 @@ export const ProductForm = ({
     defaultValues: {
       ...defaultValues,
       warehouses: defaultValues.warehouses || [],
+      pvp_mode: (defaultValues as any).pvp_mode || "conventional",
     },
     mode: "onChange",
   });
@@ -156,7 +158,7 @@ export const ProductForm = ({
           <FormInput
             name="code"
             label="Código"
-            placeholder="Código producto"
+            placeholder="Código repuesto"
             control={form.control}
           />
 
@@ -216,6 +218,18 @@ export const ProductForm = ({
             label="Garantía (Meses)"
             placeholder="0"
             control={form.control}
+          />
+
+          <FormSelect
+            name="pvp_mode"
+            label="Modo de cálculo del PVP"
+            placeholder="Selecciona la modalidad"
+            options={PVP_MODE_OPTIONS.map((option) => ({
+              label: option.label,
+              value: option.value,
+            }))}
+            control={form.control}
+            description="Local no considera el flete en el cálculo del PVP."
           />
         </GroupFormSection>
 
@@ -344,7 +358,7 @@ export const ProductForm = ({
         <FormTextArea
           name="description"
           label="Descripción / Notas"
-          placeholder="Descripción o notas del producto"
+          placeholder="Descripción o notas del repuesto"
           control={form.control}
         />
 

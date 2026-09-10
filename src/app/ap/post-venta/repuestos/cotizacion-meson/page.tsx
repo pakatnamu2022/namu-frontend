@@ -71,14 +71,6 @@ export default function OrderQuotationMesonPage() {
   const setDateFrom = (value: Date | undefined) => setFilter("dateFrom", value);
   const setDateTo = (value: Date | undefined) => setFilter("dateTo", value);
 
-  useEffect(() => {
-    if (dateFrom && dateTo && dateFrom > dateTo) {
-      setDateTo(dateFrom);
-      errorToast("La fecha 'Desde' no puede ser mayor que la fecha 'Hasta'.");
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dateFrom, dateTo]);
-
   const statusIds = statusGroups.flatMap(
     (group) =>
       ORDER_QUOTATION_STATUS_GROUP_IDS[group as OrderQuotationStatusGroup],

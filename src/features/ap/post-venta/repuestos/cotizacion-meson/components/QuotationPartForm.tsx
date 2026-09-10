@@ -1,6 +1,7 @@
 import {
   ProductSchema,
   productSchemaCreate,
+  PVP_MODE_OPTIONS,
 } from "@/features/ap/post-venta/gestion-almacen/productos/lib/product.schema";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -40,6 +41,7 @@ export const QuotationPartForm = ({
     defaultValues: {
       ...defaultValues,
       warehouses: [],
+      pvp_mode: "conventional",
     },
     mode: "onChange",
   });
@@ -158,6 +160,20 @@ export const QuotationPartForm = ({
           </div>
         )}
 
+        <div className="space-y-1">
+          <FormSelect
+            name="pvp_mode"
+            label="Modo de cálculo del PVP"
+            placeholder="Selecciona la modalidad"
+            options={PVP_MODE_OPTIONS.map((option) => ({
+              label: option.label,
+              value: option.value,
+            }))}
+            control={form.control}
+            description="Local no considera el flete en el cálculo del PVP."
+          />
+        </div>
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <FormInput
             name="dyn_code"
@@ -171,7 +187,7 @@ export const QuotationPartForm = ({
           <FormInput
             name="code"
             label="Código"
-            placeholder="Código producto"
+            placeholder="Código repuesto"
             control={form.control}
           />
 
@@ -227,7 +243,7 @@ export const QuotationPartForm = ({
         <FormTextArea
           name="description"
           label="Descripción / Notas"
-          placeholder="Descripción o notas del producto"
+          placeholder="Descripción o notas del repuesto"
           control={form.control}
         />
 

@@ -20,6 +20,7 @@ import {
   InventoryResponse,
   PriceCalculationDetailsResponse,
   StockMovementHistoryResponse,
+  GetStockMovementHistoryParams,
   getReservedStockReportProps,
   ReservedStockReportResponse,
 } from "./inventory.interface.ts";
@@ -188,11 +189,12 @@ export const usePriceCalculationDetails = (
 export const useStockMovementHistory = (
   productId: number,
   warehouseId: number,
+  params?: GetStockMovementHistoryParams,
   options?: { enabled?: boolean },
 ) => {
   return useQuery<StockMovementHistoryResponse>({
-    queryKey: ["stock-movement-history", productId, warehouseId],
-    queryFn: () => getStockMovementHistory(productId, warehouseId),
+    queryKey: ["stock-movement-history", productId, warehouseId, params],
+    queryFn: () => getStockMovementHistory(productId, warehouseId, params),
     refetchOnWindowFocus: false,
     enabled: options?.enabled ?? false,
   });
