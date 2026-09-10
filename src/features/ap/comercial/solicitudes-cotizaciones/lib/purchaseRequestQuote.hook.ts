@@ -9,6 +9,7 @@ import {
 } from "./purchaseRequestQuote.interface";
 import {
   assignVehicleToPurchaseRequestQuote,
+  changeSedeInPurchaseRequestQuote,
   deletePurchaseRequestQuote,
   duplicatePurchaseRequestQuote,
   findPurchaseRequestQuoteById,
@@ -128,6 +129,18 @@ export const useSwapVehiclePurchaseRequestQuote = () => {
       id: number;
       ap_vehicle_id: number;
     }) => swapVehicleInPurchaseRequestQuote(id, ap_vehicle_id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEY] });
+    },
+  });
+};
+
+export const useChangeSedePurchaseRequestQuote = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ id, sede_id }: { id: number; sede_id: number }) =>
+      changeSedeInPurchaseRequestQuote(id, sede_id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEY] });
     },

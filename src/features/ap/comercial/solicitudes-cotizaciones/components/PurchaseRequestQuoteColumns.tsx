@@ -12,6 +12,7 @@ import {
   PercentCircle,
   Copy,
   Trash2,
+  MapPin,
 } from "lucide-react";
 import { NumberFormat } from "@/shared/components/NumberFormat";
 import { PurchaseRequestQuoteResource } from "../lib/purchaseRequestQuote.interface";
@@ -32,6 +33,7 @@ interface Props {
   onAssignVehicle: (purchaseRequestQuote: PurchaseRequestQuoteResource) => void;
   onUnassignVehicle: (purchaseRequestQuote: PurchaseRequestQuoteResource) => void;
   onSwapVehicle: (purchaseRequestQuote: PurchaseRequestQuoteResource) => void;
+  onChangeSede: (purchaseRequestQuote: PurchaseRequestQuoteResource) => void;
   onViewDetail: (id: number) => void;
   onDuplicate: (purchaseRequestQuote: PurchaseRequestQuoteResource) => void;
   onDelete: (purchaseRequestQuote: PurchaseRequestQuoteResource) => void;
@@ -44,6 +46,7 @@ interface Props {
     canRequestAdjustment: boolean;
     canDuplicate: boolean;
     canDelete: boolean;
+    canChangeLocation: boolean;
   };
   // Mapas id -> descripción (desde apMasters), para mostrar los nombres
   // legibles de crédito/entidad/seguro en la tabla.
@@ -58,6 +61,7 @@ export const purchaseRequestQuoteColumns = ({
   onAssignVehicle,
   onUnassignVehicle,
   onSwapVehicle,
+  onChangeSede,
   onViewDetail,
   onDuplicate,
   onDelete,
@@ -272,6 +276,11 @@ export const purchaseRequestQuoteColumns = ({
         permissions.canAssign && hasVehicle && !row.original.is_paid;
       const canSwapVehicle =
         permissions.canAssign && hasVehicle && !row.original.is_paid;
+      // Cambiar la sede reasigna también el lead de la oportunidad. Solo se
+      // permite mientras la solicitud no esté pagada y no tenga un VIN asignado
+      // (el VIN pertenece a la sede actual). El backend revalida esto.
+      const canChangeSede =
+        permissions.canChangeLocation && !hasVehicle && !row.original.is_paid;
       // Editable mientras no esté pagada en su totalidad. Si ya está
       // aprobada, el formulario bloquea internamente los campos que afectan
       // el precio (venta, vehículo/modelo, accesorios, descuentos) y solo
@@ -310,6 +319,12 @@ export const purchaseRequestQuoteColumns = ({
             tooltip="Cambiar Vehículo"
             onClick={() => onSwapVehicle(row.original)}
             canRender={canSwapVehicle}
+          />
+          <ButtonAction
+            icon={MapPin}
+            tooltip="Cambiar Sede"
+            onClick={() => onChangeSede(row.original)}
+            canRender={canChangeSede}
           />
           <ButtonAction
             icon={Link2Off}
