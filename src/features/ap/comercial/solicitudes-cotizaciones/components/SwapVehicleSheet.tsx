@@ -13,7 +13,10 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import GeneralSheet from "@/shared/components/GeneralSheet";
 import { errorToast, successToast } from "@/core/core.function";
-import { useAllVehicles, useVehicleById } from "../../vehiculos/lib/vehicles.hook";
+import {
+  useAllVehicles,
+  useVehicleById,
+} from "../../vehiculos/lib/vehicles.hook";
 import { VehicleResource } from "../../vehiculos/lib/vehicles.interface";
 import { useSwapVehiclePurchaseRequestQuote } from "../lib/purchaseRequestQuote.hook";
 import { PurchaseRequestQuoteResource } from "../lib/purchaseRequestQuote.interface";
@@ -26,10 +29,7 @@ interface SwapVehicleSheetProps {
 }
 
 function normalize(value: string) {
-  return value
-    .toLowerCase()
-    .normalize("NFD")
-    .replace(/[̀-ͯ]/g, "");
+  return value.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
 }
 
 export default function SwapVehicleSheet({
@@ -92,7 +92,10 @@ export default function SwapVehicleSheet({
 
   const swap = async (vehicleId: number) => {
     try {
-      await swapMutation.mutateAsync({ id: quote.id, ap_vehicle_id: vehicleId });
+      await swapMutation.mutateAsync({
+        id: quote.id,
+        ap_vehicle_id: vehicleId,
+      });
       successToast("Vehículo cambiado correctamente");
       handleClose();
     } catch (error: any) {
@@ -232,7 +235,7 @@ export default function SwapVehicleSheet({
         </div>
 
         <div className="flex items-center justify-between gap-3">
-          <Badge variant="secondary" className="font-normal">
+          <Badge className="font-normal">
             {isLoading
               ? "Cargando..."
               : `${filteredVehicles.length} disponible${
