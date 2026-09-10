@@ -14,7 +14,8 @@ export function LocationTracker() {
     const [initialized, setInitialized] = useState(false);
     const [shouldTrack, setShouldTrack] = useState(false);
 
-    const isConductor = user?.position?.toUpperCase() === "CONDUCTOR DE TRACTO CAMION";
+    const isConductor = user?.position?.toUpperCase() === "CONDUCTOR DE TRACTO CAMION" ||
+        user?.position?.toUpperCase() === "CONTROLER DE UNIDADES EN RUTA";
 
     const { deviceId, isActive, refetch } = useRegisteredDevice();
 
