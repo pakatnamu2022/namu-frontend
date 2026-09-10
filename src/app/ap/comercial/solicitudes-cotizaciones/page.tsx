@@ -35,6 +35,7 @@ import { purchaseRequestQuoteColumns } from "@/features/ap/comercial/solicitudes
 import PurchaseRequestQuoteOptions from "@/features/ap/comercial/solicitudes-cotizaciones/components/PurchaseRequestQuoteOptions";
 import AssignVehicleModal from "@/features/ap/comercial/solicitudes-cotizaciones/components/AssignVehicleModal";
 import SwapVehicleModal from "@/features/ap/comercial/solicitudes-cotizaciones/components/SwapVehicleModal";
+import ChangeSedeModal from "@/features/ap/comercial/solicitudes-cotizaciones/components/ChangeSedeModal";
 import PurchaseRequestQuoteDetailModal from "@/features/ap/comercial/solicitudes-cotizaciones/components/PurchaseRequestQuoteDetailModal";
 import PurchaseRequestQuoteActions from "@/features/ap/comercial/solicitudes-cotizaciones/components/PurchaseRequestQuoteActions";
 import { PurchaseRequestQuoteResource } from "@/features/ap/comercial/solicitudes-cotizaciones/lib/purchaseRequestQuote.interface";
@@ -60,6 +61,8 @@ export default function PurchaseRequestQuotePage() {
   const [swapVehicleQuote, setSwapVehicleQuote] =
     useState<PurchaseRequestQuoteResource | null>(null);
   const [unassignVehicleQuote, setUnassignVehicleQuote] =
+    useState<PurchaseRequestQuoteResource | null>(null);
+  const [changeSedeQuote, setChangeSedeQuote] =
     useState<PurchaseRequestQuoteResource | null>(null);
   const [detailQuote, setDetailQuote] = useState<number | null>(null);
   const [duplicateQuote, setDuplicateQuote] =
@@ -202,6 +205,7 @@ export default function PurchaseRequestQuotePage() {
           onAssignVehicle: setAssignVehicleQuote,
           onUnassignVehicle: setUnassignVehicleQuote,
           onSwapVehicle: setSwapVehicleQuote,
+          onChangeSede: setChangeSedeQuote,
           onViewDetail: setDetailQuote,
           onDuplicate: setDuplicateQuote,
           onDelete: setDeleteQuote,
@@ -276,6 +280,14 @@ export default function PurchaseRequestQuotePage() {
           open={true}
           onOpenChange={(open) => !open && setSwapVehicleQuote(null)}
           quote={swapVehicleQuote}
+        />
+      )}
+
+      {changeSedeQuote !== null && (
+        <ChangeSedeModal
+          open={true}
+          onOpenChange={(open) => !open && setChangeSedeQuote(null)}
+          quote={changeSedeQuote}
         />
       )}
 

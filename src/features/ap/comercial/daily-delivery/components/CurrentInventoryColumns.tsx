@@ -115,7 +115,7 @@ export const currentInventoryColumns: CurrentInventoryColumns[] = [
     cell: ({ getValue }) => {
       const value = getValue() as string | null;
       return value ? (
-        <span className="tabular-nums">S/ {value}</span>
+        <span className="tabular-nums">$ {value}</span>
       ) : (
         <span className="text-muted-foreground">-</span>
       );

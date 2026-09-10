@@ -270,6 +270,17 @@ export async function swapVehicleInPurchaseRequestQuote(
   return response.data;
 }
 
+export async function changeSedeInPurchaseRequestQuote(
+  id: number,
+  sede_id: number
+): Promise<PurchaseRequestQuoteResource> {
+  const response = await api.post<PurchaseRequestQuoteResource>(
+    `${ENDPOINT}/changeSede/${id}`,
+    { sede_id }
+  );
+  return response.data;
+}
+
 export async function getDiscountCouponsByQuote(
   quoteId: number
 ): Promise<DiscountCouponResource[]> {
