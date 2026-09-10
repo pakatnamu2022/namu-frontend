@@ -14,7 +14,7 @@ export const LogoLink = ({ theme = "light" }: { theme?: string }) => (
     <img
       src={theme === "dark" ? CONSTANTS.LOGO_WHITE : CONSTANTS.LOGO}
       alt="Logo"
-      className="max-h-12 w-auto lg:h-10"
+      className="max-h-10 w-auto lg:h-8"
     />
   </Link>
 );
