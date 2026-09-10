@@ -351,6 +351,20 @@ export const PERMISSION_ACTIONS: PermissionAction[] = [
     description:
       "Permite re-reservar el stock de una OT o cotización después de emitir una nota de crédito",
   },
+  {
+    value: "discard",
+    label: "Descartar",
+    icon: "XCircle",
+    description:
+      "Permite descartar (ignorar) movimientos de inventario del kardex del producto",
+  },
+  {
+    value: "viewDiscarded",
+    label: "Ver Descartados",
+    icon: "Archive",
+    description:
+      "Permite ver los movimientos de inventario descartados y revertirlos",
+  },
 ];
 
 /**
@@ -444,5 +458,7 @@ export function useModulePermissions(moduleCode: string) {
     canApproveAdjustment: hasModulePermission("approveAdjustment"),
     canRejectAdjustment: hasModulePermission("rejectAdjustment"),
     canReReserveStock: hasModulePermission("reReserveStock"),
+    canDiscard: hasModulePermission("discard"),
+    canViewDiscarded: hasModulePermission("viewDiscarded"),
   };
 }

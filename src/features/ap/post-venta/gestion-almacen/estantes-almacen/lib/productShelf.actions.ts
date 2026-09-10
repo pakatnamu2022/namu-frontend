@@ -10,6 +10,7 @@ import {
   ProductShelfResponse,
   RemoveShelfProductRequest,
   ShelfProductItem,
+  UpdateShelfProductPositionRequest,
 } from "./productShelf.interface.ts";
 
 const { ENDPOINT } = PRODUCT_SHELF;
@@ -93,4 +94,63 @@ export async function removeShelfProduct(
     payload,
   );
   return data;
+}
+
+export async function updateShelfProductPosition(
+  payload: UpdateShelfProductPositionRequest,
+): Promise<GeneralResponse> {
+  const { data } = await api.post<GeneralResponse>(
+    `${ENDPOINT}/update-position`,
+    payload,
+  );
+  return data;
+}
+
+export async function exportProductShelf(
+  shelfId: number,
+  code?: string,
+): Promise<void> {
+  let response;
+  try {
+    response = await api.get(`${ENDPOINT}/${shelfId}/export`, {
+      responseType: "blob",
+    });
+  } catch (error: any) {
+    const blobData = error?.response?.data;
+    if (blobData instanceof Blob) {
+      const text = await blobData.text();
+      try {
+        const parsed = JSON.parse(text);
+        error.response.data = parsed;
+        error.message = parsed?.error || parsed?.message || error.message;
+      } catch {
+        // el body no era JSON, se deja el error original
+      }
+    }
+    throw error;
+  }
+
+  const blob = new Blob([response.data], {
+    type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+  });
+  const url = window.URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+
+  const contentDisposition = response.headers["content-disposition"];
+  let filename = `estante-${code ?? shelfId}.xlsx`;
+  if (contentDisposition) {
+    const match = contentDisposition.match(
+      /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/,
+    );
+    if (match?.[1]) {
+      filename = match[1].replace(/['"]/g, "").trim();
+    }
+  }
+  link.setAttribute("download", filename);
+
+  document.body.appendChild(link);
+  link.click();
+  link.parentNode?.removeChild(link);
+  window.URL.revokeObjectURL(url);
 }

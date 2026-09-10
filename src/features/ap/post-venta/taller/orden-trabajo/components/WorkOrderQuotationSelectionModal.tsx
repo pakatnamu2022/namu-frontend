@@ -12,6 +12,7 @@ import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import {
   errorToast,
+  formatDateFilter,
   formatMoney,
   getCurrentDayOfMonth,
   getFirstDayOfMonth,
@@ -44,10 +45,6 @@ export const WorkOrderQuotationSelectionModal = ({
     getCurrentDayOfMonth(currentDate),
   );
 
-  const formatDate = (date: Date | undefined) => {
-    return date ? date.toLocaleDateString("en-CA") : undefined; // formato: YYYY-MM-DD
-  };
-
   useEffect(() => {
     if (dateFrom && dateTo && dateFrom > dateTo) {
       errorToast("La fecha 'Desde' no puede ser mayor que la fecha 'Hasta'.");
@@ -69,7 +66,7 @@ export const WorkOrderQuotationSelectionModal = ({
       area_id: AREA_TALLER.toString(),
       quotation_date:
         dateFrom && dateTo
-          ? [formatDate(dateFrom), formatDate(dateTo)]
+          ? [formatDateFilter(dateFrom), formatDateFilter(dateTo)]
           : undefined,
     },
     open,

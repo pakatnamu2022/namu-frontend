@@ -38,15 +38,12 @@ export default function ProductShelfOptions({
         value={warehouseId}
         onChange={setWarehouseId}
         placeholder="Filtrar por almacén"
-        className="min-w-72"
-        classNameOption="text-xs"
       />
       <SearchableSelect
         options={[{ label: "Todos", value: "" }, ...SHELF_STATUS_OPTIONS]}
         value={status}
         onChange={setStatus}
         placeholder="Todos los estados"
-        className="sm:max-w-[180px]"
       />
     </FilterWrapper>
   );

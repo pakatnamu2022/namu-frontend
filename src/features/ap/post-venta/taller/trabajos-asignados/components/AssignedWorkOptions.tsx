@@ -52,8 +52,6 @@ export default function AssignedWorkOptions({
         value={workerId}
         onChange={setWorkerId}
         placeholder="Filtrar por trabajador"
-        className="min-w-72"
-        classNameOption="text-xs"
         disabled={isWorkerLocked}
       />
       <SearchableSelect
@@ -64,8 +62,6 @@ export default function AssignedWorkOptions({
         value={sedeId}
         onChange={setSedeId}
         placeholder="Filtrar por sede"
-        className="min-w-72"
-        classNameOption="text-xs"
         allowClear={false}
       />
       <DateRangePickerFilter
@@ -75,7 +71,6 @@ export default function AssignedWorkOptions({
           setDateFrom(from);
           setDateTo(to);
         }}
-        className="w-auto min-w-56"
       />
     </FilterWrapper>
   );

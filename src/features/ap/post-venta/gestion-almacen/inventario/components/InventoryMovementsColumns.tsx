@@ -15,7 +15,9 @@ import { InternalNoteResource } from "../../../taller/orden-trabajo/lib/workOrde
 
 export type InventoryMovementColumns = ColumnDef<InventoryMovementListRow>;
 
-export const inventoryMovementsColumns = (): InventoryMovementColumns[] => [
+export const inventoryMovementsColumns = (
+  canDiscard = false,
+): InventoryMovementColumns[] => [
   {
     accessorKey: "movement_date",
     header: "Fecha",
@@ -547,7 +549,12 @@ export const inventoryMovementsColumns = (): InventoryMovementColumns[] => [
     header: "Acciones",
     cell: ({ row }) => {
       const movement = row.original;
-      return <InventoryMovementActions movement={movement} />;
+      return (
+        <InventoryMovementActions
+          movement={movement}
+          canDiscard={canDiscard}
+        />
+      );
     },
   },
 ];

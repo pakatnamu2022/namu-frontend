@@ -196,7 +196,7 @@ export const AdjustmentsProductForm = ({
               disabled={mode === "update"}
             >
               <Plus className="h-4 w-4 mr-2" />
-              Agregar Producto
+              Agregar Repuesto
             </Button>
           </div>
 
@@ -205,7 +205,7 @@ export const AdjustmentsProductForm = ({
               <ShoppingCart className="h-12 w-12 mx-auto mb-2 opacity-50" />
               <p>No hay productos agregados</p>
               <p className="text-sm mt-1">
-                Haz clic en "Agregar Producto" para comenzar
+                Haz clic en "Agregar Repuesto" para comenzar
               </p>
             </div>
           ) : (

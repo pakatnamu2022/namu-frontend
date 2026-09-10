@@ -5,7 +5,11 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import TitleComponent from "@/shared/components/TitleComponent";
 import DataTablePagination from "@/shared/components/DataTablePagination";
-import { getCurrentDayOfMonth, getFirstDayOfMonth } from "@/core/core.function";
+import {
+  formatDateFilter,
+  getCurrentDayOfMonth,
+  getFirstDayOfMonth,
+} from "@/core/core.function";
 import { DEFAULT_PER_PAGE, EMPRESA_AP } from "@/core/core.constants";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
 import { INTERNAL_NOTE_MIGRATION } from "@/features/ap/post-venta/taller/notas-internas/lib/internalNoteMigration.constants";
@@ -40,10 +44,6 @@ export default function InternalNoteMigrationPage() {
   const setDateFrom = (value: Date | undefined) => setFilter("dateFrom", value);
   const setDateTo = (value: Date | undefined) => setFilter("dateTo", value);
 
-  const formatDate = (date: Date | undefined) => {
-    return date ? date.toLocaleDateString("en-CA") : undefined; // formato: YYYY-MM-DD
-  };
-
   const { data: mySedes = [], isLoading: isLoadingSedes } = useMySedes({
     company: EMPRESA_AP.id,
     has_workshop: true,
@@ -64,7 +64,7 @@ export default function InternalNoteMigrationPage() {
       workOrder$sede_id: sedeId || undefined,
       created_date:
         dateFrom && dateTo
-          ? [formatDate(dateFrom), formatDate(dateTo)]
+          ? [formatDateFilter(dateFrom), formatDateFilter(dateTo)]
           : undefined,
     },
     enabled: !!sedeId,

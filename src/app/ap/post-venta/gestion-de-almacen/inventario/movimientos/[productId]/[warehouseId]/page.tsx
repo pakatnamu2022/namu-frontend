@@ -14,13 +14,19 @@ import InventoryMovementsTable from "@/features/ap/post-venta/gestion-almacen/in
 import { inventoryMovementsColumns } from "@/features/ap/post-venta/gestion-almacen/inventario/components/InventoryMovementsColumns.tsx";
 import InventoryMovementsOptions from "@/features/ap/post-venta/gestion-almacen/inventario/components/InventoryMovementsOptions.tsx";
 import { Button } from "@/components/ui/button.tsx";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Archive } from "lucide-react";
 import BackButton from "@/shared/components/BackButton.tsx";
-import { errorToast, getCurrentDayOfMonth } from "@/core/core.function.ts";
+import {
+  errorToast,
+  formatDateFilter,
+  getCurrentDayOfMonth,
+} from "@/core/core.function.ts";
 import { useInventoryMovements } from "@/features/ap/post-venta/gestion-almacen/inventario/lib/inventory.hook.ts";
 import ExportButtons from "@/shared/components/ExportButtons.tsx";
 import { exportProductMovementHistory } from "@/features/ap/post-venta/gestion-almacen/inventario/lib/inventory.actions.ts";
 import { CopyCell } from "@/shared/components/CopyCell.tsx";
+import { useModulePermissions } from "@/shared/hooks/useModulePermissions.ts";
+import DiscardedMovementsSheet from "@/features/ap/post-venta/gestion-almacen/inventario/components/DiscardedMovementsSheet.tsx";
 
 export default function ProductKardexPage() {
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
@@ -28,8 +34,10 @@ export default function ProductKardexPage() {
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
   const [search, setSearch] = useState("");
   const { ROUTE, ABSOLUTE_ROUTE } = INVENTORY;
+  const { canDiscard, canViewDiscarded } = useModulePermissions(ROUTE);
   const params = useParams();
   const currentDate = new Date();
+  const [discardedOpen, setDiscardedOpen] = useState(false);
 
   const [dateFrom, setDateFrom] = useState<Date | undefined>(() => {
     const date = new Date(currentDate);
@@ -43,10 +51,6 @@ export default function ProductKardexPage() {
   const productId = parseInt(params.productId as string);
   const warehouseId = parseInt(params.warehouseId as string);
 
-  const formatDate = (date: Date | undefined) => {
-    return date ? date.toLocaleDateString("en-CA") : undefined; // formato: YYYY-MM-DD
-  };
-
   const { data, isLoading } = useInventoryMovements(
     productId,
     warehouseId,
@@ -54,8 +58,8 @@ export default function ProductKardexPage() {
       page,
       search,
       per_page,
-      date_from: formatDate(dateFrom),
-      date_to: formatDate(dateTo),
+      date_from: formatDateFilter(dateFrom),
+      date_to: formatDateFilter(dateTo),
     },
     {
       enabled: !isNaN(productId) && !isNaN(warehouseId),
@@ -108,18 +112,28 @@ export default function ProductKardexPage() {
       <HeaderTableWrapper>
         <TitleComponent
           title="Movimiento de Producto"
-          subtitle={`Movimientos de ${productName} en ${warehouseName}`}
+          subtitle={`${productName} en ${warehouseName}`}
           icon={currentView.icon}
         />
         <div className="flex items-center gap-2">
           <ExportButtons
             onExcelDownload={() =>
               exportProductMovementHistory(productId, warehouseId, {
-                date_from: formatDate(dateFrom),
-                date_to: formatDate(dateTo),
+                date_from: formatDateFilter(dateFrom),
+                date_to: formatDateFilter(dateTo),
               })
             }
           />
+          {canViewDiscarded && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setDiscardedOpen(true)}
+            >
+              <Archive className="h-4 w-4 mr-2" />
+              Movimientos descartados
+            </Button>
+          )}
           <BackButton
             route={`${ABSOLUTE_ROUTE}`}
             name={"Inventario"}
@@ -146,7 +160,7 @@ export default function ProductKardexPage() {
       )}
       <InventoryMovementsTable
         isLoading={isLoading}
-        columns={inventoryMovementsColumns()}
+        columns={inventoryMovementsColumns(canDiscard)}
         data={data?.data || []}
       >
         <InventoryMovementsOptions
@@ -166,6 +180,15 @@ export default function ProductKardexPage() {
         per_page={per_page}
         setPerPage={setPerPage}
       />
+
+      {canViewDiscarded && (
+        <DiscardedMovementsSheet
+          open={discardedOpen}
+          onClose={() => setDiscardedOpen(false)}
+          productId={productId}
+          warehouseId={warehouseId}
+        />
+      )}
     </div>
   );
 }

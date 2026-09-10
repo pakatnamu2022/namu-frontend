@@ -446,9 +446,7 @@ export const formatHours = (
  * @param time - Hora en formato "HH:mm" o "HH:mm:ss"
  * @returns Hora formateada (ej: "5:30 pm") o "-" si el valor es inválido
  */
-export const formatTime = (
-  time: string | null | undefined,
-): string => {
+export const formatTime = (time: string | null | undefined): string => {
   if (!time) return "-";
 
   const match = time.trim().match(/^(\d{1,2}):(\d{2})(?::\d{2})?$/);
@@ -512,11 +510,24 @@ export const formatPeriod = (
   if (code && /^\d{4}-\d{2}$/.test(code)) {
     const [year, month] = code.split("-").map(Number);
     const date = new Date(year, month - 1, 1);
-    const label = date.toLocaleDateString("es-PE", { month: "long", year: "numeric" });
+    const label = date.toLocaleDateString("es-PE", {
+      month: "long",
+      year: "numeric",
+    });
     return label.charAt(0).toUpperCase() + label.slice(1);
   }
 
-  if (typeof period !== "string" && period.description) return period.description;
+  if (typeof period !== "string" && period.description)
+    return period.description;
   if (code) return code;
   return "—";
+};
+
+/**
+ * formatDateFilter funcion para formatear fechas de filtros de busqueda, para que se pueda enviar al backend
+ * @param date- fecha
+ */
+
+export const formatDateFilter = (date: Date | undefined) => {
+  return date ? date.toLocaleDateString("en-CA") : undefined; // formato: YYYY-MM-DD
 };

@@ -7,6 +7,7 @@ import TitleComponent from "@/shared/components/TitleComponent";
 import DataTablePagination from "@/shared/components/DataTablePagination";
 import {
   errorToast,
+  formatDateFilter,
   getCurrentDayOfMonth,
   getFirstDayOfMonth,
 } from "@/core/core.function";
@@ -47,10 +48,6 @@ export default function WorkOrderReceptionPage() {
   );
   const [statusFilter, setStatusFilter] = useState<string>("all");
 
-  const formatDate = (date: Date | undefined) => {
-    return date ? date.toLocaleDateString("en-CA") : undefined; // formato: YYYY-MM-DD
-  };
-
   const { data: mySedes = [], isLoading: isLoadingSedes } = useMySedes({
     company: EMPRESA_AP.id,
     has_workshop: true,
@@ -74,7 +71,7 @@ export default function WorkOrderReceptionPage() {
       per_page,
       [dateField]:
         dateFrom && dateTo
-          ? [formatDate(dateFrom), formatDate(dateTo)]
+          ? [formatDateFilter(dateFrom), formatDateFilter(dateTo)]
           : undefined,
       status_id:
         statusFilter === "all"

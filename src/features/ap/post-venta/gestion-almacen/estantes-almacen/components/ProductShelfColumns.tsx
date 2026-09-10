@@ -1,11 +1,7 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import { ProductShelfResource } from "@/features/ap/post-venta/gestion-almacen/estantes-almacen/lib/productShelf.interface.ts";
-import { Button } from "@/components/ui/button.tsx";
-import { LayoutGrid, Pencil } from "lucide-react";
-import { DeleteButton } from "@/shared/components/SimpleDeleteDialog.tsx";
-import { Switch } from "@/components/ui/switch.tsx";
-import { cn } from "@/lib/utils.ts";
 import { Badge } from "@/components/ui/badge.tsx";
+import { ProductShelfActionCell } from "./ProductShelfActionCell.tsx";
 
 export type ProductShelfColumns = ColumnDef<ProductShelfResource>;
 
@@ -15,6 +11,8 @@ interface Props {
   onManage: (id: number) => void;
   onToggleStatus: (id: number, newStatus: boolean) => void;
   permissions: {
+    canExport: boolean;
+    canManage: boolean;
     canUpdate: boolean;
     canDelete: boolean;
   };
@@ -38,10 +36,6 @@ export const productShelfColumns = ({
   {
     accessorKey: "label",
     header: "Nombre",
-  },
-  {
-    accessorKey: "warehouse",
-    header: "Almacén",
   },
   {
     accessorKey: "notes",
@@ -77,50 +71,15 @@ export const productShelfColumns = ({
   {
     id: "actions",
     header: "Acciones",
-    cell: ({ row }) => {
-      const { id, status } = row.original;
-
-      return (
-        <div className="flex items-center gap-2">
-          {/* Toggle Status */}
-          {permissions.canUpdate && (
-            <Switch
-              checked={status}
-              onCheckedChange={(checked) => onToggleStatus(id, checked)}
-              className={cn(status ? "bg-primary" : "bg-secondary")}
-            />
-          )}
-
-          {/* Organizar productos */}
-          <Button
-            variant="outline"
-            size="icon"
-            className="size-7"
-            tooltip="Organizar productos"
-            onClick={() => onManage(id)}
-          >
-            <LayoutGrid className="size-5" />
-          </Button>
-
-          {/* Edit */}
-          {permissions.canUpdate && (
-            <Button
-              variant="outline"
-              size="icon"
-              className="size-7"
-              tooltip="Editar"
-              onClick={() => onUpdate(id)}
-            >
-              <Pencil className="size-5" />
-            </Button>
-          )}
-
-          {/* Delete */}
-          {permissions.canDelete && (
-            <DeleteButton onClick={() => onDelete(id)} />
-          )}
-        </div>
-      );
-    },
+    cell: ({ row }) => (
+      <ProductShelfActionCell
+        row={row.original}
+        onDelete={onDelete}
+        onUpdate={onUpdate}
+        onManage={onManage}
+        onToggleStatus={onToggleStatus}
+        permissions={permissions}
+      />
+    ),
   },
 ];

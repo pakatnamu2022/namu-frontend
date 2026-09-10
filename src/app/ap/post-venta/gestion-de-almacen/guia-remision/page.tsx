@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import {
   ERROR_MESSAGE,
   errorToast,
+  formatDateFilter,
   getCurrentDayOfMonth,
   getFirstDayOfMonth,
   SUCCESS_MESSAGE,
@@ -81,10 +82,6 @@ export default function ProductTransferPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [warehouses]);
 
-  const formatDate = (date: Date | undefined) => {
-    return date ? date.toLocaleDateString("en-CA") : undefined; // formato: YYYY-MM-DD
-  };
-
   useEffect(() => {
     if (dateFrom && dateTo && dateFrom > dateTo) {
       setDateTo(dateFrom);
@@ -100,7 +97,7 @@ export default function ProductTransferPage() {
       per_page,
       movement_date:
         dateFrom && dateTo
-          ? [formatDate(dateFrom), formatDate(dateTo)]
+          ? [formatDateFilter(dateFrom), formatDateFilter(dateTo)]
           : undefined,
       warehouse_id: warehouseId || undefined,
     },

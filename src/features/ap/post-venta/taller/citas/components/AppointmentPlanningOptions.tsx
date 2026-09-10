@@ -67,7 +67,6 @@ export default function AppointmentPlanningOptions({
           setDateFrom(from);
           setDateTo(to);
         }}
-        className="w-auto min-w-56"
       />
     </FilterWrapper>
   );

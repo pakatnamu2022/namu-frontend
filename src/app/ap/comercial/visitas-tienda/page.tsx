@@ -9,6 +9,7 @@ import { SimpleDeleteDialog } from "@/shared/components/SimpleDeleteDialog";
 import {
   ERROR_MESSAGE,
   errorToast,
+  formatDateFilter,
   SUCCESS_MESSAGE,
   successToast,
 } from "@/core/core.function";
@@ -42,17 +43,13 @@ export default function StoreVisitsPage() {
     setPage(1);
   }, [search, per_page, conditionFilter]);
 
-  const formatDate = (date: Date | undefined) => {
-    return date ? date.toLocaleDateString("en-CA") : undefined; // formato: YYYY-MM-DD
-  };
-
   const { data, isLoading, refetch } = useStoreVisits({
     page,
     search,
     per_page,
     created_at:
       dateFrom && dateTo
-        ? [formatDate(dateFrom), formatDate(dateTo)]
+        ? [formatDateFilter(dateFrom), formatDateFilter(dateTo)]
         : undefined,
     type: TIPO_LEADS.VISITA,
     use: conditionFilter !== "all" ? conditionFilter : undefined,

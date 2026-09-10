@@ -10,6 +10,7 @@ import { SimpleDeleteDialog } from "@/shared/components/SimpleDeleteDialog";
 import {
   ERROR_MESSAGE,
   errorToast,
+  formatDateFilter,
   getCurrentDayOfMonth,
   getFirstDayOfMonth,
   SUCCESS_MESSAGE,
@@ -67,9 +68,6 @@ export default function OrderQuotationMesonCajaPage() {
   const setDateFrom = (value: Date | undefined) => setFilter("dateFrom", value);
   const setDateTo = (value: Date | undefined) => setFilter("dateTo", value);
 
-  const formatDate = (date: Date | undefined) => {
-    return date ? date.toLocaleDateString("en-CA") : undefined; // formato: YYYY-MM-DD
-  };
   const { data: sedes = [], isLoading: isLoadingSedes } = useMySedes({
     company: EMPRESA_AP.id,
   });
@@ -95,7 +93,7 @@ export default function OrderQuotationMesonCajaPage() {
     per_page,
     quotation_date:
       dateFrom && dateTo
-        ? [formatDate(dateFrom), formatDate(dateTo)]
+        ? [formatDateFilter(dateFrom), formatDateFilter(dateTo)]
         : undefined,
     area_id: AREA_MESON.toString(),
     sede_id: sedeId,

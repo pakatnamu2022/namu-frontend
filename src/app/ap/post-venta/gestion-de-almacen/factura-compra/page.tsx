@@ -17,7 +17,12 @@ import PurchaseOrderWarehouseActions from "@/features/ap/post-venta/gestion-alma
 import PurchaseOrderWarehouseOptions from "@/features/ap/post-venta/gestion-almacen/factura-compra/components/PurchaseOrderWarehouseOptions";
 import { useMySedes } from "@/features/gp/maestro-general/sede/lib/sede.hook";
 import { CM_POSTVENTA_ID } from "@/features/ap/ap-master/lib/apMaster.constants";
-import { ERROR_MESSAGE, errorToast, successToast } from "@/core/core.function";
+import {
+  ERROR_MESSAGE,
+  errorToast,
+  formatDateFilter,
+  successToast,
+} from "@/core/core.function";
 import {
   dispatchSyncCreditNote,
   dispatchSyncInvoice,
@@ -45,10 +50,6 @@ export default function PurchaseOrderWarehousePage() {
   const [dateFrom, setDateFrom] = useState<Date | undefined>(undefined);
   const [dateTo, setDateTo] = useState<Date | undefined>(undefined);
 
-  const formatDate = (date: Date | undefined) => {
-    return date ? date.toLocaleDateString("en-CA") : undefined; // formato: YYYY-MM-DD
-  };
-
   useEffect(() => {
     if (dateFrom && dateTo && dateFrom > dateTo) {
       setDateTo(dateFrom);
@@ -73,7 +74,7 @@ export default function PurchaseOrderWarehousePage() {
     sede_id: sedeId !== "all" ? sedeId : undefined,
     emission_date:
       dateFrom && dateTo
-        ? [formatDate(dateFrom), formatDate(dateTo)]
+        ? [formatDateFilter(dateFrom), formatDateFilter(dateTo)]
         : undefined,
     type_operation_id: CM_POSTVENTA_ID,
   });
@@ -149,7 +150,7 @@ export default function PurchaseOrderWarehousePage() {
             sede_id: sedeId !== "all" ? sedeId : undefined,
             emission_date:
               dateFrom && dateTo
-                ? [formatDate(dateFrom), formatDate(dateTo)]
+                ? [formatDateFilter(dateFrom), formatDateFilter(dateTo)]
                 : undefined,
             type_operation_id: CM_POSTVENTA_ID,
           }}

@@ -13,7 +13,9 @@ import { supervisorComplete } from "../lib/workOrderPlanning.actions";
 import { WORK_ORDER_PLANNING } from "../lib/workOrderPlanning.constants";
 
 const supervisorCompleteSchema = z.object({
-  end_datetime: z.string().min(1, "La fecha y hora de finalización es requerida"),
+  end_datetime: z
+    .string()
+    .min(1, "La fecha y hora de finalización es requerida"),
 });
 
 type SupervisorCompleteSchema = z.infer<typeof supervisorCompleteSchema>;
@@ -97,6 +99,7 @@ export const SupervisorCompleteModal = ({
 
           <div className="flex justify-end gap-2">
             <Button
+              type="button"
               variant="outline"
               onClick={handleClose}
               disabled={isPending}

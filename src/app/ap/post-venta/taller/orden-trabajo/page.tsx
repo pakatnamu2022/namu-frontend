@@ -11,6 +11,7 @@ import { SimpleDeleteDialog } from "@/shared/components/SimpleDeleteDialog";
 import {
   ERROR_MESSAGE,
   errorToast,
+  formatDateFilter,
   getCurrentDayOfMonth,
   getFirstDayOfMonth,
   SUCCESS_MESSAGE,
@@ -88,10 +89,6 @@ export default function WorkOrderPage() {
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [internalNoteId, setInternalNoteId] = useState<number | null>(null);
 
-  const formatDate = (date: Date | undefined) => {
-    return date ? date.toLocaleDateString("en-CA") : undefined; // formato: YYYY-MM-DD
-  };
-
   const { data: mySedes = [], isLoading: isLoadingSedes } = useMySedes({
     company: EMPRESA_AP.id,
     has_workshop: true,
@@ -134,8 +131,8 @@ export default function WorkOrderPage() {
     (group) => WORK_ORDER_STATUS_GROUP_IDS[group as WorkOrderStatusGroup],
   );
   const statusIdsKey = statusIds.join(",");
-  const dateFromKey = formatDate(dateFrom);
-  const dateToKey = formatDate(dateTo);
+  const dateFromKey = formatDateFilter(dateFrom);
+  const dateToKey = formatDateFilter(dateTo);
 
   useEffect(() => {
     setPage(1);
@@ -156,7 +153,7 @@ export default function WorkOrderPage() {
       per_page,
       opening_date:
         dateFrom && dateTo
-          ? [formatDate(dateFrom), formatDate(dateTo)]
+          ? [formatDateFilter(dateFrom), formatDateFilter(dateTo)]
           : undefined,
       sede_id: sedeId || undefined,
       advisor_id: advisorId || undefined,
@@ -226,7 +223,7 @@ export default function WorkOrderPage() {
             search,
             opening_date:
               dateFrom && dateTo
-                ? [formatDate(dateFrom), formatDate(dateTo)]
+                ? [formatDateFilter(dateFrom), formatDateFilter(dateTo)]
                 : undefined,
             sede_id: sedeId || undefined,
             advisor_id: advisorId || undefined,

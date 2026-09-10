@@ -9,7 +9,8 @@ export function DeviceInactiveAlert() {
     const { user, isAuthenticated } = useAuthStore();
     const { isActive, isLoading } = useRegisteredDevice();
 
-    const isConductor = user?.position?.toUpperCase() === "CONDUCTOR DE TRACTO CAMION";
+    const isConductor = user?.position?.toUpperCase() === "CONDUCTOR DE TRACTO CAMION" ||
+        user?.position?.toUpperCase() === "CONTROLER DE UNIDADES EN RUTA";
 
     if (!isAuthenticated || !isConductor) return null;
     if (isLoading) return null;

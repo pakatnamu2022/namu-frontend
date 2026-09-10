@@ -11,6 +11,9 @@ import {
   getStockMovementHistory,
   getReservedStockReport,
   reReserveStockAfterCreditNote,
+  ignoreInventoryMovement,
+  restoreInventoryMovement,
+  getIgnoredInventoryMovements,
 } from "./inventory.actions.ts";
 import {
   CompareDynamicsResponse,
@@ -25,7 +28,10 @@ import {
   InventoryMovementShowResponse,
   PurchaseHistoryResponse,
 } from "./inventoryMovements.interface.ts";
-import { InventoryMovementListResponse } from "./inventoryMovementsList.interface.ts";
+import {
+  InventoryMovementIgnoredResponse,
+  InventoryMovementListResponse,
+} from "./inventoryMovementsList.interface.ts";
 import { errorToast, successToast } from "@/core/core.function.ts";
 
 export const useInventory = (
@@ -63,6 +69,67 @@ export const useInventoryMovementById = (
     queryFn: () => getInventoryMovementById(id as number),
     refetchOnWindowFocus: false,
     enabled: (options?.enabled ?? true) && id != null,
+  });
+};
+
+export const useIgnoredInventoryMovements = (
+  params?: {
+    product_id?: number;
+    warehouse_id?: number;
+    per_page?: number;
+    page?: number;
+  },
+  options?: { enabled?: boolean },
+) => {
+  return useQuery<InventoryMovementIgnoredResponse>({
+    queryKey: ["inventory-movements-ignored", params],
+    queryFn: () => getIgnoredInventoryMovements(params),
+    refetchOnWindowFocus: false,
+    enabled: options?.enabled ?? true,
+  });
+};
+
+export const useIgnoreInventoryMovement = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      id,
+      reason,
+    }: {
+      id: number;
+      reason?: string | null;
+    }) => ignoreInventoryMovement(id, { reason }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["inventory-movements"] });
+      queryClient.invalidateQueries({
+        queryKey: ["inventory-movements-ignored"],
+      });
+      successToast("Movimiento descartado correctamente");
+    },
+    onError: (error: any) => {
+      errorToast(
+        error?.response?.data?.message || "Error al descartar el movimiento",
+      );
+    },
+  });
+};
+
+export const useRestoreInventoryMovement = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: number) => restoreInventoryMovement(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["inventory-movements"] });
+      queryClient.invalidateQueries({
+        queryKey: ["inventory-movements-ignored"],
+      });
+      successToast("Movimiento revertido correctamente");
+    },
+    onError: (error: any) => {
+      errorToast(
+        error?.response?.data?.message || "Error al revertir el movimiento",
+      );
+    },
   });
 };
 

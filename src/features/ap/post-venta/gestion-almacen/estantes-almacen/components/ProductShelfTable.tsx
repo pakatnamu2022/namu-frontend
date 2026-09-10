@@ -24,8 +24,7 @@ export default function ProductShelfTable({
         initialColumnVisibility={{
           code: true,
           label: true,
-          warehouse: true,
-          notes: false,
+          notes: true,
           creator: false,
           status: true,
         }}

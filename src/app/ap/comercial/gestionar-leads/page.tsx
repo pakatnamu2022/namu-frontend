@@ -9,6 +9,7 @@ import { SimpleDeleteDialog } from "@/shared/components/SimpleDeleteDialog";
 import {
   ERROR_MESSAGE,
   errorToast,
+  formatDateFilter,
   SUCCESS_MESSAGE,
   successToast,
 } from "@/core/core.function";
@@ -52,17 +53,13 @@ export default function ManageLeadsPage() {
     setPage(1);
   }, [search, per_page, statusFilter, conditionFilter]);
 
-  const formatDate = (date: Date | undefined) => {
-    return date ? date.toLocaleDateString("en-CA") : undefined; // formato: YYYY-MM-DD
-  };
-
   const { data, isLoading, refetch } = useManageLeads({
     page,
     search,
     per_page,
     created_at:
       dateFrom && dateTo
-        ? [formatDate(dateFrom), formatDate(dateTo)]
+        ? [formatDateFilter(dateFrom), formatDateFilter(dateTo)]
         : undefined,
     type: TIPO_LEADS.LEADS,
     status_num_doc: statusFilter !== "all" ? statusFilter : undefined,
@@ -79,7 +76,11 @@ export default function ManageLeadsPage() {
     refetch(); // Refresca la tabla para mostrar los nuevos datos
   };
 
-  const handleRefresh = async (params: { date_from: string; date_to: string; all?: boolean }) => {
+  const handleRefresh = async (params: {
+    date_from: string;
+    date_to: string;
+    all?: boolean;
+  }) => {
     try {
       const response = await assignWorkersToLeads(params);
       if (response.success) {

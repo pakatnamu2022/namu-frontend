@@ -40,7 +40,7 @@ export default function ProductActions({
       {permissions.canCreate && (
         <Link to={ROUTE_ADD!}>
           <Button size="sm" variant="outline" className="ml-auto">
-            <Plus className="size-4 mr-2" /> Agregar Producto
+            <Plus className="size-4 mr-2" /> Agregar Repuesto
           </Button>
         </Link>
       )}

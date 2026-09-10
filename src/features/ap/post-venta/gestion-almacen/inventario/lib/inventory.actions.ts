@@ -21,7 +21,10 @@ import {
   InventoryMovementShowResponse,
   PurchaseHistoryResponse,
 } from "./inventoryMovements.interface.ts";
-import { InventoryMovementListResponse } from "./inventoryMovementsList.interface.ts";
+import {
+  InventoryMovementIgnoredResponse,
+  InventoryMovementListResponse,
+} from "./inventoryMovementsList.interface.ts";
 import { InventoryStockMinMaxSchema } from "./inventoryStockMinMaxSchema.ts";
 
 const { ENDPOINT } = INVENTORY;
@@ -50,6 +53,40 @@ export const getInventoryMovements = async ({
   };
   const { data } = await api.get<InventoryMovementListResponse>(
     `/ap/postVenta/inventoryMovements/product/${productId}/warehouse/${warehouseId}/history`,
+    config,
+  );
+  return data;
+};
+
+/**
+ * Descarta (ignora) un movimiento de inventario del kardex del producto.
+ * `reason` es opcional (el backend lo valida como nullable|string|max:1000).
+ */
+export const ignoreInventoryMovement = async (
+  id: number,
+  payload?: { reason?: string | null },
+): Promise<void> => {
+  await api.post(`/ap/postVenta/inventoryMovements/${id}/ignore`, payload ?? {});
+};
+
+/** Revierte / restaura un movimiento de inventario previamente descartado. */
+export const restoreInventoryMovement = async (id: number): Promise<void> => {
+  await api.post(`/ap/postVenta/inventoryMovements/${id}/restore`);
+};
+
+/**
+ * Lista los movimientos de inventario descartados. El backend acepta
+ * `product_id`, `warehouse_id` y `per_page` como filtros opcionales.
+ */
+export const getIgnoredInventoryMovements = async (params?: {
+  product_id?: number;
+  warehouse_id?: number;
+  per_page?: number;
+  page?: number;
+}): Promise<InventoryMovementIgnoredResponse> => {
+  const config: AxiosRequestConfig = { params: { ...params } };
+  const { data } = await api.get<InventoryMovementIgnoredResponse>(
+    `/ap/postVenta/inventoryMovements/ignored`,
     config,
   );
   return data;
