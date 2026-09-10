@@ -23,6 +23,8 @@ import {
   Mail,
   MapPin,
   Car,
+  ShieldCheck,
+  AlertTriangle,
 } from "lucide-react";
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import {
@@ -34,6 +36,7 @@ import {
 import {
   WORK_ORDER_STATUS_COLORS,
   WORKER_ORDER,
+  RECALL_TYPE_META,
 } from "@/features/ap/post-venta/taller/orden-trabajo/lib/workOrder.constants";
 import { CURRENCY_TYPE_IDS } from "@/features/ap/configuraciones/maestros-general/tipos-moneda/lib/CurrencyTypes.constants";
 import LaborTab from "@/features/ap/post-venta/taller/orden-trabajo/components/tabs/LaborTab";
@@ -368,6 +371,49 @@ export default function ManageWorkOrderPage() {
                   <p className="text-xs font-medium truncate">
                     {workOrder.vehicle?.vehicle_color || "N/A"}
                   </p>
+                </div>
+                <div className="min-w-0 leading-tight">
+                  <p className="text-[10px] text-gray-500 flex items-center gap-1">
+                    <ShieldCheck className="h-3 w-3 text-primary" />
+                    En Garantía
+                  </p>
+                  <Badge
+                    variant="outline"
+                    color={workOrder.is_guarantee ? "green" : "gray"}
+                  >
+                    {workOrder.is_guarantee ? "Sí" : "No"}
+                  </Badge>
+                </div>
+                <div className="min-w-0 leading-tight col-span-2 sm:col-span-1 lg:col-span-2">
+                  <p className="text-[10px] text-gray-500 flex items-center gap-1">
+                    <AlertTriangle className="h-3 w-3 text-primary" />
+                    Recall
+                  </p>
+                  <div className="flex flex-wrap items-center gap-1.5">
+                    <Badge
+                      variant="outline"
+                      color={workOrder.is_recall ? "amber" : "gray"}
+                    >
+                      {workOrder.is_recall ? "Sí" : "No"}
+                    </Badge>
+                    {workOrder.is_recall && workOrder.type_recall && (
+                      <Badge
+                        variant="outline"
+                        color={
+                          RECALL_TYPE_META[workOrder.type_recall]?.color ??
+                          "gray"
+                        }
+                      >
+                        {RECALL_TYPE_META[workOrder.type_recall]?.label ??
+                          workOrder.type_recall}
+                      </Badge>
+                    )}
+                    {workOrder.is_recall && workOrder.description_recall && (
+                      <span className="text-xs text-gray-600 dark:text-gray-300 truncate">
+                        {workOrder.description_recall}
+                      </span>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
