@@ -78,7 +78,7 @@ export function Login({ className, ...props }: React.ComponentProps<"div">) {
             >
               <div className="flex flex-col gap-6">
                 <div className="flex flex-col items-center text-center gap-2">
-                  <div className="relative h-16 aspect-[3]">
+                  <div className="relative h-12 aspect-[3]">
                     <img
                       src={CONSTANTS.LOGO}
                       alt="Image"
