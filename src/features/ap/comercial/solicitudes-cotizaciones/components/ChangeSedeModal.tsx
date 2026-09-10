@@ -1,7 +1,7 @@
 "use client";
 
 import { useForm } from "react-hook-form";
-import { MapPin, Loader2, ArrowRight } from "lucide-react";
+import { Loader2, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 import { GeneralModal } from "@/shared/components/GeneralModal";
@@ -9,6 +9,7 @@ import { FormSelect } from "@/shared/components/FormSelect";
 import { EMPRESA_AP } from "@/core/core.constants";
 import { errorToast, successToast } from "@/core/core.function";
 import { useAllSedes } from "@/features/gp/maestro-general/sede/lib/sede.hook";
+import { useWorkerConfig } from "@/features/ap/configuraciones/ventas/asignar-marca/lib/assignBrandConsultant.hook";
 import { useChangeSedePurchaseRequestQuote } from "../lib/purchaseRequestQuote.hook";
 import { PurchaseRequestQuoteResource } from "../lib/purchaseRequestQuote.interface";
 
@@ -26,6 +27,16 @@ export default function ChangeSedeModal({
   const { data: sedes = [] } = useAllSedes({ empresa_id: EMPRESA_AP.id });
   const changeSedeMutation = useChangeSedePurchaseRequestQuote();
 
+  // Sedes que el asesor de la oportunidad tiene asignadas en el período actual
+  // (asignación sede-asesor). Si la solicitud tiene asesor, solo se puede mover
+  // a una de esas sedes.
+  const workerId = quote.consultant?.id;
+  const { data: workerConfig } = useWorkerConfig(workerId);
+  const allowedSedeIds =
+    workerId && workerConfig?.sedes?.length
+      ? workerConfig.sedes.map((s) => s.id)
+      : null;
+
   const form = useForm<{ sede_id: string }>({
     defaultValues: { sede_id: quote.sede_id ? String(quote.sede_id) : "" },
   });
@@ -38,7 +49,8 @@ export default function ChangeSedeModal({
     (s) =>
       s.id !== quote.sede_id &&
       currentSede?.shop_id != null &&
-      s.shop_id === currentSede.shop_id,
+      s.shop_id === currentSede.shop_id &&
+      (allowedSedeIds === null || allowedSedeIds.includes(s.id)),
   );
   const selectedSede = sedes.find((s) => String(s.id) === selectedSedeId);
   const isSameSede = String(quote.sede_id ?? "") === selectedSedeId;
@@ -107,9 +119,12 @@ export default function ChangeSedeModal({
           Al cambiar la sede de esta solicitud también se actualiza la sede del{" "}
           <span className="font-medium text-foreground">lead</span> de la
           oportunidad asociada, para mantener la coherencia con la asignación
-          asesor–sede. Solo se permite mover la solicitud a sedes de la misma
-          tienda, y no se puede cambiar si ya está pagada o tiene un vehículo
-          (VIN) asignado.
+          asesor–sede.{" "}
+          {allowedSedeIds !== null
+            ? "Solo se listan las sedes que el asesor de la oportunidad tiene asignadas en el período actual (y de la misma tienda)."
+            : "Solo se permite mover la solicitud a sedes de la misma tienda."}{" "}
+          No se puede cambiar si ya está pagada o tiene un vehículo (VIN)
+          asignado.
         </div>
 
         <div className="flex items-center justify-center gap-3 text-sm">
@@ -146,7 +161,9 @@ export default function ChangeSedeModal({
           />
           {currentSede && sedeOptions.length === 0 && (
             <p className="mt-2 text-xs text-amber-600 dark:text-amber-400">
-              No hay otras sedes en la misma tienda que la sede actual.
+              {allowedSedeIds !== null
+                ? "El asesor de la oportunidad no tiene otras sedes asignadas en la misma tienda para el período actual."
+                : "No hay otras sedes en la misma tienda que la sede actual."}
             </p>
           )}
         </Form>

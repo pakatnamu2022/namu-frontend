@@ -28,14 +28,14 @@ import DuplicatePurchaseRequestQuoteModal from "@/features/ap/comercial/solicitu
 import {
   approvePurchaseRequestQuote,
   downloadPurchaseRequestQuotePdf,
-  unassignVehicleFromPurchaseRequestQuote,
 } from "@/features/ap/comercial/solicitudes-cotizaciones/lib/purchaseRequestQuote.actions";
 import PurchaseRequestQuoteTable from "@/features/ap/comercial/solicitudes-cotizaciones/components/PurchaseRequestQuoteTable";
 import { purchaseRequestQuoteColumns } from "@/features/ap/comercial/solicitudes-cotizaciones/components/PurchaseRequestQuoteColumns";
 import PurchaseRequestQuoteOptions from "@/features/ap/comercial/solicitudes-cotizaciones/components/PurchaseRequestQuoteOptions";
-import AssignVehicleModal from "@/features/ap/comercial/solicitudes-cotizaciones/components/AssignVehicleModal";
-import SwapVehicleModal from "@/features/ap/comercial/solicitudes-cotizaciones/components/SwapVehicleModal";
+import AssignVehicleSheet from "@/features/ap/comercial/solicitudes-cotizaciones/components/AssignVehicleSheet";
+import SwapVehicleSheet from "@/features/ap/comercial/solicitudes-cotizaciones/components/SwapVehicleSheet";
 import ChangeSedeModal from "@/features/ap/comercial/solicitudes-cotizaciones/components/ChangeSedeModal";
+import UnassignVehicleModal from "@/features/ap/comercial/solicitudes-cotizaciones/components/UnassignVehicleModal";
 import PurchaseRequestQuoteDetailModal from "@/features/ap/comercial/solicitudes-cotizaciones/components/PurchaseRequestQuoteDetailModal";
 import PurchaseRequestQuoteActions from "@/features/ap/comercial/solicitudes-cotizaciones/components/PurchaseRequestQuoteActions";
 import { PurchaseRequestQuoteResource } from "@/features/ap/comercial/solicitudes-cotizaciones/lib/purchaseRequestQuote.interface";
@@ -157,23 +157,6 @@ export default function PurchaseRequestQuotePage() {
     }
   };
 
-  const handleUnassignVehicle = async () => {
-    if (!unassignVehicleQuote?.ap_vehicle_id) return;
-    try {
-      await unassignVehicleFromPurchaseRequestQuote(
-        unassignVehicleQuote.id,
-        unassignVehicleQuote.ap_vehicle_id,
-      );
-      await refetch();
-      successToast("Vehículo desvinculado correctamente");
-    } catch (error: any) {
-      const msg = error?.response?.data?.message || "";
-      errorToast(ERROR_MESSAGE(MODEL, "fetch", msg));
-    } finally {
-      setUnassignVehicleQuote(null);
-    }
-  };
-
   if (isLoadingModule) return <PageSkeleton />;
   if (!checkRouteExists(ROUTE)) notFound();
   if (!currentView) notFound();
@@ -268,7 +251,7 @@ export default function PurchaseRequestQuotePage() {
       )}
 
       {assignVehicleQuote !== null && (
-        <AssignVehicleModal
+        <AssignVehicleSheet
           open={true}
           onOpenChange={(open) => !open && setAssignVehicleQuote(null)}
           quote={assignVehicleQuote}
@@ -276,7 +259,7 @@ export default function PurchaseRequestQuotePage() {
       )}
 
       {swapVehicleQuote !== null && (
-        <SwapVehicleModal
+        <SwapVehicleSheet
           open={true}
           onOpenChange={(open) => !open && setSwapVehicleQuote(null)}
           quote={swapVehicleQuote}
@@ -323,17 +306,11 @@ export default function PurchaseRequestQuotePage() {
       )}
 
       {unassignVehicleQuote !== null && (
-        <ConfirmationDialog
-          trigger={<span className="hidden" />}
-          title="¿Está seguro de desvincular este vehículo?"
-          description="Esta acción desvinculará el vehículo de la cotización. Podrá asignar otro vehículo posteriormente si lo desea."
-          confirmText="Sí, desvincular"
-          cancelText="Cancelar"
-          onConfirm={handleUnassignVehicle}
-          variant="destructive"
-          icon="warning"
+        <UnassignVehicleModal
           open={true}
           onOpenChange={(open) => !open && setUnassignVehicleQuote(null)}
+          quote={unassignVehicleQuote}
+          onSuccess={refetch}
         />
       )}
 
