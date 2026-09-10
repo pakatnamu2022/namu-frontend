@@ -11,10 +11,10 @@ import { useForm } from "react-hook-form";
 import { useAuthStore } from "../lib/auth.store";
 import { errorToast, successToast } from "@/core/core.function";
 import { useNavigate } from "react-router-dom";
-import { LOGIN } from "@/constants/login";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { LoaderCircle, Eye, EyeOff } from "lucide-react";
 import { CONSTANTS } from "@/core/core.constants";
+import { useLoginBackground, type BgFrame } from "@/shared/hooks/useLoginBackground";
 
 const formSchema = z.object({
   username: z.string().min(1, "Usuario requerido"),
@@ -26,6 +26,17 @@ export function Login({ className, ...props }: React.ComponentProps<"div">) {
 
   const [isLogging, setIsLogging] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const { frame, busy, refresh } = useLoginBackground();
+  const [layers, setLayers] = useState<BgFrame[]>([]);
+
+  useEffect(() => {
+    if (!frame) return;
+    setLayers((prev) =>
+      prev.length && prev[prev.length - 1].id === frame.id ? prev : [...prev, frame].slice(-2),
+    );
+  }, [frame]);
+
+  const activeColor = layers[layers.length - 1]?.color ?? frame?.color ?? "#1E2430";
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -170,12 +181,75 @@ export function Login({ className, ...props }: React.ComponentProps<"div">) {
               </div>
             </form>
           </Form>
-          <div className="bg-background relative hidden md:block">
-            <img
-              src={LOGIN.FONDO}
-              alt="Image"
-              className="absolute inset-0 h-full w-full object-cover"
+          <div
+            className="group relative hidden md:block cursor-pointer select-none overflow-hidden"
+            style={{ backgroundColor: activeColor }}
+            onClick={() => !busy && refresh()}
+            role="button"
+            tabIndex={0}
+            title="Clic para cambiar la imagen"
+            onKeyDown={(e) => {
+              if ((e.key === "Enter" || e.key === " ") && !busy) {
+                e.preventDefault();
+                refresh();
+              }
+            }}
+          >
+            {/* Se pinta la más nueva primero (debajo, sólida) y la anterior
+                encima desvaneciéndose: crossfade sutil sin parpadeo. */}
+            {[...layers].reverse().map((layer, i) => {
+              const fadingOut = i !== 0 && layers.length > 1;
+              return (
+                <img
+                  key={layer.id}
+                  src={layer.src}
+                  alt=""
+                  onTransitionEnd={() => {
+                    if (fadingOut) setLayers((cur) => cur.slice(-1));
+                  }}
+                  className={cn(
+                    "absolute inset-0 h-full w-full object-cover transition-opacity duration-900 ease-out",
+                    fadingOut ? "opacity-0" : "opacity-100",
+                  )}
+                />
+              );
+            })}
+
+            <div
+              className={cn(
+                "pointer-events-none absolute inset-0 bg-black/10 opacity-0 transition-opacity duration-300",
+                busy && "opacity-100",
+              )}
             />
+
+            {(() => {
+              const credit = layers[layers.length - 1]?.credit;
+              if (!credit) return null;
+              return (
+                <div className="absolute bottom-2 right-3 text-[10px] text-white/80 drop-shadow">
+                  Foto de{" "}
+                  <a
+                    href={credit.authorUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    onClick={(e) => e.stopPropagation()}
+                    className="underline underline-offset-2 hover:text-white"
+                  >
+                    {credit.authorName}
+                  </a>{" "}
+                  en{" "}
+                  <a
+                    href={credit.unsplashUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    onClick={(e) => e.stopPropagation()}
+                    className="underline underline-offset-2 hover:text-white"
+                  >
+                    Unsplash
+                  </a>
+                </div>
+              );
+            })()}
           </div>
         </CardContent>
       </Card>
