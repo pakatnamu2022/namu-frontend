@@ -10,10 +10,11 @@ import { CONSTANTS } from "@/core/core.constants";
 import { Separator } from "@/components/ui/separator";
 
 export const LogoLink = ({ theme = "light" }: { theme?: string }) => (
-  <Link to={"/companies"} className="relative h-12 aspect-[3] w-full lg:w-fit">
+  <Link to={"/companies"} className="relative max-h-12 w-full lg:w-fit">
     <img
       src={theme === "dark" ? CONSTANTS.LOGO_WHITE : CONSTANTS.LOGO}
       alt="Logo"
+      className="max-h-10 w-auto lg:h-8"
     />
   </Link>
 );
