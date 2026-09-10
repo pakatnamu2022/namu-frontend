@@ -2,12 +2,24 @@
 <html lang="es">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/logos/sianlogo.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="manifest" href="/manifest.webmanifest" />
+
+    <!-- Favicons: variante clara / oscura segun el tema del sistema -->
+    <link rel="icon" type="image/png" sizes="96x96" media="(prefers-color-scheme: dark)" href="/logos/logo_white_transparent.svg" />
+    <link rel="icon" type="image/png" sizes="192x192" media="(prefers-color-scheme: dark)" href="/logos/logo_white_transparent.svg" />
+    <link rel="icon" type="image/png" sizes="96x96" media="(prefers-color-scheme: light)" href="/logos/logo_transparent.svg" />
+    <link rel="icon" type="image/png" sizes="192x192" media="(prefers-color-scheme: light)" href="/logos/logo_transparent.svg" />
+    <!-- Fallback para navegadores que ignoran media en <link rel=icon> -->
+    <link rel="icon" type="image/png" sizes="192x192" href="/logos/logo_transparent.svg" />
+
+    <link rel="apple-touch-icon" href="/logos/logo_transparent.svg" />
+    <link rel="apple-touch-icon" media="(prefers-color-scheme: dark)" href="/logos/logo_white_transparent.svg" />
+
     <link rel="preconnect" href="https://api.grupopakatnamu.com" crossorigin />
     <link rel="dns-prefetch" href="https://api.grupopakatnamu.com" />
-    <meta name="theme-color" content="#FEFEFF" />
+    <meta name="theme-color" content="#FEFEFF" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#1E2430" media="(prefers-color-scheme: dark)" />
     <title>Sian</title>
     <style>
       #app-boot {
@@ -21,7 +33,8 @@
         transition: opacity 0.2s ease;
       }
       html.dark #app-boot { background: oklch(0.21 0.034 264.665); }
-      #app-boot img { width: 56px; height: 56px; opacity: 0.9; }
+      #app-boot img { width: auto; height: 72px; opacity: 0.9; }
+      html.dark #app-boot img { content: url("/logos/sian_complete_white.svg"); }
       #app-boot.app-boot-hide { opacity: 0; pointer-events: none; }
     </style>
     <script>
@@ -36,7 +49,7 @@
   </head>
   <body>
     <div id="app-boot">
-      <img src="/logos/sianlogo.svg" alt="Sian" />
+      <img src="/logos/sian_complete.svg" alt="Sian" />
     </div>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
