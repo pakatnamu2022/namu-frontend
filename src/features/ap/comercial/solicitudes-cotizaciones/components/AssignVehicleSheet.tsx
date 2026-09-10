@@ -185,7 +185,7 @@ export default function AssignVehicleSheet({
 
         {/* Meta row */}
         <div className="flex items-center justify-between gap-3">
-          <Badge variant="secondary" className="font-normal">
+          <Badge className="font-normal">
             {isLoading
               ? "Cargando..."
               : `${filteredVehicles.length} disponible${
