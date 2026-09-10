@@ -250,11 +250,12 @@ export async function assignVehicleToPurchaseRequestQuote(
 
 export async function unassignVehicleFromPurchaseRequestQuote(
   id: number,
-  ap_vehicle_id: number
+  ap_vehicle_id: number,
+  close = false
 ): Promise<PurchaseRequestQuoteResource> {
   const response = await api.post<PurchaseRequestQuoteResource>(
     `${ENDPOINT}/unassignVehicle/${id}`,
-    { ap_vehicle_id }
+    { ap_vehicle_id, close }
   );
   return response.data;
 }
@@ -266,6 +267,17 @@ export async function swapVehicleInPurchaseRequestQuote(
   const response = await api.post<PurchaseRequestQuoteResource>(
     `${ENDPOINT}/swapVehicle/${id}`,
     { ap_vehicle_id }
+  );
+  return response.data;
+}
+
+export async function changeSedeInPurchaseRequestQuote(
+  id: number,
+  sede_id: number
+): Promise<PurchaseRequestQuoteResource> {
+  const response = await api.post<PurchaseRequestQuoteResource>(
+    `${ENDPOINT}/changeSede/${id}`,
+    { sede_id }
   );
   return response.data;
 }
