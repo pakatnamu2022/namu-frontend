@@ -75,19 +75,19 @@ export default function LaborDetailSheet({
     defaultValues: buildDefaultValues(quotationId, constManHours, exchangeRate),
   });
 
-  // Se incrementa en cada reset para que el efecto de abajo pueda distinguir
-  // el `description` que trae el reset del que cambia por interacción del
-  // usuario, y así ignorar el valor todavía stale del `watch` justo tras
-  // resetear (ver comentario más abajo).
-  const resetCounterRef = useRef(0);
+  // Guarda el `description` que trae cada reset, para que el efecto de abajo
+  // pueda ignorar el disparo que ocurre por el propio reset (que no debe
+  // recalcular item_type, ya viene correcto desde initialValue) y reaccionar
+  // solo a cambios de `description` hechos por el usuario.
+  const lastResetDescriptionRef = useRef<string | undefined>(undefined);
 
   useEffect(() => {
     if (open) {
-      form.reset(
+      const values =
         initialValue ??
-          buildDefaultValues(quotationId, constManHours, exchangeRate),
-      );
-      resetCounterRef.current += 1;
+        buildDefaultValues(quotationId, constManHours, exchangeRate);
+      lastResetDescriptionRef.current = values.description;
+      form.reset(values);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, initialValue]);
@@ -97,15 +97,11 @@ export default function LaborDetailSheet({
 
   // El tipo se infiere de la descripción: solo si se seleccionó exactamente
   // la opción "Materiales" del combobox; cualquier otro texto es Mano de Obra.
-  // El reset de arriba ya deja item_type correcto (viene de initialValue).
-  // `description` vía watch() puede seguir stale (del ítem editado
-  // anteriormente) durante el primer render posterior al reset, así que este
-  // efecto se salta esa primera ejecución para no pisar el item_type recién
-  // reseteado con un tipo derivado del valor viejo.
-  const lastHandledResetRef = useRef(0);
+  // El reset de arriba ya deja item_type correcto (viene de initialValue), así
+  // que este efecto se salta el disparo cuyo `description` coincide con el
+  // que acaba de fijar el reset, y solo actúa ante cambios reales del usuario.
   useEffect(() => {
-    if (lastHandledResetRef.current !== resetCounterRef.current) {
-      lastHandledResetRef.current = resetCounterRef.current;
+    if (lastResetDescriptionRef.current === description) {
       return;
     }
     const autoType =
