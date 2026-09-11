@@ -76,7 +76,7 @@ export const PurchaseRequestQuoteForm = ({
   // de venta y la moneda de facturación quedan fijos, junto con los
   // accesorios que afectan el precio y los descuentos. El vehículo/modelo/
   // color, bonos, obsequios y "Otros" (margen) siguen editables.
-  const priceLocked = mode === "update" && isApproved && !isPaid;
+  const priceLocked = mode === "update" && isApproved && isPaid;
   const fullyLocked = mode === "update" && isPaid;
   const [isColorModalOpen, setIsColorModalOpen] = useState(false);
   const queryClient = useQueryClient();
