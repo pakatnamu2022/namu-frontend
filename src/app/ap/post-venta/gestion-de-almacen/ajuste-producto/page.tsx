@@ -54,13 +54,6 @@ export default function AdjustmentsProductPage() {
     getCurrentDayOfMonth(currentDate),
   );
 
-  useEffect(() => {
-    if (dateFrom && dateTo && dateFrom > dateTo) {
-      setDateTo(dateFrom);
-      errorToast("La fecha 'Desde' no puede ser mayor que la fecha 'Hasta'.");
-    }
-  }, [dateFrom, dateTo]);
-
   // Obtener mis almacenes físicos de postventa
   const { data: warehouses = [], isLoading: isLoadingWarehouses } =
     useMyPhysicalWarehouse();

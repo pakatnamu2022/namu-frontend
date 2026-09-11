@@ -1,9 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { rebuildCostHistory } from "@/features/ap/post-venta/gestion-almacen/inventario/lib/inventory.actions.ts";
 import { errorToast, formatMoney, successToast } from "@/core/core.function.ts";
 import { Button } from "@/components/ui/button.tsx";
+import DataTablePagination from "@/shared/components/DataTablePagination.tsx";
+import { DEFAULT_PER_PAGE } from "@/core/core.constants.ts";
 import { useParams } from "react-router-dom";
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule.ts";
 import PageSkeleton from "@/shared/components/PageSkeleton.tsx";
@@ -467,6 +469,8 @@ export default function PriceCalculationPage() {
   const params = useParams();
   const [activeTab, setActiveTab] = useState<"steps" | "movements">("steps");
   const [isRebuilding, setIsRebuilding] = useState(false);
+  const [page, setPage] = useState(1);
+  const [perPage, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
 
   const productId = parseInt(params.productId as string);
   const warehouseId = parseInt(params.warehouseId as string);
@@ -478,10 +482,19 @@ export default function PriceCalculationPage() {
   );
 
   const { data: movementsData, isLoading: isLoadingMovements } =
-    useStockMovementHistory(productId, warehouseId, {
-      enabled:
-        !isNaN(productId) && !isNaN(warehouseId) && activeTab === "movements",
-    });
+    useStockMovementHistory(
+      productId,
+      warehouseId,
+      { page, per_page: perPage },
+      {
+        enabled:
+          !isNaN(productId) && !isNaN(warehouseId) && activeTab === "movements",
+      },
+    );
+
+  useEffect(() => {
+    setPage(1);
+  }, [perPage]);
 
   if (isLoadingModule) return <PageSkeleton />;
   if (!checkRouteExists(ROUTE)) notFound();
@@ -561,6 +574,14 @@ export default function PriceCalculationPage() {
             data={movementsData?.history ?? []}
             isLoading={isLoadingMovements}
             isVisibleColumnFilter={false}
+          />
+          <DataTablePagination
+            page={page}
+            per_page={perPage}
+            totalPages={movementsData?.pagination?.last_page ?? 1}
+            totalData={movementsData?.pagination?.total}
+            onPageChange={setPage}
+            setPerPage={setPerPage}
           />
         </div>
       )}

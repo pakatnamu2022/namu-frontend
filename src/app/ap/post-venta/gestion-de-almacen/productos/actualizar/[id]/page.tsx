@@ -66,6 +66,7 @@ export default function UpdateProductPVPage() {
       ap_class_article_id: String(data.ap_class_article_id),
       unit_measurement_id: String(data.unit_measurement_id),
       warranty_months: Number(data.warranty_months),
+      pvp_mode: data.pvp_mode,
     };
   }
 

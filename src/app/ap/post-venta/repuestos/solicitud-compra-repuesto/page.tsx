@@ -37,13 +37,13 @@ import type { PurchaseRequestResource } from "@/features/ap/post-venta/taller/so
 import { useMyPhysicalWarehouse } from "@/features/ap/configuraciones/maestros-general/almacenes/lib/warehouse.hook";
 import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
 import { AREA_MESON } from "@/features/ap/ap-master/lib/apMaster.constants";
+import { useScopedFilters } from "@/shared/hooks/useScopedFilters";
 
 export default function PurchaseRequestRepuestoPage() {
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
+  const router = useNavigate();
+  const currentDate = new Date();
   const [page, setPage] = useState(1);
-  const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
-  const [search, setSearch] = useState("");
-  const [warehouseId, setWarehouseId] = useState<string | null>(null);
   const [approveId, setApproveId] = useState<number | null>(null);
   const [cancelId, setCancelId] = useState<number | null>(null);
   const [notifyId, setNotifyId] = useState<number | null>(null);
@@ -54,32 +54,49 @@ export default function PurchaseRequestRepuestoPage() {
   const [isDetailSheetOpen, setIsDetailSheetOpen] = useState(false);
   const { MODEL, ROUTE, ROUTE_UPDATE, ROUTE_ADD } = PURCHASE_REQUEST_REPUESTOS;
   const permissions = useModulePermissions(ROUTE);
-  const router = useNavigate();
-  const currentDate = new Date();
+  const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
 
-  const [dateFrom, setDateFrom] = useState<Date | undefined>(
-    getFirstDayOfMonth(currentDate),
+  const { values: filters, setFieldValue: setFilter } = useScopedFilters(
+    PURCHASE_REQUEST_REPUESTOS.ABSOLUTE_ROUTE, // la del paso 1
+    {
+      search: "",
+      warehouseId: "",
+      dateFrom: getFirstDayOfMonth(currentDate).toISOString(),
+      dateTo: getCurrentDayOfMonth(currentDate).toISOString(),
+    },
   );
-  const [dateTo, setDateTo] = useState<Date | undefined>(
-    getCurrentDayOfMonth(currentDate),
-  );
+  const { search, warehouseId } = filters;
+  const dateFrom = filters.dateFrom ? new Date(filters.dateFrom) : undefined;
+  const dateTo = filters.dateTo ? new Date(filters.dateTo) : undefined;
+
+  const setSearch = (v: string) => {
+    setFilter("search", v);
+    setPage(1);
+  };
+  const setWarehouseId = (v: string) => {
+    setFilter("warehouseId", v);
+    setPage(1);
+  };
+  const setDateFrom = (d: Date | undefined) => {
+    setFilter("dateFrom", d ? d.toISOString() : "");
+    setPage(1);
+  };
+  const setDateTo = (d: Date | undefined) => {
+    setFilter("dateTo", d ? d.toISOString() : "");
+    setPage(1);
+  };
 
   // Obtener mis almacenes físicos de postventa
   const { data: warehouses = [], isLoading: isLoadingWarehouses } =
     useMyPhysicalWarehouse();
 
+  // Setear el primer almacén por defecto
   useEffect(() => {
-    if (!isLoadingWarehouses && warehouses.length > 0 && !warehouseId) {
+    if (warehouses.length > 0 && !warehouseId) {
       setWarehouseId(warehouses[0].id.toString());
     }
-  }, [isLoadingWarehouses, warehouses, warehouseId]);
-
-  useEffect(() => {
-    if (dateFrom && dateTo && dateFrom > dateTo) {
-      setDateTo(dateFrom);
-      errorToast("La fecha 'Desde' no puede ser mayor que la fecha 'Hasta'.");
-    }
-  }, [dateFrom, dateTo]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [warehouses]);
 
   const { data, isLoading, refetch } = usePurchaseRequests({
     page,

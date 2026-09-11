@@ -40,6 +40,22 @@ export const WORKER_ORDER_RECEPCION: ModelComplete<WorkOrderResource> = {
   ROUTE_UPDATE: `${ABSOLUTE_ROUTE_RECEPCION}/actualizar`,
 };
 
+// TIPO DE RECALL
+export type RecallType = "ROJO" | "AMARILLO" | "VERDE";
+
+export const RECALL_TYPE_META: Record<
+  RecallType,
+  { label: string; color: BadgeColor }
+> = {
+  ROJO: { label: "Rojo", color: "red" },
+  AMARILLO: { label: "Amarillo", color: "amber" },
+  VERDE: { label: "Verde", color: "green" },
+};
+
+export const RECALL_TYPES: { label: string; value: RecallType }[] = (
+  Object.keys(RECALL_TYPE_META) as RecallType[]
+).map((value) => ({ label: RECALL_TYPE_META[value].label, value }));
+
 export const WORK_ORDER_STATUS_COLORS: Record<number, BadgeColor> = {
   884: "blue", // APERTURADO
   889: "cyan", // RECEPCIONADO

@@ -664,22 +664,16 @@ export default function PurchaseRequestForm({
                               </div>
 
                               <div className="col-span-2">
-                                {selectedQuotationId ? (
-                                  <span className="text-sm font-medium text-gray-700">
-                                    {detail.supply_type || "-"}
-                                  </span>
-                                ) : (
-                                  <FormSelect
-                                    name={`detail_supply_type_${index}` as any}
-                                    placeholder="Seleccionar"
-                                    options={SUPPLY_TYPE_OPTIONS}
-                                    control={form.control}
-                                    strictFilter={true}
-                                    onValueChange={(value) =>
-                                      handleUpdateSupplyType(index, value)
-                                    }
-                                  />
-                                )}
+                                <FormSelect
+                                  name={`detail_supply_type_${index}` as any}
+                                  placeholder="Seleccionar"
+                                  options={SUPPLY_TYPE_OPTIONS}
+                                  control={form.control}
+                                  strictFilter={true}
+                                  onValueChange={(value) =>
+                                    handleUpdateSupplyType(index, value)
+                                  }
+                                />
                               </div>
 
                               <div className="col-span-1">
@@ -802,24 +796,16 @@ export default function PurchaseRequestForm({
                                   <label className="text-xs font-medium text-gray-700 mb-1 block">
                                     Tipo Abastecimiento
                                   </label>
-                                  {selectedQuotationId ? (
-                                    <span className="text-sm font-medium text-gray-700">
-                                      {detail.supply_type || "-"}
-                                    </span>
-                                  ) : (
-                                    <FormSelect
-                                      name={
-                                        `detail_supply_type_${index}` as any
-                                      }
-                                      placeholder="Seleccionar"
-                                      options={SUPPLY_TYPE_OPTIONS}
-                                      control={form.control}
-                                      strictFilter={true}
-                                      onValueChange={(value) =>
-                                        handleUpdateSupplyType(index, value)
-                                      }
-                                    />
-                                  )}
+                                  <FormSelect
+                                    name={`detail_supply_type_${index}` as any}
+                                    placeholder="Seleccionar"
+                                    options={SUPPLY_TYPE_OPTIONS}
+                                    control={form.control}
+                                    strictFilter={true}
+                                    onValueChange={(value) =>
+                                      handleUpdateSupplyType(index, value)
+                                    }
+                                  />
                                 </div>
 
                                 <div>

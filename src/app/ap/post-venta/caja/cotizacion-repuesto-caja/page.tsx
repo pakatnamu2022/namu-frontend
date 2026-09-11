@@ -73,14 +73,6 @@ export default function OrderQuotationMesonCajaPage() {
   });
 
   useEffect(() => {
-    if (dateFrom && dateTo && dateFrom > dateTo) {
-      setDateTo(dateFrom);
-      errorToast("La fecha 'Desde' no puede ser mayor que la fecha 'Hasta'.");
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dateFrom, dateTo]);
-
-  useEffect(() => {
     if (sedes.length > 0 && !sedeId) {
       setSedeId(sedes[0].id.toString());
     }
