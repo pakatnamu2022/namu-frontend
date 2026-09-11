@@ -56,12 +56,8 @@ interface PurchaseRequestQuoteFormProps {
   mode?: "create" | "update";
   opportunity?: OpportunityResource;
   onCancel: () => void;
-  /** Ya fue aprobada (acción "Confirmar"). */
-  isApproved?: boolean;
   /** Pagada en su totalidad. Bloquea todo el formulario, sin excepción. */
   isPaid?: boolean;
-  /** Tiene al menos un anticipo (adelanto) activo registrado. */
-  hasAdvances?: boolean;
 }
 
 export const PurchaseRequestQuoteForm = ({
@@ -72,8 +68,6 @@ export const PurchaseRequestQuoteForm = ({
   opportunity,
   onCancel,
   isPaid = false,
-  isApproved = false,
-  hasAdvances = false,
 }: PurchaseRequestQuoteFormProps) => {
   const [isColorModalOpen, setIsColorModalOpen] = useState(false);
   const queryClient = useQueryClient();
@@ -93,16 +87,11 @@ export const PurchaseRequestQuoteForm = ({
     },
     mode: "onChange",
   });
-  const { canAssign, canManage, canApprove } = useModulePermissions(ROUTE);
+  const { canAssign, canManage } = useModulePermissions(ROUTE);
 
   // Pagada en su totalidad: se bloquea todo el formulario, sin excepción.
-  // Aprobada o con un anticipo registrado: se puede seguir editando todo,
-  // pero solo quien tiene permiso para aprobar; sin ese permiso queda igual
-  // de bloqueada que si estuviera pagada. Replica exactamente la regla del
-  // backend (PurchaseRequestQuoteService::update).
-  const needsApprovePermission =
-    (isApproved || hasAdvances) && !canApprove;
-  const fullyLocked = mode === "update" && (isPaid || needsApprovePermission);
+  // Estar aprobada o tener un anticipo registrado NO restringe nada.
+  const fullyLocked = mode === "update" && isPaid;
 
   // Estados
   const [copyClientToHolder, setCopyClientToHolder] = useState(false);
@@ -944,32 +933,12 @@ export const PurchaseRequestQuoteForm = ({
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(handleFormSubmit)} className="w-full">
-        {fullyLocked && isPaid && (
+        {fullyLocked && (
           <Alert variant="destructive" className="mb-6">
             <AlertTitle>Pagada en su totalidad</AlertTitle>
             <AlertDescription>
               Esta {form.watch("type_document") === "COTIZACION" ? "cotización" : "solicitud de compra"} ya
               fue pagada en su totalidad y no puede modificarse.
-            </AlertDescription>
-          </Alert>
-        )}
-        {fullyLocked && !isPaid && (
-          <Alert variant="warning" className="mb-6">
-            <AlertTitle>
-              {isApproved && hasAdvances
-                ? "Ya aprobada y con anticipo"
-                : isApproved
-                  ? "Ya aprobada"
-                  : "Tiene un anticipo registrado"}
-            </AlertTitle>
-            <AlertDescription>
-              Esta {form.watch("type_document") === "COTIZACION" ? "cotización" : "solicitud de compra"}{" "}
-              {isApproved && hasAdvances
-                ? "ya fue aprobada y tiene un anticipo registrado"
-                : isApproved
-                  ? "ya fue aprobada"
-                  : "tiene un anticipo registrado"}
-              . Solo un usuario con permiso para aprobar puede seguir editándola.
             </AlertDescription>
           </Alert>
         )}
