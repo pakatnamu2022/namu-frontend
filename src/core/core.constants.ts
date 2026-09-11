@@ -80,9 +80,9 @@ export const EMPRESA_GP = {
 export const CONSTANTS: any = {
   // LOGO: "/logos/millagp.svg",
   // LOGO_ICON: "/logos/millagplogo.svg",
-  LOGO: "/logos/sian.svg",
-  LOGO_WHITE: "/logos/sianwhite.svg",
-  LOGO_ICON: "/logos/sianlogo.svg",
+  LOGO: "/logos/sian_complete.svg",
+  LOGO_WHITE: "/logos/sian_complete_white.svg",
+  LOGO_ICON: "/logos/sian_logo.svg",
   EMPRESAS: [EMPRESA_AP, EMPRESA_DP, EMPRESA_GP, EMPRESA_TP],
 };
 
