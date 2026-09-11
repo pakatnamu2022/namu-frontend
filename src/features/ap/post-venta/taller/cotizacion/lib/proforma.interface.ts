@@ -22,6 +22,8 @@ export interface OrderQuotationResource {
   parent_quotation_id: number | null;
   shipping_guide_id: number | null;
   was_segmented: boolean;
+  duplicated_from_quotation_id: number | null;
+  duplicated_from_quotation_number: string | null;
   created_by_name: string;
   vehicle_id: number;
   vehicle: VehicleResource;
