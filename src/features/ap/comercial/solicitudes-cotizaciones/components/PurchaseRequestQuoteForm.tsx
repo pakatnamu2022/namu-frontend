@@ -56,10 +56,12 @@ interface PurchaseRequestQuoteFormProps {
   mode?: "create" | "update";
   opportunity?: OpportunityResource;
   onCancel: () => void;
-  /** Ya fue aprobada (con o sin facturar). Bloquea precio/vehículo/accesorios/descuentos. */
+  /** Ya fue aprobada (acción "Confirmar"). */
   isApproved?: boolean;
-  /** Pagada en su totalidad. Bloquea todo el formulario. */
+  /** Pagada en su totalidad. Bloquea todo el formulario, sin excepción. */
   isPaid?: boolean;
+  /** Tiene al menos un anticipo (adelanto) activo registrado. */
+  hasAdvances?: boolean;
 }
 
 export const PurchaseRequestQuoteForm = ({
@@ -70,12 +72,9 @@ export const PurchaseRequestQuoteForm = ({
   opportunity,
   onCancel,
   isPaid = false,
+  isApproved = false,
+  hasAdvances = false,
 }: PurchaseRequestQuoteFormProps) => {
-  // Una vez aprobada (y mientras no esté pagada en su totalidad), el precio
-  // de venta y la moneda de facturación quedan fijos, junto con los
-  // accesorios que afectan el precio y los descuentos. El vehículo/modelo/
-  // color, bonos, obsequios y "Otros" (margen) siguen editables.
-  const fullyLocked = mode === "update" && isPaid;
   const [isColorModalOpen, setIsColorModalOpen] = useState(false);
   const queryClient = useQueryClient();
   const { ROUTE } = PURCHASE_REQUEST_QUOTE;
@@ -94,7 +93,16 @@ export const PurchaseRequestQuoteForm = ({
     },
     mode: "onChange",
   });
-  const { canAssign, canManage } = useModulePermissions(ROUTE);
+  const { canAssign, canManage, canApprove } = useModulePermissions(ROUTE);
+
+  // Pagada en su totalidad: se bloquea todo el formulario, sin excepción.
+  // Aprobada o con un anticipo registrado: se puede seguir editando todo,
+  // pero solo quien tiene permiso para aprobar; sin ese permiso queda igual
+  // de bloqueada que si estuviera pagada. Replica exactamente la regla del
+  // backend (PurchaseRequestQuoteService::update).
+  const needsApprovePermission =
+    (isApproved || hasAdvances) && !canApprove;
+  const fullyLocked = mode === "update" && (isPaid || needsApprovePermission);
 
   // Estados
   const [copyClientToHolder, setCopyClientToHolder] = useState(false);
@@ -936,12 +944,32 @@ export const PurchaseRequestQuoteForm = ({
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(handleFormSubmit)} className="w-full">
-        {fullyLocked && (
+        {fullyLocked && isPaid && (
           <Alert variant="destructive" className="mb-6">
             <AlertTitle>Pagada en su totalidad</AlertTitle>
             <AlertDescription>
               Esta {form.watch("type_document") === "COTIZACION" ? "cotización" : "solicitud de compra"} ya
               fue pagada en su totalidad y no puede modificarse.
+            </AlertDescription>
+          </Alert>
+        )}
+        {fullyLocked && !isPaid && (
+          <Alert variant="warning" className="mb-6">
+            <AlertTitle>
+              {isApproved && hasAdvances
+                ? "Ya aprobada y con anticipo"
+                : isApproved
+                  ? "Ya aprobada"
+                  : "Tiene un anticipo registrado"}
+            </AlertTitle>
+            <AlertDescription>
+              Esta {form.watch("type_document") === "COTIZACION" ? "cotización" : "solicitud de compra"}{" "}
+              {isApproved && hasAdvances
+                ? "ya fue aprobada y tiene un anticipo registrado"
+                : isApproved
+                  ? "ya fue aprobada"
+                  : "tiene un anticipo registrado"}
+              . Solo un usuario con permiso para aprobar puede seguir editándola.
             </AlertDescription>
           </Alert>
         )}

@@ -119,6 +119,8 @@ export default function UpdatePurchaseRequestQuotePage() {
         opportunity={opportunity}
         onCancel={() => router(ABSOLUTE_ROUTE)}
         isPaid={Boolean(PurchaseRequestQuote.is_paid)}
+        isApproved={Boolean(PurchaseRequestQuote.is_approved)}
+        hasAdvances={Boolean(PurchaseRequestQuote.has_advances)}
       />
     </PageWrapper>
   );
