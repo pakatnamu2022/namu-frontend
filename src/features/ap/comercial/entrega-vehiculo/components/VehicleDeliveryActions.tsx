@@ -50,7 +50,7 @@ export default function VehicleDeliveryActions({
 }: Props) {
   const { ROUTE_ADD } = VEHICLE_DELIVERY;
 
-  const { canCreate, canMigrate, canManage, canApprove } = permissions;
+  const { canCreate, canMigrate, canManage } = permissions;
 
   const [historicalOpen, setHistoricalOpen] = useState(false);
 
@@ -72,18 +72,16 @@ export default function VehicleDeliveryActions({
         />
         Actualizar
       </Button>
-      {canApprove && (
-        <Button
-          size="sm"
-          variant={extraordinaryReview ? "default" : "outline"}
-          onClick={onToggleExtraordinaryReview}
-        >
-          <ShieldAlert className="size-4 mr-2" />
-          {extraordinaryReview
-            ? "Ver entregas normales"
-            : "Extraordinarias por aprobar"}
-        </Button>
-      )}
+      <Button
+        size="sm"
+        variant={extraordinaryReview ? "default" : "outline"}
+        onClick={onToggleExtraordinaryReview}
+      >
+        <ShieldAlert className="size-4 mr-2" />
+        {extraordinaryReview
+          ? "Ver entregas normales"
+          : "Extraordinarias por aprobar"}
+      </Button>
       {canMigrate && (
         <Button
           size="sm"
