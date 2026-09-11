@@ -69,14 +69,12 @@ export const PurchaseRequestQuoteForm = ({
   mode = "create",
   opportunity,
   onCancel,
-  isApproved = false,
   isPaid = false,
 }: PurchaseRequestQuoteFormProps) => {
   // Una vez aprobada (y mientras no esté pagada en su totalidad), el precio
   // de venta y la moneda de facturación quedan fijos, junto con los
   // accesorios que afectan el precio y los descuentos. El vehículo/modelo/
   // color, bonos, obsequios y "Otros" (margen) siguen editables.
-  const priceLocked = mode === "update" && isApproved && isPaid;
   const fullyLocked = mode === "update" && isPaid;
   const [isColorModalOpen, setIsColorModalOpen] = useState(false);
   const queryClient = useQueryClient();
@@ -947,18 +945,6 @@ export const PurchaseRequestQuoteForm = ({
             </AlertDescription>
           </Alert>
         )}
-        {priceLocked && (
-          <Alert variant="warning" className="mb-6">
-            <AlertTitle>Aprobada</AlertTitle>
-            <AlertDescription>
-              Ya fue aprobada: el precio de venta, la moneda de facturación,
-              los accesorios que afectan el precio y los descuentos ya no se
-              pueden modificar. Aún puedes cambiar el vehículo/modelo/color,
-              agregar bonos, obsequios (no afectan el precio), ajustar
-              "Otros" (margen) y editar los demás datos.
-            </AlertDescription>
-          </Alert>
-        )}
         <fieldset
           disabled={fullyLocked}
           className="contents m-0 p-0 border-0 min-w-0"
@@ -1011,7 +997,7 @@ export const PurchaseRequestQuoteForm = ({
                 holderDefaultOption={holderDefaultOption}
                 setSelectedHolder={setSelectedHolder}
                 currencyTypes={currencyTypes}
-                disableCurrency={priceLocked}
+                disableCurrency={fullyLocked}
               />
             </div>
 
@@ -1035,7 +1021,7 @@ export const PurchaseRequestQuoteForm = ({
               modelVnWatch={modelVnWatch}
               selectedModel={selectedModel}
               billedCost={billedCost}
-              priceLocked={priceLocked}
+              priceLocked={fullyLocked}
             />
 
             {/*Seccion Créditos, Seguros y GPS*/}
@@ -1052,7 +1038,7 @@ export const PurchaseRequestQuoteForm = ({
               currencySymbol={currencySymbol}
               onRowsChange={setBonusDiscountRows}
               initialData={initialBonusDiscounts}
-              lockDiscounts={priceLocked}
+              lockDiscounts={fullyLocked}
             />
 
             {/*Seccion Accesorios Homologados*/}
@@ -1067,7 +1053,7 @@ export const PurchaseRequestQuoteForm = ({
                 invoiceCurrencyId ? Number(invoiceCurrencyId) : undefined
               }
               getExchangeRate={getExchangeRate}
-              lockPaidAccessories={priceLocked}
+              lockPaidAccessories={fullyLocked}
             />
 
             {/*Seccion Otros Costos Internos — solo ADV (canManage)*/}
