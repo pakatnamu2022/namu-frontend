@@ -392,7 +392,7 @@ export default function ManageWorkOrderPage() {
                   <div className="flex flex-wrap items-center gap-1.5">
                     <Badge
                       variant="outline"
-                      color={workOrder.is_recall ? "amber" : "gray"}
+                      color={workOrder.is_recall ? "green" : "gray"}
                     >
                       {workOrder.is_recall ? "Sí" : "No"}
                     </Badge>
