@@ -281,13 +281,9 @@ export const purchaseRequestQuoteColumns = ({
       // (el VIN pertenece a la sede actual). El backend revalida esto.
       const canChangeSede =
         permissions.canChangeLocation && !hasVehicle && !row.original.is_paid;
-      // Editable mientras no esté pagada en su totalidad. Si ya está
-      // aprobada o tiene un anticipo registrado, solo puede seguir
-      // editándola quien tenga permiso para aprobar (permissions.canApprove).
-      const canEdit =
-        permissions.canUpdate &&
-        !row.original.is_paid &&
-        (!(isApproved || row.original.has_advances) || permissions.canApprove);
+      // Editable mientras no esté pagada en su totalidad. Estar aprobada o
+      // tener un anticipo registrado no restringe nada.
+      const canEdit = permissions.canUpdate && !row.original.is_paid;
       // Solo se puede eliminar una solicitud "limpia": sin VIN, sin aprobar y
       // sin pagos/facturas. El backend revalida esto de todos modos.
       const canDelete =
