@@ -48,21 +48,30 @@ export const orderQuotationMesonColumns = ({
       const value = getValue() as string;
       const wasSegmented = row.original.was_segmented;
       const deductibleAmount = row.original.deductible_amount;
+      const duplicatedFromQuotationNumber =
+        row.original.duplicated_from_quotation_number;
 
       if (!value) return null;
       return (
         <div className="flex flex-col items-start gap-0.5">
           <CopyCell className="font-semibold" value={value} />
-          {wasSegmented && (
-            <Badge variant="outline" color="orange" size="xs">
-              Segmentado
-            </Badge>
-          )}
-          {deductibleAmount > 0 && (
-            <Badge variant="outline" color="yellow" size="xs">
-              Deducible: {deductibleAmount.toFixed(2)}
-            </Badge>
-          )}
+          <div className="flex flex-wrap items-center gap-1">
+            {wasSegmented && (
+              <Badge variant="outline" color="orange" size="xs">
+                Segmentado
+              </Badge>
+            )}
+            {deductibleAmount > 0 && (
+              <Badge variant="outline" color="yellow" size="xs">
+                Ded: {deductibleAmount.toFixed(2)}
+              </Badge>
+            )}
+            {duplicatedFromQuotationNumber && (
+              <Badge variant="outline" color="blue" size="xs">
+                Dup: {duplicatedFromQuotationNumber}
+              </Badge>
+            )}
+          </div>
         </div>
       );
     },
