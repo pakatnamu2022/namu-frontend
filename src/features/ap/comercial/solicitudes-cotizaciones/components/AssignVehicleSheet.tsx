@@ -26,10 +26,7 @@ interface AssignVehicleSheetProps {
 }
 
 function normalize(value: string) {
-  return value
-    .toLowerCase()
-    .normalize("NFD")
-    .replace(/[̀-ͯ]/g, "");
+  return value.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
 }
 
 export default function AssignVehicleSheet({
