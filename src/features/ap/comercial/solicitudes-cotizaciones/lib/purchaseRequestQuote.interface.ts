@@ -83,6 +83,7 @@ export interface PurchaseRequestQuoteResource {
   comment?: string;
   is_invoiced: number;
   is_approved: number;
+  has_advances: boolean;
   opportunity_id: number;
   holder_id: number;
   holder: string;
