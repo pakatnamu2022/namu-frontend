@@ -20,7 +20,6 @@ import {
   changeActivityStatus,
   deleteActivities,
 } from "@/features/ap/comercial/marketing/actividades/lib/activities.actions";
-import ActivitiesActions from "@/features/ap/comercial/marketing/actividades/components/ActivitiesActions";
 import ActivitiesTable from "@/features/ap/comercial/marketing/actividades/components/ActivitiesTable";
 import { activitiesColumns } from "@/features/ap/comercial/marketing/actividades/components/ActivitiesColumns";
 import ActivitiesOptions from "@/features/ap/comercial/marketing/actividades/components/ActivitiesOptions";
@@ -33,6 +32,7 @@ export default function MarketingActivitiesPage() {
   const [page, setPage] = useState(1);
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
   const [search, setSearch] = useState("");
+  const [status, setStatus] = useState("");
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [locationActivityId, setLocationActivityId] = useState<number | null>(null);
   const { MODEL, ROUTE } = ACTIVITIES;
@@ -40,9 +40,9 @@ export default function MarketingActivitiesPage() {
 
   useEffect(() => {
     setPage(1);
-  }, [search, per_page]);
+  }, [search, status, per_page]);
 
-  const { data, isLoading, refetch } = useActivities({ page, search, per_page });
+  const { data, isLoading, refetch } = useActivities({ page, search, status: status || undefined, per_page });
 
   const handleDelete = async () => {
     if (!deleteId) return;
@@ -77,10 +77,9 @@ export default function MarketingActivitiesPage() {
       <HeaderTableWrapper>
         <TitleComponent
           title={currentView.descripcion}
-          subtitle={currentView.descripcion}
+          subtitle="Las actividades se agregan desde la acción “Actividades” de cada Presupuesto."
           icon={currentView.icon}
         />
-        <ActivitiesActions permissions={permissions} />
       </HeaderTableWrapper>
       <ActivitiesTable
         isLoading={isLoading}
@@ -92,7 +91,7 @@ export default function MarketingActivitiesPage() {
         })}
         data={data?.data || []}
       >
-        <ActivitiesOptions search={search} setSearch={setSearch} />
+        <ActivitiesOptions search={search} setSearch={setSearch} status={status} setStatus={setStatus} />
       </ActivitiesTable>
 
       {deleteId !== null && (

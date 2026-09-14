@@ -55,7 +55,6 @@ export default function AddMarketingPlanPage() {
           brand_id: "",
           year: new Date().getFullYear(),
           description: "",
-          status: "draft",
         }}
         onSubmit={handleSubmit}
         isSubmitting={isPending}

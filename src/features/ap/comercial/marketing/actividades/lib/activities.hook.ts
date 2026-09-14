@@ -3,6 +3,8 @@ import {
   getAllActivities,
   getActivities,
   findActivitiesById,
+  getActivityTypes,
+  getActivityChannels,
 } from "./activities.actions";
 import { ActivitiesResource, ActivitiesResponse } from "./activities.interface";
 import { ACTIVITIES } from "./activities.constants";
@@ -31,5 +33,25 @@ export const useActivitiesById = (id: number) => {
     queryFn: () => findActivitiesById(id),
     refetchOnWindowFocus: false,
     enabled: id > 0,
+  });
+};
+
+/** Valores de "tipo de actividad" ya usados, para el combobox con autocompletar + crear. */
+export const useActivityTypes = () => {
+  return useQuery<string[]>({
+    queryKey: [QUERY_KEY, "activity-types"],
+    queryFn: getActivityTypes,
+    staleTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: false,
+  });
+};
+
+/** Valores de "canal" ya usados, para el combobox con autocompletar + crear. */
+export const useActivityChannels = () => {
+  return useQuery<string[]>({
+    queryKey: [QUERY_KEY, "channels"],
+    queryFn: getActivityChannels,
+    staleTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: false,
   });
 };

@@ -25,7 +25,17 @@ export default function AddMarketingSupportPage() {
   const { ROUTE, QUERY_KEY, MODEL, ABSOLUTE_ROUTE } = SUPPORTS;
 
   const { mutate, isPending } = useMutation({
-    mutationFn: storeSupports,
+    mutationFn: async ({ data, files }: { data: SupportsSchema; files: File[] }) => {
+      if (files.length === 0) {
+        return [await storeSupports({ ...data, file: null })];
+      }
+      // Un archivo = un sustento: se crea un registro por cada archivo adjuntado.
+      const results = [];
+      for (const file of files) {
+        results.push(await storeSupports({ ...data, file }));
+      }
+      return results;
+    },
     onSuccess: async () => {
       successToast(SUCCESS_MESSAGE(MODEL, "create"));
       await queryClient.invalidateQueries({ queryKey: [QUERY_KEY] });
@@ -37,7 +47,7 @@ export default function AddMarketingSupportPage() {
     },
   });
 
-  const handleSubmit = (data: SupportsSchema) => mutate(data);
+  const handleSubmit = (data: SupportsSchema, files: File[]) => mutate({ data, files });
 
   if (!checkRouteExists(ROUTE)) notFound();
   if (!currentView) notFound();
@@ -48,7 +58,6 @@ export default function AddMarketingSupportPage() {
       <SupportsForm
         defaultValues={{
           activity_id: searchParams.get("activity_id") ?? "",
-          purchase_order_id: searchParams.get("purchase_order_id") ?? "",
           type: "invoice",
           document_series: "",
           document_number: "",
@@ -56,7 +65,6 @@ export default function AddMarketingSupportPage() {
           supplier_id: "",
           currency_id: "",
           amount: undefined,
-          file_path: "",
           notes: "",
         }}
         onSubmit={handleSubmit}

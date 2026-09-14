@@ -113,6 +113,7 @@ const UpdateMarketingPlanPage = lazyPage(() => import("./app/ap/comercial/market
 const MarketingBudgetsPage = lazyPage(() => import("./app/ap/comercial/marketing/presupuestos/page"));
 const AddMarketingBudgetPage = lazyPage(() => import("./app/ap/comercial/marketing/presupuestos/agregar/page"));
 const UpdateMarketingBudgetPage = lazyPage(() => import("./app/ap/comercial/marketing/presupuestos/actualizar/[id]/page"));
+const MarketingBudgetActivitiesPage = lazyPage(() => import("./app/ap/comercial/marketing/presupuestos/[id]/page"));
 const MarketingActivitiesPage = lazyPage(() => import("./app/ap/comercial/marketing/actividades/page"));
 const AddMarketingActivityPage = lazyPage(() => import("./app/ap/comercial/marketing/actividades/agregar/page"));
 const UpdateMarketingActivityPage = lazyPage(() => import("./app/ap/comercial/marketing/actividades/actualizar/[id]/page"));
@@ -124,6 +125,7 @@ const AddMarketingPurchaseOrderPage = lazyPage(() => import("./app/ap/comercial/
 const UpdateMarketingPurchaseOrderPage = lazyPage(() => import("./app/ap/comercial/marketing/ordenes-compra/actualizar/[id]/page"));
 const MarketingSupportsPage = lazyPage(() => import("./app/ap/comercial/marketing/sustentos/page"));
 const AddMarketingSupportPage = lazyPage(() => import("./app/ap/comercial/marketing/sustentos/agregar/page"));
+const UpdateMarketingSupportPage = lazyPage(() => import("./app/ap/comercial/marketing/sustentos/actualizar/[id]/page"));
 const MarketingKpisPage = lazyPage(() => import("./app/ap/comercial/marketing/kpis/page"));
 const AddMarketingKpiPage = lazyPage(() => import("./app/ap/comercial/marketing/kpis/agregar/page"));
 const UpdateMarketingKpiPage = lazyPage(() => import("./app/ap/comercial/marketing/kpis/actualizar/[id]/page"));
@@ -831,6 +833,7 @@ function App() {
                 <MarketingBudgetsPage />,
                 <AddMarketingBudgetPage />,
                 <UpdateMarketingBudgetPage />,
+                <MarketingBudgetActivitiesPage />,
               )}
               {RouterCrud(
                 "actividades",
@@ -854,6 +857,10 @@ function App() {
               <Route
                 path="sustentos/agregar"
                 element={<AddMarketingSupportPage />}
+              />
+              <Route
+                path="sustentos/actualizar/:id"
+                element={<UpdateMarketingSupportPage />}
               />
               {RouterCrud(
                 "kpis",

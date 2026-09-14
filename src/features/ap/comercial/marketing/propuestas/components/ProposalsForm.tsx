@@ -10,10 +10,13 @@ import { FileCheck2, Loader } from "lucide-react";
 import { ProposalsSchema, proposalsSchema } from "../lib/proposals.schema";
 import { FormInput } from "@/shared/components/FormInput";
 import { FormSelect } from "@/shared/components/FormSelect";
+import { FormSelectAsync } from "@/shared/components/FormSelectAsync";
 import { GroupFormSection } from "@/shared/components/GroupFormSection";
 import { useAllActivities } from "@/features/ap/comercial/marketing/actividades/lib/activities.hook";
 import { useAllCurrencyTypes } from "@/features/ap/configuraciones/maestros-general/tipos-moneda/lib/CurrencyTypes.hook";
 import { useBusinessPartners } from "@/features/ap/business-partners/lib/businessPartners.hook";
+import { BUSINESS_PARTNER_TYPE } from "@/features/ap/business-partners/lib/businessPartners.constants";
+import { BusinessPartnersResource } from "@/features/ap/business-partners/lib/businessPartners.interface";
 import { PROPOSALS, PROPOSAL_STATUS_OPTIONS } from "../lib/proposals.constants";
 
 interface Props {
@@ -32,7 +35,6 @@ export const ProposalsForm = ({ defaultValues, onSubmit, isSubmitting = false, m
 
   const { data: activities = [] } = useAllActivities();
   const { data: currencies = [] } = useAllCurrencyTypes();
-  const { data: suppliers } = useBusinessPartners({ all: true, type: "PROVEEDOR" });
 
   return (
     <Form {...form}>
@@ -46,11 +48,19 @@ export const ProposalsForm = ({ defaultValues, onSubmit, isSubmitting = false, m
             control={form.control}
             required
           />
-          <FormSelect
+          <FormSelectAsync
             name="supplier_id"
             label="Proveedor"
             placeholder="Selecciona un proveedor"
-            options={(suppliers?.data ?? []).map((s) => ({ label: s.full_name, value: s.id.toString() }))}
+            useQueryHook={useBusinessPartners}
+            additionalParams={{
+              type: [BUSINESS_PARTNER_TYPE.BOTH, BUSINESS_PARTNER_TYPE.SUPPLIER],
+            }}
+            mapOptionFn={(supplier: BusinessPartnersResource) => ({
+              label: supplier.full_name,
+              value: supplier.id.toString(),
+              description: supplier.num_doc,
+            })}
             control={form.control}
             required
           />

@@ -32,22 +32,22 @@ export default function MarketingDashboardPage() {
   const form = useForm({ defaultValues: { year: year.toString(), brand_id: "" } });
 
   const budgetEstimated =
-    dashboard?.budget_totals.reduce((acc, b) => acc + b.total_estimated, 0) ?? 0;
+    dashboard?.budget_totals.reduce((acc, b) => acc + Number(b.total_estimated), 0) ?? 0;
   const budgetExecuted =
-    dashboard?.budget_totals.reduce((acc, b) => acc + b.total_executed, 0) ?? 0;
+    dashboard?.budget_totals.reduce((acc, b) => acc + Number(b.total_executed), 0) ?? 0;
   const activitiesTotal =
-    dashboard?.activities_status.reduce((acc, a) => acc + a.total, 0) ?? 0;
+    dashboard?.activities_status.reduce((acc, a) => acc + Number(a.total), 0) ?? 0;
   const ordersTotal =
-    dashboard?.orders_status.reduce((acc, o) => acc + o.total_amount, 0) ?? 0;
+    dashboard?.orders_status.reduce((acc, o) => acc + Number(o.total_amount), 0) ?? 0;
 
   const monthlyBudgetsData = (monthly?.monthly_budgets ?? []).map((m) => ({
     name: MONTH_OPTIONS.find((mo) => mo.value === m.period_month.toString())?.label ?? String(m.period_month),
-    value: m.estimated,
+    value: Number(m.estimated),
   }));
 
   const byBrandData = (monthly?.by_brand ?? []).map((b) => ({
     name: b.brand_name ?? b.plan_name,
-    value: b.amount_estimated,
+    value: Number(b.amount_estimated),
   }));
 
   return (

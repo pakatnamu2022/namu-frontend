@@ -25,9 +25,50 @@ export async function findSupportsById(id: number): Promise<SupportsResource> {
 }
 
 export async function storeSupports(
-  payload: SupportsSchema,
+  payload: SupportsSchema & { file?: File | null },
 ): Promise<SupportsResource> {
-  const { data } = await api.post<SupportsResource>(ENDPOINT, payload);
+  const { file, ...rest } = payload;
+
+  if (file) {
+    const formData = new FormData();
+    Object.entries(rest).forEach(([key, value]) => {
+      if (value !== undefined && value !== null && value !== "") {
+        formData.append(key, String(value));
+      }
+    });
+    formData.append("file", file);
+    const { data } = await api.post<SupportsResource>(ENDPOINT, formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+    return data;
+  }
+
+  const { data } = await api.post<SupportsResource>(ENDPOINT, rest);
+  return data;
+}
+
+export async function updateSupports(
+  id: number,
+  payload: Partial<SupportsSchema> & { file?: File | null },
+): Promise<SupportsResource> {
+  const { file, ...rest } = payload;
+
+  if (file) {
+    const formData = new FormData();
+    formData.append("_method", "PUT");
+    Object.entries(rest).forEach(([key, value]) => {
+      if (value !== undefined && value !== null && value !== "") {
+        formData.append(key, String(value));
+      }
+    });
+    formData.append("file", file);
+    const { data } = await api.post<SupportsResource>(`${ENDPOINT}/${id}`, formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+    return data;
+  }
+
+  const { data } = await api.put<SupportsResource>(`${ENDPOINT}/${id}`, rest);
   return data;
 }
 

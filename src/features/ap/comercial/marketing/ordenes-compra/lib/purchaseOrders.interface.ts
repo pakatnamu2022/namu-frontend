@@ -8,6 +8,13 @@ export interface PurchaseOrdersResponse {
 
 export interface PurchaseOrdersResource {
   id: number;
+  plan_id: number | null;
+  plan?: {
+    id: number;
+    name: string;
+    concept: string | null;
+    brand?: { id: number; name: string } | null;
+  } | null;
   activity_id: number | null;
   activity?: { id: number; name: string } | null;
   proposal_id: number | null;
@@ -17,6 +24,8 @@ export interface PurchaseOrdersResource {
   currency_id: number;
   currency?: { id: number; name: string; symbol: string } | null;
   number: string | null;
+  reference: string | null;
+  reference_label: string;
   amount: number;
   issue_date: string | null;
   status: string | null;
@@ -31,6 +40,7 @@ export interface PurchaseOrdersResource {
     pdf_url?: string | null;
   } | null;
   notes: string | null;
+  file_path: string | null;
 }
 
 export interface getPurchaseOrdersProps {

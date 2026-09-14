@@ -6,6 +6,7 @@ import { Form } from "@/components/ui/form";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Loader, Wallet } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 import { BudgetsSchema, budgetsSchema } from "../lib/budgets.schema";
 import { FormInput } from "@/shared/components/FormInput";
 import { FormSelect } from "@/shared/components/FormSelect";
@@ -21,9 +22,28 @@ interface Props {
   onSubmit: (data: BudgetsSchema) => void;
   isSubmitting?: boolean;
   mode?: "create" | "update";
+  status?: string | null;
+  statusLabel?: string | null;
+  /** Cuando se crea desde un Plan, el plan y el tipo vienen fijos y no se muestran como campos editables. */
+  planName?: string | null;
+  lockType?: boolean;
+  /** Oculta el footer con Cancelar/Guardar de página completa (para uso dentro de un modal). */
+  hideFooter?: boolean;
+  onCancel?: () => void;
 }
 
-export const BudgetsForm = ({ defaultValues, onSubmit, isSubmitting = false }: Props) => {
+export const BudgetsForm = ({
+  defaultValues,
+  onSubmit,
+  isSubmitting = false,
+  mode = "create",
+  status,
+  statusLabel,
+  planName,
+  lockType = false,
+  hideFooter = false,
+  onCancel,
+}: Props) => {
   const form = useForm<BudgetsSchema>({
     resolver: zodResolver(budgetsSchema) as any,
     defaultValues,
@@ -33,28 +53,48 @@ export const BudgetsForm = ({ defaultValues, onSubmit, isSubmitting = false }: P
   const { data: currencies = [] } = useAllCurrencyTypes();
   const { data: constants } = useMarketingConstants();
   const typeOptions = constants?.budget_types ?? BUDGET_TYPE_OPTIONS;
-  const statusOptions = constants?.budget_statuses ?? BUDGET_STATUS_OPTIONS;
 
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
         <GroupFormSection icon={Wallet} title="Información del Presupuesto" cols={{ sm: 1, md: 2 }}>
-          <FormSelect
-            name="plan_id"
-            label="Plan"
-            placeholder="Selecciona un plan"
-            options={plans.map((p) => ({ label: p.name, value: p.id.toString() }))}
-            control={form.control}
-            required
-          />
-          <FormSelect
-            name="type"
-            label="Tipo"
-            placeholder="Selecciona un tipo"
-            options={typeOptions}
-            control={form.control}
-            required
-          />
+          {planName ? (
+            <div className="flex flex-col gap-1.5">
+              <span className="text-sm font-medium">Plan</span>
+              <div>
+                <Badge variant="outline">{planName}</Badge>
+              </div>
+            </div>
+          ) : (
+            <FormSelect
+              name="plan_id"
+              label="Plan"
+              placeholder="Selecciona un plan"
+              options={plans.map((p) => ({ label: p.name, value: p.id.toString() }))}
+              control={form.control}
+              required
+            />
+          )}
+          {lockType ? (
+            <div className="flex flex-col gap-1.5">
+              <span className="text-sm font-medium">Tipo</span>
+              <div>
+                <Badge className="capitalize">
+                  {typeOptions.find((t) => t.value === defaultValues.type)?.label ??
+                    defaultValues.type}
+                </Badge>
+              </div>
+            </div>
+          ) : (
+            <FormSelect
+              name="type"
+              label="Tipo"
+              placeholder="Selecciona un tipo"
+              options={typeOptions}
+              control={form.control}
+              required
+            />
+          )}
           <FormSelect
             name="period_month"
             label="Mes"
@@ -79,13 +119,18 @@ export const BudgetsForm = ({ defaultValues, onSubmit, isSubmitting = false }: P
             control={form.control}
             required
           />
-          <FormSelect
-            name="status"
-            label="Estado"
-            placeholder="Selecciona un estado"
-            options={statusOptions}
-            control={form.control}
-          />
+          {mode === "update" && (
+            <div className="flex flex-col gap-1.5">
+              <span className="text-sm font-medium">Estado</span>
+              <div>
+                <Badge className="capitalize">
+                  {statusLabel ??
+                    (BUDGET_STATUS_OPTIONS.find((s) => s.value === status)?.label as string) ??
+                    status}
+                </Badge>
+              </div>
+            </div>
+          )}
           <FormInput
             name="notes"
             label="Notas"
@@ -95,17 +140,30 @@ export const BudgetsForm = ({ defaultValues, onSubmit, isSubmitting = false }: P
           />
         </GroupFormSection>
 
-        <div className="flex gap-4 w-full justify-end">
-          <Link to={BUDGETS.ABSOLUTE_ROUTE!}>
-            <Button variant="outline" type="button" disabled={isSubmitting}>
+        {!hideFooter && (
+          <div className="flex gap-4 w-full justify-end">
+            <Link to={BUDGETS.ABSOLUTE_ROUTE!}>
+              <Button variant="outline" type="button" disabled={isSubmitting}>
+                Cancelar
+              </Button>
+            </Link>
+            <Button type="submit" disabled={isSubmitting}>
+              <Loader className={`mr-2 h-4 w-4 ${!isSubmitting ? "hidden" : ""}`} />
+              {isSubmitting ? "Guardando" : "Guardar Presupuesto"}
+            </Button>
+          </div>
+        )}
+        {hideFooter && (
+          <div className="flex gap-4 w-full justify-end">
+            <Button variant="outline" type="button" onClick={onCancel} disabled={isSubmitting}>
               Cancelar
             </Button>
-          </Link>
-          <Button type="submit" disabled={isSubmitting}>
-            <Loader className={`mr-2 h-4 w-4 ${!isSubmitting ? "hidden" : ""}`} />
-            {isSubmitting ? "Guardando" : "Guardar Presupuesto"}
-          </Button>
-        </div>
+            <Button type="submit" disabled={isSubmitting}>
+              <Loader className={`mr-2 h-4 w-4 ${!isSubmitting ? "hidden" : ""}`} />
+              {isSubmitting ? "Guardando" : "Guardar Presupuesto"}
+            </Button>
+          </div>
+        )}
       </form>
     </Form>
   );

@@ -27,7 +27,6 @@ function mapPlanToForm(data: PlansResource): Partial<PlansSchema> {
     brand_id: data.brand_id ? String(data.brand_id) : "",
     year: data.year,
     description: data.description ?? "",
-    status: data.status ?? "draft",
   };
 }
 
@@ -67,6 +66,8 @@ export default function UpdateMarketingPlanPage() {
         onSubmit={handleSubmit}
         isSubmitting={isPending}
         mode="update"
+        status={plan.status}
+        statusLabel={plan.status_label}
       />
     </FormWrapper>
   );

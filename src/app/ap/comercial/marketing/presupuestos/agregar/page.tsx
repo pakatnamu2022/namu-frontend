@@ -51,7 +51,6 @@ export default function AddMarketingBudgetPage() {
           period_month: "",
           currency_id: "",
           amount_estimated: 0,
-          status: "draft",
           notes: "",
         }}
         onSubmit={handleSubmit}
