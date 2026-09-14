@@ -536,6 +536,10 @@ const AccountsReceivablePage = lazyPage(() => import("./app/dp/comercial/account
 const AccountsReceivableDashboardPage = lazyPage(() => import("./app/dp/comercial/accounts-receivable/dashboard/page.tsx"));
 const AccountsReceivableApPage = lazyPage(() => import("./app/ap/comercial/accounts-receivable/page.tsx"));
 const AccountsReceivableDashboardApPage = lazyPage(() => import("./app/ap/comercial/accounts-receivable/dashboard/page.tsx"));
+const AccountsPayablePage = lazyPage(() => import("./app/dp/comercial/accounts-payable/page.tsx"));
+const AccountsPayableDashboardPage = lazyPage(() => import("./app/dp/comercial/accounts-payable/dashboard/page.tsx"));
+const AccountsPayableApPage = lazyPage(() => import("./app/ap/comercial/accounts-payable/page.tsx"));
+const AccountsPayableDashboardApPage = lazyPage(() => import("./app/ap/comercial/accounts-payable/dashboard/page.tsx"));
 import DPComercialLayout from "./app/dp/comercial/layout.tsx";
 import ManualesPage from "./features/manuales/components/ManualesPage";
 
@@ -1136,6 +1140,16 @@ function App() {
               <Route
                 path="cuentas-por-cobrar-ap/dashboard"
                 element={<AccountsReceivableDashboardApPage />}
+              />
+
+              {/* Cuentas por Pagar */}
+              <Route
+                path="cuentas-por-pagar-ap"
+                element={<AccountsPayableApPage />}
+              />
+              <Route
+                path="cuentas-por-pagar-ap/dashboard"
+                element={<AccountsPayableDashboardApPage />}
               />
             </Route>
 
@@ -2651,6 +2665,14 @@ function App() {
               <Route
                 path="cuentas-por-cobrar/dashboard"
                 element={<AccountsReceivableDashboardPage />}
+              />
+              <Route
+                path="accounts-payable"
+                element={<AccountsPayablePage />}
+              />
+              <Route
+                path="accounts-payable/dashboard"
+                element={<AccountsPayableDashboardPage />}
               />
             </Route>
 
