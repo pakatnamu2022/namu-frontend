@@ -36,7 +36,7 @@ export default function UpdateSuppliersPage() {
     refetchOnWindowFocus: false,
   });
 
-  const { mutate, isPending } = useMutation({
+  const { mutateAsync, isPending } = useMutation({
     mutationFn: (data: SuppliersSchema) => updateSuppliers(Number(id), data),
     onSuccess: async () => {
       successToast(SUCCESS_MESSAGE(MODEL, "update"));
@@ -51,8 +51,12 @@ export default function UpdateSuppliersPage() {
     },
   });
 
-  const handleSubmit = (data: SuppliersSchema) => {
-    mutate(data);
+  const handleSubmit = async (data: SuppliersSchema) => {
+    try {
+      await mutateAsync(data);
+    } catch {
+      // handled by onError
+    }
   };
 
   function mapSuppliersToForm(
