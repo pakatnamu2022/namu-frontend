@@ -118,7 +118,6 @@ export default function UpdatePurchaseRequestQuotePage() {
         mode="update"
         opportunity={opportunity}
         onCancel={() => router(ABSOLUTE_ROUTE)}
-        isApproved={Boolean(PurchaseRequestQuote.is_invoiced)}
         isPaid={Boolean(PurchaseRequestQuote.is_paid)}
       />
     </PageWrapper>

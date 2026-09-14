@@ -76,7 +76,6 @@ export default function VehicleDeliveryApprovalPage(): JSX.Element {
     }
   }, [vehicleDelivery, router, ABSOLUTE_ROUTE]);
 
-  if (!canApprove) notFound();
   if (isLoading) return <PageSkeleton />;
   if (!vehicleDelivery) notFound();
   if (!vehicleDelivery.is_extraordinary) return <PageSkeleton />;
@@ -288,7 +287,7 @@ export default function VehicleDeliveryApprovalPage(): JSX.Element {
                 </div>
               )}
 
-              {isPending && (
+              {isPending && canApprove && (
                 <div className="flex flex-col sm:flex-row gap-2 pt-2">
                   <Button
                     onClick={() => setConfirmAction("approve")}

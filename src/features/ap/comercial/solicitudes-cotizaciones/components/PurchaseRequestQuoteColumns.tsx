@@ -281,10 +281,8 @@ export const purchaseRequestQuoteColumns = ({
       // (el VIN pertenece a la sede actual). El backend revalida esto.
       const canChangeSede =
         permissions.canChangeLocation && !hasVehicle && !row.original.is_paid;
-      // Editable mientras no esté pagada en su totalidad. Si ya está
-      // aprobada, el formulario bloquea internamente los campos que afectan
-      // el precio (venta, vehículo/modelo, accesorios, descuentos) y solo
-      // permite agregar bonos, ajustar el margen ("Otros") y otros datos.
+      // Editable mientras no esté pagada en su totalidad. Estar aprobada o
+      // tener un anticipo registrado no restringe nada.
       const canEdit = permissions.canUpdate && !row.original.is_paid;
       // Solo se puede eliminar una solicitud "limpia": sin VIN, sin aprobar y
       // sin pagos/facturas. El backend revalida esto de todos modos.

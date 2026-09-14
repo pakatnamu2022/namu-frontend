@@ -215,12 +215,16 @@ export const vehicleDeliveryColumns = ({
       const value = (getValue() as DeliveryStatus) ?? "pending";
       const config: Record<
         DeliveryStatus,
-        { label: string; color: "green" | "blue" | "amber" | "red"; icon: LucideIcon }
+        {
+          label: string;
+          color: "green" | "blue" | "amber" | "red";
+          icon: LucideIcon;
+        }
       > = {
-        pending:   { label: "Pendiente",  color: "amber", icon: XCircle },
-        delivered: { label: "Entregado",  color: "blue",  icon: ArrowRightLeft },
+        pending: { label: "Pendiente", color: "amber", icon: XCircle },
+        delivered: { label: "Entregado", color: "blue", icon: ArrowRightLeft },
         completed: { label: "Completado", color: "green", icon: CheckCircle2 },
-        cancelled: { label: "Anulado",    color: "red",   icon: Ban },
+        cancelled: { label: "Anulado", color: "red", icon: Ban },
       };
       const { label, color, icon } = config[value] ?? config.pending;
 
@@ -531,7 +535,8 @@ export const vehicleDeliveryColumns = ({
 
       const canViewRescheduleHistory = !!rescheduled_by && permissions.canView;
 
-      const canOpenApproval = !!is_extraordinary && permissions.canApprove;
+      const canOpenApproval =
+        !!is_extraordinary && (permissions.canApprove || permissions.canView);
 
       const canCancel =
         !!onCancel &&
@@ -543,22 +548,31 @@ export const vehicleDeliveryColumns = ({
       if (extraordinaryReview) {
         return (
           <div className="flex items-center gap-2">
-            <Button
-              size="sm"
-              variant="secondary"
-              className={
-                extraordinary_approved === false
-                  ? "bg-red-100 text-red-700 hover:bg-red-200"
-                  : "bg-amber-100 text-amber-700 hover:bg-amber-200"
-              }
-              onClick={() => router(`${ABSOLUTE_ROUTE}/${id}/aprobacion`)}
-              disabled={!canOpenApproval}
-            >
-              <ShieldCheck className="size-4 mr-2" />
-              {extraordinary_approved === false
-                ? "Revisar rechazo"
-                : "Aprobar"}
-            </Button>
+            {permissions.canApprove ? (
+              <Button
+                size="sm"
+                variant="secondary"
+                color={extraordinary_approved === false ? "red" : "amber"}
+                onClick={() => router(`${ABSOLUTE_ROUTE}/${id}/aprobacion`)}
+                disabled={
+                  !!is_extraordinary && extraordinary_approved === true
+                }
+              >
+                <ShieldCheck className="size-4 mr-2" />
+                {extraordinary_approved === false
+                  ? "Revisar rechazo"
+                  : "Aprobar"}
+              </Button>
+            ) : (
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => router(`${ABSOLUTE_ROUTE}/${id}/aprobacion`)}
+              >
+                <Eye className="size-4 mr-2" />
+                Ver
+              </Button>
+            )}
             {extraordinary_approved === false && canReschedule && (
               <Button
                 variant="outline"
@@ -578,7 +592,8 @@ export const vehicleDeliveryColumns = ({
         <div className="flex items-center gap-2">
           <ButtonAction
             tooltip={
-              extraordinary_approved === null || extraordinary_approved === undefined
+              extraordinary_approved === null ||
+              extraordinary_approved === undefined
                 ? "Aprobar / Rechazar entrega extraordinaria"
                 : "Ver aprobación de entrega extraordinaria"
             }
