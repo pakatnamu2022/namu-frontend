@@ -27,6 +27,9 @@ export const APPLICANT_TYPE = {
   SELECCIONADO: 6,
 } as const;
 
+export const OUT_OF_QUOTA_ROUTE = "fuera-de-cupo";
+export const BLACKLIST_ROUTE = "lista-negra-rechazados";
+
 export const APPLICANT_STATUS_OPTIONS = [
   { value: String(APPLICANT_TYPE.SELECCIONADO), label: "Seleccionado" },
   { value: String(APPLICANT_TYPE.RECHAZADO), label: "Rechazado" },

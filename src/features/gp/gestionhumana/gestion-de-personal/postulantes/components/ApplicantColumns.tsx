@@ -4,7 +4,7 @@ import type { ColumnDef } from "@tanstack/react-table";
 import { ApplicantResource } from "../lib/applicant.interface.ts";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Pencil, ShieldCheck } from "lucide-react";
+import { Pencil, Redo2, ShieldCheck } from "lucide-react";
 import { Link } from "react-router-dom";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
 import { ButtonAction } from "@/shared/components/ButtonAction";
@@ -24,9 +24,11 @@ const STATUS_COLOR: Record<number, string> = {
 export const applicantColumns = ({
   onStatus,
   onDelete,
+  onRepost,
 }: {
   onStatus: (row: ApplicantResource) => void;
   onDelete: (id: number) => void;
+  onRepost?: (row: ApplicantResource) => void;
 }): ApplicantColumns[] => [
   {
     accessorKey: "nombre_completo",
@@ -78,6 +80,21 @@ export const applicantColumns = ({
       const { ROUTE_UPDATE } = APPLICANT;
       const { id, tipo_trabajador_id } = row.original;
       const editable = tipo_trabajador_id !== APPLICANT_TYPE.CONTRATADO;
+      const repostable =
+        tipo_trabajador_id === APPLICANT_TYPE.RECHAZADO ||
+        tipo_trabajador_id === APPLICANT_TYPE.FUERA_CUPO;
+
+      if (onRepost) {
+        return repostable ? (
+          <ButtonAction
+            icon={Redo2}
+            color="blue"
+            tooltip="Repostular"
+            type="button"
+            onClick={() => onRepost(row.original)}
+          />
+        ) : null;
+      }
 
       return (
         <div className="flex items-center gap-2">

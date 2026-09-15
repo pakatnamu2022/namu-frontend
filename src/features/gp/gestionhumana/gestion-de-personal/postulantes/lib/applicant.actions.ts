@@ -70,3 +70,14 @@ export async function deleteApplicant(id: number): Promise<GeneralResponse> {
   const { data } = await api.delete<GeneralResponse>(`${ENDPOINT}/${id}`);
   return data;
 }
+
+export async function repostApplicant(
+  id: number,
+  proceso_postulacion_id: number,
+): Promise<{ data: ApplicantResource }> {
+  const { data } = await api.post<{ data: ApplicantResource }>(
+    `${ENDPOINT}/${id}/repost`,
+    { proceso_postulacion_id },
+  );
+  return data;
+}
