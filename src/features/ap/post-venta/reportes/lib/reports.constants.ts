@@ -287,6 +287,18 @@ export const POST_VENTA_REPORTS: ReportConfig[] = [
         nameTo: "date_to",
         rangeParamName: "fecha_emision",
       },
+      {
+        name: "sede_id",
+        label: "Sede",
+        type: "select",
+        required: false,
+        endpoint: `/gp/mg/sede/my?company=${EMPRESA_AP.id}&has_workshop=true`,
+        optionsMapper: (data) =>
+          (data ?? []).map((item: any) => ({
+            label: item.description,
+            value: String(item.id),
+          })),
+      },
     ],
     defaultParams: {},
   },
