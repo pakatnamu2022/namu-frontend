@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import {
   Award,
   NotebookPen,
@@ -11,6 +11,7 @@ import {
   Users,
   Wallet,
 } from "lucide-react";
+import type { ColumnDef } from "@tanstack/react-table";
 import TitleComponent from "@/shared/components/TitleComponent";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
 import { MetricCard } from "@/shared/components/MetricCard";
@@ -23,14 +24,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { DataTable } from "@/shared/components/DataTable";
 import { Badge } from "@/components/ui/badge";
 import { FormSelect } from "@/shared/components/FormSelect";
 import { Form } from "@/components/ui/form";
@@ -42,6 +36,10 @@ import {
   useMarketingDashboard,
   useMarketingDashboardMonthly,
 } from "@/features/ap/comercial/marketing/dashboard/lib/marketingDashboard.hook";
+import type { MarketingDashboardResponse } from "@/features/ap/comercial/marketing/dashboard/lib/marketingDashboard.interface";
+
+type MarketingKpiByChannel = MarketingDashboardResponse["kpis_by_channel"][number];
+type MarketingTopActivity = MarketingDashboardResponse["top_activities"][number];
 
 // El dashboard consolida montos de presupuestos/KPIs que pueden venir en distintas
 // monedas (PEN/USD): el backend ya los convierte todos a USD con el tipo de cambio
@@ -96,6 +94,109 @@ export default function MarketingDashboardPage() {
     name: c.channel,
     value: Number(c.total_investment),
   }));
+
+  const channelColumns = useMemo<ColumnDef<MarketingKpiByChannel>[]>(
+    () => [
+      {
+        accessorKey: "channel",
+        header: "Canal",
+        cell: ({ row }) => (
+          <span className="font-medium">{row.original.channel}</span>
+        ),
+      },
+      {
+        accessorKey: "total_leads",
+        header: "Leads",
+        cell: ({ row }) => (
+          <div className="text-right">{row.original.total_leads}</div>
+        ),
+      },
+      {
+        accessorKey: "total_sales",
+        header: "Ventas",
+        cell: ({ row }) => (
+          <div className="text-right">{row.original.total_sales}</div>
+        ),
+      },
+      {
+        accessorKey: "conversion_rate",
+        header: "Conversión",
+        cell: ({ row }) => (
+          <div className="text-right">
+            <Badge
+              color={row.original.conversion_rate >= 10 ? "default" : "secondary"}
+            >
+              {row.original.conversion_rate}%
+            </Badge>
+          </div>
+        ),
+      },
+      {
+        accessorKey: "cost_per_lead",
+        header: "CPL",
+        cell: ({ row }) => (
+          <div className="text-right">
+            {currencyFormatter(row.original.cost_per_lead)}
+          </div>
+        ),
+      },
+    ],
+    [],
+  );
+
+  const topActivitiesColumns = useMemo<ColumnDef<MarketingTopActivity>[]>(
+    () => [
+      {
+        accessorKey: "name",
+        header: "Actividad",
+        cell: ({ row }) => (
+          <div>
+            <span className="font-medium">{row.original.name}</span>
+            <span className="block text-xs text-muted-foreground font-normal">
+              {row.original.channel ?? "Sin canal"}
+            </span>
+          </div>
+        ),
+      },
+      {
+        accessorKey: "total_leads",
+        header: "Leads",
+        cell: ({ row }) => (
+          <div className="text-right">{row.original.total_leads}</div>
+        ),
+      },
+      {
+        accessorKey: "total_sales",
+        header: "Ventas",
+        cell: ({ row }) => (
+          <div className="text-right">{row.original.total_sales}</div>
+        ),
+      },
+      {
+        accessorKey: "conversion_rate",
+        header: "Conversión",
+        cell: ({ row }) => (
+          <div className="text-right">
+            <Badge
+              color={row.original.conversion_rate >= 10 ? "default" : "secondary"}
+            >
+              {row.original.conversion_rate}%
+            </Badge>
+          </div>
+        ),
+      },
+      {
+        accessorKey: "cost_per_lead",
+        header: "CPL",
+        cell: ({ row }) => (
+          <div className="text-right">
+            {currencyFormatter(row.original.cost_per_lead)}
+          </div>
+        ),
+      },
+    ],
+    [],
+  );
 
   return (
     <div className="space-y-4">
@@ -257,32 +358,12 @@ export default function MarketingDashboardPage() {
               </p>
             </CardHeader>
             <CardContent>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Canal</TableHead>
-                    <TableHead className="text-right">Leads</TableHead>
-                    <TableHead className="text-right">Ventas</TableHead>
-                    <TableHead className="text-right">Conversión</TableHead>
-                    <TableHead className="text-right">CPL</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {kpisByChannel.map((c) => (
-                    <TableRow key={c.channel}>
-                      <TableCell className="font-medium">{c.channel}</TableCell>
-                      <TableCell className="text-right">{c.total_leads}</TableCell>
-                      <TableCell className="text-right">{c.total_sales}</TableCell>
-                      <TableCell className="text-right">
-                        <Badge variant={c.conversion_rate >= 10 ? "default" : "secondary"}>
-                          {c.conversion_rate}%
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="text-right">{currencyFormatter(c.cost_per_lead)}</TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+              <DataTable
+                columns={channelColumns}
+                data={kpisByChannel}
+                isVisibleColumnFilter={false}
+                getRowId={(row) => row.channel}
+              />
             </CardContent>
           </Card>
         )}
@@ -298,37 +379,12 @@ export default function MarketingDashboardPage() {
               </p>
             </CardHeader>
             <CardContent>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Actividad</TableHead>
-                    <TableHead className="text-right">Leads</TableHead>
-                    <TableHead className="text-right">Ventas</TableHead>
-                    <TableHead className="text-right">Conversión</TableHead>
-                    <TableHead className="text-right">CPL</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {topActivities.map((a) => (
-                    <TableRow key={a.id}>
-                      <TableCell className="font-medium">
-                        {a.name}
-                        <span className="block text-xs text-muted-foreground font-normal">
-                          {a.channel ?? "Sin canal"}
-                        </span>
-                      </TableCell>
-                      <TableCell className="text-right">{a.total_leads}</TableCell>
-                      <TableCell className="text-right">{a.total_sales}</TableCell>
-                      <TableCell className="text-right">
-                        <Badge variant={a.conversion_rate >= 10 ? "default" : "secondary"}>
-                          {a.conversion_rate}%
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="text-right">{currencyFormatter(a.cost_per_lead)}</TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+              <DataTable
+                columns={topActivitiesColumns}
+                data={topActivities}
+                isVisibleColumnFilter={false}
+                getRowId={(row) => String(row.id)}
+              />
             </CardContent>
           </Card>
         )}

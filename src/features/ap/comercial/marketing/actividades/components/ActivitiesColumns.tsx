@@ -41,7 +41,6 @@ const statusColor: Record<string, "default" | "secondary" | "destructive"> = {
 export const activitiesColumns = ({
   onDelete,
   onChangeStatus,
-  onAddLocation,
   permissions,
 }: Props): ActivitiesColumns[] => [
   {
