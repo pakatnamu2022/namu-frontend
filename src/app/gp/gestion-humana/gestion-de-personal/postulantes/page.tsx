@@ -20,7 +20,10 @@ import {
   SUCCESS_MESSAGE,
   successToast,
 } from "@/core/core.function";
-import { APPLICANT, APPLICANT_TYPE } from "@/features/gp/gestionhumana/gestion-de-personal/postulantes/lib/applicant.constant";
+import {
+  APPLICANT,
+  APPLICANT_TYPE,
+} from "@/features/gp/gestionhumana/gestion-de-personal/postulantes/lib/applicant.constant";
 import { useApplicants } from "@/features/gp/gestionhumana/gestion-de-personal/postulantes/lib/applicant.hook";
 import {
   changeApplicantStatus,
@@ -54,7 +57,11 @@ export default function ApplicantPage() {
     setPage(1);
   }, [search, per_page]);
 
-  const { data, isLoading, refetch } = useApplicants({ page, search, per_page });
+  const { data, isLoading, refetch } = useApplicants({
+    page,
+    search,
+    per_page,
+  });
 
   const handleDelete = async () => {
     if (!deleteId) return;
@@ -63,7 +70,9 @@ export default function ApplicantPage() {
       await refetch();
       successToast(SUCCESS_MESSAGE(MODEL, "delete"));
     } catch (error: any) {
-      errorToast(error?.response?.data?.message ?? ERROR_MESSAGE(MODEL, "delete"));
+      errorToast(
+        error?.response?.data?.message ?? ERROR_MESSAGE(MODEL, "delete"),
+      );
     } finally {
       setDeleteId(null);
     }
@@ -77,7 +86,9 @@ export default function ApplicantPage() {
         tipo_trabajador_id: Number(values.tipo_trabajador_id),
         motivo_status: values.motivo_status || undefined,
         fecha_inicio: values.fecha_inicio || undefined,
-        presupuesto: values.presupuesto ? Number(values.presupuesto) : undefined,
+        presupuesto: values.presupuesto
+          ? Number(values.presupuesto)
+          : undefined,
       });
       await refetch();
       successToast(
@@ -115,9 +126,7 @@ export default function ApplicantPage() {
           >
             <ClipboardCheck className="size-4 mr-2" /> Cola de aprobación
             {!!pendingChanges?.meta?.total && (
-              <Badge className="ml-2" variant="secondary">
-                {pendingChanges.meta.total}
-              </Badge>
+              <Badge className="ml-2">{pendingChanges.meta.total}</Badge>
             )}
           </Button>
         </ActionsWrapper>

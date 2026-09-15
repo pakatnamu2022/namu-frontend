@@ -51,7 +51,9 @@ export const selectedWorkerColumns = ({
     id: "carta_oferta",
     header: "Carta oferta",
     cell: ({ row }) => (
-      <Badge variant={row.original.carta_oferta_firmada ? "default" : "secondary"}>
+      <Badge
+        color={row.original.carta_oferta_firmada ? "default" : "secondary"}
+      >
         {row.original.carta_oferta_firmada ? "Firmada" : "Pendiente"}
       </Badge>
     ),
