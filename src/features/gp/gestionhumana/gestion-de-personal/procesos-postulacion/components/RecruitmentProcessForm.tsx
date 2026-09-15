@@ -77,19 +77,21 @@ export const RecruitmentProcessForm = ({
     usePositions({ ...params, area_id: areaId || undefined });
 
   // Al cambiar la sede, limpiar área y cargo (salvo la carga inicial en edición).
-  const initialized = useRef(false);
+  const prevSedeId = useRef(sedeId);
   useEffect(() => {
-    if (!initialized.current) {
-      initialized.current = true;
-      return;
+    if (prevSedeId.current !== sedeId) {
+      prevSedeId.current = sedeId;
+      form.setValue("area_id", "");
+      form.setValue("cargo_id", "");
     }
-    form.setValue("area_id", "");
-    form.setValue("cargo_id", "");
   }, [sedeId, form]);
 
+  const prevAreaId = useRef(areaId);
   useEffect(() => {
-    if (!initialized.current) return;
-    form.setValue("cargo_id", "");
+    if (prevAreaId.current !== areaId) {
+      prevAreaId.current = areaId;
+      form.setValue("cargo_id", "");
+    }
   }, [areaId, form]);
 
   return (
