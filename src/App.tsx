@@ -480,6 +480,10 @@ const ProcessApplicantsPage = lazyPage(() => import("./app/gp/gestion-humana/ges
 const ApplicantPage = lazyPage(() => import("./app/gp/gestion-humana/gestion-de-personal/postulantes/page.tsx"));
 const AddApplicantPage = lazyPage(() => import("./app/gp/gestion-humana/gestion-de-personal/postulantes/agregar/page.tsx"));
 const UpdateApplicantPage = lazyPage(() => import("./app/gp/gestion-humana/gestion-de-personal/postulantes/actualizar/[id]/page.tsx"));
+const ApplicantDataChangeQueuePage = lazyPage(() => import("./app/gp/gestion-humana/gestion-de-personal/postulantes/aprobaciones/page.tsx"));
+const OutOfQuotaApplicantsPage = lazyPage(() => import("./app/gp/gestion-humana/gestion-de-personal/fuera-de-cupo/page.tsx"));
+const BlacklistApplicantsPage = lazyPage(() => import("./app/gp/gestion-humana/gestion-de-personal/lista-negra-rechazados/page.tsx"));
+const SelectedWorkersPage = lazyPage(() => import("./app/gp/gestion-humana/gestion-de-personal/seleccionados/page.tsx"));
 const PerDiemCategoryPage = lazyPage(() => import("./app/gp/gestion-humana/viaticos/categoria-viaticos/page.tsx"));
 const PerDiemPolicyPage = lazyPage(() => import("./app/gp/gestion-humana/viaticos/politica-viaticos/page.tsx"));
 const AddPerDiemPolicyPage = lazyPage(() => import("./app/gp/gestion-humana/viaticos/politica-viaticos/agregar/page.tsx"));
@@ -2177,6 +2181,22 @@ function App() {
                 <AddApplicantPage />,
                 <UpdateApplicantPage />,
               )}
+              <Route
+                path="gestion-de-personal/postulantes/aprobaciones"
+                element={<ApplicantDataChangeQueuePage />}
+              />
+              <Route
+                path="gestion-de-personal/fuera-de-cupo"
+                element={<OutOfQuotaApplicantsPage />}
+              />
+              <Route
+                path="gestion-de-personal/lista-negra-rechazados"
+                element={<BlacklistApplicantsPage />}
+              />
+              <Route
+                path="gestion-de-personal/seleccionados"
+                element={<SelectedWorkersPage />}
+              />
               <Route
                 path="viaticos"
                 element={
