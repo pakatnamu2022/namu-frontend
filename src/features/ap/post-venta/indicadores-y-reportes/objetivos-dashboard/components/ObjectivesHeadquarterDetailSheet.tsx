@@ -10,9 +10,7 @@ import {
   OBJECTIVE_STATUS_BADGE_COLOR,
   OBJECTIVE_STATUS_LABEL,
 } from "../lib/objectivesDashboard.constants";
-import ObjectivesAreaOverview from "./ObjectivesAreaOverview";
-import ObjectivesWorkshopDetail from "./ObjectivesWorkshopDetail";
-import ObjectivesVehicleCrossingDetail from "./ObjectivesVehicleCrossingDetail";
+import ObjectivesConceptDetail from "./ObjectivesConceptDetail";
 
 interface ObjectivesHeadquarterDetailSheetProps {
   open: boolean;
@@ -20,6 +18,12 @@ interface ObjectivesHeadquarterDetailSheetProps {
   detail: HeadquarterDetail | null;
   loading?: boolean;
 }
+
+const conceptIcon = (areaName: string, isVehicularCrossing: boolean) => {
+  if (isVehicularCrossing) return Car;
+  if (areaName.toLowerCase().includes("repuesto")) return ShoppingBag;
+  return Wrench;
+};
 
 export default function ObjectivesHeadquarterDetailSheet({
   open,
@@ -88,36 +92,38 @@ export default function ObjectivesHeadquarterDetailSheet({
             </div>
           </div>
 
-          <Tabs defaultValue="workshop">
-            <TabsList className="w-full justify-start overflow-x-auto">
-              <TabsTrigger value="workshop" className="gap-1.5">
-                <Wrench className="size-4" />
-                Taller
-              </TabsTrigger>
-              <TabsTrigger value="counter" className="gap-1.5">
-                <ShoppingBag className="size-4" />
-                Mostrador
-              </TabsTrigger>
-              <TabsTrigger value="vehicle_crossing" className="gap-1.5">
-                <Car className="size-4" />
-                Paso Vehicular
-              </TabsTrigger>
-            </TabsList>
+          {detail.concepts.length > 0 && (
+            <Tabs defaultValue={String(detail.concepts[0].id)}>
+              <TabsList className="w-full justify-start overflow-x-auto">
+                {detail.concepts.map((concept) => {
+                  const Icon = conceptIcon(
+                    concept.area_name,
+                    concept.is_vehicular_crossing,
+                  );
+                  return (
+                    <TabsTrigger
+                      key={concept.id}
+                      value={String(concept.id)}
+                      className="gap-1.5"
+                    >
+                      <Icon className="size-4" />
+                      {concept.description}
+                    </TabsTrigger>
+                  );
+                })}
+              </TabsList>
 
-            <TabsContent value="workshop" className="space-y-4">
-              <ObjectivesWorkshopDetail workshop={detail.workshop} />
-            </TabsContent>
-
-            <TabsContent value="counter" className="space-y-4">
-              <ObjectivesAreaOverview area={detail.counter} unit="currency" />
-            </TabsContent>
-
-            <TabsContent value="vehicle_crossing" className="space-y-4">
-              <ObjectivesVehicleCrossingDetail
-                crossing={detail.vehicle_crossing}
-              />
-            </TabsContent>
-          </Tabs>
+              {detail.concepts.map((concept) => (
+                <TabsContent
+                  key={concept.id}
+                  value={String(concept.id)}
+                  className="space-y-4"
+                >
+                  <ObjectivesConceptDetail concept={concept} />
+                </TabsContent>
+              ))}
+            </Tabs>
+          )}
         </div>
       )}
     </GeneralSheet>
