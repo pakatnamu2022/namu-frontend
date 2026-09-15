@@ -130,7 +130,7 @@ export default function ObjectivesDashboard() {
           {dashboard.headquarters_comparison.ranking.length > 0 && (
             <>
               <ObjectivesHeadquartersChart
-                chartData={dashboard.headquarters_comparison.chart_data}
+                ranking={dashboard.headquarters_comparison.ranking}
               />
 
               <ObjectivesHeadquartersTable

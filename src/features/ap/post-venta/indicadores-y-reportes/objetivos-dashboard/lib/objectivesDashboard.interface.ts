@@ -58,6 +58,7 @@ export interface ConceptSummary {
   objective: number;
   progress: number;
   completion_percentage: number;
+  is_vehicular_crossing: boolean;
   status: ObjectiveStatus;
 }
 
