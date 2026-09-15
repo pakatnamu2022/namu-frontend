@@ -23,6 +23,7 @@ import type { SortingState } from "@tanstack/react-table";
 import InventoryStockMinMaxModal from "@/features/ap/post-venta/gestion-almacen/inventario/components/InventoryStockMinMaxModal";
 import { InventoryResource } from "@/features/ap/post-venta/gestion-almacen/inventario/lib/inventory.interface";
 import ReservedStockDetailsSheet from "@/features/ap/post-venta/gestion-almacen/inventario/components/ReservedStockDetailsSheet";
+import { useAllBrands } from "@/features/ap/configuraciones/vehiculos/marcas/lib/brands.hook.ts";
 
 export default function InventoryPage() {
   const router = useNavigate();
@@ -31,13 +32,14 @@ export default function InventoryPage() {
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
   const { values: filters, setFieldValue: setFilter } = useScopedFilters(
     INVENTORY.ABSOLUTE_ROUTE,
-    { search: "", warehouseId: "", productShelfId: "all" },
+    { search: "", warehouseId: "", productShelfId: "all", brandId: "all" },
   );
-  const { search, warehouseId, productShelfId } = filters;
+  const { search, warehouseId, productShelfId, brandId } = filters;
   const setSearch = (value: string) => setFilter("search", value);
   const setWarehouseId = (value: string) => setFilter("warehouseId", value);
   const setProductShelfId = (value: string) =>
     setFilter("productShelfId", value);
+  const setBrandId = (value: string) => setFilter("brandId", value);
   const [stockMinMaxSelected, setStockMinMaxSelected] =
     useState<InventoryResource | null>(null);
   const [reservedStockSelected, setReservedStockSelected] = useState<{
@@ -66,6 +68,11 @@ export default function InventoryPage() {
     { enabled: !!warehouseId },
   );
 
+  // Marcas disponibles (filtro adicional del inventario)
+  const { data: brands = [] } = useAllBrands({
+    is_marketed: 1,
+  });
+
   // Resetear el filtro de estante al cambiar de almacén
   useEffect(() => {
     if (productShelfId !== "all") setProductShelfId("all");
@@ -89,6 +96,7 @@ export default function InventoryPage() {
       sort: "quantity",
       ...(orderByStock && { direction: orderByStock }),
       ...(productShelfId !== "all" && { product_shelf_id: productShelfId }),
+      ...(brandId !== "all" && { product$brand_id: brandId }),
     },
     {
       enabled: !!warehouseId,
@@ -163,6 +171,9 @@ export default function InventoryPage() {
           shelves={shelves}
           productShelfId={productShelfId}
           setProductShelfId={setProductShelfId}
+          brands={brands}
+          brandId={brandId}
+          setBrandId={setBrandId}
         />
       </InventoryTable>
 
