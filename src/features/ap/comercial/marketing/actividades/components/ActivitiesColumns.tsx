@@ -1,13 +1,13 @@
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import type { ColumnDef } from "@tanstack/react-table";
-import { MapPin, Pencil, Receipt, X } from "lucide-react";
+import { FileDown, Pencil, Receipt, X } from "lucide-react";
 import { ButtonAction } from "@/shared/components/ButtonAction";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
 import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { formatDateShort } from "@/core/core.function";
+import { errorToast, formatDateShort } from "@/core/core.function";
 import { ActivitiesResource } from "../lib/activities.interface";
 import {
   ACTIVITIES,
@@ -15,6 +15,7 @@ import {
   ACTIVITY_NEXT_STATUS,
   ACTIVITY_STATUS_OPTIONS,
 } from "../lib/activities.constants";
+import { downloadActivitySupportsPdf } from "../lib/activities.actions";
 import { SUPPORTS } from "../../sustentos/lib/supports.constants";
 
 export type ActivitiesColumns = ColumnDef<ActivitiesResource>;
@@ -22,7 +23,8 @@ export type ActivitiesColumns = ColumnDef<ActivitiesResource>;
 interface Props {
   onDelete: (id: number) => void;
   onChangeStatus: (id: number, status: string) => void;
-  onAddLocation: (id: number) => void;
+  /** Oculto de momento: la sede/ubicación de la actividad no se usa por ahora. */
+  onAddLocation?: (id: number) => void;
   permissions: {
     canUpdate: boolean;
     canDelete: boolean;
@@ -39,7 +41,6 @@ const statusColor: Record<string, "default" | "secondary" | "destructive"> = {
 export const activitiesColumns = ({
   onDelete,
   onChangeStatus,
-  onAddLocation,
   permissions,
 }: Props): ActivitiesColumns[] => [
   {
@@ -154,17 +155,24 @@ export const activitiesColumns = ({
 
       return (
         <div className="flex items-center gap-2">
-          <ButtonAction
-            icon={MapPin}
-            tooltip="Agregar sede/ubicación"
-            type="button"
-            onClick={() => onAddLocation(id)}
-          />
+          {/* Sede/ubicación oculta de momento (no se usa aún). */}
           <ButtonAction
             icon={Receipt}
             tooltip="Agregar sustento"
             type="button"
             onClick={() => router(`${SUPPORTS.ROUTE_ADD}?activity_id=${id}`)}
+          />
+          <ButtonAction
+            icon={FileDown}
+            tooltip="Descargar PDF de sustentos"
+            type="button"
+            onClick={async () => {
+              try {
+                await downloadActivitySupportsPdf(id);
+              } catch {
+                errorToast("Error al generar el PDF de sustentos.");
+              }
+            }}
           />
           {permissions.canUpdate && (
             <ButtonAction

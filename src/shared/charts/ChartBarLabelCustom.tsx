@@ -36,8 +36,8 @@ export function ChartBarLabelCustom({ title, subtitle, data, valueFormatter, col
 
   return (
     <Card>
-      <CardHeader className="pb-2">
-        <CardTitle className="text-sm font-semibold">{title}</CardTitle>
+      <CardHeader className="pb-2 gap-1!">
+        <CardTitle className="font-semibold">{title}</CardTitle>
         {subtitle && (
           <p className="text-sm text-muted-foreground">{subtitle}</p>
         )}

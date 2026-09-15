@@ -35,19 +35,52 @@ export async function findPurchaseOrdersById(
 }
 
 export async function storePurchaseOrders(
-  payload: PurchaseOrdersSchema,
+  payload: PurchaseOrdersSchema & { file?: File | null },
 ): Promise<PurchaseOrdersResource> {
-  const { data } = await api.post<PurchaseOrdersResource>(ENDPOINT, payload);
+  const { file, ...rest } = payload;
+
+  if (file) {
+    const formData = new FormData();
+    Object.entries(rest).forEach(([key, value]) => {
+      if (value !== undefined && value !== null && value !== "") {
+        formData.append(key, String(value));
+      }
+    });
+    formData.append("file", file);
+    const { data } = await api.post<PurchaseOrdersResource>(ENDPOINT, formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+    return data;
+  }
+
+  const { data } = await api.post<PurchaseOrdersResource>(ENDPOINT, rest);
   return data;
 }
 
 export async function updatePurchaseOrders(
   id: number,
-  payload: Partial<PurchaseOrdersSchema>,
+  payload: Partial<PurchaseOrdersSchema> & { file?: File | null },
 ): Promise<PurchaseOrdersResource> {
+  const { file, ...rest } = payload;
+
+  if (file) {
+    const formData = new FormData();
+    formData.append("_method", "PUT");
+    Object.entries(rest).forEach(([key, value]) => {
+      if (value !== undefined && value !== null && value !== "") {
+        formData.append(key, String(value));
+      }
+    });
+    formData.append("file", file);
+    const { data } = await api.post<PurchaseOrdersResource>(`${ENDPOINT}/${id}`, formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+    return data;
+  }
+
   const { data } = await api.put<PurchaseOrdersResource>(
     `${ENDPOINT}/${id}`,
-    payload,
+    rest,
   );
   return data;
 }

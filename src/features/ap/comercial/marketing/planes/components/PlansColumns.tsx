@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import type { ColumnDef } from "@tanstack/react-table";
-import { Pencil } from "lucide-react";
+import { CheckCircle2, PlayCircle, Wallet, XCircle, Pencil } from "lucide-react";
 import { ButtonAction } from "@/shared/components/ButtonAction";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
 import { Badge } from "@/components/ui/badge";
@@ -11,13 +11,24 @@ export type PlansColumns = ColumnDef<PlansResource>;
 
 interface Props {
   onDelete: (id: number) => void;
+  onActivate: (id: number) => void;
+  onComplete: (id: number) => void;
+  onCancel: (id: number) => void;
+  onManageBudgets: (plan: PlansResource) => void;
   permissions: {
     canUpdate: boolean;
     canDelete: boolean;
   };
 }
 
-export const plansColumns = ({ onDelete, permissions }: Props): PlansColumns[] => [
+export const plansColumns = ({
+  onDelete,
+  onActivate,
+  onComplete,
+  onCancel,
+  onManageBudgets,
+  permissions,
+}: Props): PlansColumns[] => [
   {
     accessorKey: "name",
     header: "Nombre",
@@ -71,8 +82,40 @@ export const plansColumns = ({ onDelete, permissions }: Props): PlansColumns[] =
       const { id } = row.original;
       const { ROUTE_UPDATE } = PLANS;
 
+      const status = row.original.status;
+
       return (
         <div className="flex items-center gap-2">
+          <ButtonAction
+            icon={Wallet}
+            tooltip="Presupuestos"
+            type="button"
+            onClick={() => onManageBudgets(row.original)}
+          />
+          {permissions.canUpdate && status === "draft" && (
+            <ButtonAction
+              icon={PlayCircle}
+              tooltip="Activar plan"
+              type="button"
+              onClick={() => onActivate(id)}
+            />
+          )}
+          {permissions.canUpdate && status === "active" && (
+            <ButtonAction
+              icon={CheckCircle2}
+              tooltip="Completar plan (genera OC)"
+              type="button"
+              onClick={() => onComplete(id)}
+            />
+          )}
+          {permissions.canUpdate && (status === "draft" || status === "active") && (
+            <ButtonAction
+              icon={XCircle}
+              tooltip="Cancelar plan"
+              type="button"
+              onClick={() => onCancel(id)}
+            />
+          )}
           {permissions.canUpdate && (
             <ButtonAction
               icon={Pencil}

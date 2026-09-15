@@ -725,7 +725,10 @@ export const SuppliersForm = ({
           <Button
             type="submit"
             disabled={
-              isSubmitting || !form.formState.isValid || isValidatingDocument
+              isSubmitting ||
+              form.formState.isSubmitting ||
+              !form.formState.isValid ||
+              isValidatingDocument
             }
           >
             <Loader

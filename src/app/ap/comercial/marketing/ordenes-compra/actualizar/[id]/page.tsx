@@ -22,11 +22,13 @@ import { notFound } from "@/shared/hooks/useNotFound";
 
 function mapOrderToForm(data: PurchaseOrdersResource): Partial<PurchaseOrdersSchema> {
   return {
+    plan_id: data.plan_id ? String(data.plan_id) : "",
     activity_id: data.activity_id ? String(data.activity_id) : "",
     proposal_id: data.proposal_id ? String(data.proposal_id) : "",
     supplier_id: String(data.supplier_id),
     currency_id: String(data.currency_id),
     number: data.number ?? "",
+    reference: data.reference ?? "",
     amount: data.amount,
     issue_date: data.issue_date ?? "",
     status: data.status ?? "draft",
@@ -44,7 +46,8 @@ export default function UpdateMarketingPurchaseOrderPage() {
   const { data: order, isLoading: loadingOrder } = usePurchaseOrdersById(Number(id));
 
   const { mutate, isPending } = useMutation({
-    mutationFn: (data: PurchaseOrdersSchema) => updatePurchaseOrders(Number(id), data),
+    mutationFn: (payload: { data: PurchaseOrdersSchema; file: File | null }) =>
+      updatePurchaseOrders(Number(id), { ...payload.data, file: payload.file }),
     onSuccess: async () => {
       successToast(SUCCESS_MESSAGE(MODEL, "update"));
       await queryClient.invalidateQueries({ queryKey: [QUERY_KEY] });
@@ -56,7 +59,8 @@ export default function UpdateMarketingPurchaseOrderPage() {
     },
   });
 
-  const handleSubmit = (data: PurchaseOrdersSchema) => mutate(data);
+  const handleSubmit = (data: PurchaseOrdersSchema, file: File | null) =>
+    mutate({ data, file });
 
   if (loadingOrder || !order) return <FormSkeleton />;
   if (!checkRouteExists(ROUTE)) notFound();
@@ -71,6 +75,9 @@ export default function UpdateMarketingPurchaseOrderPage() {
         isSubmitting={isPending}
         mode="update"
         statusLabel={order.status_label}
+        planName={order.plan?.name}
+        planBrandName={order.plan?.brand?.name}
+        existingFileUrl={order.file_path}
       />
     </FormWrapper>
   );

@@ -17,11 +17,9 @@ import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
 import { BUDGETS } from "@/features/ap/comercial/marketing/presupuestos/lib/budgets.constants";
 import { useBudgets } from "@/features/ap/comercial/marketing/presupuestos/lib/budgets.hook";
 import { deleteBudgets } from "@/features/ap/comercial/marketing/presupuestos/lib/budgets.actions";
-import BudgetsActions from "@/features/ap/comercial/marketing/presupuestos/components/BudgetsActions";
 import BudgetsTable from "@/features/ap/comercial/marketing/presupuestos/components/BudgetsTable";
 import { budgetsColumns } from "@/features/ap/comercial/marketing/presupuestos/components/BudgetsColumns";
 import BudgetsOptions from "@/features/ap/comercial/marketing/presupuestos/components/BudgetsOptions";
-import FundingModal from "@/features/ap/comercial/marketing/presupuestos/components/FundingModal";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
 import { notFound } from "@/shared/hooks/useNotFound";
 
@@ -31,7 +29,6 @@ export default function MarketingBudgetsPage() {
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
   const [search, setSearch] = useState("");
   const [deleteId, setDeleteId] = useState<number | null>(null);
-  const [fundingBudgetId, setFundingBudgetId] = useState<number | null>(null);
   const { MODEL, ROUTE } = BUDGETS;
   const permissions = useModulePermissions(ROUTE);
 
@@ -64,16 +61,14 @@ export default function MarketingBudgetsPage() {
       <HeaderTableWrapper>
         <TitleComponent
           title={currentView.descripcion}
-          subtitle={currentView.descripcion}
+          subtitle="Los presupuestos se crean desde la acción “Presupuestos” de cada Plan de Marketing."
           icon={currentView.icon}
         />
-        <BudgetsActions permissions={permissions} />
       </HeaderTableWrapper>
       <BudgetsTable
         isLoading={isLoading}
         columns={budgetsColumns({
           onDelete: setDeleteId,
-          onAddFunding: setFundingBudgetId,
           permissions,
         })}
         data={data?.data || []}
@@ -88,15 +83,6 @@ export default function MarketingBudgetsPage() {
           onConfirm={handleDelete}
         />
       )}
-
-      <FundingModal
-        budgetId={fundingBudgetId}
-        onOpenChange={(open) => !open && setFundingBudgetId(null)}
-        onSuccess={async () => {
-          setFundingBudgetId(null);
-          await refetch();
-        }}
-      />
 
       <DataTablePagination
         page={page}

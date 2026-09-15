@@ -1330,6 +1330,7 @@ export const CustomersForm = ({
             type="submit"
             disabled={
               isSubmitting ||
+              form.formState.isSubmitting ||
               !form.formState.isValid ||
               isValidatingDocument ||
               isConyugeDniLoading ||

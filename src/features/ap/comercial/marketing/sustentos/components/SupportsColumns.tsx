@@ -1,15 +1,19 @@
+import { useNavigate } from "react-router-dom";
 import type { ColumnDef } from "@tanstack/react-table";
+import { Pencil } from "lucide-react";
+import { ButtonAction } from "@/shared/components/ButtonAction";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
 import { Badge } from "@/components/ui/badge";
 import { formatDateShort } from "@/core/core.function";
 import { SupportsResource } from "../lib/supports.interface";
-import { SUPPORT_TYPE_OPTIONS } from "../lib/supports.constants";
+import { SUPPORT_TYPE_OPTIONS, SUPPORTS } from "../lib/supports.constants";
 
 export type SupportsColumns = ColumnDef<SupportsResource>;
 
 interface Props {
   onDelete: (id: number) => void;
   permissions: {
+    canUpdate: boolean;
     canDelete: boolean;
   };
 }
@@ -58,7 +62,25 @@ export const supportsColumns = ({ onDelete, permissions }: Props): SupportsColum
   {
     id: "actions",
     header: "Acciones",
-    cell: ({ row }) =>
-      permissions.canDelete && <DeleteButton onClick={() => onDelete(row.original.id)} />,
+    cell: ({ row }) => {
+      // eslint-disable-next-line react-hooks/rules-of-hooks
+      const router = useNavigate();
+      const { id } = row.original;
+      const { ROUTE_UPDATE } = SUPPORTS;
+
+      return (
+        <div className="flex items-center gap-2">
+          {permissions.canUpdate && (
+            <ButtonAction
+              icon={Pencil}
+              tooltip="Editar"
+              type="button"
+              onClick={() => router(`${ROUTE_UPDATE}/${id}`)}
+            />
+          )}
+          {permissions.canDelete && <DeleteButton onClick={() => onDelete(id)} />}
+        </div>
+      );
+    },
   },
 ];
