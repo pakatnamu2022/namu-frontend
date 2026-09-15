@@ -40,6 +40,8 @@ interface BonusDiscountSheetProps {
   currencySymbol: string;
   initialValues?: Omit<BonusDiscountRow, "id">;
   mode: "add" | "edit";
+  /** Solicitud de ajuste de margen: al editar, solo se permite tocar el valor (no cambiar el concepto/bono). */
+  restrictToPriceOnly?: boolean;
 }
 
 export function BonusDiscountSheet({
@@ -51,7 +53,9 @@ export function BonusDiscountSheet({
   currencySymbol,
   initialValues,
   mode,
+  restrictToPriceOnly = false,
 }: BonusDiscountSheetProps) {
+  const isLockedForPriceOnly = restrictToPriceOnly && mode === "edit";
   const [form, setForm] = useState<Omit<BonusDiscountRow, "id">>(EMPTY_FORM);
   const [errors, setErrors] = useState({
     parent_concept_id: false,
@@ -59,6 +63,11 @@ export function BonusDiscountSheet({
     valor: false,
   });
   const [previousParentConceptId, setPreviousParentConceptId] = useState("");
+  // Snapshot del valor bruto / retención al abrir, para bloquear "Guardar" si nada cambió.
+  const [initialSnapshot, setInitialSnapshot] = useState({
+    valor: 0,
+    hasRetention: false,
+  });
 
   const deduccionForm = useForm<{ isDeduced: boolean }>({
     defaultValues: { isDeduced: false },
@@ -96,8 +105,17 @@ export function BonusDiscountSheet({
       setPreviousParentConceptId(initial.parent_concept_id);
       setErrors({ parent_concept_id: false, concept_id: false, valor: false });
       deduccionForm.reset({ isDeduced: initial.hasRetention ?? false });
+      setInitialSnapshot({
+        valor: valorBruto,
+        hasRetention: initial.hasRetention ?? false,
+      });
     }
   }, [open]);
+
+  const hasChanges =
+    !isLockedForPriceOnly ||
+    form.valor !== initialSnapshot.valor ||
+    isDeduced !== initialSnapshot.hasRetention;
 
   // Al cambiar el concepto raíz (Concepto), se limpia la descripción elegida
   useEffect(() => {
@@ -176,9 +194,11 @@ export function BonusDiscountSheet({
         mode === "add" ? "Agregar Bono / Descuento" : "Editar Bono / Descuento"
       }
       subtitle={
-        mode === "add"
-          ? "Agrega un nuevo bono o descuento a la cotización"
-          : "Modifica los datos del bono o descuento seleccionado"
+        isLockedForPriceOnly
+          ? "Solo puedes ajustar el valor. Para cambiar el concepto, elimínalo y agrega uno nuevo."
+          : mode === "add"
+            ? "Agrega un nuevo bono o descuento a la cotización"
+            : "Modifica los datos del bono o descuento seleccionado"
       }
       icon={mode === "add" ? "Gift" : "Edit2"}
       size="lg"
@@ -199,6 +219,7 @@ export function BonusDiscountSheet({
             className={errors.parent_concept_id ? "border-red-500" : ""}
             allowClear={false}
             buttonSize="default"
+            disabled={isLockedForPriceOnly}
           />
           {errors.parent_concept_id && (
             <Alert variant="destructive" className="mt-1 py-2">
@@ -232,6 +253,7 @@ export function BonusDiscountSheet({
               className={errors.concept_id ? "border-red-500" : ""}
               allowClear={false}
               buttonSize="default"
+              disabled={isLockedForPriceOnly}
             />
             {errors.concept_id && (
               <Alert variant="destructive" className="mt-1 py-2">
@@ -341,7 +363,12 @@ export function BonusDiscountSheet({
           >
             Cancelar
           </Button>
-          <Button type="button" onClick={handleSubmit} className="flex-1">
+          <Button
+            type="button"
+            onClick={handleSubmit}
+            disabled={!hasChanges}
+            className="flex-1"
+          >
             {mode === "add" ? "Agregar" : "Guardar Cambios"}
           </Button>
         </div>

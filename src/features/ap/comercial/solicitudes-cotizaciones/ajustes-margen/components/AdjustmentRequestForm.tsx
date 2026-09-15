@@ -45,6 +45,7 @@ import {
 import AdjustmentMarginPreview from "./AdjustmentMarginPreview";
 import AdjustmentMarginModal from "./AdjustmentMarginModal";
 import QuoteMarginSummary from "./QuoteMarginSummary";
+import { ButtonAction } from "@/shared/components/ButtonAction";
 
 interface StagedItem {
   key: string;
@@ -74,7 +75,8 @@ interface Props {
 }
 
 const ACTION_BADGE: Record<AdjustmentAction, string> = {
-  create: "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-400",
+  create:
+    "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-400",
   update: "bg-blue-100 text-blue-700 dark:bg-blue-500/15 dark:text-blue-400",
   delete: "bg-red-100 text-red-700 dark:bg-red-500/15 dark:text-red-400",
 };
@@ -200,7 +202,12 @@ export default function AdjustmentRequestForm({
       },
       totalRawDelta,
     );
-  }, [stagedItems, quote.base_selling_price, quote.margin_amount, quote.margin_pct]);
+  }, [
+    stagedItems,
+    quote.base_selling_price,
+    quote.margin_amount,
+    quote.margin_pct,
+  ]);
 
   const resolveAccessoryUnitPrice = (accessoryId: number): number => {
     const acc = accessoryCache.find((a) => a.id === accessoryId);
@@ -322,7 +329,10 @@ export default function AdjustmentRequestForm({
         approved_accessory_id: row.accessory_id,
         quantity: row.quantity,
         additional_price: row.additional_price ?? 0,
-        concept_label: accessoryLabel(row.accessory_id, editingGift.description),
+        concept_label: accessoryLabel(
+          row.accessory_id,
+          editingGift.description,
+        ),
         previous_precio_unitario: Number(editingGift.total),
         raw_delta: -(newTotal - Number(editingGift.total)),
       },
@@ -399,24 +409,8 @@ export default function AdjustmentRequestForm({
 
   const rowActionButtons = (onEdit: () => void, onDelete: () => void) => (
     <div className="flex items-center gap-1">
-      <Button
-        type="button"
-        variant="ghost"
-        size="icon"
-        onClick={onEdit}
-        className="h-8 w-8 text-blue-600 hover:text-blue-700 hover:bg-blue-50 dark:hover:bg-blue-500/10"
-      >
-        <Edit2 className="h-4 w-4" />
-      </Button>
-      <Button
-        type="button"
-        variant="ghost"
-        size="icon"
-        onClick={onDelete}
-        className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-500/10"
-      >
-        <Trash2 className="h-4 w-4" />
-      </Button>
+      <ButtonAction icon={Edit2} onClick={onEdit} />
+      <ButtonAction icon={Trash2} color="red" onClick={onDelete} />
     </div>
   );
 
@@ -504,7 +498,8 @@ export default function AdjustmentRequestForm({
                     <div className="flex flex-col">
                       <span className="font-medium">{gift.description}</span>
                       <span className="text-muted-foreground text-xs">
-                        Cant. {gift.quantity} · Costo {gift.type_currency_symbol}{" "}
+                        Cant. {gift.quantity} · Costo{" "}
+                        {gift.type_currency_symbol}{" "}
                         <NumberFormat value={Number(gift.total).toFixed(2)} />
                       </span>
                     </div>
@@ -567,7 +562,9 @@ export default function AdjustmentRequestForm({
                             ) : (
                               <>
                                 Nuevo valor:{" "}
-                                {item.type === "PORCENTAJE" ? "" : currencySymbol}{" "}
+                                {item.type === "PORCENTAJE"
+                                  ? ""
+                                  : currencySymbol}{" "}
                                 {item.value}
                                 {item.type === "PORCENTAJE" ? "%" : ""} ·{" "}
                               </>
@@ -618,7 +615,6 @@ export default function AdjustmentRequestForm({
               rows={3}
             />
           </SectionCard>
-
         </div>
 
         <div className="space-y-4 lg:sticky lg:top-4 lg:self-start">
@@ -708,6 +704,7 @@ export default function AdjustmentRequestForm({
         costoReferencia={salePrice}
         currencySymbol={currencySymbol}
         mode="edit"
+        restrictToPriceOnly
         initialValues={
           editingCoupon
             ? {
@@ -769,6 +766,7 @@ export default function AdjustmentRequestForm({
         accessories={accessoryCache}
         rows={[]}
         lockPaidAccessories
+        restrictToPriceOnly
         modelBodyTypeId={modelBodyTypeId}
         editingRow={
           editingGift

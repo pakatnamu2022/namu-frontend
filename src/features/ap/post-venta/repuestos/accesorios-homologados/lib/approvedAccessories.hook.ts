@@ -53,5 +53,6 @@ export const useApprovedAccesoriesById = (id: number) => {
   return useQuery({
     queryKey: [QUERY_KEY, id],
     queryFn: () => findApprovedAccesoriesById(id),
+    enabled: !!id,
   });
 };
