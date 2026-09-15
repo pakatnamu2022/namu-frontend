@@ -58,9 +58,7 @@ export async function updateProductShelf(
   return data;
 }
 
-export async function deleteProductShelf(
-  id: number,
-): Promise<GeneralResponse> {
+export async function deleteProductShelf(id: number): Promise<GeneralResponse> {
   const { data } = await api.delete<GeneralResponse>(`${ENDPOINT}/${id}`);
   return data;
 }
