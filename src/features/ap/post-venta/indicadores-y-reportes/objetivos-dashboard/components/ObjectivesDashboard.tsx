@@ -15,6 +15,7 @@ import {
 } from "@/core/core.function";
 import ObjectivesDashboardFilters from "./ObjectivesDashboardFilters";
 import ObjectivesExecutiveSummary from "./ObjectivesExecutiveSummary";
+import ObjectivesAreasSummaryChart from "./ObjectivesAreasSummaryChart";
 import ObjectivesHeadquartersChart from "./ObjectivesHeadquartersChart";
 import ObjectivesHeadquartersTable from "./ObjectivesHeadquartersTable";
 import ObjectivesHeadquarterDetailSheet from "./ObjectivesHeadquarterDetailSheet";
@@ -119,6 +120,12 @@ export default function ObjectivesDashboard() {
             summary={dashboard.executive_summary}
             period={dashboard.period}
           />
+
+          {dashboard.global_areas_summary?.length > 0 && (
+            <ObjectivesAreasSummaryChart
+              areas={dashboard.global_areas_summary}
+            />
+          )}
 
           {dashboard.headquarters_comparison.ranking.length > 0 && (
             <>

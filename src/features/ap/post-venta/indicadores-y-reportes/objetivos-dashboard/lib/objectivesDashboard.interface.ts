@@ -87,6 +87,16 @@ export interface HeadquartersComparison {
   chart_data: HeadquartersComparisonChartData;
 }
 
+export interface GlobalAreaSummary {
+  area_id: number;
+  area_name: string;
+  is_vehicular_crossing: boolean;
+  total_objective: number;
+  total_progress: number;
+  completion_percentage: number;
+  status: ObjectiveStatus;
+}
+
 export interface ConceptBreakdown {
   concept_id: number;
   concept_name: string;
@@ -145,6 +155,7 @@ export interface HeadquarterDetail {
 export interface ObjectivesDashboardData {
   period: PeriodInfo;
   executive_summary: ExecutiveSummary;
+  global_areas_summary: GlobalAreaSummary[];
   headquarters_comparison: HeadquartersComparison;
   headquarters_detail: HeadquarterDetail[];
 }
