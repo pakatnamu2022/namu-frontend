@@ -37,7 +37,7 @@ export default function UpdateCustomersPage() {
     refetchOnWindowFocus: false,
   });
 
-  const { mutate, isPending } = useMutation({
+  const { mutateAsync, isPending } = useMutation({
     mutationFn: (data: CustomersSchema) => updateCustomers(Number(id), data),
     onSuccess: async () => {
       successToast(SUCCESS_MESSAGE(MODEL, "update"));
@@ -52,8 +52,12 @@ export default function UpdateCustomersPage() {
     },
   });
 
-  const handleSubmit = (data: CustomersSchema) => {
-    mutate(data);
+  const handleSubmit = async (data: CustomersSchema) => {
+    try {
+      await mutateAsync(data);
+    } catch {
+      // handled by onError
+    }
   };
 
   function mapCustomersToForm(

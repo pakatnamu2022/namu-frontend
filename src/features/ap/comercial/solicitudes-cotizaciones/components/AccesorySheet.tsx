@@ -9,7 +9,10 @@ import GeneralSheet from "@/shared/components/GeneralSheet";
 import { FormInput } from "@/shared/components/FormInput";
 import { NumberFormat } from "@/shared/components/NumberFormat";
 import { ApprovedAccesoriesResource } from "@/features/ap/post-venta/repuestos/accesorios-homologados/lib/approvedAccessories.interface";
-import { useApprovedAccesoriesSelect } from "@/features/ap/post-venta/repuestos/accesorios-homologados/lib/approvedAccessories.hook";
+import {
+  useApprovedAccesoriesById,
+  useApprovedAccesoriesSelect,
+} from "@/features/ap/post-venta/repuestos/accesorios-homologados/lib/approvedAccessories.hook";
 import { ApprovedAccessoryRow } from "./ApprovedAccessoriesTable";
 
 interface AccesorySheetProps {
@@ -28,6 +31,8 @@ interface AccesorySheetProps {
   onRegisterAccessory?: (accessory: ApprovedAccesoriesResource) => void;
   /** Cotización aprobada: solo se permite agregar/editar obsequios (no afectan el precio). */
   lockPaidAccessories?: boolean;
+  /** Solicitud de ajuste de margen: al editar, solo se permite tocar el precio adicional (no cambiar el accesorio, tipo ni cantidad). */
+  restrictToPriceOnly?: boolean;
 }
 
 const EMPTY_FORM = {
@@ -50,11 +55,13 @@ export function AccesorySheet({
   modelBodyTypeId,
   onRegisterAccessory,
   lockPaidAccessories = false,
+  restrictToPriceOnly = false,
 }: AccesorySheetProps) {
   const selectForm = useForm<{ accessory_id: string }>({
     defaultValues: { accessory_id: "" },
   });
   const isEditing = !!editingRow;
+  const isLockedForPriceOnly = restrictToPriceOnly && isEditing;
   // Con la cotización aprobada, un nuevo registro solo puede ser obsequio
   // (no afecta el precio final); el tipo queda fijo y no seleccionable.
   const forceGiftType = lockPaidAccessories && !isEditing;
@@ -68,6 +75,9 @@ export function AccesorySheet({
     quantity: false,
   });
 
+  // Snapshot del precio adicional al abrir, para bloquear "Guardar" si nada cambió.
+  const [initialAdditionalPrice, setInitialAdditionalPrice] = useState(0);
+
   useEffect(() => {
     if (editingRow) {
       setForm({
@@ -77,8 +87,12 @@ export function AccesorySheet({
         additional_price: editingRow.additional_price ?? 0,
       });
       setErrors({ accessory_id: false, accessory_duplicate: false, quantity: false });
+      setInitialAdditionalPrice(editingRow.additional_price ?? 0);
     }
   }, [editingRow]);
+
+  const hasChanges =
+    !isLockedForPriceOnly || form.additional_price !== initialAdditionalPrice;
 
   // Al abrir para agregar (no editar), partir de un formulario limpio,
   // forzando el tipo a OBSEQUIO cuando la cotización ya está aprobada.
@@ -152,9 +166,11 @@ export function AccesorySheet({
       onClose={handleClose}
       title={isEditing ? "Editar Accesorio / Obsequio" : "Agregar Accesorio / Obsequio"}
       subtitle={
-        isEditing
-          ? "Modifica los datos del accesorio o obsequio seleccionado"
-          : "Agrega un nuevo accesorio o obsequio a la cotización"
+        isLockedForPriceOnly
+          ? "Solo puedes ajustar el precio adicional. Para cambiar el accesorio, elimínalo y agrega uno nuevo."
+          : isEditing
+            ? "Modifica los datos del accesorio o obsequio seleccionado"
+            : "Agrega un nuevo accesorio o obsequio a la cotización"
       }
       icon={isEditing ? "Edit2" : "PackagePlus"}
       size="lg"
@@ -169,7 +185,7 @@ export function AccesorySheet({
               type: value as "ACCESORIO_ADICIONAL" | "OBSEQUIO",
             });
           }}
-          disabled={lockPaidAccessories}
+          disabled={lockPaidAccessories || isLockedForPriceOnly}
           options={[
             { label: "Accesorio Adicional", value: "ACCESORIO_ADICIONAL" },
             { label: "Obsequio", value: "OBSEQUIO" },
@@ -191,7 +207,10 @@ export function AccesorySheet({
                   control={selectForm.control}
                   withValue={false}
                   allowClear={false}
+                  disabled={isLockedForPriceOnly}
+                  readOnly={isLockedForPriceOnly}
                   useQueryHook={useApprovedAccesoriesSelect}
+                  useFindByIdHook={useApprovedAccesoriesById}
                   additionalParams={
                     modelBodyTypeId ? { body_type_id: modelBodyTypeId } : {}
                   }
@@ -265,6 +284,7 @@ export function AccesorySheet({
           }}
           placeholder="0"
           error={errors.quantity ? "Ingrese una cantidad mayor a 0" : undefined}
+          disabled={isLockedForPriceOnly}
         />
 
         <FormInput
@@ -353,7 +373,12 @@ export function AccesorySheet({
           >
             Cancelar
           </Button>
-          <Button type="button" onClick={handleSubmit} className="flex-1">
+          <Button
+            type="button"
+            onClick={handleSubmit}
+            disabled={!hasChanges}
+            className="flex-1"
+          >
             {isEditing ? "Guardar Cambios" : "Agregar"}
           </Button>
         </div>

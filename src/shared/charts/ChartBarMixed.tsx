@@ -1,10 +1,5 @@
 import { Bar, BarChart, XAxis, YAxis } from "recharts";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   ChartConfig,
   ChartContainer,
@@ -62,8 +57,8 @@ export function ChartBarMixed({
 
   return (
     <Card className="h-full">
-      <CardHeader className="pb-2">
-        <CardTitle className="text-sm font-semibold">{title}</CardTitle>
+      <CardHeader className="pb-2 gap-1!">
+        <CardTitle className="font-semibold">{title}</CardTitle>
         {subtitle && (
           <p className="text-sm text-muted-foreground">{subtitle}</p>
         )}
@@ -84,8 +79,11 @@ export function ChartBarMixed({
               axisLine={false}
               width={yAxisWidth}
               tickFormatter={(value) =>
-                (chartConfig[value as keyof typeof chartConfig] as { label?: string })
-                  ?.label ?? value
+                (
+                  chartConfig[value as keyof typeof chartConfig] as {
+                    label?: string;
+                  }
+                )?.label ?? value
               }
             />
             <XAxis dataKey="value" type="number" hide domain={[0, "dataMax"]} />

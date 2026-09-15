@@ -10,10 +10,16 @@ import { CalendarCheck2, Loader } from "lucide-react";
 import { ActivitiesSchema, activitiesSchema } from "../lib/activities.schema";
 import { FormInput } from "@/shared/components/FormInput";
 import { FormSelect } from "@/shared/components/FormSelect";
+import { FormSelectAsync } from "@/shared/components/FormSelectAsync";
+import { FormCombobox } from "@/shared/components/FormCombobox";
+import { DatePickerFormField } from "@/shared/components/DatePickerFormField";
 import { GroupFormSection } from "@/shared/components/GroupFormSection";
 import { useAllBudgets } from "@/features/ap/comercial/marketing/presupuestos/lib/budgets.hook";
 import { useAllCurrencyTypes } from "@/features/ap/configuraciones/maestros-general/tipos-moneda/lib/CurrencyTypes.hook";
 import { useBusinessPartners } from "@/features/ap/business-partners/lib/businessPartners.hook";
+import { BUSINESS_PARTNER_TYPE } from "@/features/ap/business-partners/lib/businessPartners.constants";
+import { BusinessPartnersResource } from "@/features/ap/business-partners/lib/businessPartners.interface";
+import { useActivityTypes, useActivityChannels } from "../lib/activities.hook";
 import { ACTIVITIES, ACTIVITY_STATUS_OPTIONS } from "../lib/activities.constants";
 
 interface Props {
@@ -22,9 +28,23 @@ interface Props {
   isSubmitting?: boolean;
   mode?: "create" | "update";
   statusLabel?: string | null;
+  /** Cuando se crea desde un Presupuesto, este viene fijo y no se muestra como campo editable. */
+  budgetLabel?: string | null;
+  /** Oculta el footer con Cancelar/Guardar de página completa (para uso dentro de un modal). */
+  hideFooter?: boolean;
+  onCancel?: () => void;
 }
 
-export const ActivitiesForm = ({ defaultValues, onSubmit, isSubmitting = false, mode = "create", statusLabel }: Props) => {
+export const ActivitiesForm = ({
+  defaultValues,
+  onSubmit,
+  isSubmitting = false,
+  mode = "create",
+  statusLabel,
+  budgetLabel,
+  hideFooter = false,
+  onCancel,
+}: Props) => {
   const form = useForm<ActivitiesSchema>({
     resolver: zodResolver(activitiesSchema) as any,
     defaultValues,
@@ -32,33 +52,66 @@ export const ActivitiesForm = ({ defaultValues, onSubmit, isSubmitting = false, 
 
   const { data: budgets = [] } = useAllBudgets();
   const { data: currencies = [] } = useAllCurrencyTypes();
-  const { data: suppliers } = useBusinessPartners({ all: true, type: "PROVEEDOR" });
+  const { data: activityTypes = [], isLoading: isLoadingTypes } = useActivityTypes();
+  const { data: channels = [], isLoading: isLoadingChannels } = useActivityChannels();
 
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
         <GroupFormSection icon={CalendarCheck2} title="Información de la Actividad" cols={{ sm: 1, md: 2 }}>
-          <FormSelect
-            name="budget_id"
-            label="Presupuesto"
-            placeholder="Selecciona un presupuesto"
-            options={budgets.map((b) => ({ label: `${b.plan?.name ?? "Presupuesto"} - ${b.type}`, value: b.id.toString() }))}
+          {budgetLabel ? (
+            <div className="flex flex-col gap-1.5">
+              <span className="text-sm font-medium">Presupuesto</span>
+              <div>
+                <Badge variant="outline">{budgetLabel}</Badge>
+              </div>
+            </div>
+          ) : (
+            <FormSelect
+              name="budget_id"
+              label="Presupuesto"
+              placeholder="Selecciona un presupuesto"
+              options={budgets.map((b) => ({ label: `${b.plan?.name ?? "Presupuesto"} - ${b.type}`, value: b.id.toString() }))}
+              control={form.control}
+              required
+            />
+          )}
+          <FormInput name="name" label="Nombre" placeholder="Ej: Lanzamiento SWIFT" control={form.control} required uppercase />
+          <FormCombobox
+            name="activity_type"
+            label="Tipo de Actividad"
+            placeholder="Selecciona o escribe un tipo"
+            options={activityTypes.map((t) => ({ label: t, value: t }))}
+            isLoadingOptions={isLoadingTypes}
             control={form.control}
             required
           />
-          <FormInput name="name" label="Nombre" placeholder="Ej: Lanzamiento SWIFT" control={form.control} required />
-          <FormInput name="activity_type" label="Tipo de Actividad" placeholder="Ej: Evento" control={form.control} required />
-          <FormInput name="channel" label="Canal" placeholder="Ej: Digital" control={form.control} />
-          <FormInput name="responsible" label="Responsable" placeholder="Ej: Juan Pérez" control={form.control} />
-          <FormSelect
+          <FormCombobox
+            name="channel"
+            label="Canal"
+            placeholder="Selecciona o escribe un canal"
+            options={channels.map((c) => ({ label: c, value: c }))}
+            isLoadingOptions={isLoadingChannels}
+            control={form.control}
+          />
+          <FormInput name="responsible" label="Responsable" placeholder="Ej: Juan Pérez" control={form.control} uppercase />
+          <FormSelectAsync
             name="supplier_id"
             label="Proveedor"
             placeholder="Selecciona un proveedor"
-            options={(suppliers?.data ?? []).map((s) => ({ label: s.full_name, value: s.id.toString() }))}
+            useQueryHook={useBusinessPartners}
+            additionalParams={{
+              type: [BUSINESS_PARTNER_TYPE.BOTH, BUSINESS_PARTNER_TYPE.SUPPLIER],
+            }}
+            mapOptionFn={(supplier: BusinessPartnersResource) => ({
+              label: supplier.full_name,
+              value: supplier.id.toString(),
+              description: supplier.num_doc,
+            })}
             control={form.control}
           />
-          <FormInput name="start_date" label="Fecha Inicio" type="date" control={form.control} />
-          <FormInput name="end_date" label="Fecha Fin" type="date" control={form.control} />
+          <DatePickerFormField name="start_date" label="Fecha Inicio" control={form.control} />
+          <DatePickerFormField name="end_date" label="Fecha Fin" control={form.control} />
           <FormSelect
             name="currency_id"
             label="Moneda"
@@ -87,22 +140,34 @@ export const ActivitiesForm = ({ defaultValues, onSubmit, isSubmitting = false, 
               </div>
             </div>
           )}
-          <FormInput name="objective" label="Objetivo" placeholder="Objetivo de la actividad" control={form.control} className="md:col-span-2" />
-          <FormInput name="description" label="Descripción" control={form.control} className="md:col-span-2" />
-          <FormInput name="notes" label="Notas" control={form.control} className="md:col-span-2" />
+          <FormInput name="objective" label="Objetivo" placeholder="Objetivo de la actividad" control={form.control} className="md:col-span-2" uppercase />
+          <FormInput name="description" label="Descripción" control={form.control} className="md:col-span-2" uppercase />
+          <FormInput name="notes" label="Notas" control={form.control} className="md:col-span-2" uppercase />
         </GroupFormSection>
 
-        <div className="flex gap-4 w-full justify-end">
-          <Link to={ACTIVITIES.ABSOLUTE_ROUTE!}>
-            <Button variant="outline" type="button" disabled={isSubmitting}>
+        {hideFooter ? (
+          <div className="flex gap-4 w-full justify-end">
+            <Button variant="outline" type="button" onClick={onCancel} disabled={isSubmitting}>
               Cancelar
             </Button>
-          </Link>
-          <Button type="submit" disabled={isSubmitting}>
-            <Loader className={`mr-2 h-4 w-4 ${!isSubmitting ? "hidden" : ""}`} />
-            {isSubmitting ? "Guardando" : "Guardar Actividad"}
-          </Button>
-        </div>
+            <Button type="submit" disabled={isSubmitting}>
+              <Loader className={`mr-2 h-4 w-4 ${!isSubmitting ? "hidden" : ""}`} />
+              {isSubmitting ? "Guardando" : "Guardar Actividad"}
+            </Button>
+          </div>
+        ) : (
+          <div className="flex gap-4 w-full justify-end">
+            <Link to={ACTIVITIES.ABSOLUTE_ROUTE!}>
+              <Button variant="outline" type="button" disabled={isSubmitting}>
+                Cancelar
+              </Button>
+            </Link>
+            <Button type="submit" disabled={isSubmitting}>
+              <Loader className={`mr-2 h-4 w-4 ${!isSubmitting ? "hidden" : ""}`} />
+              {isSubmitting ? "Guardando" : "Guardar Actividad"}
+            </Button>
+          </div>
+        )}
       </form>
     </Form>
   );

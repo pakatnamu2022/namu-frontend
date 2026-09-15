@@ -69,6 +69,33 @@ export async function changeActivityStatus(
   return data;
 }
 
+export async function getActivityTypes(): Promise<string[]> {
+  const { data } = await api.get<{ data: string[] }>(`${ENDPOINT}/activity-types`);
+  return data.data;
+}
+
+export async function getActivityChannels(): Promise<string[]> {
+  const { data } = await api.get<{ data: string[] }>(`${ENDPOINT}/channels`);
+  return data.data;
+}
+
+export async function downloadActivitySupportsPdf(activityId: number): Promise<void> {
+  const response = await api.get(`${ENDPOINT}/${activityId}/supports/pdf`, {
+    responseType: "blob",
+  });
+
+  const blob = new Blob([response.data], { type: "application/pdf" });
+  const url = window.URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.setAttribute("download", `sustentos-actividad-${activityId}.pdf`);
+
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  window.URL.revokeObjectURL(url);
+}
+
 export async function addActivityLocation(
   activityId: number,
   payload: ActivityLocationSchema,

@@ -45,7 +45,7 @@ export default function AddCustomersPage() {
         }
       : undefined;
 
-  const { mutate, isPending } = useMutation({
+  const { mutateAsync, isPending } = useMutation({
     mutationFn: storeCustomers,
     onSuccess: (response) => {
       successToast(SUCCESS_MESSAGE(MODEL, "create"));
@@ -65,7 +65,7 @@ export default function AddCustomersPage() {
     },
   });
 
-  const handleSubmit = (data: CustomersSchema) => {
+  const handleSubmit = async (data: CustomersSchema) => {
     const dataFormatted = {
       ...data,
       birth_date: data.birth_date
@@ -73,7 +73,11 @@ export default function AddCustomersPage() {
         : undefined,
     };
 
-    mutate(dataFormatted);
+    try {
+      await mutateAsync(dataFormatted);
+    } catch {
+      // handled by onError
+    }
   };
 
   if (!checkRouteExists(ROUTE)) notFound();

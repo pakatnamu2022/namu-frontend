@@ -2,13 +2,8 @@ import type { AxiosRequestConfig } from "axios";
 import { api } from "@/core/api";
 import { GeneralResponse } from "@/shared/lib/response.interface";
 import { BUDGETS } from "./budgets.constants";
-import {
-  BudgetsResource,
-  BudgetsResponse,
-  FundingResource,
-  getBudgetsProps,
-} from "./budgets.interface";
-import { BudgetsSchema, FundingSchema } from "./budgets.schema";
+import { BudgetsResource, BudgetsResponse, getBudgetsProps } from "./budgets.interface";
+import { BudgetsSchema } from "./budgets.schema";
 
 const { ENDPOINT } = BUDGETS;
 
@@ -50,16 +45,5 @@ export async function updateBudgets(
 
 export async function deleteBudgets(id: number): Promise<GeneralResponse> {
   const { data } = await api.delete<GeneralResponse>(`${ENDPOINT}/${id}`);
-  return data;
-}
-
-export async function addFundingToBudget(
-  budgetId: number,
-  payload: FundingSchema,
-): Promise<FundingResource> {
-  const { data } = await api.post<FundingResource>(
-    `${ENDPOINT}/${budgetId}/fundings`,
-    payload,
-  );
   return data;
 }

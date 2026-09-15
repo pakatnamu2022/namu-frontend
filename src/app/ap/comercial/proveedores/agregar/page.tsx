@@ -23,7 +23,7 @@ export default function AddSupplierPage() {
   const { currentView, checkRouteExists } = useCurrentModule();
   const { ROUTE, MODEL, ABSOLUTE_ROUTE } = SUPPLIERS;
 
-  const { mutate, isPending } = useMutation({
+  const { mutateAsync, isPending } = useMutation({
     mutationFn: storeSuppliers,
     onSuccess: () => {
       successToast(SUCCESS_MESSAGE(MODEL, "create"));
@@ -35,8 +35,12 @@ export default function AddSupplierPage() {
     },
   });
 
-  const handleSubmit = (data: SuppliersSchema) => {
-    mutate(data);
+  const handleSubmit = async (data: SuppliersSchema) => {
+    try {
+      await mutateAsync(data);
+    } catch {
+      // handled by onError
+    }
   };
   if (!checkRouteExists(ROUTE)) notFound();
   if (!currentView) notFound();

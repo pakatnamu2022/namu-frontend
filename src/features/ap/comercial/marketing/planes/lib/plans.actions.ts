@@ -47,3 +47,18 @@ export async function deletePlans(id: number): Promise<GeneralResponse> {
   const { data } = await api.delete<GeneralResponse>(`${ENDPOINT}/${id}`);
   return data;
 }
+
+export async function activatePlan(id: number): Promise<PlansResource> {
+  const { data } = await api.post<PlansResource>(`${ENDPOINT}/${id}/activate`);
+  return data;
+}
+
+export async function completePlan(id: number): Promise<PlansResource> {
+  const { data } = await api.post<PlansResource>(`${ENDPOINT}/${id}/complete`);
+  return data;
+}
+
+export async function cancelPlan(id: number): Promise<PlansResource> {
+  const { data } = await api.post<PlansResource>(`${ENDPOINT}/${id}/cancel`);
+  return data;
+}

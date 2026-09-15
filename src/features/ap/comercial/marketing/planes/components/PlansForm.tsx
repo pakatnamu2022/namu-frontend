@@ -6,12 +6,12 @@ import { Form } from "@/components/ui/form";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Loader, NotebookPen } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 import { PlansSchema, plansSchema } from "../lib/plans.schema";
 import { FormInput } from "@/shared/components/FormInput";
 import { FormSelect } from "@/shared/components/FormSelect";
 import { GroupFormSection } from "@/shared/components/GroupFormSection";
 import { useAllBrands } from "@/features/ap/configuraciones/vehiculos/marcas/lib/brands.hook";
-import { useMarketingConstants } from "@/features/ap/comercial/marketing/lib/marketingConstants.hook";
 import { PLAN_STATUS_OPTIONS, PLANS } from "../lib/plans.constants";
 import { CM_COMERCIAL_ID } from "@/features/ap/ap-master/lib/apMaster.constants";
 
@@ -20,12 +20,17 @@ interface Props {
   onSubmit: (data: PlansSchema) => void;
   isSubmitting?: boolean;
   mode?: "create" | "update";
+  status?: string | null;
+  statusLabel?: string | null;
 }
 
 export const PlansForm = ({
   defaultValues,
   onSubmit,
   isSubmitting = false,
+  mode = "create",
+  status,
+  statusLabel,
 }: Props) => {
   const form = useForm<PlansSchema>({
     resolver: zodResolver(plansSchema) as any,
@@ -35,8 +40,6 @@ export const PlansForm = ({
   const { data: brands = [] } = useAllBrands({
     type_operation_id: CM_COMERCIAL_ID,
   });
-  const { data: constants } = useMarketingConstants();
-  const statusOptions = constants?.plan_statuses ?? PLAN_STATUS_OPTIONS;
 
   return (
     <Form {...form}>
@@ -74,13 +77,18 @@ export const PlansForm = ({
             control={form.control}
             required
           />
-          <FormSelect
-            name="status"
-            label="Estado"
-            placeholder="Selecciona un estado"
-            options={statusOptions}
-            control={form.control}
-          />
+          {mode === "update" && (
+            <div className="flex flex-col gap-1.5">
+              <span className="text-sm font-medium">Estado</span>
+              <div>
+                <Badge className="capitalize">
+                  {statusLabel ??
+                    (PLAN_STATUS_OPTIONS.find((s) => s.value === status)?.label as string) ??
+                    status}
+                </Badge>
+              </div>
+            </div>
+          )}
           <FormInput
             name="description"
             label="Descripción"

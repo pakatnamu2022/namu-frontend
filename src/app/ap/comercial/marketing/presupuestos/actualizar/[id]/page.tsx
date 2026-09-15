@@ -27,7 +27,6 @@ function mapBudgetToForm(data: BudgetsResource): Partial<BudgetsSchema> {
     period_month: data.period_month ? String(data.period_month) : "",
     currency_id: String(data.currency_id),
     amount_estimated: data.amount_estimated,
-    status: data.status ?? "draft",
     notes: data.notes ?? "",
   };
 }
@@ -68,6 +67,9 @@ export default function UpdateMarketingBudgetPage() {
         onSubmit={handleSubmit}
         isSubmitting={isPending}
         mode="update"
+        status={budget.status}
+        statusLabel={budget.status_label}
+        planName={budget.plan?.name}
       />
     </FormWrapper>
   );

@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import type { ColumnDef } from "@tanstack/react-table";
-import { CircleDollarSign, Pencil } from "lucide-react";
+import { CalendarCheck2, Pencil } from "lucide-react";
 import { ButtonAction } from "@/shared/components/ButtonAction";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
 import { Badge } from "@/components/ui/badge";
@@ -12,7 +12,6 @@ export type BudgetsColumns = ColumnDef<BudgetsResource>;
 
 interface Props {
   onDelete: (id: number) => void;
-  onAddFunding: (id: number) => void;
   permissions: {
     canUpdate: boolean;
     canDelete: boolean;
@@ -21,7 +20,6 @@ interface Props {
 
 export const budgetsColumns = ({
   onDelete,
-  onAddFunding,
   permissions,
 }: Props): BudgetsColumns[] => [
   {
@@ -79,15 +77,15 @@ export const budgetsColumns = ({
       // eslint-disable-next-line react-hooks/rules-of-hooks
       const router = useNavigate();
       const { id } = row.original;
-      const { ROUTE_UPDATE } = BUDGETS;
+      const { ROUTE_UPDATE, ABSOLUTE_ROUTE } = BUDGETS;
 
       return (
         <div className="flex items-center gap-2">
           <ButtonAction
-            icon={CircleDollarSign}
-            tooltip="Agregar financiamiento"
+            icon={CalendarCheck2}
+            tooltip="Actividades"
             type="button"
-            onClick={() => onAddFunding(id)}
+            onClick={() => router(`${ABSOLUTE_ROUTE}/${id}`)}
           />
           {permissions.canUpdate && (
             <ButtonAction

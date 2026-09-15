@@ -15,6 +15,32 @@ export interface MarketingDashboardResponse {
   }>;
   activities_status: Array<{ status: string; total: number }>;
   orders_status: Array<{ status: string; total: number; total_amount: number }>;
+  kpi_totals: {
+    total_leads: number;
+    total_sales: number;
+    total_investment: number;
+    conversion_rate: number;
+    cost_per_lead: number;
+    cost_per_sale: number;
+  };
+  kpis_by_channel: Array<{
+    channel: string;
+    total_leads: number;
+    total_sales: number;
+    total_investment: number;
+    conversion_rate: number;
+    cost_per_lead: number;
+  }>;
+  top_activities: Array<{
+    id: number;
+    name: string;
+    channel: string | null;
+    total_leads: number;
+    total_sales: number;
+    total_investment: number;
+    conversion_rate: number;
+    cost_per_lead: number;
+  }>;
 }
 
 export interface MarketingDashboardMonthlyResponse {
