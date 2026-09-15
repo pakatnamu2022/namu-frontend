@@ -54,6 +54,7 @@ export const TYPE_PLANNING: ModelComplete<TypesPlanningResource> = {
     validate_labor: false,
     type_document: PAYMENT_RECEIPTS,
     category_type: ESTANDAR,
+    consider_vehicle_traffic: false,
     status: true,
   },
 };
