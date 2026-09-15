@@ -47,10 +47,36 @@ export const applicantSchemaUpdate = applicantSchemaCreate.partial();
 
 export type ApplicantSchema = z.infer<typeof applicantSchemaCreate>;
 
-export const applicantStatusSchema = z.object({
-  tipo_trabajador_id: requiredId("Seleccione un estado"),
-  motivo_status: z.string().optional().or(z.literal("")),
-  jefe_id: z.union([z.string(), z.number()]).optional(),
-});
+export const applicantStatusSchema = z
+  .object({
+    tipo_trabajador_id: requiredId("Seleccione un estado"),
+    motivo_status: z.string().optional().or(z.literal("")),
+    jefe_id: z.union([z.string(), z.number()]).optional(),
+    fecha_inicio: z.string().optional().or(z.literal("")),
+    presupuesto: z.union([z.string(), z.number()]).optional().or(z.literal("")),
+  })
+  .superRefine((data, ctx) => {
+    if (String(data.tipo_trabajador_id) !== "6") return;
+    if (!data.fecha_inicio) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["fecha_inicio"],
+        message: "La fecha de ingreso es obligatoria",
+      });
+    }
+    if (!data.presupuesto || Number(data.presupuesto) <= 0) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["presupuesto"],
+        message: "El presupuesto es obligatorio",
+      });
+    }
+  });
 
 export type ApplicantStatusSchema = z.infer<typeof applicantStatusSchema>;
+
+export const applicantRepostSchema = z.object({
+  proceso_postulacion_id: requiredId("Seleccione un proceso de postulación"),
+});
+
+export type ApplicantRepostSchema = z.infer<typeof applicantRepostSchema>;

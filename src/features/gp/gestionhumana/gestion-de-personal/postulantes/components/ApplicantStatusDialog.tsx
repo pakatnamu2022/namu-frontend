@@ -33,9 +33,17 @@ export default function ApplicantStatusDialog({
 }: Props) {
   const form = useForm<ApplicantStatusSchema>({
     resolver: zodResolver(applicantStatusSchema),
-    defaultValues: { tipo_trabajador_id: "", motivo_status: "" },
+    defaultValues: {
+      tipo_trabajador_id: "",
+      motivo_status: "",
+      fecha_inicio: "",
+      presupuesto: "",
+    },
     mode: "onChange",
   });
+
+  const selectedType = form.watch("tipo_trabajador_id");
+  const isSelected = String(selectedType) === "6";
 
   useEffect(() => {
     if (open) {
@@ -44,6 +52,8 @@ export default function ApplicantStatusDialog({
           ? String(applicant.tipo_trabajador_id)
           : "",
         motivo_status: applicant?.motivo_status ?? "",
+        fecha_inicio: "",
+        presupuesto: "",
       });
     }
   }, [open, applicant, form]);
@@ -81,6 +91,29 @@ export default function ApplicantStatusDialog({
             name="motivo_status"
             label="Motivo / observación"
           />
+
+          {isSelected && (
+            <>
+              <FormInput
+                control={form.control}
+                name="fecha_inicio"
+                label="Fecha de ingreso"
+                type="date"
+                required
+              />
+              <FormInput
+                control={form.control}
+                name="presupuesto"
+                label="Presupuesto asignado"
+                type="number"
+                required
+              />
+              <p className="text-xs text-muted-foreground">
+                Al seleccionar se generará y enviará automáticamente la carta
+                oferta al correo del postulante.
+              </p>
+            </>
+          )}
 
           <div className="flex justify-end gap-2 pt-2">
             <Button type="button" variant="outline" onClick={handleClose}>

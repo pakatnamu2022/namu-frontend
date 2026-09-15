@@ -1,6 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { ClipboardCheck } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import ActionsWrapper from "@/shared/components/ActionsWrapper";
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
 import { notFound } from "@/shared/hooks/useNotFound";
 import TitleComponent from "@/shared/components/TitleComponent";
@@ -15,7 +20,10 @@ import {
   SUCCESS_MESSAGE,
   successToast,
 } from "@/core/core.function";
-import { APPLICANT } from "@/features/gp/gestionhumana/gestion-de-personal/postulantes/lib/applicant.constant";
+import {
+  APPLICANT,
+  APPLICANT_TYPE,
+} from "@/features/gp/gestionhumana/gestion-de-personal/postulantes/lib/applicant.constant";
 import { useApplicants } from "@/features/gp/gestionhumana/gestion-de-personal/postulantes/lib/applicant.hook";
 import {
   changeApplicantStatus,
@@ -23,6 +31,7 @@ import {
 } from "@/features/gp/gestionhumana/gestion-de-personal/postulantes/lib/applicant.actions";
 import { ApplicantResource } from "@/features/gp/gestionhumana/gestion-de-personal/postulantes/lib/applicant.interface";
 import { ApplicantStatusSchema } from "@/features/gp/gestionhumana/gestion-de-personal/postulantes/lib/applicant.schema";
+import { useApplicantDataChanges } from "@/features/gp/gestionhumana/gestion-de-personal/postulantes/lib/applicantDataChange.hook";
 import ApplicantActions from "@/features/gp/gestionhumana/gestion-de-personal/postulantes/components/ApplicantActions";
 import ApplicantTable from "@/features/gp/gestionhumana/gestion-de-personal/postulantes/components/ApplicantTable";
 import ApplicantOptions from "@/features/gp/gestionhumana/gestion-de-personal/postulantes/components/ApplicantOptions";
@@ -30,8 +39,13 @@ import ApplicantStatusDialog from "@/features/gp/gestionhumana/gestion-de-person
 import { applicantColumns } from "@/features/gp/gestionhumana/gestion-de-personal/postulantes/components/ApplicantColumns";
 
 export default function ApplicantPage() {
-  const { MODEL, ROUTE } = APPLICANT;
+  const { MODEL, ROUTE, ABSOLUTE_ROUTE } = APPLICANT;
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
+  const navigate = useNavigate();
+  const { data: pendingChanges } = useApplicantDataChanges({
+    per_page: 1,
+    status_id: 17,
+  });
   const [page, setPage] = useState(1);
   const [per_page, setPerPage] = useState(DEFAULT_PER_PAGE);
   const [search, setSearch] = useState("");
@@ -43,7 +57,11 @@ export default function ApplicantPage() {
     setPage(1);
   }, [search, per_page]);
 
-  const { data, isLoading, refetch } = useApplicants({ page, search, per_page });
+  const { data, isLoading, refetch } = useApplicants({
+    page,
+    search,
+    per_page,
+  });
 
   const handleDelete = async () => {
     if (!deleteId) return;
@@ -52,7 +70,9 @@ export default function ApplicantPage() {
       await refetch();
       successToast(SUCCESS_MESSAGE(MODEL, "delete"));
     } catch (error: any) {
-      errorToast(error?.response?.data?.message ?? ERROR_MESSAGE(MODEL, "delete"));
+      errorToast(
+        error?.response?.data?.message ?? ERROR_MESSAGE(MODEL, "delete"),
+      );
     } finally {
       setDeleteId(null);
     }
@@ -65,9 +85,17 @@ export default function ApplicantPage() {
       await changeApplicantStatus(statusRow.id, {
         tipo_trabajador_id: Number(values.tipo_trabajador_id),
         motivo_status: values.motivo_status || undefined,
+        fecha_inicio: values.fecha_inicio || undefined,
+        presupuesto: values.presupuesto
+          ? Number(values.presupuesto)
+          : undefined,
       });
       await refetch();
-      successToast("Estado del postulante actualizado.");
+      successToast(
+        Number(values.tipo_trabajador_id) === APPLICANT_TYPE.SELECCIONADO
+          ? "Postulante seleccionado. Se envió la carta oferta por correo."
+          : "Estado del postulante actualizado.",
+      );
       setStatusRow(null);
     } catch (error: any) {
       errorToast(
@@ -90,6 +118,18 @@ export default function ApplicantPage() {
           subtitle={currentView.descripcion}
           icon={currentView.icon}
         />
+        <ActionsWrapper>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => navigate(`${ABSOLUTE_ROUTE}/aprobaciones`)}
+          >
+            <ClipboardCheck className="size-4 mr-2" /> Cola de aprobación
+            {!!pendingChanges?.meta?.total && (
+              <Badge className="ml-2">{pendingChanges.meta.total}</Badge>
+            )}
+          </Button>
+        </ActionsWrapper>
         <ApplicantActions />
       </HeaderTableWrapper>
 
