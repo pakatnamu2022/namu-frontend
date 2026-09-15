@@ -15,6 +15,7 @@ export interface TypesPlanningResource {
   validate_labor: boolean;
   type_document: string;
   category_type: string;
+  consider_vehicle_traffic: boolean;
   status: boolean;
 }
 

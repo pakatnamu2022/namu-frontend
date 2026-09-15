@@ -27,6 +27,7 @@ export const typesPlanningSchemaCreate = z.object({
     .refine((value) => value.trim() !== "", {
       message: "Tipo de categoría es requerido",
     }),
+  consider_vehicle_traffic: z.boolean(),
   notes: z.string().max(250).optional(),
   status: z.boolean().optional().default(true),
 });

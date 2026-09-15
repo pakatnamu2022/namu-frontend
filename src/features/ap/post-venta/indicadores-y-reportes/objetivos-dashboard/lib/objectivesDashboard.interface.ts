@@ -51,6 +51,17 @@ export interface AreaProgress {
 
 export type VehicleCrossingProgress = AreaProgress;
 
+export interface ConceptSummary {
+  id: number;
+  description: string;
+  area_name: string;
+  objective: number;
+  progress: number;
+  completion_percentage: number;
+  is_vehicular_crossing: boolean;
+  status: ObjectiveStatus;
+}
+
 export interface HeadquarterSummary {
   id: number;
   name: string;
@@ -60,11 +71,7 @@ export interface HeadquarterSummary {
   completion_percentage: number;
   status: ObjectiveStatus;
   rank: number;
-  areas_summary: {
-    workshop: AreaProgress;
-    counter: AreaProgress;
-    vehicle_crossing: VehicleCrossingProgress;
-  };
+  concepts_summary: ConceptSummary[];
 }
 
 export interface HeadquartersComparisonChartData {
@@ -81,6 +88,16 @@ export interface HeadquartersComparison {
   chart_data: HeadquartersComparisonChartData;
 }
 
+export interface GlobalAreaSummary {
+  area_id: number;
+  area_name: string;
+  is_vehicular_crossing: boolean;
+  total_objective: number;
+  total_progress: number;
+  completion_percentage: number;
+  status: ObjectiveStatus;
+}
+
 export interface ConceptBreakdown {
   concept_id: number;
   concept_name: string;
@@ -95,6 +112,12 @@ export interface BrandBreakdown {
   percentage_of_total: number;
 }
 
+export interface VehicleCrossingByBrand {
+  brand_name: string;
+  count: number;
+  percentage_of_total: number;
+}
+
 export interface AdvisorPerformance {
   advisor_id: number;
   advisor_name: string;
@@ -105,26 +128,18 @@ export interface AdvisorPerformance {
   rank: number;
 }
 
-export interface WorkshopDetail {
+export interface Concept {
+  id: number;
+  description: string;
+  area_id: number;
+  area_name: string;
+  is_vehicular_crossing: boolean;
   objective: number;
   progress: number;
   completion_percentage: number;
   status: ObjectiveStatus;
-  by_concept: ConceptBreakdown[];
-  by_brand: BrandBreakdown[];
-  top_advisors: AdvisorPerformance[];
-}
-
-export type CounterDetail = AreaProgress;
-
-export interface VehicleCrossingByBrand {
-  brand_name: string;
-  count: number;
-  percentage_of_total: number;
-}
-
-export interface VehicleCrossingDetail extends AreaProgress {
-  by_brand: VehicleCrossingByBrand[];
+  by_brand?: (BrandBreakdown | VehicleCrossingByBrand)[];
+  top_advisors?: AdvisorPerformance[];
 }
 
 export interface HeadquarterDetail {
@@ -135,14 +150,13 @@ export interface HeadquarterDetail {
   total_progress: number;
   completion_percentage: number;
   status: ObjectiveStatus;
-  workshop: WorkshopDetail;
-  counter: CounterDetail;
-  vehicle_crossing: VehicleCrossingDetail;
+  concepts: Concept[];
 }
 
 export interface ObjectivesDashboardData {
   period: PeriodInfo;
   executive_summary: ExecutiveSummary;
+  global_areas_summary: GlobalAreaSummary[];
   headquarters_comparison: HeadquartersComparison;
   headquarters_detail: HeadquarterDetail[];
 }

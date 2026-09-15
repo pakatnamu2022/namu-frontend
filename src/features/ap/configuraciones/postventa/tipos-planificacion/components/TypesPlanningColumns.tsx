@@ -86,6 +86,18 @@ export const typesPlanningColumns = ({
     },
   },
   {
+    accessorKey: "consider_vehicle_traffic",
+    header: "Paso Vehicular",
+    cell: ({ getValue }) => {
+      const value = getValue() as boolean;
+      return (
+        <Badge variant="outline" color={value ? "green" : "blue"}>
+          {value ? "Sí" : "No"}
+        </Badge>
+      );
+    },
+  },
+  {
     accessorKey: "status",
     header: "Estado",
     cell: ({ getValue }) => {
