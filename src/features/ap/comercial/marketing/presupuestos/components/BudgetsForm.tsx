@@ -80,8 +80,11 @@ export const BudgetsForm = ({
               <span className="text-sm font-medium">Tipo</span>
               <div>
                 <Badge className="capitalize">
-                  {typeOptions.find((t) => t.value === defaultValues.type)?.label ??
-                    defaultValues.type}
+                  {(() => {
+                    const label = typeOptions.find((t) => t.value === defaultValues.type)?.label;
+                    if (typeof label === "function") return label();
+                    return label ?? defaultValues.type;
+                  })()}
                 </Badge>
               </div>
             </div>

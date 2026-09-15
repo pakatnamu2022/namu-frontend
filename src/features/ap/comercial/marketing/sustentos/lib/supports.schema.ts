@@ -8,7 +8,7 @@ export const supportsSchema = z.object({
   issue_date: z.string().optional(),
   supplier_id: z.string().optional(),
   currency_id: z.string().optional(),
-  amount: z.coerce.number({ required_error: "El monto es requerido" }).min(0.01, "El monto es requerido"),
+  amount: z.coerce.number().min(0.01, "El monto es requerido"),
   file_path: z.string().optional(),
   notes: z.string().optional(),
 });
