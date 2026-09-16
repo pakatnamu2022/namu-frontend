@@ -297,11 +297,9 @@ export const COMMERCIAL_REPORTS: ReportConfig[] = [
         name: "fecha",
         label: "Fecha",
         type: "daterange",
-        required: true,
+        required: false,
         nameFrom: "fecha_inicio",
         nameTo: "fecha_fin",
-        defaultValueFrom: toLocalDateString(getFirstDayOfMonth(new Date())),
-        defaultValueTo: getTodayLocalDateString(),
       },
       {
         name: "sede_id",
