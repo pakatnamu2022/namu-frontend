@@ -9,12 +9,15 @@ import { Button } from "@/components/ui/button";
 import { Loader } from "lucide-react";
 import { FormSelect } from "@/shared/components/FormSelect";
 import { FormInput } from "@/shared/components/FormInput";
+import { Badge } from "@/components/ui/badge";
 import {
   applicantStatusSchema,
   ApplicantStatusSchema,
 } from "../lib/applicant.schema.ts";
 import { APPLICANT_STATUS_OPTIONS } from "../lib/applicant.constant.ts";
 import { ApplicantResource } from "../lib/applicant.interface.ts";
+import { useInterviews } from "../../procesos-postulacion/lib/interview.hook.ts";
+import { INTERVIEW_PHASE } from "../../procesos-postulacion/lib/interview.constant.ts";
 
 interface Props {
   applicant: ApplicantResource | null;
@@ -44,6 +47,20 @@ export default function ApplicantStatusDialog({
 
   const selectedType = form.watch("tipo_trabajador_id");
   const isSelected = String(selectedType) === "6";
+
+  const { data: interviewsData } = useInterviews(
+    {
+      persona_id: applicant?.id,
+      proceso_postulacion_id: applicant?.proceso_postulacion_id,
+    },
+    { enabled: open && !!applicant },
+  );
+  const rrhhInterview = interviewsData?.data.find(
+    (i) => i.fase === INTERVIEW_PHASE.RRHH,
+  );
+  const jefeInterview = interviewsData?.data.find(
+    (i) => i.fase === INTERVIEW_PHASE.JEFE,
+  );
 
   useEffect(() => {
     if (open) {
@@ -78,6 +95,27 @@ export default function ApplicantStatusDialog({
     >
       <Form {...form}>
         <form onSubmit={form.handleSubmit(submit)} className="space-y-4">
+          {open && applicant && (
+            <div className="flex flex-wrap gap-2 text-xs">
+              <span className="text-muted-foreground">Entrevistas:</span>
+              <Badge color={rrhhInterview?.resultado_promedio != null ? "green" : rrhhInterview ? "amber" : "tertiary"}>
+                RRHH{" "}
+                {rrhhInterview
+                  ? rrhhInterview.resultado_promedio != null
+                    ? `· ${Number(rrhhInterview.resultado_promedio).toFixed(2)}`
+                    : "· sin calificar"
+                  : "· no registrada"}
+              </Badge>
+              <Badge color={jefeInterview?.resultado_promedio != null ? "green" : jefeInterview ? "amber" : "tertiary"}>
+                Jefe{" "}
+                {jefeInterview
+                  ? jefeInterview.resultado_promedio != null
+                    ? `· ${Number(jefeInterview.resultado_promedio).toFixed(2)}`
+                    : "· sin calificar"
+                  : "· no registrada"}
+              </Badge>
+            </div>
+          )}
           <FormSelect
             control={form.control}
             name="tipo_trabajador_id"

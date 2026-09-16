@@ -3,7 +3,7 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import { ApplicantResource } from "../lib/applicant.interface.ts";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+import { Badge, BadgeColor } from "@/components/ui/badge";
 import { Pencil, Redo2, ShieldCheck } from "lucide-react";
 import { Link } from "react-router-dom";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
@@ -12,13 +12,13 @@ import { APPLICANT, APPLICANT_TYPE } from "../lib/applicant.constant.ts";
 
 export type ApplicantColumns = ColumnDef<ApplicantResource>;
 
-const STATUS_COLOR: Record<number, string> = {
-  [APPLICANT_TYPE.POSTULANTE]: "#64748b",
-  [APPLICANT_TYPE.SELECCIONADO]: "#16a34a",
-  [APPLICANT_TYPE.CONTRATADO]: "#0ea5e9",
-  [APPLICANT_TYPE.RECHAZADO]: "#dc2626",
-  [APPLICANT_TYPE.FUERA_CUPO]: "#d97706",
-  [APPLICANT_TYPE.LISTA_NEGRA]: "#111827",
+const STATUS_COLOR: Record<number, BadgeColor> = {
+  [APPLICANT_TYPE.POSTULANTE]: "amber",
+  [APPLICANT_TYPE.SELECCIONADO]: "green",
+  [APPLICANT_TYPE.CONTRATADO]: "blue",
+  [APPLICANT_TYPE.RECHAZADO]: "red",
+  [APPLICANT_TYPE.FUERA_CUPO]: "gray",
+  [APPLICANT_TYPE.LISTA_NEGRA]: "slate",
 };
 
 export const applicantColumns = ({
@@ -59,18 +59,8 @@ export const applicantColumns = ({
     id: "estado_postulante",
     header: "Estado",
     cell: ({ row }) => {
-      const color = STATUS_COLOR[row.original.tipo_trabajador_id] ?? "#64748b";
-      return (
-        <Badge
-          variant="default"
-          style={{
-            backgroundColor: color,
-            borderColor: color,
-          }}
-        >
-          {row.original.estado_postulante}
-        </Badge>
-      );
+      const color = STATUS_COLOR[row.original.tipo_trabajador_id] ?? "slate";
+      return <Badge color={color}>{row.original.estado_postulante}</Badge>;
     },
   },
   {

@@ -14,10 +14,12 @@ import {
   GraduationCap,
   Car,
   Briefcase,
+  ClipboardCheck,
 } from "lucide-react";
 import { FormInput } from "@/shared/components/FormInput";
 import { FormSelect } from "@/shared/components/FormSelect";
 import { FormSelectAsync } from "@/shared/components/FormSelectAsync";
+import { FormTextArea } from "@/shared/components/FormTextArea";
 import { GroupFormSection } from "@/shared/components/GroupFormSection";
 import { DatePickerFormField } from "@/shared/components/DatePickerFormField";
 import { useRecruitmentProcesses } from "@/features/gp/gestionhumana/gestion-de-personal/procesos-postulacion/lib/recruitmentProcess.hook";
@@ -38,6 +40,12 @@ import { Option } from "@/core/core.interface.ts";
 const SEXO_OPTIONS = [
   { value: "M", label: "Masculino" },
   { value: "F", label: "Femenino" },
+];
+
+const VERIFICATIVA_OPTIONS = [
+  { value: "Verificado", label: "Verificado" },
+  { value: "Observado", label: "Observado" },
+  { value: "Pendiente", label: "Pendiente" },
 ];
 
 const ESTADO_CIVIL_OPTIONS = [
@@ -451,6 +459,74 @@ export const ApplicantForm = ({
                 control={form.control}
                 name="grado_obtenido"
                 label="Grado obtenido"
+              />
+            </GroupFormSection>
+
+            <GroupFormSection
+              title="Reclutamiento (RAR)"
+              icon={ClipboardCheck}
+              color="teal"
+              cols={{ sm: 2 }}
+            >
+              <FormInput
+                control={form.control}
+                name="medio_contacto"
+                label="Medio de contacto"
+                placeholder="Ej: Bolsa de trabajo, referido..."
+              />
+              <FormInput
+                control={form.control}
+                name="disponibilidad"
+                label="Disponibilidad"
+                placeholder="Ej: Inmediata"
+              />
+              <FormInput
+                control={form.control}
+                name="condiciones_laborales"
+                label="Condiciones laborales"
+              />
+              <FormInput
+                control={form.control}
+                name="anos_experiencia"
+                label="Años de experiencia"
+                type="number"
+                step="0.1"
+                min="0"
+              />
+              <FormTextArea
+                control={form.control}
+                name="experiencia_laboral"
+                label="Experiencia laboral"
+                className="col-span-full"
+                rows={2}
+              />
+              <FormTextArea
+                control={form.control}
+                name="enfermedad_operacion_lesion"
+                label="Enfermedad / operación / lesión"
+                className="col-span-full"
+                rows={2}
+              />
+              <FormSelect
+                control={form.control}
+                name="verificativa_status"
+                label="Verificativa"
+                placeholder="Seleccionar..."
+                options={VERIFICATIVA_OPTIONS}
+              />
+              <FormTextArea
+                control={form.control}
+                name="observacion_verificativa"
+                label="Observación verificativa"
+                className="col-span-full"
+                rows={2}
+              />
+              <FormTextArea
+                control={form.control}
+                name="comentarios_reclutamiento"
+                label="Comentarios de reclutamiento"
+                className="col-span-full"
+                rows={2}
               />
             </GroupFormSection>
           </div>

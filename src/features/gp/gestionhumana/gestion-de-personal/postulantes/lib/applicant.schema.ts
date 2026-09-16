@@ -41,6 +41,18 @@ export const applicantSchemaCreate = z.object({
   carrera_tec_univ: z.string().optional().or(z.literal("")),
   nivel_alcanzado: z.string().optional().or(z.literal("")),
   grado_obtenido: z.string().optional().or(z.literal("")),
+  medio_contacto: z.string().max(100).optional().or(z.literal("")),
+  disponibilidad: z.string().max(150).optional().or(z.literal("")),
+  condiciones_laborales: z.string().max(255).optional().or(z.literal("")),
+  experiencia_laboral: z.string().optional().or(z.literal("")),
+  anos_experiencia: z
+    .union([z.string(), z.number()])
+    .optional()
+    .or(z.literal("")),
+  enfermedad_operacion_lesion: z.string().optional().or(z.literal("")),
+  verificativa_status: z.string().max(50).optional().or(z.literal("")),
+  observacion_verificativa: z.string().optional().or(z.literal("")),
+  comentarios_reclutamiento: z.string().optional().or(z.literal("")),
 });
 
 export const applicantSchemaUpdate = applicantSchemaCreate.partial();

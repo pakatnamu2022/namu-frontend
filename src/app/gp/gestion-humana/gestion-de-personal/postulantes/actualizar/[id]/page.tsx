@@ -73,6 +73,15 @@ export default function UpdateApplicantPage() {
       carrera_tec_univ: data.carrera_tec_univ ?? "",
       nivel_alcanzado: data.nivel_alcanzado ?? "",
       grado_obtenido: data.grado_obtenido ?? "",
+      medio_contacto: data.medio_contacto ?? "",
+      disponibilidad: data.disponibilidad ?? "",
+      condiciones_laborales: data.condiciones_laborales ?? "",
+      experiencia_laboral: data.experiencia_laboral ?? "",
+      anos_experiencia: data.anos_experiencia ?? "",
+      enfermedad_operacion_lesion: data.enfermedad_operacion_lesion ?? "",
+      verificativa_status: data.verificativa_status ?? "",
+      observacion_verificativa: data.observacion_verificativa ?? "",
+      comentarios_reclutamiento: data.comentarios_reclutamiento ?? "",
     };
   }
 

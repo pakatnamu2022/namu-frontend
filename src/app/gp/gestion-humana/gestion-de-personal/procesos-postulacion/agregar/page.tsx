@@ -42,6 +42,8 @@ export default function AddRecruitmentProcessPage() {
       area_id: Number(data.area_id),
       cargo_id: Number(data.cargo_id),
       cant_trab_solicita: Number(data.cant_trab_solicita),
+      solicitante_id: data.solicitante_id ? Number(data.solicitante_id) : undefined,
+      prioridad: data.prioridad !== "" && data.prioridad !== undefined ? Number(data.prioridad) : undefined,
     });
   };
 
