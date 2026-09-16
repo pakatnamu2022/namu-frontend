@@ -365,6 +365,12 @@ export const PERMISSION_ACTIONS: PermissionAction[] = [
     description:
       "Permite ver los movimientos de inventario descartados y revertirlos",
   },
+  {
+    value: "addTraverseSparePart",
+    label: "Agregar Repuesto Traversía",
+    icon: "Plus",
+    description: "Permite agregar repuestos en Traversía",
+  },
 ];
 
 /**
@@ -460,5 +466,6 @@ export function useModulePermissions(moduleCode: string) {
     canReReserveStock: hasModulePermission("reReserveStock"),
     canDiscard: hasModulePermission("discard"),
     canViewDiscarded: hasModulePermission("viewDiscarded"),
+    canAddTraverseSparePart: hasModulePermission("addTraverseSparePart"),
   };
 }
