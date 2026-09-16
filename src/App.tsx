@@ -477,6 +477,9 @@ const RecruitmentProcessPage = lazyPage(() => import("./app/gp/gestion-humana/ge
 const AddRecruitmentProcessPage = lazyPage(() => import("./app/gp/gestion-humana/gestion-de-personal/procesos-postulacion/agregar/page.tsx"));
 const UpdateRecruitmentProcessPage = lazyPage(() => import("./app/gp/gestion-humana/gestion-de-personal/procesos-postulacion/actualizar/[id]/page.tsx"));
 const ProcessApplicantsPage = lazyPage(() => import("./app/gp/gestion-humana/gestion-de-personal/procesos-postulacion/postulantes/page.tsx"));
+const ProcessInterviewsPage = lazyPage(() => import("./app/gp/gestion-humana/gestion-de-personal/procesos-postulacion/entrevistas/page.tsx"));
+const ApplicantStatusMessagesPage = lazyPage(() => import("./app/gp/gestion-humana/gestion-de-personal/procesos-postulacion/mensajes-postulante/page.tsx"));
+const ProcessStageMessagesPage = lazyPage(() => import("./app/gp/gestion-humana/gestion-de-personal/procesos-postulacion/mensajes-proceso/page.tsx"));
 const ApplicantPage = lazyPage(() => import("./app/gp/gestion-humana/gestion-de-personal/postulantes/page.tsx"));
 const AddApplicantPage = lazyPage(() => import("./app/gp/gestion-humana/gestion-de-personal/postulantes/agregar/page.tsx"));
 const UpdateApplicantPage = lazyPage(() => import("./app/gp/gestion-humana/gestion-de-personal/postulantes/actualizar/[id]/page.tsx"));
@@ -2186,6 +2189,18 @@ function App() {
               <Route
                 path="gestion-de-personal/procesos-postulacion/postulantes"
                 element={<ProcessApplicantsPage />}
+              />
+              <Route
+                path="gestion-de-personal/procesos-postulacion/entrevistas"
+                element={<ProcessInterviewsPage />}
+              />
+              <Route
+                path="gestion-de-personal/procesos-postulacion/mensajes-postulante"
+                element={<ApplicantStatusMessagesPage />}
+              />
+              <Route
+                path="gestion-de-personal/procesos-postulacion/mensajes-proceso"
+                element={<ProcessStageMessagesPage />}
               />
               {RouterCrud(
                 "gestion-de-personal/postulantes",

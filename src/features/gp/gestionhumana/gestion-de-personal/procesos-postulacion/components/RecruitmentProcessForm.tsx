@@ -5,7 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Form } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { Loader, ClipboardList, MapPin } from "lucide-react";
+import { Loader, ClipboardList, MapPin, UserCog } from "lucide-react";
 import { FormInput } from "@/shared/components/FormInput";
 import { FormSelect } from "@/shared/components/FormSelect";
 import { FormSelectAsync } from "@/shared/components/FormSelectAsync";
@@ -14,6 +14,7 @@ import { DatePickerFormField } from "@/shared/components/DatePickerFormField";
 import { useAllSedes } from "@/features/gp/maestro-general/sede/lib/sede.hook";
 import { useAreas } from "@/features/gp/gestionhumana/gestion-de-personal/areas/lib/area.hook";
 import { usePositions } from "@/features/gp/gestionhumana/gestion-de-personal/posiciones/lib/position.hook";
+import { useUsers } from "@/features/gp/gestionsistema/usuarios/lib/user.hook";
 import {
   RecruitmentProcessSchema,
   recruitmentProcessSchemaCreate,
@@ -31,6 +32,7 @@ interface RecruitmentProcessFormProps {
   defaultOptions?: {
     area?: Option;
     cargo?: Option;
+    solicitante?: Option;
   };
 }
 
@@ -170,6 +172,35 @@ export const RecruitmentProcessForm = ({
             defaultOption={defaultOptions?.cargo}
             disabled={!areaId}
             required
+          />
+        </GroupFormSection>
+
+        <GroupFormSection
+          title="Solicitante y prioridad"
+          icon={UserCog}
+          color="amber"
+          cols={{ sm: 2 }}
+        >
+          <FormSelectAsync
+            control={form.control}
+            name="solicitante_id"
+            label="Solicitante / Jefatura"
+            placeholder="Seleccionar solicitante..."
+            useQueryHook={useUsers}
+            mapOptionFn={(u) => ({
+              value: String(u.id),
+              label: u.name,
+              description: u.position || "",
+            })}
+            defaultOption={defaultOptions?.solicitante}
+          />
+          <FormInput
+            control={form.control}
+            name="prioridad"
+            label="Prioridad"
+            type="number"
+            min="0"
+            max="255"
           />
         </GroupFormSection>
 

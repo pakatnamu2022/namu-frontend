@@ -57,6 +57,15 @@ export interface ApplicantResource {
   estado_postulante: string;
   jefe_id?: number | null;
   motivo_status?: string | null;
+  medio_contacto?: string | null;
+  disponibilidad?: string | null;
+  condiciones_laborales?: string | null;
+  experiencia_laboral?: string | null;
+  anos_experiencia?: number | string | null;
+  enfermedad_operacion_lesion?: string | null;
+  verificativa_status?: string | null;
+  observacion_verificativa?: string | null;
+  comentarios_reclutamiento?: string | null;
   has_user?: boolean;
   created_at?: string;
   updated_at?: string;

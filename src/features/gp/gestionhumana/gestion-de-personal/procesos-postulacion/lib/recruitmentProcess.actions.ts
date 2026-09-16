@@ -3,6 +3,8 @@ import { GeneralResponse } from "@/shared/lib/response.interface.ts";
 import type { AxiosRequestConfig } from "axios";
 import {
   getRecruitmentProcessesProps,
+  RecruitmentProcessCoverage,
+  RecruitmentProcessHistoryEntry,
   RecruitmentProcessResource,
   RecruitmentProcessResponse,
 } from "./recruitmentProcess.interface.ts";
@@ -37,19 +39,16 @@ export async function findRecruitmentProcessById(
 
 export async function storeRecruitmentProcess(
   payload: any,
-): Promise<{ data: RecruitmentProcessResource }> {
-  const { data } = await api.post<{ data: RecruitmentProcessResource }>(
-    ENDPOINT,
-    payload,
-  );
+): Promise<RecruitmentProcessResource> {
+  const { data } = await api.post<RecruitmentProcessResource>(ENDPOINT, payload);
   return data;
 }
 
 export async function updateRecruitmentProcess(
   id: string,
   payload: any,
-): Promise<{ data: RecruitmentProcessResource }> {
-  const { data } = await api.put<{ data: RecruitmentProcessResource }>(
+): Promise<RecruitmentProcessResource> {
+  const { data } = await api.put<RecruitmentProcessResource>(
     `${ENDPOINT}/${id}`,
     payload,
   );
@@ -58,8 +57,8 @@ export async function updateRecruitmentProcess(
 
 export async function closeRecruitmentProcess(
   id: number,
-): Promise<{ data: RecruitmentProcessResource }> {
-  const { data } = await api.post<{ data: RecruitmentProcessResource }>(
+): Promise<RecruitmentProcessResource> {
+  const { data } = await api.post<RecruitmentProcessResource>(
     `${ENDPOINT}/${id}/close`,
   );
   return data;
@@ -69,5 +68,64 @@ export async function deleteRecruitmentProcess(
   id: number,
 ): Promise<GeneralResponse> {
   const { data } = await api.delete<GeneralResponse>(`${ENDPOINT}/${id}`);
+  return data;
+}
+
+export async function pauseRecruitmentProcess(
+  id: number,
+  motivo: string,
+): Promise<RecruitmentProcessResource> {
+  const { data } = await api.post<RecruitmentProcessResource>(
+    `${ENDPOINT}/${id}/pause`,
+    { motivo },
+  );
+  return data;
+}
+
+export async function resumeRecruitmentProcess(
+  id: number,
+): Promise<RecruitmentProcessResource> {
+  const { data } = await api.post<RecruitmentProcessResource>(
+    `${ENDPOINT}/${id}/resume`,
+  );
+  return data;
+}
+
+export async function reopenRecruitmentProcess(
+  id: number,
+): Promise<RecruitmentProcessResource> {
+  const { data } = await api.post<RecruitmentProcessResource>(
+    `${ENDPOINT}/${id}/reopen`,
+  );
+  return data;
+}
+
+export async function addDaysToRecruitmentProcesses(payload: {
+  proceso_postulacion_ids: number[];
+  dias: number;
+  motivo: string;
+}): Promise<RecruitmentProcessResource[]> {
+  const { data } = await api.post<RecruitmentProcessResource[]>(
+    `${ENDPOINT}/add-days`,
+    payload,
+  );
+  return data;
+}
+
+export async function getRecruitmentProcessCoverage(
+  id: number,
+): Promise<RecruitmentProcessCoverage> {
+  const { data } = await api.get<RecruitmentProcessCoverage>(
+    `${ENDPOINT}/${id}/coverage`,
+  );
+  return data;
+}
+
+export async function getRecruitmentProcessHistory(
+  id: number,
+): Promise<RecruitmentProcessHistoryEntry[]> {
+  const { data } = await api.get<RecruitmentProcessHistoryEntry[]>(
+    `${ENDPOINT}/${id}/history`,
+  );
   return data;
 }
