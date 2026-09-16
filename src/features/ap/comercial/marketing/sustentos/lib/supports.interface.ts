@@ -23,7 +23,15 @@ export interface SupportsResource {
   currency?: { id: number; name: string; symbol: string } | null;
   amount: number | null;
   file_path: string | null;
+  files?: SupportFileResource[];
   notes: string | null;
+}
+
+export interface SupportFileResource {
+  id: number;
+  url: string;
+  name: string | null;
+  mimeType: string | null;
 }
 
 export interface getSupportsProps {
