@@ -1,3 +1,4 @@
+import { BadgeColor } from "@/components/ui/badge";
 import type { MarkType } from "./attendance.interface";
 
 export const ATTENDANCE = {
@@ -23,11 +24,11 @@ export const MARK_TYPE_LABELS: Record<MarkType, string> = {
   check_out: "Salida",
 };
 
-export const MARK_TYPE_COLORS: Record<MarkType, string> = {
-  check_in: "bg-green-100 text-green-700 border-green-200",
-  lunch_out: "bg-orange-100 text-orange-700 border-orange-200",
-  lunch_in: "bg-blue-100 text-blue-700 border-blue-200",
-  check_out: "bg-red-100 text-red-700 border-red-200",
+export const MARK_TYPE_COLORS: Record<MarkType, BadgeColor> = {
+  check_in: "green",
+  lunch_out: "amber",
+  lunch_in: "indigo",
+  check_out: "red",
 };
 
 export const MARK_TYPE_OPTIONS = [

@@ -5,7 +5,10 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import type { AttendanceRecord } from "../lib/attendance.interface";
-import { MARK_TYPE_LABELS, MARK_TYPE_COLORS } from "../lib/attendance.constants";
+import {
+  MARK_TYPE_LABELS,
+  MARK_TYPE_COLORS,
+} from "../lib/attendance.constants";
 
 interface ColumnsOptions {
   onRowClick: (row: AttendanceRecord) => void;
@@ -31,7 +34,7 @@ export function getAttendanceColumns({
       header: "Colaborador",
       cell: ({ row }) => (
         <button
-          className="text-primary font-medium hover:underline text-left"
+          className="text-primary dark:text-primary-foreground font-medium hover:underline text-left"
           onClick={() => onRowClick(row.original)}
         >
           {row.original.full_name}
@@ -53,9 +56,9 @@ export function getAttendanceColumns({
       cell: ({ row }) => {
         const type = row.original.mark_type;
         const label = MARK_TYPE_LABELS[type] ?? type;
-        const colorClass = MARK_TYPE_COLORS[type] ?? "bg-gray-100 text-gray-700 border-gray-200";
+        const colorClass = MARK_TYPE_COLORS[type] ?? "gray";
         return (
-          <Badge variant="outline" className={cn("text-xs border", colorClass)}>
+          <Badge color={colorClass} size="sm">
             {label}
           </Badge>
         );
