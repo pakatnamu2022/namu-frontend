@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import type { ColumnDef } from "@tanstack/react-table";
-import { CheckCircle2, PlayCircle, Wallet, XCircle, Pencil } from "lucide-react";
+import { CheckCircle2, PlayCircle, Wallet, XCircle, Pencil, FileDown } from "lucide-react";
 import { ButtonAction } from "@/shared/components/ButtonAction";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
 import { Badge } from "@/components/ui/badge";
@@ -15,6 +15,7 @@ interface Props {
   onComplete: (id: number) => void;
   onCancel: (id: number) => void;
   onManageBudgets: (plan: PlansResource) => void;
+  onDownloadReport: (id: number) => void;
   permissions: {
     canUpdate: boolean;
     canDelete: boolean;
@@ -27,6 +28,7 @@ export const plansColumns = ({
   onComplete,
   onCancel,
   onManageBudgets,
+  onDownloadReport,
   permissions,
 }: Props): PlansColumns[] => [
   {
@@ -91,6 +93,12 @@ export const plansColumns = ({
             tooltip="Presupuestos"
             type="button"
             onClick={() => onManageBudgets(row.original)}
+          />
+          <ButtonAction
+            icon={FileDown}
+            tooltip="Descargar reporte completo"
+            type="button"
+            onClick={() => onDownloadReport(id)}
           />
           {permissions.canUpdate && status === "draft" && (
             <ButtonAction

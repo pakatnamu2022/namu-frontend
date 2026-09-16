@@ -5,13 +5,12 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Form } from "@/components/ui/form";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Loader, Receipt } from "lucide-react";
+import { Loader, Receipt, X, FileText } from "lucide-react";
 import { useState } from "react";
 import { SupportsSchema, supportsSchema } from "../lib/supports.schema";
 import { FormInput } from "@/shared/components/FormInput";
 import { FormSelect } from "@/shared/components/FormSelect";
 import { DatePickerFormField } from "@/shared/components/DatePickerFormField";
-import { FileUploadWithCamera } from "@/shared/components/FileUploadWithCamera";
 import {
   MultipleFileUploadWithCamera,
   UploadedFile,
@@ -26,14 +25,19 @@ import { ActivitiesResource } from "../../actividades/lib/activities.interface";
 import { BUSINESS_PARTNER_TYPE } from "@/features/ap/business-partners/lib/businessPartners.constants";
 import { BusinessPartnersResource } from "@/features/ap/business-partners/lib/businessPartners.interface";
 import { useBusinessPartners } from "@/features/ap/business-partners/lib/businessPartners.hook";
+import { SupportFileResource } from "../lib/supports.interface";
 
 interface Props {
   defaultValues: Partial<SupportsSchema>;
   onSubmit: (data: SupportsSchema, files: File[]) => void;
   isSubmitting?: boolean;
   mode?: "create" | "update";
-  /** URL del archivo ya cargado (modo edición); se muestra como referencia. */
-  existingFileUrl?: string | null;
+  /** Archivos ya guardados (modo edición): se pueden eliminar individualmente. */
+  existingFiles?: SupportFileResource[];
+  /** URL del archivo legado de un sustento antiguo (campo file_path, sin registro en `files`). */
+  legacyFileUrl?: string | null;
+  onDeleteExistingFile?: (fileId: number) => void;
+  deletingFileId?: number | null;
 }
 
 export const SupportsForm = ({
@@ -41,14 +45,17 @@ export const SupportsForm = ({
   onSubmit,
   isSubmitting = false,
   mode = "create",
-  existingFileUrl,
+  existingFiles = [],
+  legacyFileUrl,
+  onDeleteExistingFile,
+  deletingFileId,
 }: Props) => {
   const form = useForm<SupportsSchema>({
     resolver: zodResolver(supportsSchema) as any,
     defaultValues,
   });
-  const [file, setFile] = useState<File | null>(null);
   const [files, setFiles] = useState<UploadedFile[]>([]);
+  const maxNewFiles = Math.max(1, 10 - existingFiles.length);
 
   const { data: currencies = [] } = useAllCurrencyTypes();
   const { data: constants } = useMarketingConstants();
@@ -58,10 +65,7 @@ export const SupportsForm = ({
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit((data) =>
-          onSubmit(
-            data,
-            mode === "update" ? (file ? [file] : []) : files.map((f) => f.file),
-          ),
+          onSubmit(data, files.map((f) => f.file)),
         )}
         className="space-y-6"
       >
@@ -145,35 +149,77 @@ export const SupportsForm = ({
             control={form.control}
             required
           />
-          <div className="md:col-span-2 flex flex-col gap-1.5">
-            {mode === "update" ? (
-              <>
-                <FileUploadWithCamera
-                  label="Archivo del Sustento"
-                  value={file}
-                  onChange={(f) => setFile(f)}
-                  disabled={isSubmitting}
-                />
-                {existingFileUrl && !file && (
-                  <a
-                    href={existingFileUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="text-xs text-primary underline underline-offset-2 w-fit"
-                  >
-                    Ver archivo actual
-                  </a>
+          <div className="md:col-span-2 flex flex-col gap-3">
+            {mode === "update" && (existingFiles.length > 0 || legacyFileUrl) && (
+              <div className="space-y-2">
+                {existingFiles.length > 0 && (
+                  <p className="text-sm text-muted-foreground">
+                    Archivos guardados
+                  </p>
                 )}
-              </>
-            ) : (
-              <MultipleFileUploadWithCamera
-                label="Archivos del Sustento"
-                value={files}
-                onChange={setFiles}
-                disabled={isSubmitting}
-                maxFiles={10}
-              />
+                <div className="space-y-2">
+                  {existingFiles.map((f) => (
+                    <div
+                      key={f.id}
+                      className="flex items-center gap-2 p-2 bg-muted rounded-md"
+                    >
+                      {f.mimeType?.includes("pdf") ? (
+                        <FileText className="h-8 w-8 shrink-0 text-primary" />
+                      ) : (
+                        <img
+                          src={f.url}
+                          alt="Sustento"
+                          className="h-10 w-10 object-cover rounded shrink-0"
+                        />
+                      )}
+                      <a
+                        href={f.url}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="text-xs text-primary underline underline-offset-2 flex-1 truncate"
+                      >
+                        Ver archivo
+                      </a>
+                      {onDeleteExistingFile && (
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          type="button"
+                          className="shrink-0 text-destructive hover:text-destructive hover:bg-destructive/10"
+                          onClick={() => onDeleteExistingFile(f.id)}
+                          disabled={isSubmitting || deletingFileId === f.id}
+                        >
+                          {deletingFileId === f.id ? (
+                            <Loader className="h-4 w-4 animate-spin" />
+                          ) : (
+                            <X className="h-4 w-4" />
+                          )}
+                        </Button>
+                      )}
+                    </div>
+                  ))}
+                  {existingFiles.length === 0 && legacyFileUrl && (
+                    <a
+                      href={legacyFileUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-xs text-primary underline underline-offset-2 w-fit block"
+                    >
+                      Ver archivo actual
+                    </a>
+                  )}
+                </div>
+              </div>
             )}
+            <MultipleFileUploadWithCamera
+              label={
+                mode === "update" ? "Agregar más archivos" : "Archivos del Sustento"
+              }
+              value={files}
+              onChange={setFiles}
+              disabled={isSubmitting}
+              maxFiles={maxNewFiles}
+            />
           </div>
           <FormInput
             name="notes"

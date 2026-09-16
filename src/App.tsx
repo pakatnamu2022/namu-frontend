@@ -478,6 +478,9 @@ const RecruitmentProcessPage = lazyPage(() => import("./app/gp/gestion-humana/ge
 const AddRecruitmentProcessPage = lazyPage(() => import("./app/gp/gestion-humana/gestion-de-personal/procesos-postulacion/agregar/page.tsx"));
 const UpdateRecruitmentProcessPage = lazyPage(() => import("./app/gp/gestion-humana/gestion-de-personal/procesos-postulacion/actualizar/[id]/page.tsx"));
 const ProcessApplicantsPage = lazyPage(() => import("./app/gp/gestion-humana/gestion-de-personal/procesos-postulacion/postulantes/page.tsx"));
+const ProcessInterviewsPage = lazyPage(() => import("./app/gp/gestion-humana/gestion-de-personal/procesos-postulacion/entrevistas/page.tsx"));
+const ApplicantStatusMessagesPage = lazyPage(() => import("./app/gp/gestion-humana/gestion-de-personal/procesos-postulacion/mensajes-postulante/page.tsx"));
+const ProcessStageMessagesPage = lazyPage(() => import("./app/gp/gestion-humana/gestion-de-personal/procesos-postulacion/mensajes-proceso/page.tsx"));
 const ApplicantPage = lazyPage(() => import("./app/gp/gestion-humana/gestion-de-personal/postulantes/page.tsx"));
 const AddApplicantPage = lazyPage(() => import("./app/gp/gestion-humana/gestion-de-personal/postulantes/agregar/page.tsx"));
 const UpdateApplicantPage = lazyPage(() => import("./app/gp/gestion-humana/gestion-de-personal/postulantes/actualizar/[id]/page.tsx"));
@@ -485,6 +488,18 @@ const ApplicantDataChangeQueuePage = lazyPage(() => import("./app/gp/gestion-hum
 const OutOfQuotaApplicantsPage = lazyPage(() => import("./app/gp/gestion-humana/gestion-de-personal/fuera-de-cupo/page.tsx"));
 const BlacklistApplicantsPage = lazyPage(() => import("./app/gp/gestion-humana/gestion-de-personal/lista-negra-rechazados/page.tsx"));
 const SelectedWorkersPage = lazyPage(() => import("./app/gp/gestion-humana/gestion-de-personal/seleccionados/page.tsx"));
+const ContractTypePage = lazyPage(() => import("./app/gp/gestion-humana/gestion-de-personal/tipos-contrato/page.tsx"));
+const AddContractTypePage = lazyPage(() => import("./app/gp/gestion-humana/gestion-de-personal/tipos-contrato/agregar/page.tsx"));
+const UpdateContractTypePage = lazyPage(() => import("./app/gp/gestion-humana/gestion-de-personal/tipos-contrato/actualizar/[id]/page.tsx"));
+const ContractTemplatePage = lazyPage(() => import("./app/gp/gestion-humana/gestion-de-personal/plantillas-contrato/page.tsx"));
+const AddContractTemplatePage = lazyPage(() => import("./app/gp/gestion-humana/gestion-de-personal/plantillas-contrato/agregar/page.tsx"));
+const UpdateContractTemplatePage = lazyPage(() => import("./app/gp/gestion-humana/gestion-de-personal/plantillas-contrato/actualizar/[id]/page.tsx"));
+const SignerPage = lazyPage(() => import("./app/gp/gestion-humana/gestion-de-personal/firmantes/page.tsx"));
+const AddSignerPage = lazyPage(() => import("./app/gp/gestion-humana/gestion-de-personal/firmantes/agregar/page.tsx"));
+const UpdateSignerPage = lazyPage(() => import("./app/gp/gestion-humana/gestion-de-personal/firmantes/actualizar/[id]/page.tsx"));
+const ContractPage = lazyPage(() => import("./app/gp/gestion-humana/gestion-de-personal/contratos/page.tsx"));
+const AddContractPage = lazyPage(() => import("./app/gp/gestion-humana/gestion-de-personal/contratos/agregar/page.tsx"));
+const UpdateContractPage = lazyPage(() => import("./app/gp/gestion-humana/gestion-de-personal/contratos/actualizar/[id]/page.tsx"));
 const PerDiemCategoryPage = lazyPage(() => import("./app/gp/gestion-humana/viaticos/categoria-viaticos/page.tsx"));
 const PerDiemPolicyPage = lazyPage(() => import("./app/gp/gestion-humana/viaticos/politica-viaticos/page.tsx"));
 const AddPerDiemPolicyPage = lazyPage(() => import("./app/gp/gestion-humana/viaticos/politica-viaticos/agregar/page.tsx"));
@@ -2180,6 +2195,18 @@ function App() {
                 path="gestion-de-personal/procesos-postulacion/postulantes"
                 element={<ProcessApplicantsPage />}
               />
+              <Route
+                path="gestion-de-personal/procesos-postulacion/entrevistas"
+                element={<ProcessInterviewsPage />}
+              />
+              <Route
+                path="gestion-de-personal/procesos-postulacion/mensajes-postulante"
+                element={<ApplicantStatusMessagesPage />}
+              />
+              <Route
+                path="gestion-de-personal/procesos-postulacion/mensajes-proceso"
+                element={<ProcessStageMessagesPage />}
+              />
               {RouterCrud(
                 "gestion-de-personal/postulantes",
                 <ApplicantPage />,
@@ -2202,6 +2229,30 @@ function App() {
                 path="gestion-de-personal/seleccionados"
                 element={<SelectedWorkersPage />}
               />
+              {RouterCrud(
+                "gestion-de-personal/tipos-contrato",
+                <ContractTypePage />,
+                <AddContractTypePage />,
+                <UpdateContractTypePage />,
+              )}
+              {RouterCrud(
+                "gestion-de-personal/plantillas-contrato",
+                <ContractTemplatePage />,
+                <AddContractTemplatePage />,
+                <UpdateContractTemplatePage />,
+              )}
+              {RouterCrud(
+                "gestion-de-personal/firmantes",
+                <SignerPage />,
+                <AddSignerPage />,
+                <UpdateSignerPage />,
+              )}
+              {RouterCrud(
+                "gestion-de-personal/contratos",
+                <ContractPage />,
+                <AddContractPage />,
+                <UpdateContractPage />,
+              )}
               <Route
                 path="viaticos"
                 element={
