@@ -118,6 +118,7 @@ export default function ObjectivesDashboard() {
         <div className="space-y-6">
           <ObjectivesExecutiveSummary
             summary={dashboard.executive_summary}
+            sumaryVehicular={dashboard.executive_summary_vehicular_crossing}
             period={dashboard.period}
           />
 

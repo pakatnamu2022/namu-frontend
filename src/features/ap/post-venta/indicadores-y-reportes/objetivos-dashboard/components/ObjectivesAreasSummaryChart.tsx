@@ -8,19 +8,13 @@ import {
   CardDescription,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ChartContainer, ChartTooltip } from "@/components/ui/chart";
-import {
-  Bar,
-  BarChart,
-  CartesianGrid,
-  XAxis,
-  YAxis,
-  LabelList,
-} from "recharts";
+import { ChartContainer } from "@/components/ui/chart";
+import { RadialBar, RadialBarChart, PolarGrid } from "recharts";
 import { GlobalAreaSummary } from "../lib/objectivesDashboard.interface";
 import {
   OBJECTIVE_STATUS_BADGE_COLOR,
   OBJECTIVE_STATUS_LABEL,
+  OBJECTIVE_STATUS_HEX,
 } from "../lib/objectivesDashboard.constants";
 
 interface ObjectivesAreasSummaryChartProps {
@@ -61,39 +55,74 @@ function AreaBadge({ area }: { area: AreaDatum }) {
   );
 }
 
-function AreaTooltip({
-  active,
-  payload,
+function AreaRadialItem({
+  area,
   formatValue,
 }: {
-  active?: boolean;
-  payload?: any[];
+  area: AreaDatum;
   formatValue: (value: number) => string;
 }) {
-  if (!active || !payload || payload.length === 0) return null;
-  const item = payload[0].payload as AreaDatum;
+  const clamped = Math.min(area.completion_percentage, 100);
+  const color = OBJECTIVE_STATUS_HEX[area.status];
+  const data = [{ ...area, fill: color }];
+
   return (
-    <div className="rounded-lg border bg-background p-3 shadow-lg">
-      <p className="mb-2 border-b pb-2 text-xs font-medium text-muted-foreground">
-        {item.label}
-      </p>
-      <div className="space-y-1.5">
-        <div className="flex items-center justify-between gap-8">
-          <span className="text-xs text-muted-foreground">Objetivo:</span>
-          <span className="text-sm font-bold">
-            {formatValue(item.total_objective)}
+    <div className="flex flex-col items-center gap-2 px-3 py-2">
+      <div className="relative mx-auto aspect-square h-36 w-full shrink-0">
+        <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center">
+          <span className="text-xl font-bold">
+            {area.completion_percentage.toFixed(0)}%
           </span>
         </div>
-        <div className="flex items-center justify-between gap-8">
-          <span className="text-xs text-muted-foreground">Avance:</span>
-          <span className="text-sm font-bold">
-            {formatValue(item.total_progress)}
+
+        <ChartContainer
+          config={chartConfig}
+          className="mx-auto aspect-square h-36"
+        >
+          <RadialBarChart
+            data={data}
+            startAngle={90}
+            endAngle={90 - (clamped / 100) * 360}
+            innerRadius={55}
+            outerRadius={80}
+          >
+            <PolarGrid
+              gridType="circle"
+              radialLines={false}
+              stroke="none"
+              className="first:fill-muted last:fill-background"
+              polarRadius={[59, 51]}
+            />
+            <RadialBar
+              dataKey="completion_percentage"
+              background
+              cornerRadius={10}
+            />
+          </RadialBarChart>
+        </ChartContainer>
+      </div>
+
+      <div className="flex flex-col items-center gap-1 text-center">
+        <span className="text-sm font-medium">{area.label}</span>
+        <Badge
+          color={OBJECTIVE_STATUS_BADGE_COLOR[area.status]}
+          className="text-xs font-medium"
+        >
+          {OBJECTIVE_STATUS_LABEL[area.status]}
+        </Badge>
+      </div>
+
+      <div className="w-full space-y-1 border-t pt-2 text-xs">
+        <div className="flex items-center justify-between gap-4">
+          <span className="text-muted-foreground">Objetivo</span>
+          <span className="font-medium">
+            {formatValue(area.total_objective)}
           </span>
         </div>
-        <div className="flex items-center justify-between gap-8">
-          <span className="text-xs text-muted-foreground">Cumplimiento:</span>
-          <span className="text-sm font-bold">
-            {item.completion_percentage.toFixed(1)}%
+        <div className="flex items-center justify-between gap-4">
+          <span className="text-muted-foreground">Avance</span>
+          <span className="font-medium">
+            {formatValue(area.total_progress)}
           </span>
         </div>
       </div>
@@ -101,7 +130,7 @@ function AreaTooltip({
   );
 }
 
-function AreaBarChart({
+function AreaRadialChart({
   data,
   formatValue,
 }: {
@@ -109,40 +138,15 @@ function AreaBarChart({
   formatValue: (value: number) => string;
 }) {
   return (
-    <ChartContainer config={chartConfig} className="aspect-auto h-72 w-full">
-      <BarChart
-        accessibilityLayer
-        data={data}
-        margin={{ left: 12, right: 12, top: 12 }}
-      >
-        <CartesianGrid vertical={false} />
-        <XAxis
-          dataKey="label"
-          tickLine={false}
-          axisLine={false}
-          tickMargin={8}
+    <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-[repeat(auto-fit,minmax(9rem,1fr))]">
+      {data.map((area) => (
+        <AreaRadialItem
+          key={area.area_id}
+          area={area}
+          formatValue={formatValue}
         />
-        <YAxis hide />
-        <ChartTooltip
-          content={(props) => (
-            <AreaTooltip {...props} formatValue={formatValue} />
-          )}
-        />
-        <Bar
-          dataKey="total_objective"
-          fill="var(--color-gray-300)"
-          radius={4}
-        />
-        <Bar dataKey="total_progress" fill="var(--primary)" radius={4}>
-          <LabelList
-            dataKey="completion_percentage"
-            position="top"
-            formatter={(value: number) => `${value.toFixed(0)}%`}
-            className="fill-foreground text-xs"
-          />
-        </Bar>
-      </BarChart>
-    </ChartContainer>
+      ))}
+    </div>
   );
 }
 
@@ -158,8 +162,14 @@ export default function ObjectivesAreasSummaryChart({
   const vehicularAreas = data.filter((area) => area.is_vehicular_crossing);
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-      <Card className="lg:col-span-2">
+    <div
+      className={
+        vehicularAreas.length > 0
+          ? "grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,2fr)_minmax(16rem,1fr)]"
+          : "grid grid-cols-1 gap-4"
+      }
+    >
+      <Card>
         <CardHeader className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div>
             <CardTitle>Resumen Global</CardTitle>
@@ -175,7 +185,7 @@ export default function ObjectivesAreasSummaryChart({
           </div>
         </CardHeader>
         <CardContent className="px-2 sm:p-4">
-          <AreaBarChart data={monetaryAreas} formatValue={formatCurrency} />
+          <AreaRadialChart data={monetaryAreas} formatValue={formatCurrency} />
         </CardContent>
       </Card>
 
@@ -194,7 +204,7 @@ export default function ObjectivesAreasSummaryChart({
             </div>
           </CardHeader>
           <CardContent className="px-2 sm:p-4">
-            <AreaBarChart data={vehicularAreas} formatValue={formatNumber} />
+            <AreaRadialChart data={vehicularAreas} formatValue={formatNumber} />
           </CardContent>
         </Card>
       )}
