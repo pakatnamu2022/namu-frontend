@@ -17,12 +17,14 @@ import {
 import { useState } from "react";
 import TitleFormComponent from "@/shared/components/TitleFormComponent";
 import FormWrapper from "@/shared/components/FormWrapper";
+import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
 
 export default function AddOrderQuotationMesonPage() {
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
   const { MODEL, ROUTE, ABSOLUTE_ROUTE } = ORDER_QUOTATION_MESON;
   const router = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const permissions = useModulePermissions(ROUTE);
 
   const handleSubmit = async (data: QuotationMesonWithProductsSchema) => {
     try {
@@ -53,6 +55,7 @@ export default function AddOrderQuotationMesonPage() {
         onSubmit={handleSubmit}
         isSubmitting={isSubmitting}
         mode="create"
+        permissionToAddTraverseSparePart={permissions.canAddTraverseSparePart}
       />
     </FormWrapper>
   );
