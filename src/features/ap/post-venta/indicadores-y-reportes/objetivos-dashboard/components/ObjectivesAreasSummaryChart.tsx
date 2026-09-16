@@ -43,13 +43,20 @@ const formatNumber = (value: number) =>
 
 type AreaDatum = GlobalAreaSummary & { label: string };
 
-function AreaBadge({ area }: { area: AreaDatum }) {
+function AreaBadge({
+  area,
+  showAreaName = true,
+}: {
+  area: AreaDatum;
+  showAreaName?: boolean;
+}) {
   return (
     <Badge
       color={OBJECTIVE_STATUS_BADGE_COLOR[area.status]}
       className="text-xs font-medium"
     >
-      {area.label}: {area.completion_percentage.toFixed(1)}% ·{" "}
+      {showAreaName && `${area.label}: `}
+      {area.completion_percentage.toFixed(1)}% ·{" "}
       {OBJECTIVE_STATUS_LABEL[area.status]}
     </Badge>
   );
@@ -191,15 +198,23 @@ export default function ObjectivesAreasSummaryChart({
 
       {vehicularAreas.length > 0 && (
         <Card>
-          <CardHeader className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-            <div>
-              <CardTitle>Paso Vehicular</CardTitle>
-              <CardDescription>Objetivo vs. avance (unidades)</CardDescription>
+          <CardHeader className="flex flex-col gap-4 sm:flex-row sm:flex-nowrap sm:items-start sm:justify-between">
+            <div className="shrink-0">
+              <CardTitle className="whitespace-nowrap">
+                Paso Vehicular
+              </CardTitle>
+              <CardDescription className="whitespace-nowrap">
+                Objetivo vs. avance
+              </CardDescription>
             </div>
 
-            <div className="flex flex-wrap gap-2">
+            <div className="flex shrink-0 flex-wrap gap-2">
               {vehicularAreas.map((area) => (
-                <AreaBadge key={area.area_id} area={area} />
+                <AreaBadge
+                  key={area.area_id}
+                  area={area}
+                  showAreaName={false}
+                />
               ))}
             </div>
           </CardHeader>
