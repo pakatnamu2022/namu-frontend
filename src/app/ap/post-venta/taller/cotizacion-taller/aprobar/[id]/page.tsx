@@ -207,7 +207,7 @@ export default function AprobacionProductosPage() {
         </Button>
         <TitleComponent
           title="Aprobación de Solicitud de Compra"
-          subtitle={`Cotización: ${quotation.quotation_number}`}
+          subtitle={quotation.quotation_number}
         />
       </div>
 
@@ -290,7 +290,7 @@ export default function AprobacionProductosPage() {
         <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
           {/* Jefe */}
           <div
-            className={`rounded-lg border px-5 py-3 min-w-[160px] ${
+            className={`rounded-lg border px-5 py-3 min-w-40 ${
               chiefApproved
                 ? "bg-green-50 border-green-200"
                 : "bg-gray-50 border-gray-200"
@@ -332,7 +332,7 @@ export default function AprobacionProductosPage() {
 
           {/* Gerente */}
           <div
-            className={`rounded-lg border px-5 py-3 min-w-[160px] ${
+            className={`rounded-lg border px-5 py-3 min-w-40 ${
               managerApproved
                 ? "bg-green-50 border-green-200"
                 : "bg-gray-50 border-gray-200"
