@@ -33,6 +33,7 @@ interface WorkOrderPartsFormProps {
   onSuccess: () => void;
   onCancel: () => void;
   maxDiscountPercentage: number;
+  permissionToAddTraverseSparePart?: boolean;
 }
 
 interface AddPartFormValues {
@@ -82,6 +83,7 @@ export default function WorkOrderPartsForm({
   onSuccess,
   onCancel,
   maxDiscountPercentage,
+  permissionToAddTraverseSparePart = false,
 }: WorkOrderPartsFormProps) {
   const queryClient = useQueryClient();
 
@@ -239,35 +241,27 @@ export default function WorkOrderPartsForm({
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
-        {/* <div className="bg-blue-50 border border-blue-200 rounded-md px-3 py-2">
-          <p className="text-xs text-primary">
-            <span className="font-semibold">Almacén:</span>{" "}
-            {warehouseName || "No seleccionado"}
-          </p>
-          <p className="text-xs text-primary">
-            <span className="font-semibold">Sede:</span> {sedeName || "N/A"}
-          </p>
-        </div> */}
-
         <ActiveCampaignAlert areaId={AREA_TALLER} />
 
-        <FormSwitch
-          control={form.control}
-          name="is_traverse"
-          text="Es travesía"
-          textDescription={
-            isTraverse
-              ? "Activo: no se validará stock disponible ni precio de venta mínimo"
-              : "No se validará stock disponible ni precio de venta mínimo"
-          }
-          size="lg"
-          autoHeight
-          className={
-            isTraverse
-              ? "border-blue-300 bg-blue-50 hover:bg-blue-50"
-              : undefined
-          }
-        />
+        {permissionToAddTraverseSparePart && (
+          <FormSwitch
+            control={form.control}
+            name="is_traverse"
+            text="Es travesía"
+            textDescription={
+              isTraverse
+                ? "Activo: no se validará stock disponible ni precio de venta mínimo"
+                : "No se validará stock disponible ni precio de venta mínimo"
+            }
+            size="lg"
+            autoHeight
+            className={
+              isTraverse
+                ? "border-blue-300 bg-blue-50 hover:bg-blue-50"
+                : undefined
+            }
+          />
+        )}
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           <FormSelectAsync

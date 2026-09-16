@@ -62,6 +62,7 @@ interface AddProductDetailSheetProps {
   defaultDiscount: number;
   isDetailsDisabled?: boolean;
   initialProductId?: number;
+  permissionToAddTraverseSparePart: boolean;
 }
 
 export default function AddProductDetailSheet({
@@ -79,6 +80,7 @@ export default function AddProductDetailSheet({
   defaultDiscount,
   isDetailsDisabled = false,
   initialProductId,
+  permissionToAddTraverseSparePart = false,
 }: AddProductDetailSheetProps) {
   const [showStock, setShowStock] = useState(true);
   const [sheetStock, setSheetStock] =
@@ -246,24 +248,26 @@ export default function AddProductDetailSheet({
       }
     >
       <div className="space-y-4">
-        <FormSwitch
-          control={form.control}
-          name="is_traverse"
-          text="Es travesía"
-          textDescription={
-            isTraverse
-              ? "Activo: este repuesto se marcará como travesía"
-              : "Indica si este repuesto será de travesía"
-          }
-          size="lg"
-          autoHeight
-          disabled={isDetailsDisabled}
-          className={
-            isTraverse
-              ? "border-blue-300 bg-blue-50 hover:bg-blue-50"
-              : undefined
-          }
-        />
+        {permissionToAddTraverseSparePart && (
+          <FormSwitch
+            control={form.control}
+            name="is_traverse"
+            text="Es travesía"
+            textDescription={
+              isTraverse
+                ? "Activo: este repuesto se marcará como travesía"
+                : "Indica si este repuesto será de travesía"
+            }
+            size="lg"
+            autoHeight
+            disabled={isDetailsDisabled}
+            className={
+              isTraverse
+                ? "border-blue-300 bg-blue-50 hover:bg-blue-50"
+                : undefined
+            }
+          />
+        )}
 
         <FormSelectAsync
           name="product_id"

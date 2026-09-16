@@ -42,6 +42,16 @@ export interface ExecutiveSummary {
   expected_vs_real: ExpectedVsReal;
 }
 
+export interface ExecutiveVehicularCrossingSummary {
+  total_objective: number;
+  total_progress: number;
+  completion_percentage: number;
+  status: ObjectiveStatus;
+  trend: ObjectiveTrend;
+  days_remaining: number;
+  expected_vs_real: ExpectedVsReal;
+}
+
 export interface AreaProgress {
   objective: number;
   progress: number;
@@ -156,6 +166,7 @@ export interface HeadquarterDetail {
 export interface ObjectivesDashboardData {
   period: PeriodInfo;
   executive_summary: ExecutiveSummary;
+  executive_summary_vehicular_crossing: ExecutiveVehicularCrossingSummary;
   global_areas_summary: GlobalAreaSummary[];
   headquarters_comparison: HeadquartersComparison;
   headquarters_detail: HeadquarterDetail[];

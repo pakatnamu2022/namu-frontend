@@ -26,6 +26,18 @@ export const POST_VENTA_REPORTS: ReportConfig[] = [
         rangeParamName: "opening_date",
       },
       {
+        name: "sede_id",
+        label: "Sede",
+        type: "select",
+        required: false,
+        endpoint: `/gp/mg/sede/my?company=${EMPRESA_AP.id}&has_workshop=true`,
+        optionsMapper: (data) =>
+          (data ?? []).map((item: any) => ({
+            label: item.description,
+            value: String(item.id),
+          })),
+      },
+      {
         name: "amounts_in_soles",
         label: "Moneda",
         type: "toggle",
@@ -59,6 +71,18 @@ export const POST_VENTA_REPORTS: ReportConfig[] = [
         nameFrom: "date_from",
         nameTo: "date_to",
         rangeParamName: "invoice_date",
+      },
+      {
+        name: "sede_id",
+        label: "Sede",
+        type: "select",
+        required: false,
+        endpoint: `/gp/mg/sede/my?company=${EMPRESA_AP.id}&has_workshop=true`,
+        optionsMapper: (data) =>
+          (data ?? []).map((item: any) => ({
+            label: item.description,
+            value: String(item.id),
+          })),
       },
     ],
     defaultParams: {},
