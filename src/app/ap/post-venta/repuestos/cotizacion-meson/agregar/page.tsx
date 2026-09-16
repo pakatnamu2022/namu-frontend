@@ -55,7 +55,7 @@ export default function AddOrderQuotationMesonPage() {
         onSubmit={handleSubmit}
         isSubmitting={isSubmitting}
         mode="create"
-        permissionToAddTraverseSparePart={permissions.canAddTraverseSparePart}
+        permissions={permissions}
       />
     </FormWrapper>
   );

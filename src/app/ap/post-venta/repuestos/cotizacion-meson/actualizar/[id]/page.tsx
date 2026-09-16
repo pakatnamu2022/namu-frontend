@@ -127,7 +127,7 @@ export default function UpdateOrderQuotationMesonPage() {
         clientData={quotation.client}
         quotationData={quotation}
         approvedDiscountRequests={approvedDiscountRequests}
-        permissionToAddTraverseSparePart={permissions.canAddTraverseSparePart}
+        permissions={permissions}
       />
     </FormWrapper>
   );

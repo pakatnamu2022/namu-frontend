@@ -115,7 +115,10 @@ interface ProformaMesonFormProps {
   vehicleData?: VehicleResource;
   quotationData?: OrderQuotationResource;
   approvedDiscountRequests?: DiscountRequestOrderQuotationResource[];
-  permissionToAddTraverseSparePart: boolean;
+  permissions: {
+    canAddTraverseSparePart: boolean;
+    canCreateSpare: boolean;
+  };
 }
 
 export default function ProformaMesonForm({
@@ -127,7 +130,7 @@ export default function ProformaMesonForm({
   vehicleData,
   quotationData,
   approvedDiscountRequests = [],
-  permissionToAddTraverseSparePart = false,
+  permissions,
 }: ProformaMesonFormProps) {
   const router = useNavigate();
   const [selectedVehicle, setSelectedVehicle] = useState<any>(null);
@@ -819,7 +822,7 @@ export default function ProformaMesonForm({
                 </PopoverContent>
               </Popover>
             )}
-            {!isSorting && (
+            {permissions.canCreateSpare && !isSorting && (
               <Button
                 type="button"
                 onClick={() => setIsPartModalOpen(true)}
@@ -971,7 +974,7 @@ export default function ProformaMesonForm({
                             sortable={isSorting}
                             dragHandleProps={dragHandleProps}
                             permissionToAddTraverseSparePart={
-                              permissionToAddTraverseSparePart
+                              permissions.canAddTraverseSparePart
                             }
                           />
                         )}
@@ -1075,7 +1078,7 @@ export default function ProformaMesonForm({
         defaultDiscount={defaultDiscount}
         isDetailsDisabled={isDetailsDisabled}
         initialProductId={pendingProductId}
-        permissionToAddTraverseSparePart={permissionToAddTraverseSparePart}
+        permissionToAddTraverseSparePart={permissions.canAddTraverseSparePart}
       />
 
       <CustomerModal
