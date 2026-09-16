@@ -2,6 +2,7 @@
 
 import { useParams, useNavigate } from "react-router-dom";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useState } from "react";
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
 import {
   ERROR_MESSAGE,
@@ -13,7 +14,10 @@ import TitleFormComponent from "@/shared/components/TitleFormComponent";
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import FormWrapper from "@/shared/components/FormWrapper";
 import { SUPPORTS } from "@/features/ap/comercial/marketing/sustentos/lib/supports.constants";
-import { updateSupports } from "@/features/ap/comercial/marketing/sustentos/lib/supports.actions";
+import {
+  updateSupports,
+  deleteSupportFile,
+} from "@/features/ap/comercial/marketing/sustentos/lib/supports.actions";
 import { useSupportsById } from "@/features/ap/comercial/marketing/sustentos/lib/supports.hook";
 import { SupportsSchema } from "@/features/ap/comercial/marketing/sustentos/lib/supports.schema";
 import { SupportsResource } from "@/features/ap/comercial/marketing/sustentos/lib/supports.interface";
@@ -42,10 +46,11 @@ export default function UpdateMarketingSupportPage() {
   const { ROUTE, QUERY_KEY, MODEL, ABSOLUTE_ROUTE } = SUPPORTS;
 
   const { data: support, isLoading: loadingSupport } = useSupportsById(Number(id));
+  const [deletingFileId, setDeletingFileId] = useState<number | null>(null);
 
   const { mutate, isPending } = useMutation({
-    mutationFn: (payload: { data: SupportsSchema; file: File | null }) =>
-      updateSupports(Number(id), { ...payload.data, file: payload.file }),
+    mutationFn: (payload: { data: SupportsSchema; files: File[] }) =>
+      updateSupports(Number(id), { ...payload.data, files: payload.files }),
     onSuccess: async () => {
       successToast(SUCCESS_MESSAGE(MODEL, "update"));
       await queryClient.invalidateQueries({ queryKey: [QUERY_KEY] });
@@ -57,8 +62,22 @@ export default function UpdateMarketingSupportPage() {
     },
   });
 
+  const { mutate: deleteFile } = useMutation({
+    mutationFn: (fileId: number) => deleteSupportFile(Number(id), fileId),
+    onMutate: (fileId: number) => setDeletingFileId(fileId),
+    onSuccess: async () => {
+      successToast("Archivo eliminado correctamente");
+      await queryClient.invalidateQueries({ queryKey: [QUERY_KEY, Number(id)] });
+    },
+    onError: (error: any) => {
+      const msg = error?.response?.data?.message || "";
+      errorToast(ERROR_MESSAGE(MODEL, "update", msg));
+    },
+    onSettled: () => setDeletingFileId(null),
+  });
+
   const handleSubmit = (data: SupportsSchema, files: File[]) =>
-    mutate({ data, file: files[0] ?? null });
+    mutate({ data, files });
 
   if (loadingSupport || !support) return <FormSkeleton />;
   if (!checkRouteExists(ROUTE)) notFound();
@@ -72,7 +91,10 @@ export default function UpdateMarketingSupportPage() {
         onSubmit={handleSubmit}
         isSubmitting={isPending}
         mode="update"
-        existingFileUrl={support.file_path}
+        existingFiles={support.files ?? []}
+        legacyFileUrl={support.file_path}
+        onDeleteExistingFile={deleteFile}
+        deletingFileId={deletingFileId}
       />
     </FormWrapper>
   );

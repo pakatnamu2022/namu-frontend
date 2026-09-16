@@ -25,18 +25,18 @@ export async function findSupportsById(id: number): Promise<SupportsResource> {
 }
 
 export async function storeSupports(
-  payload: SupportsSchema & { file?: File | null },
+  payload: SupportsSchema & { files?: File[] },
 ): Promise<SupportsResource> {
-  const { file, ...rest } = payload;
+  const { files = [], ...rest } = payload;
 
-  if (file) {
+  if (files.length > 0) {
     const formData = new FormData();
     Object.entries(rest).forEach(([key, value]) => {
       if (value !== undefined && value !== null && value !== "") {
         formData.append(key, String(value));
       }
     });
-    formData.append("file", file);
+    files.forEach((file) => formData.append("files[]", file));
     const { data } = await api.post<SupportsResource>(ENDPOINT, formData, {
       headers: { "Content-Type": "multipart/form-data" },
     });
@@ -49,11 +49,11 @@ export async function storeSupports(
 
 export async function updateSupports(
   id: number,
-  payload: Partial<SupportsSchema> & { file?: File | null },
+  payload: Partial<SupportsSchema> & { files?: File[] },
 ): Promise<SupportsResource> {
-  const { file, ...rest } = payload;
+  const { files = [], ...rest } = payload;
 
-  if (file) {
+  if (files.length > 0) {
     const formData = new FormData();
     formData.append("_method", "PUT");
     Object.entries(rest).forEach(([key, value]) => {
@@ -61,7 +61,7 @@ export async function updateSupports(
         formData.append(key, String(value));
       }
     });
-    formData.append("file", file);
+    files.forEach((file) => formData.append("files[]", file));
     const { data } = await api.post<SupportsResource>(`${ENDPOINT}/${id}`, formData, {
       headers: { "Content-Type": "multipart/form-data" },
     });
@@ -74,5 +74,15 @@ export async function updateSupports(
 
 export async function deleteSupports(id: number): Promise<GeneralResponse> {
   const { data } = await api.delete<GeneralResponse>(`${ENDPOINT}/${id}`);
+  return data;
+}
+
+export async function deleteSupportFile(
+  supportId: number,
+  fileId: number,
+): Promise<SupportsResource> {
+  const { data } = await api.delete<SupportsResource>(
+    `${ENDPOINT}/${supportId}/archivos/${fileId}`,
+  );
   return data;
 }

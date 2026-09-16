@@ -25,17 +25,8 @@ export default function AddMarketingSupportPage() {
   const { ROUTE, QUERY_KEY, MODEL, ABSOLUTE_ROUTE } = SUPPORTS;
 
   const { mutate, isPending } = useMutation({
-    mutationFn: async ({ data, files }: { data: SupportsSchema; files: File[] }) => {
-      if (files.length === 0) {
-        return [await storeSupports({ ...data, file: null })];
-      }
-      // Un archivo = un sustento: se crea un registro por cada archivo adjuntado.
-      const results = [];
-      for (const file of files) {
-        results.push(await storeSupports({ ...data, file }));
-      }
-      return results;
-    },
+    mutationFn: ({ data, files }: { data: SupportsSchema; files: File[] }) =>
+      storeSupports({ ...data, files }),
     onSuccess: async () => {
       successToast(SUCCESS_MESSAGE(MODEL, "create"));
       await queryClient.invalidateQueries({ queryKey: [QUERY_KEY] });

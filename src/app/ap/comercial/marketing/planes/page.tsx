@@ -23,6 +23,7 @@ import {
   cancelPlan,
   completePlan,
   deletePlans,
+  downloadPlanReportPdf,
 } from "@/features/ap/comercial/marketing/planes/lib/plans.actions";
 import PlansActions from "@/features/ap/comercial/marketing/planes/components/PlansActions";
 import PlansTable from "@/features/ap/comercial/marketing/planes/components/PlansTable";
@@ -93,6 +94,14 @@ export default function MarketingPlansPage() {
     }
   };
 
+  const handleDownloadReport = async (id: number) => {
+    try {
+      await downloadPlanReportPdf(id);
+    } catch (error: any) {
+      errorToast(error?.response?.data?.message || "Error al generar el reporte del plan.");
+    }
+  };
+
   const handleConfirmAction = async () => {
     if (!pendingAction) return;
     const { id, kind } = pendingAction;
@@ -137,6 +146,7 @@ export default function MarketingPlansPage() {
           onComplete: (id) => setPendingAction({ id, kind: "complete" }),
           onCancel: (id) => setPendingAction({ id, kind: "cancel" }),
           onManageBudgets: setBudgetsPlan,
+          onDownloadReport: handleDownloadReport,
           permissions,
         })}
         data={data?.data || []}

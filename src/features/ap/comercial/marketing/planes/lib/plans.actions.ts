@@ -62,3 +62,20 @@ export async function cancelPlan(id: number): Promise<PlansResource> {
   const { data } = await api.post<PlansResource>(`${ENDPOINT}/${id}/cancel`);
   return data;
 }
+
+export async function downloadPlanReportPdf(id: number): Promise<void> {
+  const response = await api.get(`${ENDPOINT}/${id}/report/pdf`, {
+    responseType: "blob",
+  });
+
+  const blob = new Blob([response.data], { type: "application/pdf" });
+  const url = window.URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.setAttribute("download", `plan-marketing-${id}.pdf`);
+
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  window.URL.revokeObjectURL(url);
+}

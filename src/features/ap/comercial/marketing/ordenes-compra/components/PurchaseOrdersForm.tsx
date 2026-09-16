@@ -31,10 +31,10 @@ import { BUSINESS_PARTNER_TYPE } from "@/features/ap/business-partners/lib/busin
 import { BusinessPartnersResource } from "@/features/ap/business-partners/lib/businessPartners.interface";
 import { ProposalsResource } from "../../propuestas/lib/proposals.interface";
 
-/** Marcas cuya referencia de proveedor se llama "PLANKET" en vez de "MIGO" (espejo de MktPurchaseOrder::REFERENCE_LABEL_BRANDS). */
+/** Marcas cuya referencia de proveedor se llama "BLANKET PO" en vez de "MIGO" (espejo de MktPurchaseOrder::REFERENCE_LABEL_BRANDS). */
 const REFERENCE_LABEL_BRANDS: Record<string, string> = {
-  SUBARU: "PLANKET",
-  DFSK: "PLANKET",
+  SUBARU: "BLANKET PO",
+  DFSK: "BLANKET PO",
 };
 const REFERENCE_LABEL_DEFAULT = "MIGO";
 
