@@ -8,8 +8,19 @@ import {
   CardDescription,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ChartContainer } from "@/components/ui/chart";
-import { RadialBar, RadialBarChart, PolarGrid } from "recharts";
+import { ChartContainer, ChartTooltip } from "@/components/ui/chart";
+import {
+  Label,
+  PolarRadiusAxis,
+  RadialBar,
+  RadialBarChart,
+  Bar,
+  BarChart,
+  CartesianGrid,
+  XAxis,
+  YAxis,
+  LabelList,
+} from "recharts";
 import { GlobalAreaSummary } from "../lib/objectivesDashboard.interface";
 import {
   OBJECTIVE_STATUS_BADGE_COLOR,
@@ -69,45 +80,66 @@ function AreaRadialItem({
   area: AreaDatum;
   formatValue: (value: number) => string;
 }) {
-  const clamped = Math.min(area.completion_percentage, 100);
   const color = OBJECTIVE_STATUS_HEX[area.status];
-  const data = [{ ...area, fill: color }];
+  const remaining = Math.max(area.total_objective - area.total_progress, 0);
+  const data = [
+    {
+      ...area,
+      progress: area.total_progress,
+      remaining,
+    },
+  ];
 
   return (
-    <div className="flex flex-col items-center gap-2 px-3 py-2">
-      <div className="relative mx-auto aspect-square h-36 w-full shrink-0">
-        <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center">
-          <span className="text-xl font-bold">
-            {area.completion_percentage.toFixed(0)}%
-          </span>
-        </div>
-
-        <ChartContainer
-          config={chartConfig}
-          className="mx-auto aspect-square h-36"
+    <div className="flex flex-col items-center gap-1 px-3 py-1">
+      <ChartContainer
+        config={chartConfig}
+        className="mx-auto h-36 w-full max-w-72"
+      >
+        <RadialBarChart
+          data={data}
+          cx="50%"
+          cy="100%"
+          endAngle={180}
+          innerRadius={70}
+          outerRadius={110}
+          barSize={24}
         >
-          <RadialBarChart
-            data={data}
-            startAngle={90}
-            endAngle={90 - (clamped / 100) * 360}
-            innerRadius={55}
-            outerRadius={80}
-          >
-            <PolarGrid
-              gridType="circle"
-              radialLines={false}
-              stroke="none"
-              className="first:fill-muted last:fill-background"
-              polarRadius={[59, 51]}
+          <RadialBar
+            dataKey="progress"
+            fill={color}
+            stackId="a"
+            cornerRadius={5}
+            className="stroke-transparent stroke-2"
+          />
+          <RadialBar
+            dataKey="remaining"
+            fill="var(--color-gray-300)"
+            stackId="a"
+            cornerRadius={5}
+            className="stroke-transparent stroke-2"
+          />
+          <PolarRadiusAxis tick={false} tickLine={false} axisLine={false}>
+            <Label
+              content={({ viewBox }) => {
+                if (viewBox && "cx" in viewBox && "cy" in viewBox) {
+                  return (
+                    <text x={viewBox.cx} y={viewBox.cy} textAnchor="middle">
+                      <tspan
+                        x={viewBox.cx}
+                        y={(viewBox.cy || 0) - 6}
+                        className="fill-foreground text-3xl font-bold"
+                      >
+                        {area.completion_percentage.toFixed(0)}%
+                      </tspan>
+                    </text>
+                  );
+                }
+              }}
             />
-            <RadialBar
-              dataKey="completion_percentage"
-              background
-              cornerRadius={10}
-            />
-          </RadialBarChart>
-        </ChartContainer>
-      </div>
+          </PolarRadiusAxis>
+        </RadialBarChart>
+      </ChartContainer>
 
       <div className="flex flex-col items-center gap-1 text-center">
         <span className="text-sm font-medium">{area.label}</span>
@@ -119,7 +151,7 @@ function AreaRadialItem({
         </Badge>
       </div>
 
-      <div className="w-full space-y-1 border-t pt-2 text-xs">
+      <div className="w-full space-y-1 border-t pt-1 text-xs">
         <div className="flex items-center justify-between gap-4">
           <span className="text-muted-foreground">Objetivo</span>
           <span className="font-medium">
@@ -145,7 +177,7 @@ function AreaRadialChart({
   formatValue: (value: number) => string;
 }) {
   return (
-    <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-[repeat(auto-fit,minmax(9rem,1fr))]">
+    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-[repeat(auto-fit,minmax(13rem,1fr))]">
       {data.map((area) => (
         <AreaRadialItem
           key={area.area_id}
@@ -154,6 +186,91 @@ function AreaRadialChart({
         />
       ))}
     </div>
+  );
+}
+
+function AreaBarTooltip({
+  active,
+  payload,
+  formatValue,
+}: {
+  active?: boolean;
+  payload?: any[];
+  formatValue: (value: number) => string;
+}) {
+  if (!active || !payload || payload.length === 0) return null;
+  const item = payload[0].payload as AreaDatum;
+  return (
+    <div className="rounded-lg border bg-background p-3 shadow-lg">
+      <p className="mb-2 border-b pb-2 text-xs font-medium text-muted-foreground">
+        {item.label}
+      </p>
+      <div className="space-y-1.5">
+        <div className="flex items-center justify-between gap-8">
+          <span className="text-xs text-muted-foreground">Objetivo:</span>
+          <span className="text-sm font-bold">
+            {formatValue(item.total_objective)}
+          </span>
+        </div>
+        <div className="flex items-center justify-between gap-8">
+          <span className="text-xs text-muted-foreground">Avance:</span>
+          <span className="text-sm font-bold">
+            {formatValue(item.total_progress)}
+          </span>
+        </div>
+        <div className="flex items-center justify-between gap-8">
+          <span className="text-xs text-muted-foreground">Cumplimiento:</span>
+          <span className="text-sm font-bold">
+            {item.completion_percentage.toFixed(1)}%
+          </span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function AreaBarChart({
+  data,
+  formatValue,
+}: {
+  data: AreaDatum[];
+  formatValue: (value: number) => string;
+}) {
+  return (
+    <ChartContainer config={chartConfig} className="aspect-auto h-72 w-full">
+      <BarChart
+        accessibilityLayer
+        data={data}
+        margin={{ left: 12, right: 12, top: 12 }}
+      >
+        <CartesianGrid vertical={false} />
+        <XAxis
+          dataKey="label"
+          tickLine={false}
+          axisLine={false}
+          tickMargin={8}
+        />
+        <YAxis hide />
+        <ChartTooltip
+          content={(props) => (
+            <AreaBarTooltip {...props} formatValue={formatValue} />
+          )}
+        />
+        <Bar
+          dataKey="total_objective"
+          fill="var(--color-gray-300)"
+          radius={4}
+        />
+        <Bar dataKey="total_progress" fill="var(--primary)" radius={4}>
+          <LabelList
+            dataKey="completion_percentage"
+            position="top"
+            formatter={(value: number) => `${value.toFixed(0)}%`}
+            className="fill-foreground text-xs"
+          />
+        </Bar>
+      </BarChart>
+    </ChartContainer>
   );
 }
 
@@ -219,7 +336,7 @@ export default function ObjectivesAreasSummaryChart({
             </div>
           </CardHeader>
           <CardContent className="px-2 sm:p-4">
-            <AreaRadialChart data={vehicularAreas} formatValue={formatNumber} />
+            <AreaBarChart data={vehicularAreas} formatValue={formatNumber} />
           </CardContent>
         </Card>
       )}

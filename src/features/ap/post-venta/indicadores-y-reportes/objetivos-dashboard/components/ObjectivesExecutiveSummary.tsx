@@ -69,7 +69,7 @@ export default function ObjectivesExecutiveSummary({
 
         <MetricCard
           title="Objetivo Paso Vehicular"
-          value={formatCurrency(sumaryVehicular.total_objective)}
+          value={sumaryVehicular.total_objective}
           subtitle={period.name}
           icon={Target}
           variant="outline"
@@ -78,7 +78,7 @@ export default function ObjectivesExecutiveSummary({
 
         <MetricCard
           title="Avance Paso Vehicular"
-          value={formatCurrency(sumaryVehicular.total_progress)}
+          value={sumaryVehicular.total_progress}
           subtitle={`${sumaryVehicular.completion_percentage.toFixed(1)}% del objetivo`}
           footer={formatDifference(differenceVehicular)}
           icon={TrendIcon}
