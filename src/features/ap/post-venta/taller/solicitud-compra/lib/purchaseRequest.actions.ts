@@ -131,19 +131,26 @@ export async function notifyManagersPurchaseRequest(
 export async function downloadPurchaseRequestPdf(
   id: number,
   correlative: string,
+  format: "pdf" | "excel" = "pdf",
 ): Promise<void> {
-  const response = await api.get(`${ENDPOINT}/${id}/pdf`, {
+  const response = await api.get(`${ENDPOINT}/${id}/${format}`, {
     responseType: "blob",
   });
 
+  const mimeType =
+    format === "excel"
+      ? "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+      : "application/pdf";
+  const extension = format === "excel" ? "xlsx" : "pdf";
+
   // Crear un blob desde la respuesta
-  const blob = new Blob([response.data], { type: "application/pdf" });
+  const blob = new Blob([response.data], { type: mimeType });
 
   // Crear un enlace temporal para descargar el archivo
   const url = window.URL.createObjectURL(blob);
   const link = document.createElement("a");
   link.href = url;
-  link.setAttribute("download", `${correlative}.pdf`);
+  link.setAttribute("download", `${correlative}.${extension}`);
 
   // Hacer clic automáticamente para iniciar la descarga
   document.body.appendChild(link);

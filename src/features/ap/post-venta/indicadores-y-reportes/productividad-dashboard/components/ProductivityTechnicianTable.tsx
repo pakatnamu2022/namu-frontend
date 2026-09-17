@@ -76,6 +76,9 @@ export default function ProductivityTechnicianTable({
           <div>
             <div className="font-semibold">
               #{tech.rank} · {tech.worker_name}
+              {tech.is_on_leave && (
+                <span className="text-red-600"> · Baja</span>
+              )}
             </div>
             <div className="text-xs text-muted-foreground">
               {tech.worker_dni} · {tech.sede_abbreviation}

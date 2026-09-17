@@ -10,7 +10,10 @@ import {
 } from "../lib/objectivesDashboard.constants";
 
 interface ObjectivesAreaOverviewProps {
-  area: AreaProgress;
+  area: Pick<
+    AreaProgress,
+    "objective" | "progress" | "completion_percentage" | "status"
+  >;
   unit?: "currency" | "count";
 }
 

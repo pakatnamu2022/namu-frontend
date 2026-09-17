@@ -6,7 +6,6 @@ import PageSkeleton from "@/shared/components/PageSkeleton";
 import TitleComponent from "@/shared/components/TitleComponent";
 import DataTablePagination from "@/shared/components/DataTablePagination";
 import {
-  errorToast,
   formatDateFilter,
   getCurrentDayOfMonth,
   getFirstDayOfMonth,
@@ -58,10 +57,6 @@ export default function WorkOrderReceptionPage() {
 
   const handleDateFromChange = (date: Date | undefined) => {
     setDateFrom(date);
-    if (date && dateTo && date > dateTo) {
-      setDateTo(date);
-      errorToast("La fecha 'Desde' no puede ser mayor que la fecha 'Hasta'.");
-    }
   };
 
   const { data, isLoading } = useGetWorkOrder({

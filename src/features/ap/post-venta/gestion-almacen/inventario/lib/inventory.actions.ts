@@ -9,6 +9,7 @@ import {
   InventoryResource,
   PriceCalculationDetailsResponse,
   StockMovementHistoryResponse,
+  GetStockMovementHistoryParams,
   getReservedStockReportProps,
   ReservedStockReportResponse,
 } from "./inventory.interface.ts";
@@ -332,10 +333,18 @@ export const getPriceCalculationDetails = async (
 export const getStockMovementHistory = async (
   productId: number,
   warehouseId: number,
+  params?: GetStockMovementHistoryParams,
 ): Promise<StockMovementHistoryResponse> => {
   const { data } = await api.get<StockMovementHistoryResponse>(
     `/ap/postVenta/productWarehouseStock/movement-history`,
-    { params: { product_id: productId, warehouse_id: warehouseId } },
+    {
+      params: {
+        product_id: productId,
+        warehouse_id: warehouseId,
+        page: params?.page,
+        per_page: params?.per_page,
+      },
+    },
   );
   return data;
 };

@@ -40,6 +40,7 @@ interface ProductDetailRowProps {
   sortable?: boolean;
   /** Props del handle de arrastre (dnd-kit listeners/attributes) */
   dragHandleProps?: HTMLAttributes<HTMLButtonElement>;
+  permissionToAddTraverseSparePart: boolean;
 }
 
 export default function ProductDetailRow({
@@ -57,6 +58,7 @@ export default function ProductDetailRow({
   sedeId,
   sortable = false,
   dragHandleProps,
+  permissionToAddTraverseSparePart = false,
 }: ProductDetailRowProps) {
   if (!detail) return null;
 
@@ -107,6 +109,8 @@ export default function ProductDetailRow({
 
   const traverseBadge = (className: string) => {
     if (!detail.is_traverse && !onToggleTraverse) return null;
+
+    if (!permissionToAddTraverseSparePart) return null;
 
     const badge = detail.is_traverse ? (
       <Badge
@@ -181,7 +185,9 @@ export default function ProductDetailRow({
     selectedCurrency?.id?.toString() === CURRENCY_TYPE_IDS.DOLLARS;
   const retailPriceExternal = detail?.retail_price_external;
   const showRetailPrice =
-    !isCurrencyUSD && retailPriceExternal !== undefined && retailPriceExternal !== null;
+    !isCurrencyUSD &&
+    retailPriceExternal !== undefined &&
+    retailPriceExternal !== null;
 
   return (
     <div

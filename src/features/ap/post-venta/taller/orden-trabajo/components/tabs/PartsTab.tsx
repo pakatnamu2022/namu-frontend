@@ -443,13 +443,6 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
 
   return (
     <div className="space-y-6">
-      {/* Selector de Grupo */}
-      {/* <GroupSelector
-        items={items}
-        selectedGroupNumber={selectedGroupNumber}
-        onSelectGroup={setSelectedGroupNumber}
-      /> */}
-
       {/* Botón Agregar Repuesto */}
       {!showAddForm && (
         <div className="flex justify-end">
@@ -498,6 +491,9 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
             onSuccess={() => setShowAddForm(false)}
             onCancel={() => setShowAddForm(false)}
             maxDiscountPercentage={maxDiscountPercentage}
+            permissionToAddTraverseSparePart={
+              permissions.canAddTraverseSparePart
+            }
           />
         </Card>
       )}

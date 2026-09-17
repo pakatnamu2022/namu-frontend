@@ -10,13 +10,16 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Trophy } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { WorkshopDetail } from "../lib/objectivesDashboard.interface";
+import { Concept } from "../lib/objectivesDashboard.interface";
 import {
   OBJECTIVE_STATUS_BADGE_COLOR,
   OBJECTIVE_STATUS_LABEL,
 } from "../lib/objectivesDashboard.constants";
 import ObjectivesAreaOverview from "./ObjectivesAreaOverview";
 import { ChartBarVertical } from "@/shared/charts/ChartBarVertical";
+import DonutChart, {
+  DonutChartDataItem,
+} from "@/features/ap/comercial/dashboard-visitas-leads/components/DonutChart";
 
 const formatCompactSoles = (value: number) =>
   `S/${new Intl.NumberFormat("es-PE", {
@@ -24,64 +27,65 @@ const formatCompactSoles = (value: number) =>
     maximumFractionDigits: 1,
   }).format(value)}`;
 
-interface ObjectivesWorkshopDetailProps {
-  workshop: WorkshopDetail;
+const CHART_COLORS = [
+  "var(--color-blue-500)",
+  "var(--color-emerald-500)",
+  "var(--color-amber-500)",
+  "var(--color-violet-500)",
+  "var(--color-rose-500)",
+  "var(--color-cyan-500)",
+];
+
+interface ObjectivesConceptDetailProps {
+  concept: Concept;
 }
 
-export default function ObjectivesWorkshopDetail({
-  workshop,
-}: ObjectivesWorkshopDetailProps) {
+export default function ObjectivesConceptDetail({
+  concept,
+}: ObjectivesConceptDetailProps) {
+  const byBrand = concept.by_brand ?? [];
+  const topAdvisors = concept.top_advisors ?? [];
+
   return (
     <div className="space-y-4">
-      <ObjectivesAreaOverview area={workshop} unit="currency" />
+      <ObjectivesAreaOverview
+        area={concept}
+        unit={concept.is_vehicular_crossing ? "count" : "currency"}
+      />
 
-      {workshop.by_concept.length > 0 && (
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-base">Por Concepto</CardTitle>
-            <CardDescription>Distribución del avance facturado</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            {workshop.by_concept.map((concept) => (
-              <div key={concept.concept_id} className="space-y-1">
-                <div className="flex items-center justify-between text-sm">
-                  <span className="font-medium">{concept.concept_name}</span>
-                  <span className="text-muted-foreground">
-                    S/ {concept.progress.toLocaleString("es-PE")} ·{" "}
-                    {concept.percentage_of_total}%
-                  </span>
-                </div>
-                <div className="h-1.5 bg-muted rounded-full overflow-hidden">
-                  <div
-                    className="h-full bg-primary transition-all duration-500"
-                    style={{
-                      width: `${Math.min(concept.percentage_of_total, 100)}%`,
-                    }}
-                  />
-                </div>
-              </div>
-            ))}
-          </CardContent>
-        </Card>
+      {concept.is_vehicular_crossing && byBrand.length > 0 && (
+        <DonutChart
+          title="Paso vehícular por Marca"
+          description="Distribución de vehículos ingresados por marca"
+          data={byBrand.map((brand, index) => {
+            const item: DonutChartDataItem = {
+              name: brand.brand_name,
+              value: "count" in brand ? brand.count : brand.total_billing,
+              color: CHART_COLORS[index % CHART_COLORS.length],
+            };
+            return item;
+          })}
+        />
       )}
 
-      {workshop.by_brand.length > 0 && (
+      {!concept.is_vehicular_crossing && byBrand.length > 0 && (
         <ChartBarVertical
           title="Por Marca"
           subtitle="Facturación por marca de vehículo"
           valueLabel="Facturación"
           valueFormatter={formatCompactSoles}
-          data={[...workshop.by_brand]
-            .sort((a, b) => b.total_billing - a.total_billing)
+          data={[...byBrand]
             .map((brand) => ({
               name: brand.brand_name,
-              value: brand.total_billing,
-              extra: `${brand.vehicle_count} veh.`,
-            }))}
+              value: "total_billing" in brand ? brand.total_billing : brand.count,
+              extra:
+                "vehicle_count" in brand ? `${brand.vehicle_count} veh.` : "",
+            }))
+            .sort((a, b) => b.value - a.value)}
         />
       )}
 
-      {workshop.top_advisors.length > 0 && (
+      {topAdvisors.length > 0 && (
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-base">Top Asesores</CardTitle>
@@ -90,7 +94,7 @@ export default function ObjectivesWorkshopDetail({
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-2">
-            {workshop.top_advisors.map((advisor) => {
+            {topAdvisors.map((advisor) => {
               const hasObjective = advisor.objective > 0;
 
               return (

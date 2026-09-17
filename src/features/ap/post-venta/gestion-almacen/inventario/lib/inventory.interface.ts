@@ -272,14 +272,28 @@ export interface StockMovementHistoryItem {
   movement_type: string;
   movement_type_label: string;
   is_inbound: boolean | null;
+  quantity_in?: number;
+  quantity_out?: number;
   quantity: number;
   unit_cost: number;
+  unit_cost_in_pen?: number;
   total_cost: number;
   stock_after_movement: number;
   average_cost_after_movement: number;
   currency: string;
+  currency_id?: number;
   exchange_rate?: number;
   created_at: string | null;
+  was_recalculated?: boolean;
+}
+
+export interface StockMovementHistoryPagination {
+  current_page: number;
+  last_page: number;
+  per_page: number;
+  total: number;
+  from: number;
+  to: number;
 }
 
 export interface StockMovementHistoryResponse {
@@ -291,13 +305,14 @@ export interface StockMovementHistoryResponse {
   warehouse_name: string;
   current_stock_database: number;
   current_average_cost_database: number;
-  calculated_final_stock: number;
-  calculated_final_average_cost: number;
-  stock_matches: boolean;
-  average_cost_matches: boolean;
-  total_movements: number;
   history: StockMovementHistoryItem[];
+  pagination?: StockMovementHistoryPagination;
   generated_at: string;
+}
+
+export interface GetStockMovementHistoryParams {
+  page?: number;
+  per_page?: number;
 }
 
 // ─── Reserved Stock Report ────────────────────────────────────────────────────

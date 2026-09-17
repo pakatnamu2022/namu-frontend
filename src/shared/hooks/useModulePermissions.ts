@@ -372,6 +372,12 @@ export const PERMISSION_ACTIONS: PermissionAction[] = [
     description:
       "Permite quitar la validación o el rechazo de un gasto de viáticos, dejándolo pendiente nuevamente",
   },
+  {
+    value: "addTraverseSparePart",
+    label: "Agregar Repuesto Traversía",
+    icon: "Plus",
+    description: "Permite agregar repuestos en Traversía",
+  },
 ];
 
 /**
@@ -468,5 +474,6 @@ export function useModulePermissions(moduleCode: string) {
     canDiscard: hasModulePermission("discard"),
     canViewDiscarded: hasModulePermission("viewDiscarded"),
     canRemoveValidation: hasModulePermission("removeValidation"),
+    canAddTraverseSparePart: hasModulePermission("addTraverseSparePart"),
   };
 }

@@ -69,14 +69,6 @@ export default function SupplierOrderPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mySedes]);
 
-  useEffect(() => {
-    if (dateFrom && dateTo && dateFrom > dateTo) {
-      setDateTo(dateFrom);
-      errorToast("La fecha 'Desde' no puede ser mayor que la fecha 'Hasta'.");
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dateFrom, dateTo]);
-
   const { data, isLoading, refetch } = useSupplierOrder(
     {
       page,

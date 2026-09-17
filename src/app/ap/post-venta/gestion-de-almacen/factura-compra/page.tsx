@@ -50,13 +50,6 @@ export default function PurchaseOrderWarehousePage() {
   const [dateFrom, setDateFrom] = useState<Date | undefined>(undefined);
   const [dateTo, setDateTo] = useState<Date | undefined>(undefined);
 
-  useEffect(() => {
-    if (dateFrom && dateTo && dateFrom > dateTo) {
-      setDateTo(dateFrom);
-      errorToast("La fecha 'Desde' no puede ser mayor que la fecha 'Hasta'.");
-    }
-  }, [dateFrom, dateTo]);
-
   const { data: sedes = [] } = useMySedes({ company: EMPRESA_AP.id });
 
   // Setear el primer almacén por defecto

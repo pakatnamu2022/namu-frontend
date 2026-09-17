@@ -23,8 +23,8 @@ export const inventoryColumns = ({
   onReservedStock,
 }: Props): InventoryColumns[] => [
   {
-    accessorKey: "shelf_name",
-    header: "Estante",
+    accessorKey: "location",
+    header: "Ubicación",
     cell: ({ getValue }) => {
       const value = getValue() as string;
       return value ? (

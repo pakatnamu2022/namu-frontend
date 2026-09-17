@@ -44,6 +44,7 @@ export interface ProductResource {
   unit_measurement_id: number;
   ap_class_article_id: number;
   warranty_months?: number;
+  pvp_mode: string;
   status: "ACTIVE" | "INACTIVE" | "DISCONTINUED";
   has_purchase_order: boolean;
 

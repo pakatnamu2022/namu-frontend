@@ -19,6 +19,7 @@ export default function SearchInput({
   const [inputValue, setInputValue] = useState(value);
   const debounceRef = useRef<number | null>(null);
   const onChangeRef = useRef(onChange);
+  // eslint-disable-next-line react-hooks/refs
   onChangeRef.current = onChange;
 
   useEffect(() => {

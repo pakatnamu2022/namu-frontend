@@ -1,4 +1,5 @@
 import { WarehouseResource } from "@/features/ap/configuraciones/maestros-general/almacenes/lib/warehouse.interface.ts";
+import { BrandsResource } from "@/features/ap/configuraciones/vehiculos/marcas/lib/brands.interface.ts";
 import FilterWrapper from "@/shared/components/FilterWrapper";
 import { SearchableSelect } from "@/shared/components/SearchableSelect.tsx";
 import SearchInput from "@/shared/components/SearchInput.tsx";
@@ -17,6 +18,9 @@ interface Props {
   shelves?: ShelfOption[];
   productShelfId: string;
   setProductShelfId: (value: string) => void;
+  brands?: BrandsResource[];
+  brandId: string;
+  setBrandId: (value: string) => void;
 }
 
 export default function InventoryOptions({
@@ -28,6 +32,9 @@ export default function InventoryOptions({
   shelves = [],
   productShelfId,
   setProductShelfId,
+  brands = [],
+  brandId,
+  setBrandId,
 }: Props) {
   return (
     <FilterWrapper>
@@ -56,6 +63,18 @@ export default function InventoryOptions({
         value={productShelfId}
         onChange={setProductShelfId}
         placeholder="Filtrar por estante"
+      />
+      <SearchableSelect
+        options={[
+          { value: "all", label: "Todas las marcas" },
+          ...brands.map((item) => ({
+            value: item.id.toString(),
+            label: item.name,
+          })),
+        ]}
+        value={brandId}
+        onChange={setBrandId}
+        placeholder="Filtrar por marca"
       />
     </FilterWrapper>
   );

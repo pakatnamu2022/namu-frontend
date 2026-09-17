@@ -25,6 +25,7 @@ import {
   STATUS_APPROVED,
   STATUS_PENDING,
 } from "@/features/ap/post-venta/repuestos/descuento-cotizacion-meson/lib/discountRequestMeson.constants";
+import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
 
 export default function UpdateOrderQuotationMesonPage() {
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
@@ -33,6 +34,7 @@ export default function UpdateOrderQuotationMesonPage() {
   const { id } = useParams();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const queryClient = useQueryClient();
+  const permissions = useModulePermissions(ROUTE);
 
   const { data: quotation, isLoading: isLoadingQuotation } =
     useOrderQuotationById(Number(id));
@@ -125,6 +127,7 @@ export default function UpdateOrderQuotationMesonPage() {
         clientData={quotation.client}
         quotationData={quotation}
         approvedDiscountRequests={approvedDiscountRequests}
+        permissions={permissions}
       />
     </FormWrapper>
   );

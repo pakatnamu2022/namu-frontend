@@ -87,6 +87,13 @@ export const TypesPlanningForm = ({
             label="Categoría"
             options={CATEGORY_TYPE}
           />
+
+          <FormSwitch
+            control={form.control}
+            name="consider_vehicle_traffic"
+            label="Paso Vehicular"
+            text={form.watch("consider_vehicle_traffic") ? "Si" : "No"}
+          />
         </div>
 
         <div className="grid grid-cols-1 gap-4">

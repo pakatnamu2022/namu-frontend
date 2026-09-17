@@ -1,6 +1,12 @@
 import { requiredStringId, requiredText } from "@/shared/lib/global.schema.ts";
 import { z } from "zod";
 
+// Modalidad de cálculo del PVP: convencional (considera flete) o local (sin flete)
+export const PVP_MODE_OPTIONS = [
+  { label: "Convencional", value: "conventional" },
+  { label: "Local (sin flete)", value: "local" },
+] as const;
+
 // Warehouse stock schema for create mode
 const warehouseStockSchema = z.object({
   warehouse_id: requiredStringId("Almacén es requerido"),
@@ -28,6 +34,7 @@ const productSchemaBase = z.object({
     .number()
     .min(0, { message: "El stock máximo debe ser mayor o igual a 0" })
     .optional(),
+  pvp_mode: requiredText("Modo de cálculo del pvp es requerido", 3, 20),
 });
 
 // Create schema includes warehouses array

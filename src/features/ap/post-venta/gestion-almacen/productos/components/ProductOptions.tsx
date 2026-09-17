@@ -13,7 +13,7 @@ export default function ProductOptions({
       <SearchInput
         value={search}
         onChange={setSearch}
-        placeholder="Buscar producto..."
+        placeholder="Buscar repuesto..."
       />
     </FilterWrapper>
   );

@@ -116,16 +116,11 @@ export default function WorkOrderPage() {
   }, [isAdvisorLocked, matchedAdvisor]);
 
   useEffect(() => {
-    if (dateFrom && dateTo && dateFrom > dateTo) {
-      setDateTo(dateFrom);
-      errorToast("La fecha 'Desde' no puede ser mayor que la fecha 'Hasta'.");
-    }
-
     if (mySedes.length > 0 && !sedeId) {
       setSedeId(mySedes[0].id.toString());
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dateFrom, dateTo, mySedes, sedeId]);
+  }, [mySedes, sedeId]);
 
   const statusIds = statusGroups.flatMap(
     (group) => WORK_ORDER_STATUS_GROUP_IDS[group as WorkOrderStatusGroup],

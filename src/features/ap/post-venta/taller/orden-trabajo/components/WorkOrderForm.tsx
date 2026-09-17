@@ -43,7 +43,7 @@ import { useAllTypesPlanning } from "@/features/ap/configuraciones/postventa/tip
 import { SERVICE_PDI_ID } from "@/features/ap/configuraciones/postventa/tipos-planificacion/lib/typesPlanning.constants";
 import { WorkOrderResource } from "../lib/workOrder.interface";
 import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
-import { WORKER_ORDER } from "../lib/workOrder.constants";
+import { WORKER_ORDER, RECALL_TYPES } from "../lib/workOrder.constants";
 import { AppointmentSelectionModal } from "../../citas/components/AppointmentSelectionModal";
 import { VehicleInspectionSelectionModal } from "../../inspeccion-vehiculo/components/VehicleInspectionSelectionModal";
 import { VehicleInspectionResource } from "../../inspeccion-vehiculo/lib/vehicleInspection.interface";
@@ -69,13 +69,6 @@ interface WorkOrderFormProps {
   mode?: "create" | "update";
   workOrderData?: WorkOrderResource;
 }
-
-// Tipo Recall
-const typeRecall = [
-  { label: "Rojo", value: "ROJO" },
-  { label: "Amarillo", value: "AMARILLO" },
-  { label: "Verde", value: "VERDE" },
-];
 
 export const WorkOrderForm = ({
   defaultValues,
@@ -842,7 +835,7 @@ export const WorkOrderForm = ({
                 name="type_recall"
                 label="Tipo Recall"
                 placeholder="Seleccione tipo"
-                options={typeRecall}
+                options={RECALL_TYPES}
                 control={form.control}
                 strictFilter={true}
               />

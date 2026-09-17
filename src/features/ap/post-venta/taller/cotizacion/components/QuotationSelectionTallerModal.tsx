@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { GeneralModal } from "@/shared/components/GeneralModal";
 import { Calendar } from "lucide-react";
 import { useForPurchaseRequestTaller } from "../lib/proforma.hook";
@@ -12,7 +12,6 @@ import type { ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import {
-  errorToast,
   formatDateFilter,
   formatMoney,
   getCurrentDayOfMonth,
@@ -42,12 +41,6 @@ export const QuotationSelectionTallerModal = ({
   const [dateTo, setDateTo] = useState<Date | undefined>(
     getCurrentDayOfMonth(currentDate),
   );
-
-  useEffect(() => {
-    if (dateFrom && dateTo && dateFrom > dateTo) {
-      errorToast("La fecha 'Desde' no puede ser mayor que la fecha 'Hasta'.");
-    }
-  }, [dateFrom, dateTo]);
 
   const { data, isLoading } = useForPurchaseRequestTaller(
     {

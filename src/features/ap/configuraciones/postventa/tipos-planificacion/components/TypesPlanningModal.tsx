@@ -12,10 +12,10 @@ import {
   SUCCESS_MESSAGE,
   successToast,
 } from "@/core/core.function.ts";
-import { GeneralModal } from "@/shared/components/GeneralModal.tsx";
 import FormSkeleton from "@/shared/components/FormSkeleton.tsx";
 import { TypesPlanningForm } from "./TypesPlanningForm.tsx";
 import { TYPE_PLANNING } from "../lib/typesPlanning.constants.ts";
+import GeneralSheet from "@/shared/components/GeneralSheet.tsx";
 
 interface Props {
   id?: number;
@@ -54,6 +54,7 @@ export default function TypesPlanningModal({
       validate_labor: Boolean(data.validate_labor),
       type_document: data.type_document,
       category_type: data.category_type,
+      consider_vehicle_traffic: Boolean(data.consider_vehicle_traffic),
     };
   }
 
@@ -85,7 +86,7 @@ export default function TypesPlanningModal({
   const isLoadingAny = loadingTypesPlanning || !TypesPlanning;
 
   return (
-    <GeneralModal open={open} onClose={onClose} title={title}>
+    <GeneralSheet open={open} onClose={onClose} title={title}>
       {!isLoadingAny && TypesPlanning ? (
         <TypesPlanningForm
           defaultValues={mapRoleToForm(TypesPlanning)}
@@ -97,6 +98,6 @@ export default function TypesPlanningModal({
       ) : (
         <FormSkeleton />
       )}
-    </GeneralModal>
+    </GeneralSheet>
   );
 }
