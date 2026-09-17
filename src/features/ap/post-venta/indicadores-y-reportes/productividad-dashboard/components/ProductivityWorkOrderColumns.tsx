@@ -1,13 +1,12 @@
 import type { ColumnDef } from "@tanstack/react-table";
+import { Link } from "react-router-dom";
 import {
   ProductivityWorkOrder,
   ProductivityWorkOrderWithoutLabour,
 } from "../lib/productivityDashboard.interface";
 import { formatDate, formatHours } from "@/core/core.function";
 
-export const productivityWorkOrderColumns = (
-  onViewWorkOrder?: (workOrderId: number) => void,
-): ColumnDef<ProductivityWorkOrder>[] => [
+export const productivityWorkOrderColumns = (): ColumnDef<ProductivityWorkOrder>[] => [
     {
       accessorKey: "index",
       header: "#",
@@ -21,13 +20,14 @@ export const productivityWorkOrderColumns = (
       header: "N° OT",
       cell: ({ row }) => (
         <div>
-          <button
-            type="button"
-            onClick={() => onViewWorkOrder?.(row.original.work_order_id)}
+          <Link
+            to={`/ap/post-venta/taller/orden-trabajo/gestionar/${row.original.work_order_id}`}
+            target="_blank"
+            rel="noopener noreferrer"
             className="font-semibold text-primary hover:underline"
           >
             {row.original.work_order_number}
-          </button>
+          </Link>
           <div className="text-xs text-muted-foreground">
             {row.original.vehicle_plate} -{" "}
             {formatDate(row.original.fecha_facturacion)}
@@ -94,9 +94,8 @@ export const productivityWorkOrderColumns = (
     },
   ];
 
-export const productivityWorkOrderWithoutLabourColumns = (
-  onViewWorkOrder?: (workOrderId: number) => void,
-): ColumnDef<ProductivityWorkOrderWithoutLabour>[] => [
+export const productivityWorkOrderWithoutLabourColumns =
+  (): ColumnDef<ProductivityWorkOrderWithoutLabour>[] => [
     {
       accessorKey: "index",
       header: "#",
@@ -110,13 +109,14 @@ export const productivityWorkOrderWithoutLabourColumns = (
       header: "N° OT",
       cell: ({ row }) => (
         <div>
-          <button
-            type="button"
-            onClick={() => onViewWorkOrder?.(row.original.work_order_id)}
+          <Link
+            to={`/ap/post-venta/taller/orden-trabajo/gestionar/${row.original.work_order_id}`}
+            target="_blank"
+            rel="noopener noreferrer"
             className="font-semibold text-primary hover:underline"
           >
             {row.original.work_order_number}
-          </button>
+          </Link>
           <div className="text-xs text-muted-foreground">
             {row.original.vehicle_plate} -{" "}
             {formatDate(row.original.fecha_facturacion)}

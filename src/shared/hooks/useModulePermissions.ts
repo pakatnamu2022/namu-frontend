@@ -371,6 +371,18 @@ export const PERMISSION_ACTIONS: PermissionAction[] = [
     icon: "Plus",
     description: "Permite agregar repuestos en Traversía",
   },
+  {
+    value: "viewProductivity",
+    label: "Ver Productividad",
+    icon: "BarChart2",
+    description: "Permite ver la productividad de los técnicos",
+  },
+  {
+    value: "viewComparisonByLocation",
+    label: "Ver Comparación por Sede",
+    icon: "Map",
+    description: "Permite ver la comparación de productividad por Sede",
+  },
 ];
 
 /**
@@ -467,5 +479,9 @@ export function useModulePermissions(moduleCode: string) {
     canDiscard: hasModulePermission("discard"),
     canViewDiscarded: hasModulePermission("viewDiscarded"),
     canAddTraverseSparePart: hasModulePermission("addTraverseSparePart"),
+    canViewProductivity: hasModulePermission("viewProductivity"),
+    canViewComparisonByLocation: hasModulePermission(
+      "viewComparisonByLocation",
+    ),
   };
 }

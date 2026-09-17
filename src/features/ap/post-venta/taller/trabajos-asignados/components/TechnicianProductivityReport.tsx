@@ -2,7 +2,13 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
-import { AlertCircle, AlertTriangle, ArrowLeft, Gauge, Users } from "lucide-react";
+import {
+  AlertCircle,
+  AlertTriangle,
+  ArrowLeft,
+  Gauge,
+  Users,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ButtonGroup } from "@/shared/components/ButtonGroup";
 import PageWrapper from "@/shared/components/PageWrapper";
@@ -24,12 +30,34 @@ import TechnicianProductivitySummaryCards from "./TechnicianProductivitySummaryC
 import TechnicianProductivityCharts from "./TechnicianProductivityCharts";
 import TechnicianProductivityWorkOrderCards from "./TechnicianProductivityWorkOrderCards";
 import TechnicianProductivityRankingCharts from "./TechnicianProductivityRankingCharts";
+import { WORK_ORDER_PLANNING_SESSION } from "../lib/assignedWork.constants";
+import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
 
 type ViewMode = "personal" | "ranking";
 
 export default function TechnicianProductivityReport() {
   const [searchParams] = useSearchParams();
   const { user } = useAuthStore();
+  const { ROUTE } = WORK_ORDER_PLANNING_SESSION;
+  const optionsGroup = [];
+  const permissions = useModulePermissions(ROUTE);
+  console.log("permissions", permissions);
+
+  if (permissions.canViewProductivity) {
+    optionsGroup.push({
+      value: "personal",
+      label: "Mi productividad",
+      icon: <Gauge className="h-4 w-4" />,
+    });
+  }
+
+  if (permissions.canViewComparisonByLocation) {
+    optionsGroup.push({
+      value: "ranking",
+      label: "Comparativo de sede",
+      icon: <Users className="h-4 w-4" />,
+    });
+  }
 
   const currentDate = new Date();
   const [sedeId, setSedeId] = useState<string>(
@@ -142,10 +170,7 @@ export default function TechnicianProductivityReport() {
     data: rankingData,
     isLoading: isLoadingRanking,
     isError: isRankingError,
-  } = useTechnicianProductivityRanking(
-    rankingFilters,
-    viewMode === "ranking",
-  );
+  } = useTechnicianProductivityRanking(rankingFilters, viewMode === "ranking");
   const rankingDetail = rankingData?.data?.technician_detail;
 
   return (
@@ -173,18 +198,7 @@ export default function TechnicianProductivityReport() {
         </div>
 
         <ButtonGroup
-          options={[
-            {
-              value: "personal",
-              label: "Mi productividad",
-              icon: <Gauge className="h-4 w-4" />,
-            },
-            {
-              value: "ranking",
-              label: "Comparativo de sede",
-              icon: <Users className="h-4 w-4" />,
-            },
-          ]}
+          options={optionsGroup}
           value={viewMode}
           onChange={(value) => setViewMode(value as ViewMode)}
         />
@@ -230,8 +244,8 @@ export default function TechnicianProductivityReport() {
                 <div className="flex items-start gap-2 p-3 rounded-lg border border-amber-300 bg-amber-50 text-amber-800 text-xs">
                   <AlertTriangle className="size-4 shrink-0 mt-0.5" />
                   <span>
-                    Las sumas del detalle no cuadran exactamente con el
-                    resumen. Verificar información.
+                    Las sumas del detalle no cuadran exactamente con el resumen.
+                    Verificar información.
                   </span>
                 </div>
               )}
