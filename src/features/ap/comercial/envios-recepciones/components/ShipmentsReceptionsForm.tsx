@@ -253,6 +253,8 @@ export const ShipmentsReceptionsForm = ({
   // Filtro adicional de estado de vehículo según el motivo de traslado
   // Si es COMPRA: solo vehículos EN TRÁNSITO
   // Si es TRASLADO ENTRE SEDES: solo vehículos en INVENTARIO VN
+  // Si es OTROS: solo vehículos en INVENTARIO VN (nunca vendidos/facturados,
+  // ya que no deben poder trasladarse)
   const vehicleStatusFilterParams =
     watchTransferReasonId === SUNAT_CONCEPTS_ID.TRANSFER_REASON_COMPRA
       ? {
@@ -263,7 +265,9 @@ export const ShipmentsReceptionsForm = ({
       : watchTransferReasonId ===
           SUNAT_CONCEPTS_ID.TRANSFER_REASON_TRASLADO_SEDE
         ? { vehicleMovements$new_status_id: [VEHICLE_STATUS_ID.INVENTARIO_VN] }
-        : {};
+        : watchTransferReasonId === SUNAT_CONCEPTS_ID.TRANSFER_REASON_OTROS
+          ? { ap_vehicle_status_id: [VEHICLE_STATUS_ID.INVENTARIO_VN] }
+          : {};
 
   const { data: series = [], isLoading: isLoadingSeries } = useAuthorizedSeries(
     {
