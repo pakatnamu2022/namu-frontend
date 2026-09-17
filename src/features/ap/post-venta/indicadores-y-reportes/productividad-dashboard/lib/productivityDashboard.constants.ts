@@ -1,6 +1,16 @@
 import { ProductivityStatus } from "./productivityDashboard.interface";
 import type { BadgeColor } from "@/components/ui/badge";
 
+// RUTAS PARA DASHBOARD DE PRODUCTIVIDAD - INDICADORES Y REPORTES
+const ROUTE = "dashboard-productividad";
+const ABSOLUTE_ROUTE = `/ap/post-venta/indicadores-y-reportes/${ROUTE}`;
+
+export const PRODUCTIVITY_DASHBOARD = {
+  ROUTE,
+  ABSOLUTE_ROUTE,
+  ROUTE_TECHNICIAN_DETAIL: `${ABSOLUTE_ROUTE}/tecnico`,
+};
+
 export const PRODUCTIVITY_STATUS_LABEL: Record<ProductivityStatus, string> = {
   critical: "Crítico",
   warning: "En riesgo",
@@ -43,7 +53,7 @@ export const PRODUCTIVITY_STATUS_DESCRIPTION: Record<
   string
 > = {
   critical: "Menos de 70%",
-  warning: "Entre 70% y 84%",
-  on_track: "Entre 85% y 100%",
+  warning: "Entre 70% y 99%",
+  on_track: "Igual a 100%",
   exceeded: "Más de 100%",
 };

@@ -462,6 +462,7 @@ const IndicadoresReportesPage = lazyPage(() => import("./app/ap/post-venta/indic
 const ReportesPostVentaPage = lazyPage(() => import("./app/ap/post-venta/indicadores-y-reportes/reportes/page.tsx"));
 const ObjectivesDashboardPage = lazyPage(() => import("./app/ap/post-venta/indicadores-y-reportes/dashboard-objetivos/page.tsx"));
 const ProductivityDashboardPage = lazyPage(() => import("./app/ap/post-venta/indicadores-y-reportes/dashboard-productividad/page.tsx"));
+const ProductivityTechnicianDetailPageRoute = lazyPage(() => import("./app/ap/post-venta/indicadores-y-reportes/dashboard-productividad/tecnico/[workerId]/page.tsx"));
 const ConsultasMasivasPostVentaPage = lazyPage(() => import("./app/ap/post-venta/indicadores-y-reportes/consultas-masivas/page.tsx"));
 const AdoptionDashboardPage = lazyPage(() => import("./app/gp/gestion-del-sistema/adoption-dashboard/page"));
 const RolePage = lazyPage(() => import("./app/gp/gestion-del-sistema/roles/page.tsx"));
@@ -2114,6 +2115,10 @@ function App() {
               <Route
                 path="indicadores-y-reportes/dashboard-productividad"
                 element={<ProductivityDashboardPage />}
+              />
+              <Route
+                path="indicadores-y-reportes/dashboard-productividad/tecnico/:workerId"
+                element={<ProductivityTechnicianDetailPageRoute />}
               />
               <Route
                 path="indicadores-y-reportes/consultas-masivas"
