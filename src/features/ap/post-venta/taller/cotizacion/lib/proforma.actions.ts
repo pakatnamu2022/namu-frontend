@@ -70,6 +70,15 @@ export async function findOrderQuotationById(
   return response.data;
 }
 
+export async function findOrderQuotationBillingById(
+  id: number,
+): Promise<OrderQuotationResource> {
+  const response = await api.get<OrderQuotationResource>(
+    `${ENDPOINT}/${id}/billing`,
+  );
+  return response.data;
+}
+
 export async function findOrderQuotationSimpleById(
   id: number,
 ): Promise<OrderQuotationResource> {

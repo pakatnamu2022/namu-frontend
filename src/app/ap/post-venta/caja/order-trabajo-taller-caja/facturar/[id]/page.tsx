@@ -7,7 +7,7 @@ import { WorkOrderProvider } from "@/features/ap/post-venta/taller/orden-trabajo
 import WorkOrderBillingFormContent from "@/features/ap/post-venta/taller/orden-trabajo/components/WorkOrderBillingFormContent";
 import { WORKER_ORDER_CAJA } from "@/features/ap/post-venta/taller/orden-trabajo/lib/workOrder.constants";
 import { useQuery } from "@tanstack/react-query";
-import { findWorkOrderById } from "@/features/ap/post-venta/taller/orden-trabajo/lib/workOrder.actions";
+import { findWorkOrderBillingById } from "@/features/ap/post-venta/taller/orden-trabajo/lib/workOrder.actions";
 import PageSkeleton from "@/shared/components/PageSkeleton";
 import TitleComponent from "@/shared/components/TitleComponent";
 
@@ -19,7 +19,7 @@ export default function BillWorkOrderCajaPage() {
 
   const { data: workOrder, isLoading } = useQuery({
     queryKey: ["workOrder", workOrderId],
-    queryFn: () => findWorkOrderById(workOrderId),
+    queryFn: () => findWorkOrderBillingById(workOrderId),
     enabled: !!workOrderId,
   });
 
@@ -55,7 +55,10 @@ export default function BillWorkOrderCajaPage() {
           />
         </div>
 
-        <WorkOrderBillingFormContent workOrderId={workOrderId} />
+        <WorkOrderBillingFormContent
+          workOrderId={workOrderId}
+          workOrder={workOrder}
+        />
       </div>
     </WorkOrderProvider>
   );

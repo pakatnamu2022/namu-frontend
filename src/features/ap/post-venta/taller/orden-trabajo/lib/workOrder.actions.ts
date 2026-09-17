@@ -58,6 +58,15 @@ export async function findWorkOrderById(
   return response.data;
 }
 
+export async function findWorkOrderBillingById(
+  id: number,
+): Promise<WorkOrderResource> {
+  const response = await api.get<WorkOrderResource>(
+    `${ENDPOINT}/${id}/billing`,
+  );
+  return response.data;
+}
+
 export async function findWorkOrdersByIds(
   ids: number[],
 ): Promise<WorkOrderResource[]> {

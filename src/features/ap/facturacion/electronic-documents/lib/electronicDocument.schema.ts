@@ -29,6 +29,7 @@ export const ElectronicDocumentItemSchema = z.object({
   anticipo_regularizacion: z.boolean().optional(),
   anticipo_documento_serie: z.string().max(4, "Máximo 4 caracteres").optional(),
   anticipo_documento_numero: z.number().optional(),
+  is_traverse: z.boolean().optional(), // Postventa: indica si el item es un traspaso entre sedes/almacenes
 });
 
 // Schema para Guía

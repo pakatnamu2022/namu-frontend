@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useNavigate } from "react-router-dom";
@@ -9,7 +9,6 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { FileText, Plus, Receipt, AlertCircle } from "lucide-react";
-import { findWorkOrderById } from "../lib/workOrder.actions.ts";
 import { useWorkOrderContext } from "../contexts/WorkOrderContext.tsx";
 import {
   ElectronicDocumentSchema,
@@ -32,6 +31,7 @@ import {
   SUNAT_TRANSACTIONS_ID,
 } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.constants";
 import { WORKER_ORDER, STATUS_WORK_ORDER } from "../lib/workOrder.constants.ts";
+import type { WorkOrderResource } from "../lib/workOrder.interface.ts";
 import {
   AREA_TALLER,
   CM_POSTVENTA_ID,
@@ -39,10 +39,12 @@ import {
 
 interface WorkOrderBillingFormContentProps {
   workOrderId: number;
+  workOrder: WorkOrderResource;
 }
 
 export default function WorkOrderBillingFormContent({
   workOrderId,
+  workOrder,
 }: WorkOrderBillingFormContentProps) {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
@@ -51,13 +53,16 @@ export default function WorkOrderBillingFormContent({
   const { QUERY_KEY } = WORKER_ORDER;
 
   // Obtener todos los conceptos SUNAT necesarios en una sola consulta
-  const { data: sunatConcepts = [] } = useAllSunatConcepts({
-    type: [
-      SUNAT_CONCEPTS_TYPE.BILLING_DOCUMENT_TYPE,
-      SUNAT_CONCEPTS_TYPE.BILLING_CURRENCY,
-      SUNAT_CONCEPTS_TYPE.BILLING_IGV_TYPE,
-    ],
-  });
+  const { data: sunatConcepts = [] } = useAllSunatConcepts(
+    {
+      type: [
+        SUNAT_CONCEPTS_TYPE.BILLING_DOCUMENT_TYPE,
+        SUNAT_CONCEPTS_TYPE.BILLING_CURRENCY,
+        SUNAT_CONCEPTS_TYPE.BILLING_IGV_TYPE,
+      ],
+    },
+    { enabled: showForm },
+  );
 
   // Filtrar los conceptos por tipo
   const documentTypes = useMemo(
@@ -116,22 +121,19 @@ export default function WorkOrderBillingFormContent({
   const selectedSeriesId = form.watch("serie");
   const selectedCurrencyId = form.watch("sunat_concept_currency_id");
 
-  // Consultar la orden de trabajo con sus items
-  const { data: workOrder, isLoading } = useQuery({
-    queryKey: ["workOrder", workOrderId],
-    queryFn: () => findWorkOrderById(workOrderId),
-  });
-
   const items = useMemo(() => workOrder?.items || [], [workOrder?.items]);
 
   // Obtener series autorizadas según el tipo de documento
-  const { data: authorizedSeries = [] } = useAuthorizedSeries({
-    type_operation_id: CM_POSTVENTA_ID,
-    type_receipt_id: documentTypes.find(
-      (dt) => dt.id.toString() === selectedDocumentType,
-    )?.tribute_code,
-    sede_id: workOrder?.sede_id,
-  });
+  const { data: authorizedSeries = [] } = useAuthorizedSeries(
+    {
+      type_operation_id: CM_POSTVENTA_ID,
+      type_receipt_id: documentTypes.find(
+        (dt) => dt.id.toString() === selectedDocumentType,
+      )?.tribute_code,
+      sede_id: workOrder?.sede_id,
+    },
+    { enabled: showForm },
+  );
 
   const selectedSeries = authorizedSeries.find(
     (s) => s.id.toString() === selectedSeriesId,
@@ -156,10 +158,13 @@ export default function WorkOrderBillingFormContent({
   }, [nextNumber?.number, form]);
 
   // Obtener chequeras según moneda y sede
-  const { data: checkbooks = [] } = useAllApBank({
-    currency_id: selectedCurrency?.currency_type,
-    sede_id: selectedSeries?.sede_id,
-  });
+  const { data: checkbooks = [] } = useAllApBank(
+    {
+      currency_id: selectedCurrency?.currency_type,
+      sede_id: selectedSeries?.sede_id,
+    },
+    { enabled: showForm },
+  );
 
   // Auto-seleccionar el primer grupo si no hay ninguno seleccionado
   useEffect(() => {
@@ -286,20 +291,10 @@ export default function WorkOrderBillingFormContent({
     form.reset();
   };
 
-  if (isLoading) {
-    return (
-      <Card className="p-12">
-        <div className="flex flex-col items-center justify-center text-center">
-          <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent mb-4"></div>
-          <p className="text-gray-500">Cargando datos...</p>
-        </div>
-      </Card>
-    );
-  }
-
   const vouchers = workOrder?.vouchers;
   const currencySymbol = workOrder?.type_currency?.symbol || "S/";
-  const hasNegativeInvoicePreview = (workOrder?.invoice_preview?.total ?? 0) < 0;
+  const hasNegativeInvoicePreview =
+    (workOrder?.invoice_preview?.total ?? 0) < 0;
 
   return (
     <div className="space-y-6">
@@ -468,8 +463,8 @@ export default function WorkOrderBillingFormContent({
                     <div className="flex items-start gap-2.5 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2.5">
                       <AlertCircle className="h-4 w-4 text-amber-600 shrink-0 mt-0.5" />
                       <p className="text-xs text-amber-800 leading-relaxed">
-                        Ya existe un anticipo en borrador para esta orden.
-                        Debe completarse o eliminarse antes de generar otro
+                        Ya existe un anticipo en borrador para esta orden. Debe
+                        completarse o eliminarse antes de generar otro
                         documento.
                       </p>
                     </div>
@@ -482,9 +477,9 @@ export default function WorkOrderBillingFormContent({
                       <AlertCircle className="h-4 w-4 text-red-600 shrink-0 mt-0.5" />
                       <p className="text-xs text-red-800 leading-relaxed">
                         Esta orden de trabajo no está regularizada o cuadrada:
-                        tiene pagos/anticipos que superan el total asignado a
-                        la orden {workOrder?.correlative}. Regularice los
-                        pagos antes de generar un nuevo comprobante.
+                        tiene pagos/anticipos que superan el total asignado a la
+                        orden {workOrder?.correlative}. Regularice los pagos
+                        antes de generar un nuevo comprobante.
                       </p>
                     </div>
                   )}
