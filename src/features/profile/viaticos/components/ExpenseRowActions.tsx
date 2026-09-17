@@ -52,7 +52,7 @@ export default function ExpenseRowActions({
 
   const { ABSOLUTE_ROUTE: PER_DIEM_REQUEST_ROUTE, QUERY_KEY } =
     PER_DIEM_REQUEST;
-  const { canRemoveValidation } = useModulePermissions(
+  const { canApprove, canReject } = useModulePermissions(
     PER_DIEM_REQUEST_AP.ROUTE,
   );
   const deleteExpenseMutation = useDeletePerDiemExpense(requestId || 0, {
@@ -273,7 +273,8 @@ export default function ExpenseRowActions({
 
       {(expense.validated || expense.rejected) &&
         module === "contabilidad" &&
-        canRemoveValidation && (
+        canApprove &&
+        canReject && (
           <ConfirmationDialog
             trigger={
               <ButtonAction
