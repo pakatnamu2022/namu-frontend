@@ -6,20 +6,29 @@ import {
   FileText,
   Loader2,
   Pencil,
+  RotateCcw,
   Trash2,
 } from "lucide-react";
 import { ExpenseResource } from "../lib/perDiemRequest.interface";
 import { useState } from "react";
 import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
 import { ButtonAction } from "@/shared/components/ButtonAction";
-import { validateExpense, rejectExpense } from "../lib/perDiemRequest.actions";
+import {
+  validateExpense,
+  rejectExpense,
+  removeValidationExpense,
+} from "../lib/perDiemRequest.actions";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { useNavigate } from "react-router-dom";
 import { useDeletePerDiemExpense } from "../lib/perDiemExpense.hook";
 import { useQueryClient } from "@tanstack/react-query";
-import { PER_DIEM_REQUEST } from "../lib/perDiemRequest.constants";
+import {
+  PER_DIEM_REQUEST,
+  PER_DIEM_REQUEST_AP,
+} from "../lib/perDiemRequest.constants";
 import { errorToast, successToast, warningToast } from "@/core/core.function";
+import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
 
 interface ExpenseRowActionsProps {
   expense: ExpenseResource;
@@ -43,6 +52,9 @@ export default function ExpenseRowActions({
 
   const { ABSOLUTE_ROUTE: PER_DIEM_REQUEST_ROUTE, QUERY_KEY } =
     PER_DIEM_REQUEST;
+  const { canApprove, canReject } = useModulePermissions(
+    PER_DIEM_REQUEST_AP.ROUTE,
+  );
   const deleteExpenseMutation = useDeletePerDiemExpense(requestId || 0, {
     onSuccess: () => {
       onActionComplete?.();
@@ -99,6 +111,31 @@ export default function ExpenseRowActions({
         "Error",
         error.response?.data?.message ||
           "No se pudo rechazar el gasto. Inténtalo de nuevo.",
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleRemoveValidation = async () => {
+    try {
+      setIsLoading(true);
+      await removeValidationExpense(expense.id);
+      successToast(
+        "Validación removida",
+        "El gasto ha vuelto al estado pendiente.",
+      );
+      if (requestId) {
+        await queryClient.invalidateQueries({
+          queryKey: [QUERY_KEY, requestId],
+        });
+      }
+      onActionComplete?.();
+    } catch (error: any) {
+      errorToast(
+        "Error",
+        error.response?.data?.message ||
+          "No se pudo quitar la validación del gasto. Inténtalo de nuevo.",
       );
     } finally {
       setIsLoading(false);
@@ -233,6 +270,37 @@ export default function ExpenseRowActions({
           </ConfirmationDialog>
         </>
       )}
+
+      {(expense.validated || expense.rejected) &&
+        module === "contabilidad" &&
+        canApprove &&
+        canReject && (
+          <ConfirmationDialog
+            trigger={
+              <ButtonAction
+                icon={isLoading ? Loader2 : RotateCcw}
+                color="amber"
+                disabled={isLoading}
+                tooltip="Quitar Validación"
+                className={isLoading ? "animate-spin" : ""}
+              />
+            }
+            title="¿Quitar validación de este gasto?"
+            description={`Estás a punto de quitar el estado de ${
+              expense.validated ? "validado" : "rechazado"
+            } del gasto de S/ ${expense.receipt_amount.toFixed(
+              2,
+            )} por ${
+              expense.expense_type?.name
+            }. El gasto volverá al estado pendiente.`}
+            confirmText="Sí, quitar validación"
+            cancelText="Cancelar"
+            onConfirm={handleRemoveValidation}
+            variant="default"
+            icon="warning"
+            confirmDisabled={isLoading}
+          />
+        )}
     </div>
   );
 }
