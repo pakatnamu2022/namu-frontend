@@ -5,28 +5,43 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Wrench, AlertTriangle, Users, CalendarDays } from "lucide-react";
 import { formatDate, formatHours } from "@/core/core.function";
-import { CopyCell } from "@/shared/components/CopyCell";
 import SearchInput from "@/shared/components/SearchInput";
 import {
   TechnicianProductivityWorkOrder,
   TechnicianProductivityWorkOrderWithoutLabour,
 } from "../lib/technicianProductivity.interface";
+import ProductivityWorkOrderDetailSheet from "@/features/ap/post-venta/indicadores-y-reportes/productividad-dashboard/components/ProductivityWorkOrderDetailSheet";
 
 interface TechnicianProductivityWorkOrderCardsProps {
   workOrders: TechnicianProductivityWorkOrder[];
   workOrdersWithoutLabour: TechnicianProductivityWorkOrderWithoutLabour[];
+  nameTechnician: string;
 }
 
-function WorkOrderCard({ wo }: { wo: TechnicianProductivityWorkOrder }) {
+function WorkOrderCard({
+  wo,
+  onViewWorkOrder,
+}: {
+  wo: TechnicianProductivityWorkOrder;
+  onViewWorkOrder: (workOrderId: number) => void;
+}) {
+  const horasFacturadasTecnico = wo.trabajos.reduce(
+    (sum, trabajo) => sum + trabajo.horas_facturadas_tecnico,
+    0,
+  );
+
   return (
     <Card className="hover:shadow-md transition-shadow">
       <CardContent className="p-4 space-y-3">
         <div className="flex items-start justify-between gap-2">
           <div>
-            <CopyCell
-              value={wo.work_order_number}
-              className="font-semibold text-sm"
-            />
+            <button
+              type="button"
+              onClick={() => onViewWorkOrder(wo.work_order_id)}
+              className="font-semibold text-sm text-primary hover:underline"
+            >
+              {wo.work_order_number}
+            </button>
             <div className="flex items-center gap-1 text-xs text-muted-foreground mt-0.5">
               <CalendarDays className="size-3" />
               {formatDate(wo.fecha_facturacion)}
@@ -43,18 +58,24 @@ function WorkOrderCard({ wo }: { wo: TechnicianProductivityWorkOrder }) {
           Asesor: <span className="text-foreground">{wo.asesor}</span>
         </div>
 
-        {wo.descripcion_labour && (
-          <div className="flex items-center gap-1.5 text-xs">
-            <Wrench className="size-3 text-muted-foreground shrink-0" />
-            <span className="line-clamp-1">{wo.descripcion_labour}</span>
-          </div>
+        {wo.trabajos.length > 0 && (
+          <ul className="space-y-1">
+            {wo.trabajos.map((trabajo, index) => (
+              <li key={index} className="flex items-center gap-1.5 text-xs">
+                <Wrench className="size-3 text-muted-foreground shrink-0" />
+                <span className="line-clamp-1">
+                  {trabajo.descripcion_labour}
+                </span>
+              </li>
+            ))}
+          </ul>
         )}
 
         <div className="flex items-end justify-between pt-2 border-t">
           <div>
             <div className="text-xs text-muted-foreground">H. facturadas</div>
             <div className="text-lg font-bold text-primary">
-              {formatHours(wo.horas_facturadas_tecnico)}
+              {formatHours(horasFacturadasTecnico)}
             </div>
           </div>
           {wo.cantidad_tecnicos > 1 && (
@@ -72,18 +93,23 @@ function WorkOrderCard({ wo }: { wo: TechnicianProductivityWorkOrder }) {
 
 function WorkOrderWithoutLabourCard({
   wo,
+  onViewWorkOrder,
 }: {
   wo: TechnicianProductivityWorkOrderWithoutLabour;
+  onViewWorkOrder: (workOrderId: number) => void;
 }) {
   return (
     <Card className="border-amber-200 bg-amber-50/40">
       <CardContent className="p-4 space-y-2">
         <div className="flex items-start justify-between gap-2">
           <div>
-            <CopyCell
-              value={wo.work_order_number}
-              className="font-semibold text-sm"
-            />
+            <button
+              type="button"
+              onClick={() => onViewWorkOrder(wo.work_order_id)}
+              className="font-semibold text-sm text-primary hover:underline"
+            >
+              {wo.work_order_number}
+            </button>
             <div className="flex items-center gap-1 text-xs text-muted-foreground mt-0.5">
               <CalendarDays className="size-3" />
               {formatDate(wo.fecha_facturacion)}
@@ -110,7 +136,7 @@ function WorkOrderWithoutLabourCard({
   );
 }
 
-// Normaliza para comparación exacta: minúsculas, sin acentos y sin
+// Normaliza para comparación: minúsculas, sin acentos y sin
 // espacios/guiones/símbolos, de modo que "ABC-123", "abc 123" y "N° OT 123"
 // se comparen de forma consistente.
 function normalizeSearchValue(value: string) {
@@ -121,34 +147,39 @@ function normalizeSearchValue(value: string) {
     .replace(/[^a-z0-9]/g, "");
 }
 
-function matchesExactSearch(
+function matchesSearch(
   wo: { work_order_number?: string; vehicle_plate?: string },
   normalizedSearch: string,
 ) {
   const workOrderNumber = normalizeSearchValue(wo.work_order_number ?? "");
   const vehiclePlate = normalizeSearchValue(wo.vehicle_plate ?? "");
   return (
-    workOrderNumber === normalizedSearch || vehiclePlate === normalizedSearch
+    workOrderNumber.includes(normalizedSearch) ||
+    vehiclePlate.includes(normalizedSearch)
   );
 }
 
 export default function TechnicianProductivityWorkOrderCards({
   workOrders,
   workOrdersWithoutLabour,
+  nameTechnician,
 }: TechnicianProductivityWorkOrderCardsProps) {
   const [search, setSearch] = useState("");
+  const [selectedWorkOrderId, setSelectedWorkOrderId] = useState<number | null>(
+    null,
+  );
 
   const normalizedSearch = normalizeSearchValue(search);
 
   const filteredWorkOrders = useMemo(() => {
     if (!normalizedSearch) return workOrders;
-    return workOrders.filter((wo) => matchesExactSearch(wo, normalizedSearch));
+    return workOrders.filter((wo) => matchesSearch(wo, normalizedSearch));
   }, [workOrders, normalizedSearch]);
 
   const filteredWorkOrdersWithoutLabour = useMemo(() => {
     if (!normalizedSearch) return workOrdersWithoutLabour;
     return workOrdersWithoutLabour.filter((wo) =>
-      matchesExactSearch(wo, normalizedSearch),
+      matchesSearch(wo, normalizedSearch),
     );
   }, [workOrdersWithoutLabour, normalizedSearch]);
 
@@ -174,8 +205,9 @@ export default function TechnicianProductivityWorkOrderCards({
           <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3">
             {filteredWorkOrders.map((wo, index) => (
               <WorkOrderCard
-                key={`${wo.work_order_id}-${wo.descripcion_labour ?? ""}-${index}`}
+                key={`${wo.work_order_id}-${index}`}
                 wo={wo}
+                onViewWorkOrder={setSelectedWorkOrderId}
               />
             ))}
           </div>
@@ -194,11 +226,18 @@ export default function TechnicianProductivityWorkOrderCards({
               <WorkOrderWithoutLabourCard
                 key={`${wo.work_order_id}-${index}`}
                 wo={wo}
+                onViewWorkOrder={setSelectedWorkOrderId}
               />
             ))}
           </div>
         </div>
       )}
+
+      <ProductivityWorkOrderDetailSheet
+        workOrderId={selectedWorkOrderId}
+        nameTechnician={nameTechnician}
+        onClose={() => setSelectedWorkOrderId(null)}
+      />
     </div>
   );
 }

@@ -249,6 +249,7 @@ export default function TechnicianProductivityReport() {
               <TechnicianProductivityWorkOrderCards
                 workOrders={detail.work_orders}
                 workOrdersWithoutLabour={detail.work_orders_without_labour}
+                nameTechnician={detail.technician_info.worker_name}
               />
             </div>
           )}

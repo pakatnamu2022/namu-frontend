@@ -1,6 +1,8 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useCallback, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
+import { useScopedFilters } from "@/shared/hooks/useScopedFilters";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
@@ -11,12 +13,12 @@ import { SearchableSelect } from "@/shared/components/SearchableSelect";
 import { ProductivityTechnicianDetail } from "../lib/productivityDashboard.interface";
 import { productivityTechnicianColumns } from "./ProductivityTechnicianColumns";
 import {
+  PRODUCTIVITY_DASHBOARD,
   PRODUCTIVITY_STATUS_BADGE_COLOR,
   PRODUCTIVITY_STATUS_DESCRIPTION,
   PRODUCTIVITY_STATUS_LABEL,
 } from "../lib/productivityDashboard.constants";
 import { ProductivityStatus } from "../lib/productivityDashboard.interface";
-import ProductivityTechnicianDetailSheet from "./ProductivityTechnicianDetailSheet";
 import ProductivityTechnicianRankingChart from "./ProductivityTechnicianRankingChart";
 import { formatHours, formatMoney } from "@/core/core.function";
 
@@ -40,14 +42,37 @@ export default function ProductivityTechnicianTable({
   year,
   month,
 }: ProductivityTechnicianTableProps) {
-  const [sedeFilter, setSedeFilter] = useState("");
-  const [viewMode, setViewMode] = useState<ViewMode>("table");
-  const [selectedTechnician, setSelectedTechnician] =
-    useState<ProductivityTechnicianDetail | null>(null);
+  const router = useNavigate();
+  const { values: tableFilters, setFieldValue: setTableFilter } =
+    useScopedFilters(PRODUCTIVITY_DASHBOARD.ABSOLUTE_ROUTE, {
+      technicianSedeFilter: "",
+      technicianViewMode: "table" as ViewMode,
+    });
+  const { technicianSedeFilter: sedeFilter, technicianViewMode: viewMode } =
+    tableFilters;
+  const setSedeFilter = (value: string) =>
+    setTableFilter("technicianSedeFilter", value);
+  const setViewMode = (value: ViewMode) =>
+    setTableFilter("technicianViewMode", value);
+
+  const handleViewDetail = useCallback(
+    (tech: ProductivityTechnicianDetail) => {
+      const params = new URLSearchParams({
+        year: year.toString(),
+        month: month.toString(),
+        sedeId: tech.sede_id.toString(),
+        sedeName: tech.sede_name,
+      });
+      router(
+        `${PRODUCTIVITY_DASHBOARD.ROUTE_TECHNICIAN_DETAIL}/${tech.worker_id}?${params.toString()}`,
+      );
+    },
+    [router, year, month],
+  );
 
   const columns = useMemo(
-    () => productivityTechnicianColumns(setSelectedTechnician),
-    [],
+    () => productivityTechnicianColumns(handleViewDetail),
+    [handleViewDetail],
   );
 
   const sedeOptions = useMemo(() => {
@@ -67,10 +92,7 @@ export default function ProductivityTechnicianTable({
   }, [data, sedeFilter]);
 
   const mobileCardRender = (tech: ProductivityTechnicianDetail) => (
-    <Card
-      className="cursor-pointer"
-      onClick={() => setSelectedTechnician(tech)}
-    >
+    <Card className="cursor-pointer" onClick={() => handleViewDetail(tech)}>
       <CardContent className="p-4 space-y-3">
         <div className="flex justify-between items-start">
           <div>
@@ -202,16 +224,6 @@ export default function ProductivityTechnicianTable({
           <ProductivityTechnicianRankingChart data={filteredData} />
         )}
       </CardContent>
-
-      <ProductivityTechnicianDetailSheet
-        open={!!selectedTechnician}
-        onClose={() => setSelectedTechnician(null)}
-        workerId={selectedTechnician?.worker_id ?? null}
-        year={year}
-        month={month}
-        sedeId={selectedTechnician?.sede_id}
-        sedeName={selectedTechnician?.sede_name}
-      />
     </Card>
   );
 }

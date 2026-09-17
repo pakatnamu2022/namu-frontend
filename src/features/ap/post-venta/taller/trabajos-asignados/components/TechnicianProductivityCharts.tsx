@@ -87,9 +87,13 @@ export default function TechnicianProductivityCharts({
   for (const wo of workOrders) {
     const key = wo.fecha_facturacion;
     const existing = dateMap.get(key);
+    const horasFacturadasTecnico = wo.trabajos.reduce(
+      (sum, trabajo) => sum + trabajo.horas_facturadas_tecnico,
+      0,
+    );
     const item = {
       ot: wo.work_order_number,
-      horas: wo.horas_facturadas_tecnico,
+      horas: horasFacturadasTecnico,
     };
     if (existing) {
       existing.items.push(item);

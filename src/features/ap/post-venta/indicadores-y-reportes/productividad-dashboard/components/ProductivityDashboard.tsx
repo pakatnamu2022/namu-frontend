@@ -7,6 +7,7 @@ import PageWrapper from "@/shared/components/PageWrapper";
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import ExportButtons from "@/shared/components/ExportButtons";
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
+import { useScopedFilters } from "@/shared/hooks/useScopedFilters";
 import {
   errorToast,
   successToast,
@@ -27,14 +28,24 @@ import {
   refreshProductivityDashboard,
   exportProductivityDashboard,
 } from "../lib/productivityDashboard.actions";
+import { PRODUCTIVITY_DASHBOARD } from "../lib/productivityDashboard.constants";
 
 export default function ProductivityDashboard() {
   const { currentView } = useCurrentModule();
   const queryClient = useQueryClient();
 
-  const [year, setYear] = useState(currentYear());
-  const [month, setMonth] = useState(currentMonth());
-  const [sedeId, setSedeId] = useState("");
+  const { values: filtersState, setFieldValue: setFilter } = useScopedFilters(
+    PRODUCTIVITY_DASHBOARD.ABSOLUTE_ROUTE,
+    {
+      year: currentYear(),
+      month: currentMonth(),
+      sedeId: "",
+    },
+  );
+  const { year, month, sedeId } = filtersState;
+  const setYear = (value: number) => setFilter("year", value);
+  const setMonth = (value: number) => setFilter("month", value);
+  const setSedeId = (value: string) => setFilter("sedeId", value);
   const [isRefreshing, setIsRefreshing] = useState(false);
 
   const filters = {
