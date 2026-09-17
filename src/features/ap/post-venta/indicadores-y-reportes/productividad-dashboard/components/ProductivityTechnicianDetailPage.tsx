@@ -18,7 +18,6 @@ import {
   productivityWorkOrderColumns,
   productivityWorkOrderWithoutLabourColumns,
 } from "./ProductivityWorkOrderColumns";
-import ProductivityWorkOrderDetailSheet from "./ProductivityWorkOrderDetailSheet";
 
 interface SummaryItemProps {
   label: string;
@@ -40,9 +39,6 @@ export default function ProductivityTechnicianDetailPage() {
   const params = useParams();
   const [searchParams] = useSearchParams();
   const [workOrderSearch, setWorkOrderSearch] = useState("");
-  const [selectedWorkOrderId, setSelectedWorkOrderId] = useState<number | null>(
-    null,
-  );
 
   const workerId = Number(params.workerId);
   const year = Number(searchParams.get("year"));
@@ -63,12 +59,9 @@ export default function ProductivityTechnicianDetailPage() {
   const { data, isLoading, isError } = useProductivityTechnicianDetail(filters);
 
   const detail = data?.data;
-  const workOrderColumns = useMemo(
-    () => productivityWorkOrderColumns(setSelectedWorkOrderId),
-    [],
-  );
+  const workOrderColumns = useMemo(() => productivityWorkOrderColumns(), []);
   const workOrderWithoutLabourColumns = useMemo(
-    () => productivityWorkOrderWithoutLabourColumns(setSelectedWorkOrderId),
+    () => productivityWorkOrderWithoutLabourColumns(),
     [],
   );
 
@@ -225,12 +218,6 @@ export default function ProductivityTechnicianDetailPage() {
           )}
         </div>
       )}
-
-      <ProductivityWorkOrderDetailSheet
-        workOrderId={selectedWorkOrderId}
-        nameTechnician={detail?.technician_info.worker_name || "-"}
-        onClose={() => setSelectedWorkOrderId(null)}
-      />
     </PageWrapper>
   );
 }
