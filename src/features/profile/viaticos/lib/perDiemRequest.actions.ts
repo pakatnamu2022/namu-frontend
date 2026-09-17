@@ -272,6 +272,15 @@ export async function rejectExpense(
   return data;
 }
 
+export async function removeValidationExpense(
+  expenseId: number,
+): Promise<GeneralResponse> {
+  const { data } = await api.post<GeneralResponse>(
+    `gp/gestion-humana/viaticos/per-diem-expenses/${expenseId}/remove-validation`,
+  );
+  return data;
+}
+
 export async function uploadDepositFile(
   id: number,
   file: File,

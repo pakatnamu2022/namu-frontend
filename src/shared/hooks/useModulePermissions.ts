@@ -365,6 +365,13 @@ export const PERMISSION_ACTIONS: PermissionAction[] = [
     description:
       "Permite ver los movimientos de inventario descartados y revertirlos",
   },
+  {
+    value: "removeValidation",
+    label: "Quitar Validación",
+    icon: "RotateCcw",
+    description:
+      "Permite quitar la validación o el rechazo de un gasto de viáticos, dejándolo pendiente nuevamente",
+  },
 ];
 
 /**
@@ -460,5 +467,6 @@ export function useModulePermissions(moduleCode: string) {
     canReReserveStock: hasModulePermission("reReserveStock"),
     canDiscard: hasModulePermission("discard"),
     canViewDiscarded: hasModulePermission("viewDiscarded"),
+    canRemoveValidation: hasModulePermission("removeValidation"),
   };
 }
