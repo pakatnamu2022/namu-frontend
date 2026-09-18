@@ -1,4 +1,5 @@
 import { Bar, BarChart, XAxis, YAxis } from "recharts";
+import { cn } from "@/lib/utils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   ChartConfig,
@@ -21,6 +22,7 @@ interface Props {
   data: Array<{ name: string; value: number }>;
   valueFormatter?: (value: number) => string;
   valueLabel?: string;
+  className?: string;
 }
 
 export function ChartBarMixed({
@@ -29,6 +31,7 @@ export function ChartBarMixed({
   data,
   valueFormatter,
   valueLabel = "Valor",
+  className,
 }: Props) {
   const chartData = data.map((item, i) => ({
     key: `item_${i}`,
@@ -56,7 +59,7 @@ export function ChartBarMixed({
   );
 
   return (
-    <Card className="h-full">
+    <Card className={cn("h-full", className)}>
       <CardHeader className="pb-2 gap-1!">
         <CardTitle className="font-semibold">{title}</CardTitle>
         {subtitle && (

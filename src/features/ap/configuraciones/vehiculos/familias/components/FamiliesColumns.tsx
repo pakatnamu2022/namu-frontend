@@ -1,7 +1,7 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import { FamiliesResource } from "../lib/families.interface";
 import { Button } from "@/components/ui/button";
-import { Pencil } from "lucide-react";
+import { ImagePlus, Pencil } from "lucide-react";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
@@ -12,6 +12,7 @@ export type FamiliesColumns = ColumnDef<FamiliesResource>;
 interface Props {
   onDelete: (id: number) => void;
   onUpdate: (id: number) => void;
+  onUploadImage: (family: FamiliesResource) => void;
   onToggleStatus: (id: number, newStatus: boolean) => void;
   permissions: {
     canUpdate: boolean;
@@ -22,6 +23,7 @@ interface Props {
 export const familiesColumns = ({
   onUpdate,
   onDelete,
+  onUploadImage,
   onToggleStatus,
   permissions,
 }: Props): FamiliesColumns[] => [
@@ -31,6 +33,23 @@ export const familiesColumns = ({
     cell: ({ getValue }) => {
       const value = getValue() as string;
       return value && <p className="font-semibold">{value}</p>;
+    },
+  },
+  {
+    accessorKey: "image",
+    header: "Imagen",
+    cell: ({ getValue }) => {
+      const value = getValue() as string | null;
+      return value ? (
+        <img
+          src={value}
+          alt="Familia"
+          className="h-10 w-16 object-contain"
+          loading="lazy"
+        />
+      ) : (
+        <span className="text-xs text-muted-foreground">Sin imagen</span>
+      );
     },
   },
   {
@@ -61,6 +80,7 @@ export const familiesColumns = ({
     header: "Acciones",
     cell: ({ row }) => {
       const { id, status } = row.original;
+      const family = row.original;
 
       return (
         <div className="flex items-center gap-2">
@@ -71,6 +91,19 @@ export const familiesColumns = ({
               onCheckedChange={(checked) => onToggleStatus(id, checked)}
               className={cn(status ? "bg-primary" : "bg-secondary")}
             />
+          )}
+
+          {/* Imagen */}
+          {permissions.canUpdate && (
+            <Button
+              variant="outline"
+              size="icon"
+              className="size-7"
+              tooltip="Subir imagen"
+              onClick={() => onUploadImage(family)}
+            >
+              <ImagePlus className="size-5" />
+            </Button>
           )}
 
           {/* Edit */}
