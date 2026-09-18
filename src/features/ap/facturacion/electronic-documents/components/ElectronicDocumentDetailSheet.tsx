@@ -39,7 +39,17 @@ import { AREA_COMERCIAL } from "@/features/ap/ap-master/lib/apMaster.constants";
 import { CopyCell } from "@/shared/components/CopyCell";
 
 interface ElectronicDocumentDetailSheetProps {
-  document: ElectronicDocumentResource | null;
+  /**
+   * Documento ya cargado (p. ej. la fila de la tabla). Si se provee, se usa
+   * como datos instantáneos mientras el fetch por id (siempre disparado)
+   * los enriquece/completa.
+   */
+  document?: ElectronicDocumentResource | null;
+  /**
+   * Id del comprobante a consultar. Requerido si no se provee `document`.
+   * Si se provee junto con `document`, se ignora (se usa `document.id`).
+   */
+  documentId?: number | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onStatusUpdated?: () => void;
@@ -202,7 +212,9 @@ function Field({
 
   return (
     <div className="flex items-center justify-between gap-4 border-b border-border/60 py-1.5 last:border-0">
-      <span className="shrink-0 text-[13px] text-muted-foreground">{label}</span>
+      <span className="shrink-0 text-[13px] text-muted-foreground">
+        {label}
+      </span>
       {copy && isText ? (
         <CopyCell
           value={String(value)}
@@ -226,7 +238,11 @@ function Field({
 function MetricStrip({
   items,
 }: {
-  items: { label: string; value: React.ReactNode; tone?: "success" | "danger" }[];
+  items: {
+    label: string;
+    value: React.ReactNode;
+    tone?: "success" | "danger";
+  }[];
 }) {
   return (
     <div className="flex flex-wrap gap-2 pt-4">
@@ -301,18 +317,23 @@ function AmountBox({ children }: { children: React.ReactNode }) {
 
 export function ElectronicDocumentDetailSheet({
   document,
+  documentId,
   open,
   onOpenChange,
   onStatusUpdated,
 }: ElectronicDocumentDetailSheetProps) {
+  const effectiveId = document?.id ?? documentId ?? 0;
+
   const { data: fetched, isFetching } = useElectronicDocument(
-    open && document?.id ? document.id : 0,
+    open && effectiveId ? effectiveId : 0,
   );
 
-  // Mezcla: la fila de la tabla da datos instantáneos, el show() los enriquece.
+  // Mezcla: si hay `document` (fila de tabla) da datos instantáneos y el
+  // fetch por id los enriquece; si solo se pasó `documentId`, se espera al
+  // fetch para tener datos.
   const doc = useMemo<ElectronicDocumentResource | null>(() => {
-    if (!document) return null;
-    return fetched ? { ...document, ...fetched } : document;
+    if (document) return fetched ? { ...document, ...fetched } : document;
+    return fetched ?? null;
   }, [document, fetched]);
 
   const queryStatusMutation = useMutation({
@@ -327,7 +348,24 @@ export function ElectronicDocumentDetailSheet({
     },
   });
 
-  if (!doc) return null;
+  // Sin `document` ni datos aún (caso `documentId` puro): si hay un id
+  // válido en curso, se muestra el sheet en estado de carga en vez de
+  // ocultarlo; si no hay nada que consultar, no se renderiza.
+  if (!doc) {
+    if (!effectiveId) return null;
+    return (
+      <GeneralSheet
+        open={open}
+        onClose={() => onOpenChange(false)}
+        icon="FileText"
+        title="Detalle del Comprobante Electrónico"
+        size="5xl"
+        isLoading
+      >
+        <div />
+      </GeneralSheet>
+    );
+  }
 
   const currencySymbol =
     doc.currency?.iso_code === "PEN"
@@ -354,11 +392,7 @@ export function ElectronicDocumentDetailSheet({
     : null;
 
   const vehicleOneLine = vehicle
-    ? [
-        vehicleTitle,
-        vehicle.vin ? `VIN ${vehicle.vin}` : null,
-        vehicle.plate,
-      ]
+    ? [vehicleTitle, vehicle.vin ? `VIN ${vehicle.vin}` : null, vehicle.plate]
         .filter(Boolean)
         .join(" · ")
     : null;
@@ -785,7 +819,9 @@ export function ElectronicDocumentDetailSheet({
                     <TableHead className="h-9 px-2 text-right">
                       P. Unit.
                     </TableHead>
-                    <TableHead className="h-9 px-2 text-right">Dscto.</TableHead>
+                    <TableHead className="h-9 px-2 text-right">
+                      Dscto.
+                    </TableHead>
                     <TableHead className="h-9 px-2 text-right">IGV</TableHead>
                     <TableHead className="h-9 pr-0 text-right">Total</TableHead>
                   </TableRow>
@@ -894,7 +930,10 @@ export function ElectronicDocumentDetailSheet({
                 />
               )}
               {!!doc.total_anticipo && (
-                <AmountRow label="Anticipos" value={money(doc.total_anticipo)} />
+                <AmountRow
+                  label="Anticipos"
+                  value={money(doc.total_anticipo)}
+                />
               )}
               {!!doc.total_otros_cargos && (
                 <AmountRow

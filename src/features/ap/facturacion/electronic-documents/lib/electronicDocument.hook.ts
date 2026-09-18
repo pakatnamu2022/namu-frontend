@@ -16,6 +16,7 @@ import {
   getAdvancePaymentsByQuotation,
   getExchangeRateByDateAndCurrency,
   getInvoiceWithWorkOrders,
+  getElectronicDocumentsSimplified,
 } from "./electronicDocument.actions";
 import { ELECTRONIC_DOCUMENT } from "./electronicDocument.constants";
 
@@ -28,6 +29,17 @@ export const useElectronicDocuments = (
   return useQuery<ElectronicDocumentResponse>({
     queryKey: [QUERY_KEY, params],
     queryFn: () => getElectronicDocuments(params),
+    enabled,
+  });
+};
+
+export const useElectronicDocumentsSimplified = (
+  params?: Record<string, any>,
+  enabled = true,
+) => {
+  return useQuery<ElectronicDocumentResponse>({
+    queryKey: [QUERY_KEY, params],
+    queryFn: () => getElectronicDocumentsSimplified(params),
     enabled,
   });
 };

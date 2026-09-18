@@ -29,7 +29,7 @@ import { ElectronicDocumentDetailSheet } from "@/features/ap/facturacion/electro
 import { ElectronicDocumentResource } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.interface.ts";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper.tsx";
 import { ELECTRONIC_DOCUMENT_CAJA } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.constants.ts";
-import { useElectronicDocuments } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.hook.ts";
+import { useElectronicDocumentsSimplified } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.hook.ts";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions.ts";
 import { notFound } from "@/shared/hooks/useNotFound.ts";
 import SalesReceiptsActions from "@/features/ap/post-venta/comprobante-venta/components/SalesReceiptsActions.tsx";
@@ -50,8 +50,9 @@ export default function SalesReceiptsCajaPage() {
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
   const [page, setPage] = useState(1);
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
-  const [selectedDocument, setSelectedDocument] =
-    useState<ElectronicDocumentResource | null>(null);
+  const [selectedDocumentId, setSelectedDocumentId] = useState<number | null>(
+    null,
+  );
   const [sheetOpen, setSheetOpen] = useState(false);
 
   const currentDate = new Date();
@@ -103,21 +104,22 @@ export default function SalesReceiptsCajaPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sedes, setSedeId]);
 
-  const { data, isLoading, isFetching, refetch } = useElectronicDocuments({
-    page,
-    per_page,
-    search,
-    status: statusFilter,
-    area_id: [AREA_TALLER, AREA_MESON, AREA_POSTVENTA], // Filtrar por ambas áreas
-    fecha_de_emision:
-      dateFrom && dateTo
-        ? [formatDateFilter(dateFrom), formatDateFilter(dateTo)]
-        : undefined,
-    seriesModel$sede_id: sedeId ? parseInt(sedeId) : undefined,
-    consolidation_type: consolidationType || undefined,
-    is_accounted: isAccounted !== "" ? isAccounted : undefined,
-    migration_status: migrationStatus || undefined,
-  });
+  const { data, isLoading, isFetching, refetch } =
+    useElectronicDocumentsSimplified({
+      page,
+      per_page,
+      search,
+      status: statusFilter,
+      area_id: [AREA_TALLER, AREA_MESON, AREA_POSTVENTA], // Filtrar por ambas áreas
+      fecha_de_emision:
+        dateFrom && dateTo
+          ? [formatDateFilter(dateFrom), formatDateFilter(dateTo)]
+          : undefined,
+      seriesModel$sede_id: sedeId ? parseInt(sedeId) : undefined,
+      consolidation_type: consolidationType || undefined,
+      is_accounted: isAccounted !== "" ? isAccounted : undefined,
+      migration_status: migrationStatus || undefined,
+    });
 
   const canUpdate = permissions.canUpdate || false;
   const canAnnul = permissions.canAnnul || false;
@@ -152,7 +154,7 @@ export default function SalesReceiptsCajaPage() {
   });
 
   const handleView = (document: ElectronicDocumentResource) => {
-    setSelectedDocument(document);
+    setSelectedDocumentId(document.id);
     setSheetOpen(true);
   };
 
@@ -300,7 +302,7 @@ export default function SalesReceiptsCajaPage() {
       </ElectronicDocumentTable>
 
       <ElectronicDocumentDetailSheet
-        document={selectedDocument}
+        documentId={selectedDocumentId}
         open={sheetOpen}
         onOpenChange={setSheetOpen}
         onStatusUpdated={refetch}
