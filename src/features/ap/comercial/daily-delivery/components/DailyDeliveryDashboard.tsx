@@ -12,6 +12,7 @@ import HierarchyTree from "./HierarchyTree";
 import BrandReport from "./BrandReport";
 import FamilyReport from "./FamilyReport";
 import SalesMatrixReport from "./SalesMatrixReport";
+import SalesRankingReport from "./SalesRankingReport";
 import PurchasesReport from "./PurchasesReport";
 import CurrentInventory from "./CurrentInventory";
 import { DateRangePickerFilter } from "@/shared/components/DateRangePickerFilter";
@@ -112,11 +113,12 @@ export default function DailyDeliveryDashboard() {
             onValueChange={setActiveTab}
             className="w-full"
           >
-            <TabsList className={cn("grid w-full max-w-4xl grid-cols-6")}>
+            <TabsList className={cn("grid w-full max-w-5xl grid-cols-7")}>
               <TabsTrigger value="hierarchy">Por Jerarquía</TabsTrigger>
               <TabsTrigger value="brands">Por Marcas</TabsTrigger>
               <TabsTrigger value="families">Por Familias</TabsTrigger>
               <TabsTrigger value="sales-matrix">Ventas por Mes</TabsTrigger>
+              <TabsTrigger value="sales-ranking">Ranking de Ventas</TabsTrigger>
               <TabsTrigger value="purchases">Por Compras</TabsTrigger>
               <TabsTrigger value="inventory">Inventario Actual</TabsTrigger>
             </TabsList>
@@ -138,6 +140,10 @@ export default function DailyDeliveryDashboard() {
 
             <TabsContent value="sales-matrix" className="mt-4">
               <SalesMatrixReport />
+            </TabsContent>
+
+            <TabsContent value="sales-ranking" className="mt-4">
+              <SalesRankingReport />
             </TabsContent>
 
             <TabsContent value="purchases" className="mt-4">
