@@ -59,6 +59,25 @@ export const ELECTRONIC_DOCUMENT_TALLER: ModelComplete<ElectronicDocumentResourc
     ROUTE_UPDATE: `${ABSOLUTE_ROUTE_TALLER}/actualizar`,
   };
 
+// RUTA PARA ALMACEN - POST VENTA
+const ROUTE_ALMACEN = "comprobante-venta-travesia";
+const ABSOLUTE_ROUTE_ALMACEN = `/ap/post-venta/gestion-de-almacen/${ROUTE_ALMACEN}`;
+export const ELECTRONIC_DOCUMENT_ALMACEN: ModelComplete<ElectronicDocumentResource> =
+  {
+    MODEL: {
+      name: "Comprobante de Venta Travesía",
+      plural: "Comprobantes de Venta Travesía",
+      gender: false,
+    },
+    ICON: "FileText",
+    ENDPOINT: "/ap/facturacion/electronic-documents",
+    QUERY_KEY: "electronic-documents-almacen",
+    ROUTE: ROUTE_ALMACEN,
+    ABSOLUTE_ROUTE: ABSOLUTE_ROUTE_ALMACEN,
+    ROUTE_ADD: `${ABSOLUTE_ROUTE_ALMACEN}/agregar`,
+    ROUTE_UPDATE: `${ABSOLUTE_ROUTE_ALMACEN}/actualizar`,
+  };
+
 // RUTA PARA CAJA - POST VENTA
 const ROUTE_CAJA = "comprobante-venta-caja";
 const ABSOLUTE_ROUTE_CAJA = `/ap/post-venta/caja/${ROUTE_CAJA}`;
@@ -99,7 +118,11 @@ export const MIGRATION_STATUS = [
   { value: "in_progress", label: "En Proceso", color: "bg-blue-500" },
   { value: "completed", label: "Completado", color: "bg-green-500" },
   { value: "failed", label: "Fallido", color: "bg-red-500" },
-  { value: "updated_with_nc", label: "Actualizado con NC", color: "bg-purple-500" },
+  {
+    value: "updated_with_nc",
+    label: "Actualizado con NC",
+    color: "bg-purple-500",
+  },
 ] as const;
 
 export const MIGRATION_STATUS_VALUE = {
