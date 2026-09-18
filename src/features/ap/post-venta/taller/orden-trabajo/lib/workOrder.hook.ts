@@ -14,6 +14,7 @@ import {
   authorizeInternalNoteRevert,
   updateWorkOrderItems,
   UpdateWorkOrderItemData,
+  findWorkOrderBillingById,
 } from "./workOrder.actions";
 import { getWorkOrderProps, WorkOrderRequest } from "./workOrder.interface";
 import { WORKER_ORDER } from "./workOrder.constants";
@@ -61,6 +62,15 @@ export function useFindWorkOrderById(id: number) {
     queryFn: () => findWorkOrderById(id),
     enabled: !!id,
     staleTime: 5 * 60 * 1000, // 5 minutos - evita refetches innecesarios
+    refetchOnWindowFocus: false,
+  });
+}
+
+export function useFindWorkOrderBillingById(id: number) {
+  return useQuery({
+    queryKey: [QUERY_KEY, id],
+    queryFn: () => findWorkOrderBillingById(id),
+    enabled: !!id,
     refetchOnWindowFocus: false,
   });
 }

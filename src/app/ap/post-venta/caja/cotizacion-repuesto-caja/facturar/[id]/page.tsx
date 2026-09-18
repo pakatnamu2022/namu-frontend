@@ -3,7 +3,7 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useOrderQuotationBillingById } from "@/features/ap/post-venta/taller/cotizacion/lib/proforma.hook";
+import { useOrderQuotationById } from "@/features/ap/post-venta/taller/cotizacion/lib/proforma.hook";
 import { ORDER_QUOTATION_CAJA } from "@/features/ap/post-venta/taller/cotizacion/lib/proforma.constants";
 import PageSkeleton from "@/shared/components/PageSkeleton";
 import TitleComponent from "@/shared/components/TitleComponent";
@@ -15,8 +15,7 @@ export default function BillOrderQuotationCajaPage() {
   const quotationId = id ? parseInt(id) : 0;
   const { ABSOLUTE_ROUTE } = ORDER_QUOTATION_CAJA;
 
-  const { data: quotation, isLoading } =
-    useOrderQuotationBillingById(quotationId);
+  const { data: quotation, isLoading } = useOrderQuotationById(quotationId);
 
   const handleGoBack = () => navigate(ABSOLUTE_ROUTE);
 
