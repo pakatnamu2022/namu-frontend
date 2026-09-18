@@ -27,7 +27,7 @@ import { ElectronicDocumentDetailSheet } from "@/features/ap/facturacion/electro
 import { ElectronicDocumentResource } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.interface";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
 import { ELECTRONIC_DOCUMENT_REPUESTOS } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.constants";
-import { useElectronicDocuments } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.hook";
+import { useElectronicDocumentsSimplified } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.hook";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
 import { notFound } from "@/shared/hooks/useNotFound";
 import SalesReceiptsActions from "@/features/ap/post-venta/comprobante-venta/components/SalesReceiptsActions";
@@ -44,8 +44,9 @@ export default function SalesReceiptsRepuestoPage() {
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
   const [page, setPage] = useState(1);
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
-  const [selectedDocument, setSelectedDocument] =
-    useState<ElectronicDocumentResource | null>(null);
+  const [selectedDocumentId, setSelectedDocumentId] = useState<number | null>(
+    null,
+  );
   const [sheetOpen, setSheetOpen] = useState(false);
 
   const currentDate = new Date();
@@ -69,18 +70,19 @@ export default function SalesReceiptsRepuestoPage() {
   const setDateFrom = (value: Date | undefined) => setFilter("dateFrom", value);
   const setDateTo = (value: Date | undefined) => setFilter("dateTo", value);
 
-  const { data, isLoading, isFetching, refetch } = useElectronicDocuments({
-    page,
-    per_page,
-    search,
-    status: statusFilter,
-    area_id: [String(AREA_MESON)],
-    fecha_de_emision:
-      dateFrom && dateTo
-        ? [formatDateFilter(dateFrom), formatDateFilter(dateTo)]
-        : undefined,
-    seriesModel$sede_id: sedeId ? parseInt(sedeId) : undefined,
-  });
+  const { data, isLoading, isFetching, refetch } =
+    useElectronicDocumentsSimplified({
+      page,
+      per_page,
+      search,
+      status: statusFilter,
+      area_id: [String(AREA_MESON)],
+      fecha_de_emision:
+        dateFrom && dateTo
+          ? [formatDateFilter(dateFrom), formatDateFilter(dateTo)]
+          : undefined,
+      seriesModel$sede_id: sedeId ? parseInt(sedeId) : undefined,
+    });
 
   const canUpdate = permissions.canUpdate || false;
   const canAnnul = permissions.canAnnul || false;
@@ -126,7 +128,7 @@ export default function SalesReceiptsRepuestoPage() {
   });
 
   const handleView = (document: ElectronicDocumentResource) => {
-    setSelectedDocument(document);
+    setSelectedDocumentId(document.id);
     setSheetOpen(true);
   };
 
@@ -229,7 +231,7 @@ export default function SalesReceiptsRepuestoPage() {
       </ElectronicDocumentTable>
 
       <ElectronicDocumentDetailSheet
-        document={selectedDocument}
+        documentId={selectedDocumentId}
         open={sheetOpen}
         onOpenChange={setSheetOpen}
         onStatusUpdated={refetch}

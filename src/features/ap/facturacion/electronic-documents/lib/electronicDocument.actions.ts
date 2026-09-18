@@ -41,6 +41,21 @@ export async function getElectronicDocuments(
   return data;
 }
 
+export async function getElectronicDocumentsSimplified(
+  params?: ParamsProps,
+): Promise<ElectronicDocumentResponse> {
+  const config: AxiosRequestConfig = {
+    params: {
+      ...params,
+    },
+  };
+  const { data } = await api.get<ElectronicDocumentResponse>(
+    `${ENDPOINT}/simplified`,
+    config,
+  );
+  return data;
+}
+
 export async function getInvoicesAndTicketsElectronicDocuments(
   params?: ParamsProps,
 ): Promise<ElectronicDocumentResponse> {
