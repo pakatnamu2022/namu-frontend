@@ -127,6 +127,7 @@ export interface OrderQuotationInvoiceItemResource {
   subtotal: number;
   igv: number;
   total: number;
+  is_traverse?: boolean;
 }
 
 export interface OrderQuotationInvoicePreviewResource {
