@@ -2,10 +2,14 @@ import { useQuery } from "@tanstack/react-query";
 import { SunatConceptsResource } from "./sunatConcepts.interface";
 import { getAllSunatConcepts } from "./sunatConcepts.actions";
 
-export const useAllSunatConcepts = (params?: Record<string, any>) => {
+export const useAllSunatConcepts = (
+  params?: Record<string, any>,
+  options?: { enabled?: boolean },
+) => {
   return useQuery<SunatConceptsResource[]>({
     queryKey: ["sunatConcepts", params],
     queryFn: () => getAllSunatConcepts(params),
     refetchOnWindowFocus: false,
+    enabled: options?.enabled,
   });
 };

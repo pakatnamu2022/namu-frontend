@@ -234,6 +234,7 @@ export interface ElectronicDocumentItem {
   anticipo_regularizacion?: boolean;
   anticipo_documento_serie?: string;
   anticipo_documento_numero?: number;
+  is_traverse?: boolean;
   igvType?: SunatConceptsResource;
   igv_type?: SunatConceptsResource;
 }

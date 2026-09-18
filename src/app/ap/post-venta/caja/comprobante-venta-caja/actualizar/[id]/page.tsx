@@ -131,6 +131,8 @@ function buildFormDefaults(
         reference_document_id:
           item.reference_document_id?.toString() || undefined,
         account_plan_id: item.account_plan_id?.toString() || "",
+        product_id:
+          item.product_id != null ? item.product_id.toString() : undefined,
         unidad_de_medida: item.unidad_de_medida || "",
         codigo: item.codigo || "",
         codigo_producto_sunat: item.codigo_producto_sunat || "",
@@ -148,6 +150,7 @@ function buildFormDefaults(
           : undefined,
         anticipo_documento_serie: item.anticipo_documento_serie || undefined,
         anticipo_documento_numero: item.anticipo_documento_numero ?? undefined,
+        is_traverse: item.is_traverse ?? undefined,
       })) || [],
     guias: document.guides?.map((g) => ({
       guia_tipo: g.guia_tipo,

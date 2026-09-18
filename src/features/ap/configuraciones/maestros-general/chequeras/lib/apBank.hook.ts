@@ -14,11 +14,15 @@ export const useApBank = (params?: Record<string, any>) => {
   });
 };
 
-export const useAllApBank = (params?: Record<string, any>) => {
+export const useAllApBank = (
+  params?: Record<string, any>,
+  options?: { enabled?: boolean },
+) => {
   return useQuery<ApBankResource[]>({
     queryKey: [QUERY_KEY, params],
     queryFn: () => getAllApBank({ params }),
     refetchOnWindowFocus: false,
+    enabled: options?.enabled,
   });
 };
 

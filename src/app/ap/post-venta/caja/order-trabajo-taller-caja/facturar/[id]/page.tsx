@@ -6,10 +6,9 @@ import { Button } from "@/components/ui/button";
 import { WorkOrderProvider } from "@/features/ap/post-venta/taller/orden-trabajo/contexts/WorkOrderContext";
 import WorkOrderBillingFormContent from "@/features/ap/post-venta/taller/orden-trabajo/components/WorkOrderBillingFormContent";
 import { WORKER_ORDER_CAJA } from "@/features/ap/post-venta/taller/orden-trabajo/lib/workOrder.constants";
-import { useQuery } from "@tanstack/react-query";
-import { findWorkOrderById } from "@/features/ap/post-venta/taller/orden-trabajo/lib/workOrder.actions";
 import PageSkeleton from "@/shared/components/PageSkeleton";
 import TitleComponent from "@/shared/components/TitleComponent";
+import { useFindWorkOrderBillingById } from "@/features/ap/post-venta/taller/orden-trabajo/lib/workOrder.hook";
 
 export default function BillWorkOrderCajaPage() {
   const { id } = useParams<{ id: string }>();
@@ -17,11 +16,8 @@ export default function BillWorkOrderCajaPage() {
   const workOrderId = id ? parseInt(id) : 0;
   const { ABSOLUTE_ROUTE } = WORKER_ORDER_CAJA;
 
-  const { data: workOrder, isLoading } = useQuery({
-    queryKey: ["workOrder", workOrderId],
-    queryFn: () => findWorkOrderById(workOrderId),
-    enabled: !!workOrderId,
-  });
+  const { data: workOrder, isLoading } =
+    useFindWorkOrderBillingById(workOrderId);
 
   if (isLoading) return <PageSkeleton />;
 
@@ -55,7 +51,10 @@ export default function BillWorkOrderCajaPage() {
           />
         </div>
 
-        <WorkOrderBillingFormContent workOrderId={workOrderId} />
+        <WorkOrderBillingFormContent
+          workOrderId={workOrderId}
+          workOrder={workOrder}
+        />
       </div>
     </WorkOrderProvider>
   );

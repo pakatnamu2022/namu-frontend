@@ -37,9 +37,13 @@ export const useUserSeriesAssignmentById = (id: number) => {
   });
 };
 
-export const useAuthorizedSeries = (params?: Record<string, any>) => {
+export const useAuthorizedSeries = (
+  params?: Record<string, any>,
+  options?: { enabled?: boolean },
+) => {
   return useQuery<AssignSalesSeriesResource[]>({
     queryKey: [QUERY_KEY, params],
     queryFn: () => getAuthorizedSeries({ params }),
+    enabled: options?.enabled,
   });
 };
