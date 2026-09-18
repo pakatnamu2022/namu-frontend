@@ -10,6 +10,7 @@ import {
 import DailySummaryCards from "./DailySummaryCards";
 import HierarchyTree from "./HierarchyTree";
 import BrandReport from "./BrandReport";
+import FamilyReport from "./FamilyReport";
 import PurchasesReport from "./PurchasesReport";
 import CurrentInventory from "./CurrentInventory";
 import { DateRangePickerFilter } from "@/shared/components/DateRangePickerFilter";
@@ -110,9 +111,10 @@ export default function DailyDeliveryDashboard() {
             onValueChange={setActiveTab}
             className="w-full"
           >
-            <TabsList className={cn("grid w-full max-w-2xl grid-cols-4")}>
+            <TabsList className={cn("grid w-full max-w-3xl grid-cols-5")}>
               <TabsTrigger value="hierarchy">Por Jerarquía</TabsTrigger>
               <TabsTrigger value="brands">Por Marcas</TabsTrigger>
+              <TabsTrigger value="families">Por Familias</TabsTrigger>
               <TabsTrigger value="purchases">Por Compras</TabsTrigger>
               <TabsTrigger value="inventory">Inventario Actual</TabsTrigger>
             </TabsList>
@@ -126,6 +128,10 @@ export default function DailyDeliveryDashboard() {
 
             <TabsContent value="brands" className="mt-4">
               <BrandReport brandReport={data.brand_report} />
+            </TabsContent>
+
+            <TabsContent value="families" className="mt-4">
+              <FamilyReport familyReport={data.family_report} />
             </TabsContent>
 
             <TabsContent value="purchases" className="mt-4">

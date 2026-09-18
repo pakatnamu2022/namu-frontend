@@ -21,6 +21,8 @@ import FamiliesTable from "@/features/ap/configuraciones/vehiculos/familias/comp
 import { familiesColumns } from "@/features/ap/configuraciones/vehiculos/familias/components/FamiliesColumns";
 import FamiliesOptions from "@/features/ap/configuraciones/vehiculos/familias/components/FamiliesOptions";
 import FamiliesModal from "@/features/ap/configuraciones/vehiculos/familias/components/FamiliesModal";
+import FamilyImageModal from "@/features/ap/configuraciones/vehiculos/familias/components/FamilyImageModal";
+import { FamiliesResource } from "@/features/ap/configuraciones/vehiculos/familias/lib/families.interface";
 import { SimpleDeleteDialog } from "@/shared/components/SimpleDeleteDialog";
 import DataTablePagination from "@/shared/components/DataTablePagination";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
@@ -37,6 +39,7 @@ export default function FamiliesPage() {
   const [search, setSearch] = useState("");
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [updateId, setUpdateId] = useState<number | null>(null);
+  const [imageFamily, setImageFamily] = useState<FamiliesResource | null>(null);
   const [brandId, setBrandId] = useState<string>("");
   const { MODEL, ROUTE } = FAMILIES;
   const permissions = useModulePermissions(ROUTE);
@@ -96,6 +99,7 @@ export default function FamiliesPage() {
         columns={familiesColumns({
           onDelete: setDeleteId,
           onUpdate: setUpdateId,
+          onUploadImage: setImageFamily,
           onToggleStatus: handleToggleStatus,
           permissions,
         })}
@@ -119,6 +123,14 @@ export default function FamiliesPage() {
             setUpdateId(null);
           }}
           mode="update"
+        />
+      )}
+
+      {imageFamily && (
+        <FamilyImageModal
+          family={imageFamily}
+          onClose={() => setImageFamily(null)}
+          onSuccess={() => refetch()}
         />
       )}
 

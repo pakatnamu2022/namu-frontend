@@ -55,6 +55,21 @@ export async function updateFamilies(
   return response.data;
 }
 
+// Endpoint dedicado: sube/reemplaza solo la imagen, sin tocar el resto de la familia.
+export async function uploadFamilyImage(
+  id: number,
+  image: File,
+): Promise<FamiliesResource> {
+  const formData = new FormData();
+  formData.append("image", image);
+  const response = await api.post<FamiliesResource>(
+    `${ENDPOINT}/${id}/image`,
+    formData,
+    { headers: { "Content-Type": "multipart/form-data" } },
+  );
+  return response.data;
+}
+
 export async function deleteFamilies(id: number): Promise<GeneralResponse> {
   const { data } = await api.delete<GeneralResponse>(`${ENDPOINT}/${id}`);
   return data;

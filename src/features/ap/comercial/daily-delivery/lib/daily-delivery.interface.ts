@@ -135,6 +135,22 @@ export interface PurchasesReport {
   by_sede: PurchasesBySede[];
 }
 
+export interface FamilyReportModel {
+  modelo: string;
+  entregas: number;
+}
+
+export interface FamilyReportItem {
+  family_id: number | null;
+  family: string;
+  brand: string | null;
+  brand_logo: string | null;
+  image: string | null;
+  entregas: number;
+  facturadas: number;
+  modelos: FamilyReportModel[];
+}
+
 export interface DailyDeliveryResponse {
   fecha_inicio: string;
   fecha_fin: string;
@@ -149,4 +165,5 @@ export interface DailyDeliveryResponse {
   brand_report: BrandReportSection[];
   purchases_report: PurchasesReport;
   current_inventory: CurrentInventory;
+  family_report?: FamilyReportItem[];
 }
