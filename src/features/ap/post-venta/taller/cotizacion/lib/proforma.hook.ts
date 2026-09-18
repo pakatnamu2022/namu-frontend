@@ -73,7 +73,7 @@ export const useOrderQuotationById = (id: number) => {
 
 export const useOrderQuotationBillingById = (id: number) => {
   return useQuery({
-    queryKey: [QUERY_KEY, id],
+    queryKey: [QUERY_KEY, id, "billing"],
     queryFn: () => findOrderQuotationBillingById(id),
     enabled: !!id,
   });

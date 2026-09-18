@@ -68,7 +68,7 @@ export function useFindWorkOrderById(id: number) {
 
 export function useFindWorkOrderBillingById(id: number) {
   return useQuery({
-    queryKey: [QUERY_KEY, id],
+    queryKey: [QUERY_KEY, id, "billing"],
     queryFn: () => findWorkOrderBillingById(id),
     enabled: !!id,
     refetchOnWindowFocus: false,
