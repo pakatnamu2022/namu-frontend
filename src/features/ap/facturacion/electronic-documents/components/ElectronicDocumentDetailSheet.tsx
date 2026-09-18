@@ -27,6 +27,7 @@ import {
   PackageOpen,
   ClipboardList,
   LucideIcon,
+  Truck,
 } from "lucide-react";
 import type { ElectronicDocumentResource } from "../lib/electronicDocument.interface";
 import { NumberFormat } from "@/shared/components/NumberFormat";
@@ -841,11 +842,30 @@ export function ElectronicDocumentDetailSheet({
                       const igvLabel =
                         item.igv_type?.description ?? item.igvType?.description;
                       return (
-                        <TableRow key={i}>
+                        <TableRow
+                          key={i}
+                          className={
+                            item.is_traverse
+                              ? "bg-amber-50/60 hover:bg-amber-50 dark:bg-amber-950/20 dark:hover:bg-amber-950/30"
+                              : undefined
+                          }
+                        >
                           <TableCell className="py-2 pl-0 align-top">
-                            <p className="whitespace-pre-line font-medium">
-                              {item.descripcion}
-                            </p>
+                            <div className="flex items-center gap-1.5">
+                              <p className="whitespace-pre-line font-medium">
+                                {item.descripcion}
+                              </p>
+                              {item.is_traverse && (
+                                <Badge
+                                  color="orange"
+                                  size="xs"
+                                  icon={Truck}
+                                  tooltip="Producto en travesía"
+                                >
+                                  Travesía
+                                </Badge>
+                              )}
+                            </div>
                             <p className="text-xs text-muted-foreground">
                               {item.unidad_de_medida}
                               {igvLabel ? ` · ${igvLabel}` : ""}
