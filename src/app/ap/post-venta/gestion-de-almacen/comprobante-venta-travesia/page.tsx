@@ -82,6 +82,7 @@ export default function SalesReceiptsAlmacenPage() {
       search,
       area_id: [AREA_TALLER, AREA_MESON], // Filtrar por ambas áreas
       has_product_traverse: 1,
+      status: "accepted",
       associate_purchase_traverse: associatePurchaseTraverse
         ? parseInt(associatePurchaseTraverse)
         : undefined,
@@ -92,6 +93,7 @@ export default function SalesReceiptsAlmacenPage() {
       seriesModel$sede_id: sedeId ? parseInt(sedeId) : undefined,
     });
 
+  const canLinkCrossingPurchase = permissions.canLinkCrossingPurchase || false;
   const canUpdate = permissions.canUpdate || false;
   const canAnnul = permissions.canAnnul || false;
   const canSend = permissions.canSend || false;
@@ -211,6 +213,10 @@ export default function SalesReceiptsAlmacenPage() {
           onPreCancel: handlePreCancel,
           onSyncAccountingStatus: (id) =>
             syncAccountingStatusMutation.mutate(id),
+          onAssociatePurchase: canLinkCrossingPurchase
+            ? (document) =>
+                router(`${ABSOLUTE_ROUTE}/asociar-compra/${document.id}`)
+            : undefined,
           permissions: {
             canUpdate,
             canAnnul,

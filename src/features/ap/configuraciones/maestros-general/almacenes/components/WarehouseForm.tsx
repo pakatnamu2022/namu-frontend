@@ -130,6 +130,12 @@ export const WarehouseForm = ({
               />
               <FormInput
                 control={form.control}
+                name="account_sales"
+                label="Cuenta de Ventas"
+                placeholder="Ej: 7011111"
+              />
+              <FormInput
+                control={form.control}
                 name="asset_account"
                 label="Cuenta de Activos"
                 placeholder="Ej: 3341100"

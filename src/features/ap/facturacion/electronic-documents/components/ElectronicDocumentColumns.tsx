@@ -17,6 +17,7 @@ import {
   BookX,
   LucideIcon,
   RotateCcw,
+  ShoppingCart,
 } from "lucide-react";
 import { ElectronicDocumentResource } from "../lib/electronicDocument.interface";
 import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
@@ -41,6 +42,7 @@ interface Props {
   onMigrate?: (id: number) => void;
   onResetMigration?: (id: number) => void;
   onSyncAccountingStatus?: (id: number) => void;
+  onAssociatePurchase?: (document: ElectronicDocumentResource) => void;
   permissions: {
     canSend: boolean;
     canUpdate: boolean;
@@ -62,6 +64,7 @@ export const electronicDocumentColumns = ({
   onMigrate,
   onResetMigration,
   onSyncAccountingStatus,
+  onAssociatePurchase,
   permissions,
   isCommercial = false,
 }: Props): ElectronicDocumentColumn[] => {
@@ -497,6 +500,11 @@ export const electronicDocumentColumns = ({
 
         const canPreviewNubefact = document.status === "draft";
 
+        // Solo visible donde se pasa onAssociatePurchase (comprobante-venta-travesia)
+        // y mientras el documento no tenga ya una compra asociada.
+        const canAssociatePurchase =
+          !!onAssociatePurchase && !document.associate_purchase_traverse;
+
         const isAnnulled = document.anulado || document.status === "cancelled";
 
         // En documentos anulados no se exige !is_accounted: normalmente ya
@@ -581,6 +589,17 @@ export const electronicDocumentColumns = ({
                   canRender={canSendToSunat}
                   color="blue"
                 />
+              }
+            />
+
+            {/* Asociar Compra (travesía) */}
+            <ButtonAction
+              tooltip="Asociar Compra"
+              icon={ShoppingCart}
+              canRender={canAssociatePurchase}
+              color="green"
+              onClick={() =>
+                onAssociatePurchase && onAssociatePurchase(document)
               }
             />
 

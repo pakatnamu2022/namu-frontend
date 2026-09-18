@@ -383,6 +383,13 @@ export const PERMISSION_ACTIONS: PermissionAction[] = [
     icon: "Map",
     description: "Permite ver la comparación de productividad por Sede",
   },
+  {
+    value: "linkCrossingPurchase",
+    label: "Vincular Compra Travesía",
+    icon: "Link",
+    description:
+      "Permite vincular una compra a un comprobante de venta de travesía",
+  },
 ];
 
 /**
@@ -483,5 +490,6 @@ export function useModulePermissions(moduleCode: string) {
     canViewComparisonByLocation: hasModulePermission(
       "viewComparisonByLocation",
     ),
+    canLinkCrossingPurchase: hasModulePermission("linkCrossingPurchase"),
   };
 }

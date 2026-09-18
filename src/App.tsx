@@ -873,6 +873,10 @@ const SalesReceiptsAlmacenPage = lazyPage(
   () =>
     import("@/app/ap/post-venta/gestion-de-almacen/comprobante-venta-travesia/page.tsx"),
 );
+const AssociatePurchaseTraversePage = lazyPage(
+  () =>
+    import("@/app/ap/post-venta/gestion-de-almacen/comprobante-venta-travesia/asociar-compra/[id]/page.tsx"),
+);
 const BrandsPVPage = lazyPage(
   () =>
     import("./app/ap/post-venta/gestion-de-almacen/marcas-producto/page.tsx"),
@@ -2871,6 +2875,10 @@ function App() {
               <Route
                 path="gestion-de-almacen/comprobante-venta-travesia"
                 element={<SalesReceiptsAlmacenPage />}
+              />
+              <Route
+                path="gestion-de-almacen/comprobante-venta-travesia/asociar-compra/:id"
+                element={<AssociatePurchaseTraversePage />}
               />
               <Route
                 path="gestion-de-almacen/marcas-producto"
