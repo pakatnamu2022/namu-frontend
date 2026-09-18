@@ -87,6 +87,7 @@ export const ProformaMesonActionsCell = ({
   const isDiscarded = status.id === STATUS_ORDER_QUOTE.DESCARTADO;
   const isForInvoicing = status.id === STATUS_ORDER_QUOTE.FACTURAR;
   const isApproved = status.id === STATUS_ORDER_QUOTE.APROBADO;
+  const isInvoiced = status.id === STATUS_ORDER_QUOTE.FACTURADO;
   const isDelivered = !!delivery_document_number;
   const [showDiscardModal, setShowDiscardModal] = useState(false);
   const [showSegmentConfirm, setShowSegmentConfirm] = useState(false);
@@ -256,7 +257,7 @@ export const ProformaMesonActionsCell = ({
           <Eye className="size-5" />
         </Button>
 
-        {!isDiscarded && (
+        {!isDiscarded && !isInvoiced && (
           <Button
             variant="outline"
             size="icon"
@@ -379,116 +380,117 @@ export const ProformaMesonActionsCell = ({
           </Button>
         )}
 
-        {(isVisibleSendVirtualLink ||
-          isVisibleRequestDiscount ||
-          isVisibleSegment ||
-          isVisibleDiscard ||
-          isVisibleDuplicate ||
-          isVisibleEdit ||
-          isVisibleDelete) && (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                variant="outline"
-                size="icon"
-                className="size-7"
-                tooltip="Más acciones"
-              >
-                <MoreVertical className="size-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              {isVisibleSendVirtualLink && (
-                <DropdownMenuItem
-                  onClick={handleSendVirtualLink}
-                  disabled={isSendingLink}
-                  className="text-emerald-600 focus:text-emerald-700"
+        {!isInvoiced &&
+          (isVisibleSendVirtualLink ||
+            isVisibleRequestDiscount ||
+            isVisibleSegment ||
+            isVisibleDiscard ||
+            isVisibleDuplicate ||
+            isVisibleEdit ||
+            isVisibleDelete) && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="size-7"
+                  tooltip="Más acciones"
                 >
-                  {isSendingLink ? (
-                    <Loader2 className="size-4 mr-2 animate-spin" />
-                  ) : (
-                    <Link2 className="size-4 mr-2" />
-                  )}
-                  Link Confirmación
-                </DropdownMenuItem>
-              )}
+                  <MoreVertical className="size-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                {isVisibleSendVirtualLink && (
+                  <DropdownMenuItem
+                    onClick={handleSendVirtualLink}
+                    disabled={isSendingLink}
+                    className="text-emerald-600 focus:text-emerald-700"
+                  >
+                    {isSendingLink ? (
+                      <Loader2 className="size-4 mr-2 animate-spin" />
+                    ) : (
+                      <Link2 className="size-4 mr-2" />
+                    )}
+                    Link Confirmación
+                  </DropdownMenuItem>
+                )}
 
-              {isVisibleRequestDiscount && (
-                <DropdownMenuItem
-                  onClick={() => onRequestDiscount(id)}
-                  className="text-blue-600 focus:text-blue-700"
-                >
-                  <Percent className="size-4 mr-2" />
-                  Solicitar Descuento
-                </DropdownMenuItem>
-              )}
+                {isVisibleRequestDiscount && (
+                  <DropdownMenuItem
+                    onClick={() => onRequestDiscount(id)}
+                    className="text-blue-600 focus:text-blue-700"
+                  >
+                    <Percent className="size-4 mr-2" />
+                    Solicitar Descuento
+                  </DropdownMenuItem>
+                )}
 
-              {isVisibleSegment && (
-                <DropdownMenuItem
-                  onSelect={(e) => {
-                    e.preventDefault();
-                    setShowSegmentConfirm(true);
-                  }}
-                  disabled={isSegmenting}
-                  className="text-purple-600 focus:text-purple-700"
-                >
-                  {isSegmenting ? (
-                    <Loader2 className="size-4 mr-2 animate-spin" />
-                  ) : (
-                    <Scissors className="size-4 mr-2" />
-                  )}
-                  Segmentar
-                </DropdownMenuItem>
-              )}
+                {isVisibleSegment && (
+                  <DropdownMenuItem
+                    onSelect={(e) => {
+                      e.preventDefault();
+                      setShowSegmentConfirm(true);
+                    }}
+                    disabled={isSegmenting}
+                    className="text-purple-600 focus:text-purple-700"
+                  >
+                    {isSegmenting ? (
+                      <Loader2 className="size-4 mr-2 animate-spin" />
+                    ) : (
+                      <Scissors className="size-4 mr-2" />
+                    )}
+                    Segmentar
+                  </DropdownMenuItem>
+                )}
 
-              {isVisibleDiscard && (
-                <DropdownMenuItem
-                  onClick={() => setShowDiscardModal(true)}
-                  className="text-orange-600 focus:text-orange-700"
-                >
-                  <XCircle className="size-4 mr-2" />
-                  Descartar
-                </DropdownMenuItem>
-              )}
+                {isVisibleDiscard && (
+                  <DropdownMenuItem
+                    onClick={() => setShowDiscardModal(true)}
+                    className="text-orange-600 focus:text-orange-700"
+                  >
+                    <XCircle className="size-4 mr-2" />
+                    Descartar
+                  </DropdownMenuItem>
+                )}
 
-              {isVisibleDuplicate && (
-                <DropdownMenuItem
-                  onSelect={(e) => {
-                    e.preventDefault();
-                    setShowDuplicateConfirm(true);
-                  }}
-                >
-                  <Copy className="size-4 mr-2" />
-                  Duplicar
-                </DropdownMenuItem>
-              )}
+                {isVisibleDuplicate && (
+                  <DropdownMenuItem
+                    onSelect={(e) => {
+                      e.preventDefault();
+                      setShowDuplicateConfirm(true);
+                    }}
+                  >
+                    <Copy className="size-4 mr-2" />
+                    Duplicar
+                  </DropdownMenuItem>
+                )}
 
-              {(isVisibleEdit || isVisibleDelete) &&
-                (isVisibleSendVirtualLink ||
-                  isVisibleRequestDiscount ||
-                  isVisibleSegment ||
-                  isVisibleDiscard ||
-                  isVisibleDuplicate) && <DropdownMenuSeparator />}
+                {(isVisibleEdit || isVisibleDelete) &&
+                  (isVisibleSendVirtualLink ||
+                    isVisibleRequestDiscount ||
+                    isVisibleSegment ||
+                    isVisibleDiscard ||
+                    isVisibleDuplicate) && <DropdownMenuSeparator />}
 
-              {isVisibleEdit && (
-                <DropdownMenuItem onClick={() => onUpdate(id)}>
-                  <Pencil className="size-4 mr-2" />
-                  Editar
-                </DropdownMenuItem>
-              )}
+                {isVisibleEdit && (
+                  <DropdownMenuItem onClick={() => onUpdate(id)}>
+                    <Pencil className="size-4 mr-2" />
+                    Editar
+                  </DropdownMenuItem>
+                )}
 
-              {isVisibleDelete && (
-                <DropdownMenuItem
-                  onClick={() => onDelete(id)}
-                  className="text-red-600 focus:text-red-700"
-                >
-                  <Trash2 className="size-4 mr-2" />
-                  Eliminar
-                </DropdownMenuItem>
-              )}
-            </DropdownMenuContent>
-          </DropdownMenu>
-        )}
+                {isVisibleDelete && (
+                  <DropdownMenuItem
+                    onClick={() => onDelete(id)}
+                    className="text-red-600 focus:text-red-700"
+                  >
+                    <Trash2 className="size-4 mr-2" />
+                    Eliminar
+                  </DropdownMenuItem>
+                )}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
       </div>
 
       {showDiscardModal && (
