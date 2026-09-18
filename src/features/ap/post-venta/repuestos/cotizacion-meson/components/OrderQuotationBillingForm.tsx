@@ -428,6 +428,7 @@ export function OrderQuotationBillingForm({
                 item.anticipo_documento_serie ?? undefined,
               anticipo_documento_numero:
                 item.anticipo_documento_numero ?? undefined,
+              is_traverse: item.is_traverse ?? undefined,
             };
           });
 
@@ -705,27 +706,33 @@ export function OrderQuotationBillingForm({
   };
 
   // Actualizar form values cuando cambien los cálculos
+  // IMPORTANTE: `totales` es un objeto nuevo en cada render donde `items` cambia
+  // de referencia (form.watch("items") entrega un array nuevo en cada setValue,
+  // aunque el contenido sea igual). Si aquí escribiéramos siempre con setValue,
+  // cada escritura dispara un re-render → watch("items") nueva referencia →
+  // totales nuevo objeto → este efecto se vuelve a disparar → loop infinito
+  // ("Maximum update depth exceeded"), algo que solo se notaba en modo edición
+  // porque ahí este es el único camino que alimenta a `items`.
+  // Por eso comparamos contra el valor actual del form y solo escribimos si
+  // realmente cambió.
   useEffect(() => {
-    form.setValue("total_gravada", totales.total_gravada, {
-      shouldValidate: false,
-    });
-    form.setValue("total_inafecta", totales.total_inafecta, {
-      shouldValidate: false,
-    });
-    form.setValue("total_exonerada", totales.total_exonerada, {
-      shouldValidate: false,
-    });
-    form.setValue("total_igv", totales.total_igv, { shouldValidate: false });
-    form.setValue("total_gratuita", totales.total_gratuita, {
-      shouldValidate: false,
-    });
-    form.setValue("total_anticipo", totales.total_anticipo, {
-      shouldValidate: false,
-    });
-    form.setValue("total", totales.total, { shouldValidate: false });
-    form.setValue("descuento_global", deductibleAmount || undefined, {
-      shouldValidate: false,
-    });
+    const setIfChanged = (
+      name: Parameters<typeof form.setValue>[0],
+      value: number | undefined,
+    ) => {
+      if (form.getValues(name) !== value) {
+        form.setValue(name, value as any, { shouldValidate: false });
+      }
+    };
+
+    setIfChanged("total_gravada", totales.total_gravada);
+    setIfChanged("total_inafecta", totales.total_inafecta);
+    setIfChanged("total_exonerada", totales.total_exonerada);
+    setIfChanged("total_igv", totales.total_igv);
+    setIfChanged("total_gratuita", totales.total_gratuita);
+    setIfChanged("total_anticipo", totales.total_anticipo);
+    setIfChanged("total", totales.total);
+    setIfChanged("descuento_global", deductibleAmount || undefined);
   }, [totales, deductibleAmount, form]);
 
   const series = form.watch("serie");
@@ -794,7 +801,7 @@ export function OrderQuotationBillingForm({
               isAdvancePayment={isAdvancePayment}
               currencyTypes={currencyTypes}
               isFromQuotation={true}
-              defaultCustomer={quotation.invoice_to_client ?? quotation.client}
+              defaultCustomer={quotation.invoice_to_client ?? undefined}
               canGenerateFinalReceipt={quotation.can_generate_final_receipt}
               lockedClientId={lockedClientId}
               lockedClientName={lockedClientName}

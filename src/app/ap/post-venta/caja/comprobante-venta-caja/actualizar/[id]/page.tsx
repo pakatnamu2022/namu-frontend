@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
@@ -45,7 +45,7 @@ import { useAuthorizedSeries } from "@/features/ap/configuraciones/maestros-gene
 import { useAllApBank } from "@/features/ap/configuraciones/maestros-general/chequeras/lib/apBank.hook.ts";
 
 // Work order
-import { findWorkOrderById } from "@/features/ap/post-venta/taller/orden-trabajo/lib/workOrder.actions.ts";
+import { useFindWorkOrderBillingById } from "@/features/ap/post-venta/taller/orden-trabajo/lib/workOrder.hook.ts";
 import WorkOrderBillingForm from "@/features/ap/post-venta/taller/orden-trabajo/components/WorkOrderBillingForm";
 import DirectInvoiceForm from "@/features/ap/post-venta/taller/orden-trabajo/components/DirectInvoiceForm.tsx";
 import {
@@ -57,7 +57,7 @@ import {
 import { OtherSalesForm } from "@/features/ap/post-venta/comprobante-venta/components/OtherSalesForm.tsx";
 
 // Order quotation
-import { useOrderQuotationById } from "@/features/ap/post-venta/taller/cotizacion/lib/proforma.hook.ts";
+import { useOrderQuotationBillingById } from "@/features/ap/post-venta/taller/cotizacion/lib/proforma.hook.ts";
 import { OrderQuotationBillingForm } from "@/features/ap/post-venta/repuestos/cotizacion-meson/components/OrderQuotationBillingForm.tsx";
 import { AssignSalesSeriesResource } from "@/features/ap/configuraciones/maestros-general/series/lib/assignSalesSeries.interface.ts";
 import { WorkOrderResource } from "@/features/ap/post-venta/taller/orden-trabajo/lib/workOrder.interface";
@@ -184,12 +184,8 @@ function EditWorkOrderInvoicePage({
   title,
   icon,
 }: SubPageProps & { workOrderId: number }) {
-  const { data: workOrder, isLoading: isLoadingWorkOrder } = useQuery({
-    queryKey: ["workOrder", workOrderId],
-    queryFn: () => findWorkOrderById(workOrderId),
-    enabled: !!workOrderId,
-    staleTime: 0,
-  });
+  const { data: workOrder, isLoading: isLoadingWorkOrder } =
+    useFindWorkOrderBillingById(workOrderId);
 
   const { data: document, isLoading: isLoadingDocument } =
     useElectronicDocument(documentId);
@@ -319,7 +315,7 @@ function EditWorkOrderInvoiceForm({
         queryKey: ["electronic-documents", documentId],
       });
       queryClient.invalidateQueries({
-        queryKey: ["workOrder", workOrder.id],
+        queryKey: ["workOrders", workOrder.id],
       });
       successToast(SUCCESS_MESSAGE(MODEL, "update"));
       onSuccess();
@@ -374,7 +370,7 @@ function EditOrderQuotationPage({
   const queryClient = useQueryClient();
 
   const { data: quotation, isLoading: isLoadingQuotation } =
-    useOrderQuotationById(orderQuotationId);
+    useOrderQuotationBillingById(orderQuotationId);
 
   const { data: document, isLoading: isLoadingDocument } =
     useElectronicDocument(documentId);
