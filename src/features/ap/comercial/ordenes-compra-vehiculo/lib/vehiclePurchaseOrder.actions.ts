@@ -12,6 +12,7 @@ import {
   VehiclePurchaseOrderResponse,
 } from "./vehiclePurchaseOrder.interface";
 import { MessageResponse } from "@/core/core.interface";
+import { PurchaseOrderItemTraverseResponse } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.interface";
 
 const { ENDPOINT } = VEHICLE_PURCHASE_ORDER;
 
@@ -213,6 +214,25 @@ export async function getNextCorrelative(
   };
   const { data } = await api.get<NextCorrelativeResponse>(
     `${ENDPOINT}/next-correlative`,
+    config,
+  );
+  return data;
+}
+
+// Lista items disponibles para travesía (con saldo disponible)
+export async function getAvailableTraverseItems(params: {
+  electronic_document_id: number;
+  search?: string;
+  page?: number;
+  per_page?: number;
+}): Promise<PurchaseOrderItemTraverseResponse> {
+  const config: AxiosRequestConfig = {
+    params: {
+      ...params,
+    },
+  };
+  const { data } = await api.get<PurchaseOrderItemTraverseResponse>(
+    `${ENDPOINT}/items/available-traverse`,
     config,
   );
   return data;

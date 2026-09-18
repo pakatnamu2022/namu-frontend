@@ -56,7 +56,7 @@ export default function UpdateWarehousePage() {
   };
 
   function mapWarehouseToForm(
-    data: WarehouseResource
+    data: WarehouseResource,
   ): Partial<WarehouseSchema> {
     return {
       dyn_code: data.dyn_code,
@@ -66,6 +66,7 @@ export default function UpdateWarehousePage() {
       article_class_id: String(data.article_class_id),
       inventory_account: String(data.inventory_account),
       counterparty_account: String(data.counterparty_account),
+      account_sales: data.account_sales ? String(data.account_sales) : "",
       asset_account: data.asset_account ? String(data.asset_account) : "",
       parent_warehouse_id: String(data.parent_warehouse_id),
       is_received: Boolean(data.is_received),
