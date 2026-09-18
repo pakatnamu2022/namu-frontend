@@ -794,7 +794,7 @@ export function OrderQuotationBillingForm({
               isAdvancePayment={isAdvancePayment}
               currencyTypes={currencyTypes}
               isFromQuotation={true}
-              defaultCustomer={quotation.invoice_to_client ?? quotation.client}
+              defaultCustomer={quotation.invoice_to_client ?? undefined}
               canGenerateFinalReceipt={quotation.can_generate_final_receipt}
               lockedClientId={lockedClientId}
               lockedClientName={lockedClientName}
