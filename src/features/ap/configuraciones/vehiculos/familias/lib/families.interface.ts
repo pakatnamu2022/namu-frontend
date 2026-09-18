@@ -12,6 +12,7 @@ export interface FamiliesResource {
   description: string;
   brand_id: number;
   brand: string;
+  image: string | null;
   status: boolean;
 }
 

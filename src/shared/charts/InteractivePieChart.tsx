@@ -19,6 +19,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { cn } from "@/lib/utils";
 import { useMemo, useState } from "react";
 import { Label, Pie, PieChart, Sector } from "recharts";
 import { PieSectorDataItem } from "recharts/types/polar/Pie";
@@ -45,6 +46,7 @@ interface Props {
   };
   /** Notifica al padre cuando cambia el item activo (clic en el gráfico o Select), sin alterar el comportamiento interno del componente. */
   onActiveItemChange?: (name: string) => void;
+  className?: string;
 }
 
 export function InteractivePieChart({
@@ -62,6 +64,7 @@ export function InteractivePieChart({
   valueFormatter,
   footerInfo,
   onActiveItemChange,
+  className,
 }: Props) {
   const [activeItem, setActiveItemState] = useState(data[0]?.name || "");
   const setActiveItem = (name: string) => {
@@ -77,7 +80,7 @@ export function InteractivePieChart({
   const items = useMemo(() => data.map((item) => item.name), [data]);
 
   return (
-    <Card data-chart={id} className="flex flex-col h-full">
+    <Card data-chart={id} className={cn("flex flex-col h-full", className)}>
       <ChartStyle id={id} config={config} />
       <CardHeader className="flex flex-wrap gap-2 items-center space-y-0 pb-2">
         <div className="flex flex-col gap-2 w-fit">
