@@ -52,6 +52,58 @@ export const COMMERCIAL_REPORTS: ReportConfig[] = [
     defaultParams: {},
   },
   {
+    id: "vehicle-sales-matrix",
+    title: "Reporte de Ventas Mensual por Marca y Familia",
+    type: "Ventas",
+    description:
+      "Exporta la tabla dinámica de vehículos vendidos (cuenta de VIN) por mes, agrupada por marca, familia y versión, con filas contraíbles. La hoja Resumen tiene listas desplegables de Shop y Sede que filtran la tabla dentro del mismo Excel; la hoja Detalle trae un VIN por fila. Se descarga por año y, opcionalmente, por shop y sede.",
+    icon: "Table",
+    endpoint: "/ap/commercial/reports/vehicle-sales-matrix/export",
+    method: "get",
+    fields: [
+      {
+        name: "year",
+        label: "Año",
+        type: "select",
+        required: true,
+        placeholder: "Seleccionar año",
+        defaultValue: String(new Date().getFullYear()),
+        options: Array.from({ length: 5 }, (_, i) => {
+          const year = String(new Date().getFullYear() - i);
+          return { label: year, value: year };
+        }),
+      },
+      {
+        name: "shop_id",
+        label: "Shop",
+        type: "multiselect",
+        required: false,
+        placeholder: "Todos los shops",
+        endpoint: "/gp/mg/sede/my-shops",
+        multiSelectMapper: (data) =>
+          (data ?? []).map((item: any) => ({
+            id: item.id,
+            name: item.description,
+          })),
+      },
+      {
+        name: "sede_id",
+        label: "Sede",
+        type: "multiselect",
+        required: false,
+        placeholder: "Todas las sedes",
+        endpoint: "/gp/mg/sede/my",
+        multiSelectMapper: (data) =>
+          (data ?? []).map((item: any) => ({
+            id: item.id,
+            name: item.suc_abrev ?? item.abreviatura,
+          })),
+      },
+    ],
+    defaultParams: {},
+    fileName: "Reporte_Ventas_Mensual",
+  },
+  {
     id: "vehicle-delivery",
     title: "Reporte de Entregas de Vehículos",
     type: "Entregas",
