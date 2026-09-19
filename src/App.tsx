@@ -199,6 +199,7 @@ const VacationPage = lazyPage(() => import("./app/perfil/vacaciones/page"));
 import ModulePage from "./components/ModulePage";
 const CommercialPage = lazyPage(() => import("./app/ap/comercial/page.tsx"));
 const DashboardDeliveryPage = lazyPage(() => import("./app/ap/comercial/dashboard-entregas/page.tsx"));
+const VehicleSaleAuditPage = lazyPage(() => import("./app/ap/comercial/auditoria-estados-venta/page.tsx"));
 const TeamLeadsDashboard = lazyPage(() => import("./app/ap/comercial/dashboard-equipo-leads/page.tsx"));
 const ExhibitionVehiclesPage = lazyPage(() => import("./app/ap/comercial/vehiculos-exhibicion/page"));
 const AddExhibitionVehiclesPage = lazyPage(() => import("./app/ap/comercial/vehiculos-exhibicion/agregar/page"));
@@ -1129,6 +1130,12 @@ function App() {
               <Route
                 path="dashboard-entregas"
                 element={<DashboardDeliveryPage />}
+              />
+
+              {/* Auditoría de estados de venta */}
+              <Route
+                path="auditoria-estados-venta"
+                element={<VehicleSaleAuditPage />}
               />
 
               {/* Dashboard Equipo Leads */}
