@@ -65,9 +65,23 @@ export const ClassArticleForm = ({
 
           <FormInput
             control={form.control}
-            name="account"
-            label="Cuenta"
+            name="inventory_account"
+            label="Cuenta de Inventario"
             placeholder="Ej: 20111111"
+          />
+
+          <FormInput
+            control={form.control}
+            name="counterparty_account"
+            label="Cuenta de Contrapartida"
+            placeholder="Ej: 0211111"
+          />
+
+          <FormInput
+            control={form.control}
+            name="account_sales"
+            label="Cuenta de Venta"
+            placeholder="Ej: 7011111"
           />
 
           <FormSelect

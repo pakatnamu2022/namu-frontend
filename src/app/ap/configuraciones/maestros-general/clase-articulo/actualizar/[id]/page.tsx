@@ -57,12 +57,14 @@ export default function UpdateClassArticlePage() {
   };
 
   function mapClassArticleToForm(
-    data: ClassArticleResource
+    data: ClassArticleResource,
   ): Partial<ClassArticleSchema> {
     return {
       dyn_code: data.dyn_code,
       description: data.description,
-      account: data.account,
+      inventory_account: data.inventory_account,
+      counterparty_account: data.counterparty_account,
+      account_sales: data.account_sales,
       type_operation_id: String(data.type_operation_id),
     };
   }

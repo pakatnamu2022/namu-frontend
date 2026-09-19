@@ -10,7 +10,9 @@ export interface ClassArticleResource {
   id: number;
   dyn_code: string;
   description: string;
-  account: string;
+  inventory_account: string;
+  counterparty_account: string;
+  account_sales: string;
   type_operation_id: string;
   status: boolean;
 }
