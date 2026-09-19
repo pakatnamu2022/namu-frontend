@@ -52,3 +52,56 @@ export interface PersonBirthdayResource {
   days_to_birthday: number;
   fecha_nacimiento: string;
 }
+
+export interface WorkerContractSummary {
+  id: number;
+  tipo_contrato: string | null;
+  cargo: string | null;
+  sede: string | null;
+  fecha_inicio: string | null;
+  fecha_fin: string | null;
+  sueldo: number;
+  es_adenda: boolean;
+}
+
+export interface WorkerSalaryIncreaseSummary {
+  id: number;
+  fecha: string;
+  sueldo_anterior: number;
+  sueldo_nuevo: number;
+  motivo: string | null;
+}
+
+export interface WorkerSalaryPoint {
+  date: string;
+  salary: number;
+  source: "CONTRATO" | "AUMENTO" | "ACTUAL";
+  detail: string | null;
+}
+
+export interface WorkerContractsSummary {
+  worker_id: number;
+  current_salary: number | null;
+  /** true si el último contrato es INDETERMINADO (único caso en que se registran aumentos). */
+  can_register_increase: boolean;
+  contracts: WorkerContractSummary[];
+  increases: WorkerSalaryIncreaseSummary[];
+  salary_history: WorkerSalaryPoint[];
+}
+
+export interface WorkerVacationResource {
+  id: number;
+  empleado_id: number;
+  fecha_inicio: string;
+  fecha_fin: string;
+  tipo: number;
+  tipo_nombre?: string | null;
+  periodo_inicio: string | null;
+  periodo_fin: string | null;
+  observacion: string | null;
+  status_id: number;
+  status?: string | null;
+  aprobacion_jefatura: number | boolean | null;
+  aprobacion_rrhh: number | boolean | null;
+  sede?: string | null;
+}

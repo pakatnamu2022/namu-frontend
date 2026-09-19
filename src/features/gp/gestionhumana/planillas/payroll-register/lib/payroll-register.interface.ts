@@ -6,6 +6,7 @@ export interface PayrollRegisterResource {
   worker_id: number;
   worker_name: string | null;
   worker_vat: string | null;
+  cuspp: string | null;
   // Período
   cost_center: string | null;
   status: string | null;

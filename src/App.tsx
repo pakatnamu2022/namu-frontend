@@ -474,6 +474,7 @@ const UpdateViewPage = lazyPage(() => import("./app/gp/gestion-del-sistema/vista
 const ViewPermissionsPage = lazyPage(() => import("./app/gp/gestion-del-sistema/vistas/permisos/[id]/page.tsx"));
 const WorkersPage = lazyPage(() => import("./app/gp/gestion-humana/gestion-de-personal/trabajadores/page.tsx"));
 const UpdateWorkerSignaturePage = lazyPage(() => import("./app/gp/gestion-humana/gestion-de-personal/trabajadores/actualizar/[id]/page.tsx"));
+const WorkerDetailPage = lazyPage(() => import("./app/gp/gestion-humana/gestion-de-personal/trabajadores/ficha/[id]/page.tsx"));
 const RecruitmentProcessPage = lazyPage(() => import("./app/gp/gestion-humana/gestion-de-personal/procesos-postulacion/page.tsx"));
 const AddRecruitmentProcessPage = lazyPage(() => import("./app/gp/gestion-humana/gestion-de-personal/procesos-postulacion/agregar/page.tsx"));
 const UpdateRecruitmentProcessPage = lazyPage(() => import("./app/gp/gestion-humana/gestion-de-personal/procesos-postulacion/actualizar/[id]/page.tsx"));
@@ -598,6 +599,9 @@ const AssignFoodCardPage = lazyPage(() => import("./app/gp/gestion-humana/planil
 const FamilyAllowancePage = lazyPage(() => import("./app/gp/gestion-humana/planillas/asignacion-familiar/page.tsx"));
 const AssignFamilyAllowancePage = lazyPage(() => import("./app/gp/gestion-humana/planillas/asignacion-familiar/asignar/page.tsx"));
 const ExclusionPage = lazyPage(() => import("./app/gp/gestion-humana/planillas/exclusiones/page.tsx"));
+const SctrRatePage = lazyPage(() => import("./app/gp/gestion-humana/planillas/tasas-sctr/page.tsx"));
+const LifeInsurancePolicyPage = lazyPage(() => import("./app/gp/gestion-humana/planillas/polizas-vida-ley/page.tsx"));
+const SubsidyPage = lazyPage(() => import("./app/gp/gestion-humana/planillas/subsidios/page.tsx"));
 const WorkSchedulesPage = lazyPage(() => import("./app/gp/gestion-humana/planillas/dia-trabajo/page.tsx"));
 const PayrollParameterPage = lazyPage(() => import("./app/gp/gestion-humana/planillas/parametros/page.tsx"));
 const PayrollRatesPercentagesPage = lazyPage(() => import("./app/gp/gestion-humana/planillas/tasas-porcentajes/page.tsx"));
@@ -2185,6 +2189,10 @@ function App() {
                 path="gestion-de-personal/trabajadores/actualizar/:id"
                 element={<UpdateWorkerSignaturePage />}
               />
+              <Route
+                path="gestion-de-personal/trabajadores/ficha/:id"
+                element={<WorkerDetailPage />}
+              />
               {RouterCrud(
                 "gestion-de-personal/procesos-postulacion",
                 <RecruitmentProcessPage />,
@@ -2528,6 +2536,13 @@ function App() {
                 path="planillas/exclusiones"
                 element={<ExclusionPage />}
               />
+              {/* Tasas SCTR, Pólizas Vida Ley y Subsidios */}
+              <Route path="planillas/tasas-sctr" element={<SctrRatePage />} />
+              <Route
+                path="planillas/polizas-vida-ley"
+                element={<LifeInsurancePolicyPage />}
+              />
+              <Route path="planillas/subsidios" element={<SubsidyPage />} />
               {/* Constantes de Planilla */}
               <Route
                 path="planillas/parametros-planilla"

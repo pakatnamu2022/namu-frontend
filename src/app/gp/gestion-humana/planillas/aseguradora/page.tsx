@@ -69,6 +69,7 @@ export default function InsurerPage() {
         />
         <SuppliersActions
           onAdd={() => router(ROUTE_ADD)}
+          label="Agregar Aseguradora"
           permissions={permissions}
         />
       </HeaderTableWrapper>
