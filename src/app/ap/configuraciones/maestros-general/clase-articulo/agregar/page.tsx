@@ -52,7 +52,9 @@ export default function AddClassArticlePage() {
         defaultValues={{
           dyn_code: "",
           description: "",
-          account: "",
+          inventory_account: "",
+          counterparty_account: "",
+          account_sales: "",
           type_operation_id: "",
         }}
         onSubmit={handleSubmit}
