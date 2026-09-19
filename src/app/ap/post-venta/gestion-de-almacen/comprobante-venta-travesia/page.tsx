@@ -15,14 +15,9 @@ import {
   formatDateFilter,
 } from "@/core/core.function";
 import { DEFAULT_PER_PAGE, EMPRESA_AP } from "@/core/core.constants";
-import {
-  sendElectronicDocumentToSunat,
-  cancelElectronicDocument,
-  preCancelElectronicDocument,
-  syncAccountingStatusById,
-} from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.actions";
+import { revertPurchaseTraverse } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.actions";
 import ElectronicDocumentTable from "@/features/ap/facturacion/electronic-documents/components/ElectronicDocumentTable";
-import { electronicDocumentColumns } from "@/features/ap/facturacion/electronic-documents/components/ElectronicDocumentColumns";
+import { salesReceiptsTravesiaColumns } from "@/features/ap/post-venta/comprobante-venta/components/SalesReceiptsTravesiaColumns";
 import { ElectronicDocumentDetailSheet } from "@/features/ap/facturacion/electronic-documents/components/ElectronicDocumentDetailSheet";
 import { ElectronicDocumentResource } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.interface";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
@@ -94,12 +89,6 @@ export default function SalesReceiptsAlmacenPage() {
     });
 
   const canLinkCrossingPurchase = permissions.canLinkCrossingPurchase || false;
-  const canUpdate = permissions.canUpdate || false;
-  const canAnnul = permissions.canAnnul || false;
-  const canSend = permissions.canSend || false;
-  const canCreateCreditNote = permissions.canCreate || false; // Usar mismo permiso que crear
-  const canCreateDebitNote = permissions.canCreate || false;
-  const canMigrate = permissions.canMigrate || false;
 
   const { data: sedes = [], isLoading: isLoadingSedes } = useMySedes({
     company: EMPRESA_AP.id,
@@ -112,28 +101,15 @@ export default function SalesReceiptsAlmacenPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sedes, setSedeId]);
 
-  const sendToSunatMutation = useMutation({
-    mutationFn: sendElectronicDocumentToSunat,
+  const revertPurchaseTraverseMutation = useMutation({
+    mutationFn: revertPurchaseTraverse,
     onSuccess: () => {
-      successToast("Documento enviado a SUNAT correctamente");
+      successToast("Asociación de compra revertida correctamente");
       refetch();
     },
     onError: (error: any) => {
       const msg = error?.response?.data?.message || "";
-      errorToast(`Error al enviar a SUNAT: ${msg}`);
-    },
-  });
-
-  const cancelDocumentMutation = useMutation({
-    mutationFn: ({ id, reason }: { id: number; reason: string }) =>
-      cancelElectronicDocument(id, reason),
-    onSuccess: () => {
-      successToast("Documento cancelado en Nubefact correctamente");
-      refetch();
-    },
-    onError: (error: any) => {
-      const msg = error?.response?.data?.message || "";
-      errorToast(`Error al cancelar documento: ${msg}`);
+      errorToast(`Error al revertir la compra: ${msg}`);
     },
   });
 
@@ -142,34 +118,9 @@ export default function SalesReceiptsAlmacenPage() {
     setSheetOpen(true);
   };
 
-  const handleSendToSunat = (id: number) => {
-    sendToSunatMutation.mutate(id);
+  const handleRevertPurchase = (document: ElectronicDocumentResource) => {
+    revertPurchaseTraverseMutation.mutate(document.id);
   };
-
-  const handleCancel = (id: number, reason: string) => {
-    cancelDocumentMutation.mutate({ id, reason });
-  };
-
-  const handlePreCancel = async (id: number) => {
-    const result = await preCancelElectronicDocument(id);
-    return result.annulled;
-  };
-
-  const syncAccountingStatusMutation = useMutation({
-    mutationFn: syncAccountingStatusById,
-    onSuccess: (data) => {
-      successToast(
-        `Sincronizado: ${data.is_accounted ? "Contabilizado" : "No contabilizado"}${
-          data.is_annulled ? " (Anulado)" : ""
-        }`,
-      );
-      refetch();
-    },
-    onError: (error: any) => {
-      const msg = error?.response?.data?.message || "";
-      errorToast(`Error al sincronizar contabilización: ${msg}`);
-    },
-  });
 
   const handleRefresh = () => {
     queryClient.invalidateQueries({ queryKey: ["electronic-documents"] });
@@ -206,26 +157,18 @@ export default function SalesReceiptsAlmacenPage() {
 
       <ElectronicDocumentTable
         isLoading={isLoading}
-        columns={electronicDocumentColumns({
+        columns={salesReceiptsTravesiaColumns({
           onView: handleView,
-          onSendToSunat: handleSendToSunat,
-          onAnnul: handleCancel,
-          onPreCancel: handlePreCancel,
-          onSyncAccountingStatus: (id) =>
-            syncAccountingStatusMutation.mutate(id),
           onAssociatePurchase: canLinkCrossingPurchase
             ? (document) =>
                 router(`${ABSOLUTE_ROUTE}/asociar-compra/${document.id}`)
             : undefined,
+          onRevertPurchase: canLinkCrossingPurchase
+            ? handleRevertPurchase
+            : undefined,
           permissions: {
-            canUpdate,
-            canAnnul,
-            canSend,
-            canCreateCreditNote,
-            canCreateDebitNote,
-            canMigrate,
+            canLinkCrossingPurchase,
           },
-          routeAbsolute: ABSOLUTE_ROUTE,
         })}
         data={data?.data || []}
       >

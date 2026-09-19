@@ -597,7 +597,6 @@ export const electronicDocumentColumns = ({
               tooltip="Asociar Compra"
               icon={ShoppingCart}
               canRender={canAssociatePurchase}
-              color="green"
               onClick={() =>
                 onAssociatePurchase && onAssociatePurchase(document)
               }

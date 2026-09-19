@@ -24,7 +24,9 @@ export default function VehicleCategoryTable({
         initialColumnVisibility={{
           dyn_code: true,
           description: true,
-          account: true,
+          inventory_account: true,
+          counterparty_account: true,
+          account_sales: true,
           type: true,
           status: true,
         }}

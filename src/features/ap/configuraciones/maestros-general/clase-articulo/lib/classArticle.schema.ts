@@ -14,9 +14,21 @@ export const classArticleSchemaCreate = z.object({
     .refine((value) => value.trim() !== "", {
       message: "Descripción es requerida",
     }),
-  account: z
+  inventory_account: z
     .string()
-    .max(150)
+    .max(20)
+    .refine((value) => value.trim() !== "", {
+      message: "Cuenta es requerida",
+    }),
+  counterparty_account: z
+    .string()
+    .max(20)
+    .refine((value) => value.trim() !== "", {
+      message: "Cuenta es requerida",
+    }),
+  account_sales: z
+    .string()
+    .max(20)
     .refine((value) => value.trim() !== "", {
       message: "Cuenta es requerida",
     }),
