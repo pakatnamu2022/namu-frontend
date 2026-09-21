@@ -678,6 +678,7 @@ export interface TraverseDynamicsAccountingDetail {
   Debito: number;
   Credito: number;
   Descripcion: string;
+  LoteId: string;
 }
 
 export interface TraverseDynamicsAccountingStep {
@@ -688,15 +689,18 @@ export interface TraverseDynamicsAccountingStep {
 }
 
 export interface TraverseDynamicsPayloadGroup {
-  purchase_date: string;
+  transaction_date: string;
+  creator_vat: string;
   paso_1_adjustment: TraverseDynamicsAdjustmentStep;
   paso_2_accounting: TraverseDynamicsAccountingStep;
 }
 
 export interface TraverseDynamicsSummary {
-  total_purchase_dates: number;
-  purchase_dates: string[];
+  transaction_date: string;
+  creator_vat: string;
   total_movements: number;
+  total_adjustment_details: number;
+  total_accounting_details: number;
 }
 
 export interface TraverseDynamicsPayloadPreviewResource {

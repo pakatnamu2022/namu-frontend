@@ -34,7 +34,10 @@ function ProcesoEstadoBadge({ value }: { value: number }) {
     2: { label: "Error", color: "red" },
     0: { label: "Pendiente", color: "yellow" },
   };
-  const { label, color } = config[value] ?? { label: String(value), color: "gray" };
+  const { label, color } = config[value] ?? {
+    label: String(value),
+    color: "gray",
+  };
   return <Badge color={color}>{label}</Badge>;
 }
 
@@ -96,9 +99,7 @@ export default function ElectronicDocumentTraverseDynamicsPreview({
         {!isFetching && isError && (
           <div className="flex h-96 flex-col items-center justify-center gap-2 text-center">
             <AlertTriangle className="size-8 text-rose-500" />
-            <p className="text-sm font-medium text-rose-600">
-              {errorMessage}
-            </p>
+            <p className="text-sm font-medium text-rose-600">{errorMessage}</p>
           </div>
         )}
 
@@ -135,25 +136,23 @@ export default function ElectronicDocumentTraverseDynamicsPreview({
                       : "gray"
                   }
                 >
-                  {data.document_info.associate_purchase_traverse
-                    ? "Sí"
-                    : "No"}
+                  {data.document_info.associate_purchase_traverse ? "Sí" : "No"}
                 </Badge>
               </div>
             </div>
 
             {/* Resumen general */}
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+            {/* <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-5">
               <div className="rounded-md border p-3 text-center">
                 <p className="text-xs text-muted-foreground">Modo</p>
                 <p className="text-sm font-semibold">{data.preview_mode}</p>
               </div>
               <div className="rounded-md border p-3 text-center">
                 <p className="text-xs text-muted-foreground">
-                  Fechas de compra
+                  Fecha de transacción
                 </p>
                 <p className="text-sm font-semibold">
-                  {data.summary.total_purchase_dates}
+                  {data.summary.transaction_date}
                 </p>
               </div>
               <div className="rounded-md border p-3 text-center">
@@ -162,7 +161,23 @@ export default function ElectronicDocumentTraverseDynamicsPreview({
                   {data.summary.total_movements}
                 </p>
               </div>
-            </div>
+              <div className="rounded-md border p-3 text-center">
+                <p className="text-xs text-muted-foreground">
+                  Detalles de ajuste
+                </p>
+                <p className="text-sm font-semibold">
+                  {data.summary.total_adjustment_details}
+                </p>
+              </div>
+              <div className="rounded-md border p-3 text-center">
+                <p className="text-xs text-muted-foreground">
+                  Detalles contables
+                </p>
+                <p className="text-sm font-semibold">
+                  {data.summary.total_accounting_details}
+                </p>
+              </div>
+            </div> */}
 
             {/* Grupos por fecha de compra */}
             {groups.map((group, groupIndex) => {
@@ -179,24 +194,29 @@ export default function ElectronicDocumentTraverseDynamicsPreview({
               const totalDebito =
                 accounting?.details.reduce(
                   (acc, d) => acc + Number(d.Debito || 0),
-                  0
+                  0,
                 ) ?? 0;
               const totalCredito =
                 accounting?.details.reduce(
                   (acc, d) => acc + Number(d.Credito || 0),
-                  0
+                  0,
                 ) ?? 0;
 
               return (
                 <div
-                  key={`${group.purchase_date}-${groupIndex}`}
+                  key={`${group.transaction_date}-${groupIndex}`}
                   className="space-y-3 rounded-md border-2 border-dashed p-3"
                 >
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                      Fecha de compra
+                      Fecha de transacción
                     </span>
-                    <Badge color="blue">{group.purchase_date}</Badge>
+                    <div className="flex items-center gap-2">
+                      <span className="text-[11px] text-muted-foreground">
+                        RUC/DNI creador: {group.creator_vat}
+                      </span>
+                      <Badge color="blue">{group.transaction_date}</Badge>
+                    </div>
                   </div>
 
                   {/* Paso 1: Ajuste de inventario */}
@@ -295,9 +315,7 @@ export default function ElectronicDocumentTraverseDynamicsPreview({
                                 <th className="px-3 py-1.5 text-right font-medium">
                                   Cantidad
                                 </th>
-                                <th className="px-3 py-1.5 font-medium">
-                                  UM
-                                </th>
+                                <th className="px-3 py-1.5 font-medium">UM</th>
                                 <th className="px-3 py-1.5 text-right font-medium">
                                   Costo Unit.
                                 </th>
@@ -386,9 +404,7 @@ export default function ElectronicDocumentTraverseDynamicsPreview({
                           </dd>
                         </div>
                         <div>
-                          <dt className="text-muted-foreground">
-                            Referencia
-                          </dt>
+                          <dt className="text-muted-foreground">Referencia</dt>
                           <dd className="font-medium font-mono">
                             {accounting.header.Referencia}
                           </dd>
@@ -454,9 +470,7 @@ export default function ElectronicDocumentTraverseDynamicsPreview({
                         <table className="w-full text-xs">
                           <thead>
                             <tr className="border-b bg-muted/10 text-left text-muted-foreground">
-                              <th className="px-3 py-1.5 font-medium">
-                                Línea
-                              </th>
+                              <th className="px-3 py-1.5 font-medium">Línea</th>
                               <th className="px-3 py-1.5 font-medium">
                                 Cuenta
                               </th>
@@ -477,9 +491,7 @@ export default function ElectronicDocumentTraverseDynamicsPreview({
                                 key={`${detail.Asiento}-${detail.Linea}`}
                                 className="border-b last:border-b-0"
                               >
-                                <td className="px-3 py-1.5">
-                                  {detail.Linea}
-                                </td>
+                                <td className="px-3 py-1.5">{detail.Linea}</td>
                                 <td className="px-3 py-1.5 font-mono">
                                   {detail.CuentaNumero}
                                 </td>
@@ -518,8 +530,7 @@ export default function ElectronicDocumentTraverseDynamicsPreview({
                       {totalDebito !== totalCredito && (
                         <div className="flex items-center gap-2 border-t bg-rose-50 px-3 py-2 text-xs text-rose-700 dark:bg-rose-950/30 dark:text-rose-400">
                           <AlertTriangle className="size-3.5" />
-                          El asiento no cuadra: débito y crédito no
-                          coinciden.
+                          El asiento no cuadra: débito y crédito no coinciden.
                         </div>
                       )}
                     </div>
