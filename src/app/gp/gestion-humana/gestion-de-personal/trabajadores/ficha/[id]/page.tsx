@@ -1,12 +1,13 @@
 "use client";
 
-import { useNavigate, useParams } from "react-router-dom";
-import { ArrowLeft, CalendarDays, FileText } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { useParams } from "react-router-dom";
+import { CalendarDays, FileText } from "lucide-react";
 import PageWrapper from "@/shared/components/PageWrapper";
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import ProfileView from "@/shared/components/ProfileView";
+import TitleComponent from "@/shared/components/TitleComponent";
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
+import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
 import { notFound } from "@/shared/hooks/useNotFound";
 import { WORKER } from "@/features/gp/gestionhumana/gestion-de-personal/trabajadores/lib/worker.constant";
 import { useWorkerComplete } from "@/features/gp/gestionhumana/gestion-de-personal/trabajadores/lib/worker.hook";
@@ -17,9 +18,9 @@ const { ROUTE, ABSOLUTE_ROUTE } = WORKER;
 
 export default function WorkerDetailPage() {
   const { id } = useParams();
-  const router = useNavigate();
   const workerId = Number(id);
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
+  const { canManage } = useModulePermissions(ROUTE);
   const { data: worker, isLoading, isError } = useWorkerComplete(workerId);
 
   if (isLoadingModule || isLoading) return <FormSkeleton />;
@@ -29,15 +30,11 @@ export default function WorkerDetailPage() {
   if (isError || !worker) {
     return (
       <PageWrapper>
-        <Button
-          variant="ghost"
-          size="sm"
-          className="w-fit"
-          onClick={() => router(ABSOLUTE_ROUTE!)}
-        >
-          <ArrowLeft className="size-4" />
-          Volver
-        </Button>
+        <TitleComponent
+          title="Ficha del trabajador"
+          icon="User"
+          backRoute={ABSOLUTE_ROUTE}
+        />
         <p className="py-10 text-center text-sm text-muted-foreground">
           No se pudo cargar la información del trabajador.
         </p>
@@ -47,15 +44,12 @@ export default function WorkerDetailPage() {
 
   return (
     <PageWrapper>
-      <Button
-        variant="ghost"
-        size="sm"
-        className="w-fit"
-        onClick={() => router(ABSOLUTE_ROUTE!)}
-      >
-        <ArrowLeft className="size-4" />
-        Volver a trabajadores
-      </Button>
+      <TitleComponent
+        title="Ficha del trabajador"
+        subtitle="Información detallada del trabajador|"
+        icon="User"
+        backRoute={ABSOLUTE_ROUTE}
+      />
       <ProfileView
         data={worker}
         extraTabs={[
@@ -69,7 +63,13 @@ export default function WorkerDetailPage() {
             id: "contratos",
             label: "Contratos",
             icon: FileText,
-            content: <WorkerContractsTab workerId={workerId} />,
+            // Los aumentos solo se registran desde Gestión Humana con el permiso "Gestionar".
+            content: (
+              <WorkerContractsTab
+                workerId={workerId}
+                canRegisterIncrease={canManage}
+              />
+            ),
           },
         ]}
       />

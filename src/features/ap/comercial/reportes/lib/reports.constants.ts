@@ -5,10 +5,7 @@ import {
   getTodayLocalDateString,
   toLocalDateString,
 } from "@/core/core.function";
-import {
-  AREA_COMERCIAL,
-  CM_COMERCIAL_ID,
-} from "@/features/ap/ap-master/lib/apMaster.constants";
+import { CM_COMERCIAL_ID } from "@/features/ap/ap-master/lib/apMaster.constants";
 import {
   DOCUMENT_STATUS,
   MIGRATION_STATUS,
@@ -264,9 +261,9 @@ export const COMMERCIAL_REPORTS: ReportConfig[] = [
     title: "Reporte de Anticipos",
     type: "Facturación",
     description:
-      "Exporta el reporte de comprobantes de anticipo del área comercial, filtrando por rango de fecha de emisión, estado, estado de migración, tipo de documento y sede.",
+      "Exporta el reporte de comprobantes de anticipo del área comercial, con el estado del anticipo (pendiente o facturado) y el comprobante de regularización, filtrando por rango de fecha de emisión, estado, estado de migración, tipo de documento y sede.",
     icon: "FileText",
-    endpoint: "/ap/facturacion/electronic-documents/export",
+    endpoint: "/ap/commercial/reports/advance-payments/export",
     method: "get",
     fields: [
       {
@@ -330,10 +327,7 @@ export const COMMERCIAL_REPORTS: ReportConfig[] = [
           })),
       },
     ],
-    defaultParams: {
-      is_advance_payment: 1,
-      area_id: AREA_COMERCIAL,
-    },
+    defaultParams: {},
   },
   {
     id: "purchase-order",
