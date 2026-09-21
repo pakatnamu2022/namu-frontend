@@ -30,6 +30,25 @@ export const loanColumns = ({
     ),
   },
   {
+    accessorKey: "concept",
+    header: "Concepto",
+    cell: ({ getValue }) => (
+      <span className="text-xs">{(getValue() as string) ?? "—"}</span>
+    ),
+  },
+  {
+    accessorKey: "reason",
+    header: "Motivo",
+    cell: ({ getValue }) => {
+      const reason = getValue() as string | null;
+      return (
+        <span className="block max-w-[280px] truncate text-xs" title={reason ?? ""}>
+          {reason || "—"}
+        </span>
+      );
+    },
+  },
+  {
     accessorKey: "delivery_date",
     header: "Fecha Entrega",
     cell: ({ getValue }) => formatDate(getValue() as string),

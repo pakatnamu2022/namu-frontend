@@ -2,7 +2,7 @@
 
 import { useParams } from "react-router-dom";
 import { CalendarDays, FileText } from "lucide-react";
-import FormWrapper from "@/shared/components/FormWrapper";
+import PageWrapper from "@/shared/components/PageWrapper";
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import ProfileView from "@/shared/components/ProfileView";
 import TitleComponent from "@/shared/components/TitleComponent";
@@ -29,7 +29,7 @@ export default function WorkerDetailPage() {
 
   if (isError || !worker) {
     return (
-      <FormWrapper>
+      <PageWrapper>
         <TitleComponent
           title="Ficha del trabajador"
           icon="User"
@@ -38,15 +38,15 @@ export default function WorkerDetailPage() {
         <p className="py-10 text-center text-sm text-muted-foreground">
           No se pudo cargar la información del trabajador.
         </p>
-      </FormWrapper>
+      </PageWrapper>
     );
   }
 
   return (
-    <FormWrapper>
+    <PageWrapper>
       <TitleComponent
-        title={worker.name}
-        subtitle="Ficha del trabajador"
+        title="Ficha del trabajador"
+        subtitle="Información detallada del trabajador|"
         icon="User"
         backRoute={ABSOLUTE_ROUTE}
       />
@@ -73,6 +73,6 @@ export default function WorkerDetailPage() {
           },
         ]}
       />
-    </FormWrapper>
+    </PageWrapper>
   );
 }
