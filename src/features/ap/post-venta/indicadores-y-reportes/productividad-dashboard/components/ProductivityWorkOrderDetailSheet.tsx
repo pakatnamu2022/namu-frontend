@@ -1,6 +1,6 @@
 "use client";
 
-import { ClipboardList, Package, Wrench } from "lucide-react";
+import { ClipboardList, Package, Wrench, Car } from "lucide-react";
 import GeneralSheet from "@/shared/components/GeneralSheet";
 import { formatHours, formatMoney } from "@/core/core.function";
 import { useFindWorkOrderById } from "@/features/ap/post-venta/taller/orden-trabajo/lib/workOrder.hook";
@@ -35,6 +35,83 @@ export default function ProductivityWorkOrderDetailSheet({
     >
       {workOrder && (
         <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-2">
+            <div className="flex items-center gap-1.5">
+              <Car className="size-3.5 text-muted-foreground" />
+              <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                Información del Vehículo
+              </span>
+            </div>
+            <div className="grid grid-cols-2 gap-3 rounded-xl border bg-muted/30 p-4 sm:grid-cols-3">
+              <div>
+                <p className="text-[10px] uppercase tracking-wide text-muted-foreground">
+                  Placa
+                </p>
+                <p className="text-sm font-semibold">
+                  {workOrder.vehicle?.plate ?? "-"}
+                </p>
+              </div>
+              <div>
+                <p className="text-[10px] uppercase tracking-wide text-muted-foreground">
+                  VIN
+                </p>
+                <p className="text-sm font-semibold">
+                  {workOrder.vehicle?.vin ?? "-"}
+                </p>
+              </div>
+              <div>
+                <p className="text-[10px] uppercase tracking-wide text-muted-foreground">
+                  Marca
+                </p>
+                <p className="text-sm font-semibold">
+                  {workOrder.vehicle?.model?.brand ?? "-"}
+                </p>
+              </div>
+              <div>
+                <p className="text-[10px] uppercase tracking-wide text-muted-foreground">
+                  Modelo
+                </p>
+                <p className="text-sm font-semibold">
+                  {workOrder.vehicle?.model?.version ?? "-"}
+                </p>
+              </div>
+              <div>
+                <p className="text-[10px] uppercase tracking-wide text-muted-foreground">
+                  Año
+                </p>
+                <p className="text-sm font-semibold">
+                  {workOrder.vehicle?.year ?? "-"}
+                </p>
+              </div>
+              <div>
+                <p className="text-[10px] uppercase tracking-wide text-muted-foreground">
+                  N° Motor
+                </p>
+                <p className="text-sm font-semibold">
+                  {workOrder.vehicle?.engine_number ?? "-"}
+                </p>
+              </div>
+              <div>
+                <p className="text-[10px] uppercase tracking-wide text-muted-foreground">
+                  Kilometraje
+                </p>
+                <p className="text-sm font-semibold">
+                  {workOrder.vehicle?.mileage != null
+                    ? `${workOrder.vehicle.mileage} km`
+                    : "-"}
+                </p>
+              </div>
+              <div>
+                <p className="text-[10px] uppercase tracking-wide text-muted-foreground">
+                  Color
+                </p>
+                <p className="text-sm font-semibold">
+                  {workOrder.vehicle?.vehicle_color ?? "-"}
+                </p>
+              </div>
+            </div>
+          </div>
+
           <div className="grid grid-cols-2 gap-3 rounded-xl border bg-muted/30 p-4">
             <div>
               <p className="text-[10px] uppercase tracking-wide text-muted-foreground">
@@ -134,22 +211,9 @@ export default function ProductivityWorkOrderDetailSheet({
                           <p className="truncate text-sm">
                             {part.product_name}
                           </p>
-                          <p className="text-[11px] text-muted-foreground">
-                            {part.quantity_used} unid. ·{" "}
-                            {formatMoney(
-                              Number(part.unit_price),
-                              2,
-                              currencySymbol,
-                            )}
-                            /u
-                          </p>
                         </div>
                         <span className="shrink-0 text-sm font-semibold">
-                          {formatMoney(
-                            part.net_amount ?? part.total_cost,
-                            2,
-                            currencySymbol,
-                          )}
+                          {part.quantity_used} unid.
                         </span>
                       </div>
                     </div>

@@ -20,6 +20,8 @@ export const SUPPLIER_ORDER: ModelComplete<SupplierOrderResource> = {
   ROUTE_UPDATE: `${ABSOLUTE_ROUTE}/actualizar`,
 };
 
+export const SUPPLIER_ORDER_ROUTE_REPLACE = `${ABSOLUTE_ROUTE}/reemplazar-repuesto`;
+
 export const RECEPCION_STATUS_COLORS: Record<string, BadgeColor> = {
   PARCIAL: "yellow",
   COMPLETO: "green",

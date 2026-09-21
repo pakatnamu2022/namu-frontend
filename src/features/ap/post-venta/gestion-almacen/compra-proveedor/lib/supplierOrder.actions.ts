@@ -4,6 +4,7 @@ import { GeneralResponse } from "@/shared/lib/response.interface.ts";
 import { SUPPLIER_ORDER } from "./supplierOrder.constants.ts";
 import {
   getSupplierOrderProps,
+  ReplaceSupplierOrderProductRequest,
   SupplierOrderDetailsResource,
   SupplierOrderRequest,
   SupplierOrderResource,
@@ -97,6 +98,17 @@ export async function discardSupplierOrder(
 ): Promise<SupplierOrderResource> {
   const { data } = await api.put<SupplierOrderResource>(
     `${ENDPOINT}/${id}/discard`,
+    payload,
+  );
+  return data;
+}
+
+export async function replaceSupplierOrderProduct(
+  id: number,
+  payload: ReplaceSupplierOrderProductRequest,
+): Promise<SupplierOrderResource> {
+  const { data } = await api.put<SupplierOrderResource>(
+    `${ENDPOINT}/${id}/replace-product`,
     payload,
   );
   return data;
