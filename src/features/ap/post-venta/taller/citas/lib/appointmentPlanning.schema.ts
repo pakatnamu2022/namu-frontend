@@ -4,7 +4,7 @@ import { z } from "zod";
 export const appointmentPlanningSchemaCreate = z.object({
   description: z
     .string()
-    .max(250)
+    .max(1000)
     .refine((value) => value.trim() !== "", {
       message: "Descripción es requerida",
     }),
@@ -26,7 +26,8 @@ export const appointmentPlanningSchemaCreate = z.object({
       message: "Número de documento es requerido",
     })
     .refine(
-      (value) => value.length === 8 || value.length === 9 || value.length === 11,
+      (value) =>
+        value.length === 8 || value.length === 9 || value.length === 11,
       {
         message: "Debe ingresar 8 (DNI), 9 (CE) u 11 dígitos (RUC)",
       },
@@ -47,7 +48,7 @@ export const appointmentPlanningSchemaCreate = z.object({
       message: "Teléfono del cliente es requerido",
     }),
   type_operation_appointment_id: requiredStringId(
-    "Tipo de operación de cita es requerido"
+    "Tipo de operación de cita es requerido",
   ),
   sede_id: requiredStringId("Sede es requerida"),
   type_planning_id: requiredStringId("Tipo de planificación es requerido"),

@@ -14,8 +14,8 @@ interface Props {
   sedes: SedeResource[];
   sedeId: string;
   setSedeId: (value: string) => void;
-  statusFilter: string;
-  setStatusFilter: (value: string) => void;
+  statusFilter?: string;
+  setStatusFilter?: (value: string) => void;
   dateFrom: Date | undefined;
   setDateFrom: (date: Date | undefined) => void;
   dateTo: Date | undefined;
@@ -26,6 +26,8 @@ interface Props {
   setIsAccounted?: (value: string) => void;
   migrationStatus?: string;
   setMigrationStatus?: (value: string) => void;
+  associatePurchaseTraverse?: string;
+  setAssociatePurchaseTraverse?: (value: string) => void;
 }
 
 const CONSOLIDATION_TYPE_OPTIONS = [
@@ -36,6 +38,11 @@ const CONSOLIDATION_TYPE_OPTIONS = [
 const IS_ACCOUNTED_OPTIONS = [
   { value: "1", label: "Contabilizado" },
   { value: "0", label: "No contabilizado" },
+];
+
+const ASSOCIATE_PURCHASE_TRAVERSE_OPTIONS = [
+  { value: "1", label: "Sí" },
+  { value: "0", label: "No" },
 ];
 
 export default function SalesReceiptsOptions({
@@ -56,6 +63,8 @@ export default function SalesReceiptsOptions({
   setIsAccounted,
   migrationStatus,
   setMigrationStatus,
+  associatePurchaseTraverse,
+  setAssociatePurchaseTraverse,
 }: Props) {
   return (
     <FilterWrapper>
@@ -83,17 +92,27 @@ export default function SalesReceiptsOptions({
         }}
       />
 
-      {setStatusFilter && (
+      {setAssociatePurchaseTraverse ? (
         <SearchableSelect
-          onChange={setStatusFilter}
-          value={statusFilter}
+          onChange={setAssociatePurchaseTraverse}
+          value={associatePurchaseTraverse ?? ""}
           className="min-w-44"
-          placeholder="Seleccionar Estado"
-          options={DOCUMENT_STATUS.map((status) => ({
-            value: status.value,
-            label: status.label,
-          }))}
+          placeholder="Compra travesía asociada"
+          options={ASSOCIATE_PURCHASE_TRAVERSE_OPTIONS}
         />
+      ) : (
+        setStatusFilter && (
+          <SearchableSelect
+            onChange={setStatusFilter}
+            value={statusFilter ?? ""}
+            className="min-w-44"
+            placeholder="Seleccionar Estado"
+            options={DOCUMENT_STATUS.map((status) => ({
+              value: status.value,
+              label: status.label,
+            }))}
+          />
+        )
       )}
 
       {setConsolidationType && (

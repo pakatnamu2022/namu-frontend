@@ -14,6 +14,7 @@ import {
   findOrderQuotationById,
   getForPurchaseRequestTaller,
   getForPurchaseRequestMeson,
+  findOrderQuotationBillingById,
 } from "./proforma.actions";
 import { OrderQuotationRequest } from "./proforma.interface";
 
@@ -26,7 +27,10 @@ export const useAllOrderQuotations = (params?: Record<string, any>) => {
   });
 };
 
-export const useOrderQuotations = (params?: Record<string, any>, enabled = true) => {
+export const useOrderQuotations = (
+  params?: Record<string, any>,
+  enabled = true,
+) => {
   return useQuery({
     queryKey: [QUERY_KEY, params],
     queryFn: () => getOrderQuotations({ params }),
@@ -63,6 +67,14 @@ export const useOrderQuotationById = (id: number) => {
   return useQuery({
     queryKey: [QUERY_KEY, id],
     queryFn: () => findOrderQuotationById(id),
+    enabled: !!id,
+  });
+};
+
+export const useOrderQuotationBillingById = (id: number) => {
+  return useQuery({
+    queryKey: [QUERY_KEY, id, "billing"],
+    queryFn: () => findOrderQuotationBillingById(id),
     enabled: !!id,
   });
 };

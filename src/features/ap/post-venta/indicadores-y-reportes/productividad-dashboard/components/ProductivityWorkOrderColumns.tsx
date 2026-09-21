@@ -1,13 +1,12 @@
 import type { ColumnDef } from "@tanstack/react-table";
+import { Link } from "react-router-dom";
 import {
   ProductivityWorkOrder,
   ProductivityWorkOrderWithoutLabour,
 } from "../lib/productivityDashboard.interface";
 import { formatDate, formatHours } from "@/core/core.function";
-import { CopyCell } from "@/shared/components/CopyCell";
 
-export const productivityWorkOrderColumns =
-  (): ColumnDef<ProductivityWorkOrder>[] => [
+export const productivityWorkOrderColumns = (): ColumnDef<ProductivityWorkOrder>[] => [
     {
       accessorKey: "index",
       header: "#",
@@ -21,10 +20,14 @@ export const productivityWorkOrderColumns =
       header: "N° OT",
       cell: ({ row }) => (
         <div>
-          <CopyCell
-            value={row.original.work_order_number}
-            className="font-semibold"
-          />
+          <Link
+            to={`/ap/post-venta/taller/orden-trabajo/gestionar/${row.original.work_order_id}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-semibold text-primary hover:underline"
+          >
+            {row.original.work_order_number}
+          </Link>
           <div className="text-xs text-muted-foreground">
             {row.original.vehicle_plate} -{" "}
             {formatDate(row.original.fecha_facturacion)}
@@ -51,26 +54,43 @@ export const productivityWorkOrderColumns =
       ),
     },
     {
-      accessorKey: "descripcion_labour",
+      accessorKey: "trabajos",
       header: "Mano de obra",
-      cell: ({ row }) => row.original.descripcion_labour || "-",
+      cell: ({ row }) => {
+        const trabajos = row.original.trabajos ?? [];
+        if (trabajos.length === 0) return "-";
+        return (
+          <ul className="list-disc pl-4 space-y-0.5">
+            {trabajos.map((trabajo, index) => (
+              <li key={index}>{trabajo.descripcion_labour}</li>
+            ))}
+          </ul>
+        );
+      },
     },
     {
       accessorKey: "horas_facturadas_tecnico",
       header: "H. facturadas (técnico)",
-      cell: ({ row }) => (
-        <div>
-          <div className="font-semibold">
-            {formatHours(row.original.horas_facturadas_tecnico)}
-          </div>
-          {row.original.cantidad_tecnicos > 1 && (
-            <div className="text-xs text-muted-foreground">
-              {formatHours(row.original.horas_facturadas_total_ot)} entre{" "}
-              {row.original.cantidad_tecnicos} técnicos
+      cell: ({ row }) => {
+        const trabajos = row.original.trabajos ?? [];
+        const horasFacturadasTecnico = trabajos.reduce(
+          (sum, trabajo) => sum + trabajo.horas_facturadas_tecnico,
+          0,
+        );
+        return (
+          <div>
+            <div className="font-semibold">
+              {formatHours(horasFacturadasTecnico)}
             </div>
-          )}
-        </div>
-      ),
+            {row.original.cantidad_tecnicos > 1 && (
+              <div className="text-xs text-muted-foreground">
+                {formatHours(row.original.horas_facturadas_total_ot)} entre{" "}
+                {row.original.cantidad_tecnicos} técnicos
+              </div>
+            )}
+          </div>
+        );
+      },
     },
   ];
 
@@ -89,10 +109,14 @@ export const productivityWorkOrderWithoutLabourColumns =
       header: "N° OT",
       cell: ({ row }) => (
         <div>
-          <CopyCell
-            value={row.original.work_order_number}
-            className="font-semibold"
-          />
+          <Link
+            to={`/ap/post-venta/taller/orden-trabajo/gestionar/${row.original.work_order_id}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-semibold text-primary hover:underline"
+          >
+            {row.original.work_order_number}
+          </Link>
           <div className="text-xs text-muted-foreground">
             {row.original.vehicle_plate} -{" "}
             {formatDate(row.original.fecha_facturacion)}

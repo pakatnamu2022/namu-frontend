@@ -7,6 +7,7 @@ import {
 import { ApBankResource } from "@/features/ap/configuraciones/maestros-general/chequeras/lib/apBank.interface";
 import { AreaType } from "@/features/ap/ap-master/lib/apMaster.constants";
 import { WorkOrderResource } from "@/features/ap/post-venta/taller/orden-trabajo/lib/workOrder.interface";
+import { UnitMeasurementResource } from "@/features/ap/configuraciones/maestros-general/unidad-medida/lib/unitMeasurement.interface";
 
 export interface RegisterHistoricalAdvancePaymentResponse {
   success: boolean;
@@ -126,6 +127,7 @@ export interface ElectronicDocumentResource {
   was_dyn_requested?: boolean;
   is_accounted?: boolean;
   is_annulled?: boolean;
+  associate_purchase_traverse?: boolean;
   enlace_del_pdf?: string;
   enlace_del_xml?: string;
   enlace_del_cdr?: string;
@@ -234,6 +236,7 @@ export interface ElectronicDocumentItem {
   anticipo_regularizacion?: boolean;
   anticipo_documento_serie?: string;
   anticipo_documento_numero?: number;
+  is_traverse?: boolean;
   igvType?: SunatConceptsResource;
   igv_type?: SunatConceptsResource;
 }
@@ -624,4 +627,45 @@ export interface HistoricalFinalSaleBulkResponse {
   rows_processed: number;
   dry_run: boolean;
   rows: HistoricalFinalSaleBulkRow[];
+}
+
+export interface PurchaseOrderItemTraversePurchaseOrder {
+  id: number | null;
+  number: string | null;
+  emission_date: string | null;
+  status: boolean | null;
+  migration_status: string | null;
+  invoice_dynamics: string | null;
+  receipt_dynamics: string | null;
+  supplier: {
+    id: number | null;
+    full_name: string | null;
+  };
+}
+
+export interface PurchaseOrderItemTraverse {
+  id: number;
+  purchase_order_item_id: number;
+  description: string | null;
+  unit_price: number;
+  quantity: number;
+  quantity_available_traverse: number;
+  saldo_disponible: number;
+  total: number;
+  product_id: number | null;
+  product_name: string | null;
+  product_code: string | null;
+  product_dyn_code: string | null;
+  unit_measurement: UnitMeasurementResource | null;
+  purchase_order: PurchaseOrderItemTraversePurchaseOrder;
+}
+
+export interface AssociatePurchaseTraverseRequest {
+  purchase_order_item_ids: number[];
+}
+
+export interface PurchaseOrderItemTraverseResponse {
+  data: PurchaseOrderItemTraverse[];
+  links: Links;
+  meta: Meta;
 }

@@ -15,30 +15,28 @@ import {
   formatDateFilter,
 } from "@/core/core.function";
 import { DEFAULT_PER_PAGE, EMPRESA_AP } from "@/core/core.constants";
-import {
-  sendElectronicDocumentToSunat,
-  cancelElectronicDocument,
-  preCancelElectronicDocument,
-  syncAccountingStatusById,
-} from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.actions";
+import { revertPurchaseTraverse } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.actions";
 import ElectronicDocumentTable from "@/features/ap/facturacion/electronic-documents/components/ElectronicDocumentTable";
-import { electronicDocumentColumns } from "@/features/ap/facturacion/electronic-documents/components/ElectronicDocumentColumns";
+import { salesReceiptsTravesiaColumns } from "@/features/ap/post-venta/comprobante-venta/components/SalesReceiptsTravesiaColumns";
 import { ElectronicDocumentDetailSheet } from "@/features/ap/facturacion/electronic-documents/components/ElectronicDocumentDetailSheet";
 import { ElectronicDocumentResource } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.interface";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
-import { ELECTRONIC_DOCUMENT_TALLER } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.constants";
+import { ELECTRONIC_DOCUMENT_ALMACEN } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.constants";
 import { useElectronicDocumentsSimplified } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.hook";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
 import { notFound } from "@/shared/hooks/useNotFound";
 import SalesReceiptsActions from "@/features/ap/post-venta/comprobante-venta/components/SalesReceiptsActions";
 import SalesReceiptsOptions from "@/features/ap/post-venta/comprobante-venta/components/SalesReceiptsOptions";
-import { AREA_TALLER } from "@/features/ap/ap-master/lib/apMaster.constants";
+import {
+  AREA_MESON,
+  AREA_TALLER,
+} from "@/features/ap/ap-master/lib/apMaster.constants";
 import { useMySedes } from "@/features/gp/maestro-general/sede/lib/sede.hook";
 import { useNavigate } from "react-router-dom";
 
-export default function SalesReceiptsTallerPage() {
+export default function SalesReceiptsAlmacenPage() {
   const router = useNavigate();
-  const { ROUTE, ABSOLUTE_ROUTE, ROUTE_ADD } = ELECTRONIC_DOCUMENT_TALLER;
+  const { ROUTE, ABSOLUTE_ROUTE, ROUTE_ADD } = ELECTRONIC_DOCUMENT_ALMACEN;
   const permissions = useModulePermissions(ROUTE);
   const queryClient = useQueryClient();
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
@@ -56,17 +54,19 @@ export default function SalesReceiptsTallerPage() {
     {
       search: "",
       sedeId: "",
-      statusFilter: "",
+      associatePurchaseTraverse: "",
       dateFrom: getFirstDayOfMonth(
         new Date(currentDate.getFullYear(), currentDate.getMonth() - 2, 1),
       ) as Date | undefined,
       dateTo: getCurrentDayOfMonth(currentDate) as Date | undefined,
     },
   );
-  const { search, sedeId, statusFilter, dateFrom, dateTo } = filters;
+  const { search, sedeId, associatePurchaseTraverse, dateFrom, dateTo } =
+    filters;
   const setSearch = (value: string) => setFilter("search", value);
   const setSedeId = (value: string) => setFilter("sedeId", value);
-  const setStatusFilter = (value: string) => setFilter("statusFilter", value);
+  const setAssociatePurchaseTraverse = (value: string) =>
+    setFilter("associatePurchaseTraverse", value);
   const setDateFrom = (value: Date | undefined) => setFilter("dateFrom", value);
   const setDateTo = (value: Date | undefined) => setFilter("dateTo", value);
 
@@ -75,8 +75,12 @@ export default function SalesReceiptsTallerPage() {
       page,
       per_page,
       search,
-      status: statusFilter,
-      area_id: [String(AREA_TALLER)],
+      area_id: [AREA_TALLER, AREA_MESON], // Filtrar por ambas áreas
+      has_product_traverse: 1,
+      status: "accepted",
+      associate_purchase_traverse: associatePurchaseTraverse
+        ? parseInt(associatePurchaseTraverse)
+        : undefined,
       fecha_de_emision:
         dateFrom && dateTo
           ? [formatDateFilter(dateFrom), formatDateFilter(dateTo)]
@@ -84,12 +88,7 @@ export default function SalesReceiptsTallerPage() {
       seriesModel$sede_id: sedeId ? parseInt(sedeId) : undefined,
     });
 
-  const canUpdate = permissions.canUpdate || false;
-  const canAnnul = permissions.canAnnul || false;
-  const canSend = permissions.canSend || false;
-  const canCreateCreditNote = permissions.canCreate || false; // Usar mismo permiso que crear
-  const canCreateDebitNote = permissions.canCreate || false;
-  const canMigrate = permissions.canMigrate || false;
+  const canLinkCrossingPurchase = permissions.canLinkCrossingPurchase || false;
 
   const { data: sedes = [], isLoading: isLoadingSedes } = useMySedes({
     company: EMPRESA_AP.id,
@@ -102,28 +101,15 @@ export default function SalesReceiptsTallerPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sedes, setSedeId]);
 
-  const sendToSunatMutation = useMutation({
-    mutationFn: sendElectronicDocumentToSunat,
+  const revertPurchaseTraverseMutation = useMutation({
+    mutationFn: revertPurchaseTraverse,
     onSuccess: () => {
-      successToast("Documento enviado a SUNAT correctamente");
+      successToast("Asociación de compra revertida correctamente");
       refetch();
     },
     onError: (error: any) => {
       const msg = error?.response?.data?.message || "";
-      errorToast(`Error al enviar a SUNAT: ${msg}`);
-    },
-  });
-
-  const cancelDocumentMutation = useMutation({
-    mutationFn: ({ id, reason }: { id: number; reason: string }) =>
-      cancelElectronicDocument(id, reason),
-    onSuccess: () => {
-      successToast("Documento cancelado en Nubefact correctamente");
-      refetch();
-    },
-    onError: (error: any) => {
-      const msg = error?.response?.data?.message || "";
-      errorToast(`Error al cancelar documento: ${msg}`);
+      errorToast(`Error al revertir la compra: ${msg}`);
     },
   });
 
@@ -132,34 +118,9 @@ export default function SalesReceiptsTallerPage() {
     setSheetOpen(true);
   };
 
-  const handleSendToSunat = (id: number) => {
-    sendToSunatMutation.mutate(id);
+  const handleRevertPurchase = (document: ElectronicDocumentResource) => {
+    revertPurchaseTraverseMutation.mutate(document.id);
   };
-
-  const handleCancel = (id: number, reason: string) => {
-    cancelDocumentMutation.mutate({ id, reason });
-  };
-
-  const handlePreCancel = async (id: number) => {
-    const result = await preCancelElectronicDocument(id);
-    return result.annulled;
-  };
-
-  const syncAccountingStatusMutation = useMutation({
-    mutationFn: syncAccountingStatusById,
-    onSuccess: (data) => {
-      successToast(
-        `Sincronizado: ${data.is_accounted ? "Contabilizado" : "No contabilizado"}${
-          data.is_annulled ? " (Anulado)" : ""
-        }`,
-      );
-      refetch();
-    },
-    onError: (error: any) => {
-      const msg = error?.response?.data?.message || "";
-      errorToast(`Error al sincronizar contabilización: ${msg}`);
-    },
-  });
 
   const handleRefresh = () => {
     queryClient.invalidateQueries({ queryKey: ["electronic-documents"] });
@@ -196,22 +157,18 @@ export default function SalesReceiptsTallerPage() {
 
       <ElectronicDocumentTable
         isLoading={isLoading}
-        columns={electronicDocumentColumns({
+        columns={salesReceiptsTravesiaColumns({
           onView: handleView,
-          onSendToSunat: handleSendToSunat,
-          onAnnul: handleCancel,
-          onPreCancel: handlePreCancel,
-          onSyncAccountingStatus: (id) =>
-            syncAccountingStatusMutation.mutate(id),
+          onAssociatePurchase: canLinkCrossingPurchase
+            ? (document) =>
+                router(`${ABSOLUTE_ROUTE}/asociar-compra/${document.id}`)
+            : undefined,
+          onRevertPurchase: canLinkCrossingPurchase
+            ? handleRevertPurchase
+            : undefined,
           permissions: {
-            canUpdate,
-            canAnnul,
-            canSend,
-            canCreateCreditNote,
-            canCreateDebitNote,
-            canMigrate,
+            canLinkCrossingPurchase,
           },
-          routeAbsolute: ABSOLUTE_ROUTE,
         })}
         data={data?.data || []}
       >
@@ -221,8 +178,8 @@ export default function SalesReceiptsTallerPage() {
           sedes={sedes}
           sedeId={sedeId}
           setSedeId={setSedeId}
-          statusFilter={statusFilter}
-          setStatusFilter={setStatusFilter}
+          associatePurchaseTraverse={associatePurchaseTraverse}
+          setAssociatePurchaseTraverse={setAssociatePurchaseTraverse}
           dateFrom={dateFrom}
           setDateFrom={setDateFrom}
           dateTo={dateTo}

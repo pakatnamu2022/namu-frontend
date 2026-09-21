@@ -46,8 +46,9 @@ function RoutePrefetcher() {
     // Solo precarga cuando el usuario ya entró (no en el login).
     if (!isAuthenticated) return;
     if (typeof navigator !== "undefined") {
-      const conn = (navigator as unknown as { connection?: { saveData?: boolean } })
-        .connection;
+      const conn = (
+        navigator as unknown as { connection?: { saveData?: boolean } }
+      ).connection;
       if (conn?.saveData) return;
     }
 
@@ -61,7 +62,7 @@ function RoutePrefetcher() {
       const i = idx++;
       if (i >= pageLoaders.length) return;
       pageLoaders[i]()
-        .catch(() => { })
+        .catch(() => {})
         .finally(() => {
           if (!cancelled) window.setTimeout(runNext, GAP_MS);
         });
@@ -78,134 +79,422 @@ function RoutePrefetcher() {
   }, [isAuthenticated]);
   return null;
 }
-const ModulePerformanceEvaluationPage = lazyPage(() => import("./app/gp/gestion-humana/evaluaciones-de-desempeno/page"));
-const HierarchicalCategoryPage = lazyPage(() => import("./app/gp/gestion-humana/evaluaciones-de-desempeno/categorias-jerarquicas/page"));
-const AddHierarchicalCategoryPage = lazyPage(() => import("./app/gp/gestion-humana/evaluaciones-de-desempeno/categorias-jerarquicas/agregar/page"));
-const CyclePage = lazyPage(() => import("./app/gp/gestion-humana/evaluaciones-de-desempeno/ciclos/page"));
-const AddCyclePage = lazyPage(() => import("./app/gp/gestion-humana/evaluaciones-de-desempeno/ciclos/agregar/page"));
-const UpdateCyclePage = lazyPage(() => import("./app/gp/gestion-humana/evaluaciones-de-desempeno/ciclos/actualizar/[id]/page"));
-const CyclePersonDetailPage = lazyPage(() => import("./app/gp/gestion-humana/evaluaciones-de-desempeno/ciclos/[id]/page"));
-const CompetencesPage = lazyPage(() => import("./app/gp/gestion-humana/evaluaciones-de-desempeno/competencias/page"));
-const AddCompetencePage = lazyPage(() => import("./app/gp/gestion-humana/evaluaciones-de-desempeno/competencias/agregar/page"));
-const UpdateCompetencePage = lazyPage(() => import("./app/gp/gestion-humana/evaluaciones-de-desempeno/competencias/actualizar/[id]/page"));
-const EvaluationPage = lazyPage(() => import("./app/gp/gestion-humana/evaluaciones-de-desempeno/evaluaciones/page"));
-const AddEvaluationPage = lazyPage(() => import("./app/gp/gestion-humana/evaluaciones-de-desempeno/evaluaciones/agregar/page"));
-const UpdateEvaluationPage = lazyPage(() => import("./app/gp/gestion-humana/evaluaciones-de-desempeno/evaluaciones/actualizar/[id]/page"));
-const EvaluationPersonPage = lazyPage(() => import("./app/gp/gestion-humana/evaluaciones-de-desempeno/evaluaciones/[id]/page"));
-const EvaluationDetailPage = lazyPage(() => import("./app/gp/gestion-humana/evaluaciones-de-desempeno/evaluaciones/detalles/[id]/page"));
-const EvaluationDetailPersonPage = lazyPage(() => import("./app/gp/gestion-humana/evaluaciones-de-desempeno/evaluaciones/detalles/[id]/[person]/page"));
-const EvaluationCompetenceDetailPage = lazyPage(() => import("./app/gp/gestion-humana/evaluaciones-de-desempeno/evaluaciones/detalles/[id]/competencias/page"));
+const ModulePerformanceEvaluationPage = lazyPage(
+  () => import("./app/gp/gestion-humana/evaluaciones-de-desempeno/page"),
+);
+const HierarchicalCategoryPage = lazyPage(
+  () =>
+    import("./app/gp/gestion-humana/evaluaciones-de-desempeno/categorias-jerarquicas/page"),
+);
+const AddHierarchicalCategoryPage = lazyPage(
+  () =>
+    import("./app/gp/gestion-humana/evaluaciones-de-desempeno/categorias-jerarquicas/agregar/page"),
+);
+const CyclePage = lazyPage(
+  () => import("./app/gp/gestion-humana/evaluaciones-de-desempeno/ciclos/page"),
+);
+const AddCyclePage = lazyPage(
+  () =>
+    import("./app/gp/gestion-humana/evaluaciones-de-desempeno/ciclos/agregar/page"),
+);
+const UpdateCyclePage = lazyPage(
+  () =>
+    import("./app/gp/gestion-humana/evaluaciones-de-desempeno/ciclos/actualizar/[id]/page"),
+);
+const CyclePersonDetailPage = lazyPage(
+  () =>
+    import("./app/gp/gestion-humana/evaluaciones-de-desempeno/ciclos/[id]/page"),
+);
+const CompetencesPage = lazyPage(
+  () =>
+    import("./app/gp/gestion-humana/evaluaciones-de-desempeno/competencias/page"),
+);
+const AddCompetencePage = lazyPage(
+  () =>
+    import("./app/gp/gestion-humana/evaluaciones-de-desempeno/competencias/agregar/page"),
+);
+const UpdateCompetencePage = lazyPage(
+  () =>
+    import("./app/gp/gestion-humana/evaluaciones-de-desempeno/competencias/actualizar/[id]/page"),
+);
+const EvaluationPage = lazyPage(
+  () =>
+    import("./app/gp/gestion-humana/evaluaciones-de-desempeno/evaluaciones/page"),
+);
+const AddEvaluationPage = lazyPage(
+  () =>
+    import("./app/gp/gestion-humana/evaluaciones-de-desempeno/evaluaciones/agregar/page"),
+);
+const UpdateEvaluationPage = lazyPage(
+  () =>
+    import("./app/gp/gestion-humana/evaluaciones-de-desempeno/evaluaciones/actualizar/[id]/page"),
+);
+const EvaluationPersonPage = lazyPage(
+  () =>
+    import("./app/gp/gestion-humana/evaluaciones-de-desempeno/evaluaciones/[id]/page"),
+);
+const EvaluationDetailPage = lazyPage(
+  () =>
+    import("./app/gp/gestion-humana/evaluaciones-de-desempeno/evaluaciones/detalles/[id]/page"),
+);
+const EvaluationDetailPersonPage = lazyPage(
+  () =>
+    import("./app/gp/gestion-humana/evaluaciones-de-desempeno/evaluaciones/detalles/[id]/[person]/page"),
+);
+const EvaluationCompetenceDetailPage = lazyPage(
+  () =>
+    import("./app/gp/gestion-humana/evaluaciones-de-desempeno/evaluaciones/detalles/[id]/competencias/page"),
+);
 const AgendaPage = lazyPage(() => import("./app/ap/comercial/agenda/page"));
-const OpportunitiesKanbanPage = lazyPage(() => import("./app/ap/comercial/agenda/oportunidades/page"));
-const AddOpportunityPage = lazyPage(() => import("./app/ap/comercial/agenda/oportunidades/agregar/page"));
-const UpdateOpportunityPage = lazyPage(() => import("./app/ap/comercial/agenda/oportunidades/actualizar/[id]/page"));
-const OpportunityDetailPage = lazyPage(() => import("./app/ap/comercial/agenda/oportunidades/[id]/page"));
-const CustomersPage = lazyPage(() => import("./app/ap/comercial/clientes/page"));
-const AddCustomersPage = lazyPage(() => import("./app/ap/comercial/clientes/agregar/page"));
-const UpdateCustomersPage = lazyPage(() => import("./app/ap/comercial/clientes/actualizar/[id]/page"));
-const CustomerEstablishmentsListPage = lazyPage(() => import("./app/ap/comercial/clientes/establecimientos/[id]/page"));
-const AddCustomerEstablishmentPage = lazyPage(() => import("./app/ap/comercial/clientes/establecimientos/[id]/agregar/page"));
-const UpdateCustomerEstablishmentPage = lazyPage(() => import("./app/ap/comercial/clientes/establecimientos/[id]/actualizar/[establishmentId]/page"));
-const MarketingDashboardPage = lazyPage(() => import("./app/ap/comercial/marketing/page"));
-const MarketingPlansPage = lazyPage(() => import("./app/ap/comercial/marketing/planes/page"));
-const AddMarketingPlanPage = lazyPage(() => import("./app/ap/comercial/marketing/planes/agregar/page"));
-const UpdateMarketingPlanPage = lazyPage(() => import("./app/ap/comercial/marketing/planes/actualizar/[id]/page"));
-const MarketingBudgetsPage = lazyPage(() => import("./app/ap/comercial/marketing/presupuestos/page"));
-const AddMarketingBudgetPage = lazyPage(() => import("./app/ap/comercial/marketing/presupuestos/agregar/page"));
-const UpdateMarketingBudgetPage = lazyPage(() => import("./app/ap/comercial/marketing/presupuestos/actualizar/[id]/page"));
-const MarketingBudgetActivitiesPage = lazyPage(() => import("./app/ap/comercial/marketing/presupuestos/[id]/page"));
-const MarketingActivitiesPage = lazyPage(() => import("./app/ap/comercial/marketing/actividades/page"));
-const AddMarketingActivityPage = lazyPage(() => import("./app/ap/comercial/marketing/actividades/agregar/page"));
-const UpdateMarketingActivityPage = lazyPage(() => import("./app/ap/comercial/marketing/actividades/actualizar/[id]/page"));
-const MarketingProposalsPage = lazyPage(() => import("./app/ap/comercial/marketing/propuestas/page"));
-const AddMarketingProposalPage = lazyPage(() => import("./app/ap/comercial/marketing/propuestas/agregar/page"));
-const UpdateMarketingProposalPage = lazyPage(() => import("./app/ap/comercial/marketing/propuestas/actualizar/[id]/page"));
-const MarketingPurchaseOrdersPage = lazyPage(() => import("./app/ap/comercial/marketing/ordenes-compra/page"));
-const AddMarketingPurchaseOrderPage = lazyPage(() => import("./app/ap/comercial/marketing/ordenes-compra/agregar/page"));
-const UpdateMarketingPurchaseOrderPage = lazyPage(() => import("./app/ap/comercial/marketing/ordenes-compra/actualizar/[id]/page"));
-const MarketingSupportsPage = lazyPage(() => import("./app/ap/comercial/marketing/sustentos/page"));
-const AddMarketingSupportPage = lazyPage(() => import("./app/ap/comercial/marketing/sustentos/agregar/page"));
-const UpdateMarketingSupportPage = lazyPage(() => import("./app/ap/comercial/marketing/sustentos/actualizar/[id]/page"));
-const MarketingKpisPage = lazyPage(() => import("./app/ap/comercial/marketing/kpis/page"));
-const AddMarketingKpiPage = lazyPage(() => import("./app/ap/comercial/marketing/kpis/agregar/page"));
-const UpdateMarketingKpiPage = lazyPage(() => import("./app/ap/comercial/marketing/kpis/actualizar/[id]/page"));
-const SuppliersPage = lazyPage(() => import("./app/ap/comercial/proveedores/page"));
-const AddSupplierPage = lazyPage(() => import("./app/ap/comercial/proveedores/agregar/page"));
-const UpdateSuppliersPage = lazyPage(() => import("./app/ap/comercial/proveedores/actualizar/[id]/page"));
-const SupplierEstablishmentsListPage = lazyPage(() => import("./app/ap/comercial/proveedores/establecimientos/[id]/page"));
-const AddSupplierEstablishmentPage = lazyPage(() => import("./app/ap/comercial/proveedores/establecimientos/[id]/agregar/page"));
-const UpdateSupplierEstablishmentPage = lazyPage(() => import("./app/ap/comercial/proveedores/establecimientos/[id]/actualizar/[establishmentId]/page"));
-const ElectronicDocumentsPage = lazyPage(() => import("./app/ap/comercial/electronic-documents/page"));
-const AddElectronicDocumentPage = lazyPage(() => import("./app/ap/comercial/electronic-documents/agregar/page.tsx"));
-const UpdateElectronicDocumentPage = lazyPage(() => import("./app/ap/comercial/electronic-documents/actualizar/[id]/page"));
-const AddCreditNotePage = lazyPage(() => import("./app/ap/comercial/electronic-documents/[id]/credit-note/page"));
-const UpdateCreditNotePage = lazyPage(() => import("./app/ap/comercial/electronic-documents/[id]/credit-note/actualizar/[credit]/page"));
-const AddDebitNotePage = lazyPage(() => import("./app/ap/comercial/electronic-documents/[id]/debit-note/page"));
-const UpdateDebitNotePage = lazyPage(() => import("./app/ap/comercial/electronic-documents/[id]/debit-note/actualizar/[debit]/page"));
-const VehiclesPage = lazyPage(() => import("./app/ap/comercial/vehiculos/page"));
-const VehiclePurchaseOrderPage = lazyPage(() => import("./app/ap/comercial/compra-vehiculo-nuevo/page"));
-const AddVehiclePurchaseOrderPage = lazyPage(() => import("./app/ap/comercial/compra-vehiculo-nuevo/agregar/page"));
-const ResendVehiclePurchaseOrderPage = lazyPage(() => import("./app/ap/comercial/compra-vehiculo-nuevo/reenviar/[id]/page"));
-const VehicleDeliveryPage = lazyPage(() => import("./app/ap/comercial/entrega-vehiculo/page"));
-const AddVehicleDeliveryPage = lazyPage(() => import("./app/ap/comercial/entrega-vehiculo/agregar/page"));
-const ShippingGuidePage = lazyPage(() => import("./app/ap/comercial/entrega-vehiculo/guia-remision/[id]/page"));
-const DeliveryChecklistPage = lazyPage(() => import("./app/ap/comercial/entrega-vehiculo/checklist/[id]/page"));
-const VehicleDeliveryApprovalPage = lazyPage(() => import("./app/ap/comercial/entrega-vehiculo/[id]/aprobacion/page"));
-const ShipmentsReceptionsPage = lazyPage(() => import("./app/ap/comercial/envios-recepciones/page"));
-const AddShipmentsReceptionsPage = lazyPage(() => import("./app/ap/comercial/envios-recepciones/agregar/page"));
-const UpdateShipmentsReceptionsPage = lazyPage(() => import("./app/ap/comercial/envios-recepciones/actualizar/[id]/page"));
-const ReceptionCheckListPage = lazyPage(() => import("./app/ap/comercial/envios-recepciones/checklist/[id]/page"));
-const TransfersPage = lazyPage(() => import("./app/ap/comercial/traslados/page"));
-const AddTransferPage = lazyPage(() => import("./app/ap/comercial/traslados/agregar/page"));
+const OpportunitiesKanbanPage = lazyPage(
+  () => import("./app/ap/comercial/agenda/oportunidades/page"),
+);
+const AddOpportunityPage = lazyPage(
+  () => import("./app/ap/comercial/agenda/oportunidades/agregar/page"),
+);
+const UpdateOpportunityPage = lazyPage(
+  () => import("./app/ap/comercial/agenda/oportunidades/actualizar/[id]/page"),
+);
+const OpportunityDetailPage = lazyPage(
+  () => import("./app/ap/comercial/agenda/oportunidades/[id]/page"),
+);
+const CustomersPage = lazyPage(
+  () => import("./app/ap/comercial/clientes/page"),
+);
+const AddCustomersPage = lazyPage(
+  () => import("./app/ap/comercial/clientes/agregar/page"),
+);
+const UpdateCustomersPage = lazyPage(
+  () => import("./app/ap/comercial/clientes/actualizar/[id]/page"),
+);
+const CustomerEstablishmentsListPage = lazyPage(
+  () => import("./app/ap/comercial/clientes/establecimientos/[id]/page"),
+);
+const AddCustomerEstablishmentPage = lazyPage(
+  () =>
+    import("./app/ap/comercial/clientes/establecimientos/[id]/agregar/page"),
+);
+const UpdateCustomerEstablishmentPage = lazyPage(
+  () =>
+    import("./app/ap/comercial/clientes/establecimientos/[id]/actualizar/[establishmentId]/page"),
+);
+const MarketingDashboardPage = lazyPage(
+  () => import("./app/ap/comercial/marketing/page"),
+);
+const MarketingPlansPage = lazyPage(
+  () => import("./app/ap/comercial/marketing/planes/page"),
+);
+const AddMarketingPlanPage = lazyPage(
+  () => import("./app/ap/comercial/marketing/planes/agregar/page"),
+);
+const UpdateMarketingPlanPage = lazyPage(
+  () => import("./app/ap/comercial/marketing/planes/actualizar/[id]/page"),
+);
+const MarketingBudgetsPage = lazyPage(
+  () => import("./app/ap/comercial/marketing/presupuestos/page"),
+);
+const AddMarketingBudgetPage = lazyPage(
+  () => import("./app/ap/comercial/marketing/presupuestos/agregar/page"),
+);
+const UpdateMarketingBudgetPage = lazyPage(
+  () =>
+    import("./app/ap/comercial/marketing/presupuestos/actualizar/[id]/page"),
+);
+const MarketingBudgetActivitiesPage = lazyPage(
+  () => import("./app/ap/comercial/marketing/presupuestos/[id]/page"),
+);
+const MarketingActivitiesPage = lazyPage(
+  () => import("./app/ap/comercial/marketing/actividades/page"),
+);
+const AddMarketingActivityPage = lazyPage(
+  () => import("./app/ap/comercial/marketing/actividades/agregar/page"),
+);
+const UpdateMarketingActivityPage = lazyPage(
+  () => import("./app/ap/comercial/marketing/actividades/actualizar/[id]/page"),
+);
+const MarketingProposalsPage = lazyPage(
+  () => import("./app/ap/comercial/marketing/propuestas/page"),
+);
+const AddMarketingProposalPage = lazyPage(
+  () => import("./app/ap/comercial/marketing/propuestas/agregar/page"),
+);
+const UpdateMarketingProposalPage = lazyPage(
+  () => import("./app/ap/comercial/marketing/propuestas/actualizar/[id]/page"),
+);
+const MarketingPurchaseOrdersPage = lazyPage(
+  () => import("./app/ap/comercial/marketing/ordenes-compra/page"),
+);
+const AddMarketingPurchaseOrderPage = lazyPage(
+  () => import("./app/ap/comercial/marketing/ordenes-compra/agregar/page"),
+);
+const UpdateMarketingPurchaseOrderPage = lazyPage(
+  () =>
+    import("./app/ap/comercial/marketing/ordenes-compra/actualizar/[id]/page"),
+);
+const MarketingSupportsPage = lazyPage(
+  () => import("./app/ap/comercial/marketing/sustentos/page"),
+);
+const AddMarketingSupportPage = lazyPage(
+  () => import("./app/ap/comercial/marketing/sustentos/agregar/page"),
+);
+const UpdateMarketingSupportPage = lazyPage(
+  () => import("./app/ap/comercial/marketing/sustentos/actualizar/[id]/page"),
+);
+const MarketingKpisPage = lazyPage(
+  () => import("./app/ap/comercial/marketing/kpis/page"),
+);
+const AddMarketingKpiPage = lazyPage(
+  () => import("./app/ap/comercial/marketing/kpis/agregar/page"),
+);
+const UpdateMarketingKpiPage = lazyPage(
+  () => import("./app/ap/comercial/marketing/kpis/actualizar/[id]/page"),
+);
+const SuppliersPage = lazyPage(
+  () => import("./app/ap/comercial/proveedores/page"),
+);
+const AddSupplierPage = lazyPage(
+  () => import("./app/ap/comercial/proveedores/agregar/page"),
+);
+const UpdateSuppliersPage = lazyPage(
+  () => import("./app/ap/comercial/proveedores/actualizar/[id]/page"),
+);
+const SupplierEstablishmentsListPage = lazyPage(
+  () => import("./app/ap/comercial/proveedores/establecimientos/[id]/page"),
+);
+const AddSupplierEstablishmentPage = lazyPage(
+  () =>
+    import("./app/ap/comercial/proveedores/establecimientos/[id]/agregar/page"),
+);
+const UpdateSupplierEstablishmentPage = lazyPage(
+  () =>
+    import("./app/ap/comercial/proveedores/establecimientos/[id]/actualizar/[establishmentId]/page"),
+);
+const ElectronicDocumentsPage = lazyPage(
+  () => import("./app/ap/comercial/electronic-documents/page"),
+);
+const AddElectronicDocumentPage = lazyPage(
+  () => import("./app/ap/comercial/electronic-documents/agregar/page.tsx"),
+);
+const UpdateElectronicDocumentPage = lazyPage(
+  () => import("./app/ap/comercial/electronic-documents/actualizar/[id]/page"),
+);
+const AddCreditNotePage = lazyPage(
+  () => import("./app/ap/comercial/electronic-documents/[id]/credit-note/page"),
+);
+const UpdateCreditNotePage = lazyPage(
+  () =>
+    import("./app/ap/comercial/electronic-documents/[id]/credit-note/actualizar/[credit]/page"),
+);
+const AddDebitNotePage = lazyPage(
+  () => import("./app/ap/comercial/electronic-documents/[id]/debit-note/page"),
+);
+const UpdateDebitNotePage = lazyPage(
+  () =>
+    import("./app/ap/comercial/electronic-documents/[id]/debit-note/actualizar/[debit]/page"),
+);
+const VehiclesPage = lazyPage(
+  () => import("./app/ap/comercial/vehiculos/page"),
+);
+const VehiclePurchaseOrderPage = lazyPage(
+  () => import("./app/ap/comercial/compra-vehiculo-nuevo/page"),
+);
+const AddVehiclePurchaseOrderPage = lazyPage(
+  () => import("./app/ap/comercial/compra-vehiculo-nuevo/agregar/page"),
+);
+const ResendVehiclePurchaseOrderPage = lazyPage(
+  () => import("./app/ap/comercial/compra-vehiculo-nuevo/reenviar/[id]/page"),
+);
+const VehicleDeliveryPage = lazyPage(
+  () => import("./app/ap/comercial/entrega-vehiculo/page"),
+);
+const AddVehicleDeliveryPage = lazyPage(
+  () => import("./app/ap/comercial/entrega-vehiculo/agregar/page"),
+);
+const ShippingGuidePage = lazyPage(
+  () => import("./app/ap/comercial/entrega-vehiculo/guia-remision/[id]/page"),
+);
+const DeliveryChecklistPage = lazyPage(
+  () => import("./app/ap/comercial/entrega-vehiculo/checklist/[id]/page"),
+);
+const VehicleDeliveryApprovalPage = lazyPage(
+  () => import("./app/ap/comercial/entrega-vehiculo/[id]/aprobacion/page"),
+);
+const ShipmentsReceptionsPage = lazyPage(
+  () => import("./app/ap/comercial/envios-recepciones/page"),
+);
+const AddShipmentsReceptionsPage = lazyPage(
+  () => import("./app/ap/comercial/envios-recepciones/agregar/page"),
+);
+const UpdateShipmentsReceptionsPage = lazyPage(
+  () => import("./app/ap/comercial/envios-recepciones/actualizar/[id]/page"),
+);
+const ReceptionCheckListPage = lazyPage(
+  () => import("./app/ap/comercial/envios-recepciones/checklist/[id]/page"),
+);
+const TransfersPage = lazyPage(
+  () => import("./app/ap/comercial/traslados/page"),
+);
+const AddTransferPage = lazyPage(
+  () => import("./app/ap/comercial/traslados/agregar/page"),
+);
 const AssetsPage = lazyPage(() => import("./app/ap/comercial/activos/page"));
-const AddAssetPage = lazyPage(() => import("./app/ap/comercial/activos/agregar/page"));
-const StoreVisitsPage = lazyPage(() => import("./app/ap/comercial/visitas-tienda/page"));
-const AddStoreVisitsPage = lazyPage(() => import("./app/ap/comercial/visitas-tienda/agregar/page"));
-const UpdateStoreVisitsPage = lazyPage(() => import("./app/ap/comercial/visitas-tienda/actualizar/[id]/page"));
-const ManageLeadsPage = lazyPage(() => import("./app/ap/comercial/gestionar-leads/page"));
-const PurchaseRequestQuotePage = lazyPage(() => import("./app/ap/comercial/solicitudes-cotizaciones/page"));
-const AddPurchaseRequestQuotePage = lazyPage(() => import("./app/ap/comercial/solicitudes-cotizaciones/[opportunity_id]/agregar/page"));
-const UpdatePurchaseRequestQuotePage = lazyPage(() => import("./app/ap/comercial/solicitudes-cotizaciones/actualizar/[id]/page"));
-const AdjustmentRequestInboxPage = lazyPage(() => import("./app/ap/comercial/solicitudes-cotizaciones/ajustes-margen/page"));
-const AdjustmentRequestDetailPage = lazyPage(() => import("./app/ap/comercial/solicitudes-cotizaciones/ajustes-margen/[id]/page"));
-const RequestAdjustmentPage = lazyPage(() => import("./app/ap/comercial/solicitudes-cotizaciones/ajustes-margen/agregar/[quoteId]/page"));
-const DeclaracionJuradaKycPage = lazyPage(() => import("./app/ap/comercial/declaracion-jurada-kyc/page"));
-const AddDeclaracionJuradaKycPage = lazyPage(() => import("./app/ap/comercial/declaracion-jurada-kyc/agregar/page"));
-const UpdateDeclaracionJuradaKycPage = lazyPage(() => import("./app/ap/comercial/declaracion-jurada-kyc/actualizar/[id]/page"));
-const DashboardStoreVisitsPage = lazyPage(() => import("./app/ap/comercial/dashboard-visitas-leads/page"));
-const ReasonsRejectionPage = lazyPage(() => import("./app/ap/comercial/motivos-descarte/page"));
-const ReportesComercialPage = lazyPage(() => import("./app/ap/comercial/reportes/page"));
+const AddAssetPage = lazyPage(
+  () => import("./app/ap/comercial/activos/agregar/page"),
+);
+const StoreVisitsPage = lazyPage(
+  () => import("./app/ap/comercial/visitas-tienda/page"),
+);
+const AddStoreVisitsPage = lazyPage(
+  () => import("./app/ap/comercial/visitas-tienda/agregar/page"),
+);
+const UpdateStoreVisitsPage = lazyPage(
+  () => import("./app/ap/comercial/visitas-tienda/actualizar/[id]/page"),
+);
+const ManageLeadsPage = lazyPage(
+  () => import("./app/ap/comercial/gestionar-leads/page"),
+);
+const PurchaseRequestQuotePage = lazyPage(
+  () => import("./app/ap/comercial/solicitudes-cotizaciones/page"),
+);
+const AddPurchaseRequestQuotePage = lazyPage(
+  () =>
+    import("./app/ap/comercial/solicitudes-cotizaciones/[opportunity_id]/agregar/page"),
+);
+const UpdatePurchaseRequestQuotePage = lazyPage(
+  () =>
+    import("./app/ap/comercial/solicitudes-cotizaciones/actualizar/[id]/page"),
+);
+const AdjustmentRequestInboxPage = lazyPage(
+  () =>
+    import("./app/ap/comercial/solicitudes-cotizaciones/ajustes-margen/page"),
+);
+const AdjustmentRequestDetailPage = lazyPage(
+  () =>
+    import("./app/ap/comercial/solicitudes-cotizaciones/ajustes-margen/[id]/page"),
+);
+const RequestAdjustmentPage = lazyPage(
+  () =>
+    import("./app/ap/comercial/solicitudes-cotizaciones/ajustes-margen/agregar/[quoteId]/page"),
+);
+const DeclaracionJuradaKycPage = lazyPage(
+  () => import("./app/ap/comercial/declaracion-jurada-kyc/page"),
+);
+const AddDeclaracionJuradaKycPage = lazyPage(
+  () => import("./app/ap/comercial/declaracion-jurada-kyc/agregar/page"),
+);
+const UpdateDeclaracionJuradaKycPage = lazyPage(
+  () =>
+    import("./app/ap/comercial/declaracion-jurada-kyc/actualizar/[id]/page"),
+);
+const DashboardStoreVisitsPage = lazyPage(
+  () => import("./app/ap/comercial/dashboard-visitas-leads/page"),
+);
+const ReasonsRejectionPage = lazyPage(
+  () => import("./app/ap/comercial/motivos-descarte/page"),
+);
+const ReportesComercialPage = lazyPage(
+  () => import("./app/ap/comercial/reportes/page"),
+);
 import { NotFoundBoundary } from "./shared/components/NotFoundBoundary";
-const ExcludedPage = lazyPage(() => import("./app/gp/gestion-humana/evaluaciones-de-desempeno/excluidos/page"));
-const MetricPage = lazyPage(() => import("./app/gp/gestion-humana/evaluaciones-de-desempeno/metricas/page"));
-const AddMetricPage = lazyPage(() => import("./app/gp/gestion-humana/evaluaciones-de-desempeno/metricas/agregar/page"));
-const UpdateMetricPage = lazyPage(() => import("./app/gp/gestion-humana/evaluaciones-de-desempeno/metricas/actualizar/[id]/page"));
-const ObjectivePage = lazyPage(() => import("./app/gp/gestion-humana/evaluaciones-de-desempeno/objetivos/page"));
-const AddObjectivePage = lazyPage(() => import("./app/gp/gestion-humana/evaluaciones-de-desempeno/objetivos/agregar/page"));
-const UpdateObjectivePage = lazyPage(() => import("./app/gp/gestion-humana/evaluaciones-de-desempeno/objetivos/actualizar/[id]/page"));
-const ParameterPage = lazyPage(() => import("./app/gp/gestion-humana/evaluaciones-de-desempeno/parametros/page"));
-const AddParameterPage = lazyPage(() => import("./app/gp/gestion-humana/evaluaciones-de-desempeno/parametros/agregar/page"));
-const UpdateParameterPage = lazyPage(() => import("./app/gp/gestion-humana/evaluaciones-de-desempeno/parametros/actualizar/[id]/page"));
-const PeriodPage = lazyPage(() => import("./app/gp/gestion-humana/evaluaciones-de-desempeno/periodos/page"));
-const AddPeriodPage = lazyPage(() => import("./app/gp/gestion-humana/evaluaciones-de-desempeno/periodos/agregar/page"));
-const UpdatePeriodPage = lazyPage(() => import("./app/gp/gestion-humana/evaluaciones-de-desempeno/periodos/actualizar/[id]/page"));
-const EvaluatorParPage = lazyPage(() => import("./app/gp/gestion-humana/evaluaciones-de-desempeno/asignacion-pares/page"));
-const ReportByPeriodsEvaluationPage = lazyPage(() => import("./app/gp/gestion-humana/evaluaciones-de-desempeno/reporte-evaluacion-por-periodos/page"));
-const EvaluationModelPage = lazyPage(() => import("./app/gp/gestion-humana/evaluaciones-de-desempeno/modelo-evaluacion/page"));
-const AddEvaluationModelPage = lazyPage(() => import("./app/gp/gestion-humana/evaluaciones-de-desempeno/modelo-evaluacion/agregar/page"));
-const UpdateEvaluationModelPage = lazyPage(() => import("./app/gp/gestion-humana/evaluaciones-de-desempeno/modelo-evaluacion/actualizar/[id]/page"));
+const ExcludedPage = lazyPage(
+  () =>
+    import("./app/gp/gestion-humana/evaluaciones-de-desempeno/excluidos/page"),
+);
+const MetricPage = lazyPage(
+  () =>
+    import("./app/gp/gestion-humana/evaluaciones-de-desempeno/metricas/page"),
+);
+const AddMetricPage = lazyPage(
+  () =>
+    import("./app/gp/gestion-humana/evaluaciones-de-desempeno/metricas/agregar/page"),
+);
+const UpdateMetricPage = lazyPage(
+  () =>
+    import("./app/gp/gestion-humana/evaluaciones-de-desempeno/metricas/actualizar/[id]/page"),
+);
+const ObjectivePage = lazyPage(
+  () =>
+    import("./app/gp/gestion-humana/evaluaciones-de-desempeno/objetivos/page"),
+);
+const AddObjectivePage = lazyPage(
+  () =>
+    import("./app/gp/gestion-humana/evaluaciones-de-desempeno/objetivos/agregar/page"),
+);
+const UpdateObjectivePage = lazyPage(
+  () =>
+    import("./app/gp/gestion-humana/evaluaciones-de-desempeno/objetivos/actualizar/[id]/page"),
+);
+const ParameterPage = lazyPage(
+  () =>
+    import("./app/gp/gestion-humana/evaluaciones-de-desempeno/parametros/page"),
+);
+const AddParameterPage = lazyPage(
+  () =>
+    import("./app/gp/gestion-humana/evaluaciones-de-desempeno/parametros/agregar/page"),
+);
+const UpdateParameterPage = lazyPage(
+  () =>
+    import("./app/gp/gestion-humana/evaluaciones-de-desempeno/parametros/actualizar/[id]/page"),
+);
+const PeriodPage = lazyPage(
+  () =>
+    import("./app/gp/gestion-humana/evaluaciones-de-desempeno/periodos/page"),
+);
+const AddPeriodPage = lazyPage(
+  () =>
+    import("./app/gp/gestion-humana/evaluaciones-de-desempeno/periodos/agregar/page"),
+);
+const UpdatePeriodPage = lazyPage(
+  () =>
+    import("./app/gp/gestion-humana/evaluaciones-de-desempeno/periodos/actualizar/[id]/page"),
+);
+const EvaluatorParPage = lazyPage(
+  () =>
+    import("./app/gp/gestion-humana/evaluaciones-de-desempeno/asignacion-pares/page"),
+);
+const ReportByPeriodsEvaluationPage = lazyPage(
+  () =>
+    import("./app/gp/gestion-humana/evaluaciones-de-desempeno/reporte-evaluacion-por-periodos/page"),
+);
+const EvaluationModelPage = lazyPage(
+  () =>
+    import("./app/gp/gestion-humana/evaluaciones-de-desempeno/modelo-evaluacion/page"),
+);
+const AddEvaluationModelPage = lazyPage(
+  () =>
+    import("./app/gp/gestion-humana/evaluaciones-de-desempeno/modelo-evaluacion/agregar/page"),
+);
+const UpdateEvaluationModelPage = lazyPage(
+  () =>
+    import("./app/gp/gestion-humana/evaluaciones-de-desempeno/modelo-evaluacion/actualizar/[id]/page"),
+);
 const MyPerformance = lazyPage(() => import("./app/perfil/mi-desempeno/page"));
 const VacationPage = lazyPage(() => import("./app/perfil/vacaciones/page"));
 import ModulePage from "./components/ModulePage";
 const CommercialPage = lazyPage(() => import("./app/ap/comercial/page.tsx"));
-const DashboardDeliveryPage = lazyPage(() => import("./app/ap/comercial/dashboard-entregas/page.tsx"));
+const DashboardDeliveryPage = lazyPage(
+  () => import("./app/ap/comercial/dashboard-entregas/page.tsx"),
+);
 const VehicleSaleAuditPage = lazyPage(() => import("./app/ap/comercial/auditoria-estados-venta/page.tsx"));
-const TeamLeadsDashboard = lazyPage(() => import("./app/ap/comercial/dashboard-equipo-leads/page.tsx"));
-const ExhibitionVehiclesPage = lazyPage(() => import("./app/ap/comercial/vehiculos-exhibicion/page"));
-const AddExhibitionVehiclesPage = lazyPage(() => import("./app/ap/comercial/vehiculos-exhibicion/agregar/page"));
-const UpdateExhibitionVehiclesPage = lazyPage(() => import("./app/ap/comercial/vehiculos-exhibicion/actualizar/[id]/page"));
-const PositionsPage = lazyPage(() => import("./app/gp/gestion-humana/configuraciones/posiciones/page"));
-const AddPositionPage = lazyPage(() => import("./app/gp/gestion-humana/configuraciones/posiciones/agregar/page"));
+const TeamLeadsDashboard = lazyPage(
+  () => import("./app/ap/comercial/dashboard-equipo-leads/page.tsx"),
+);
+const ExhibitionVehiclesPage = lazyPage(
+  () => import("./app/ap/comercial/vehiculos-exhibicion/page"),
+);
+const AddExhibitionVehiclesPage = lazyPage(
+  () => import("./app/ap/comercial/vehiculos-exhibicion/agregar/page"),
+);
+const UpdateExhibitionVehiclesPage = lazyPage(
+  () => import("./app/ap/comercial/vehiculos-exhibicion/actualizar/[id]/page"),
+);
+const PositionsPage = lazyPage(
+  () => import("./app/gp/gestion-humana/configuraciones/posiciones/page"),
+);
+const AddPositionPage = lazyPage(
+  () =>
+    import("./app/gp/gestion-humana/configuraciones/posiciones/agregar/page"),
+);
 
 // ============================================================================
 // LAYOUTS
@@ -226,421 +515,1416 @@ import TPConfiguracionesLayout from "./app/tp/configuraciones/layout";
 // ============================================================================
 import LoginPage from "./app/page";
 import NotFoundPage from "./app/not-found";
-const ConfirmacionCotizacionPage = lazyPage(() => import("./app/confirmacion-cotizacion/[token]/page"));
-const EntregaExtraordinariaConfirmacionPage = lazyPage(() => import("./app/entregas-extraordinarias/confirmacion/page"));
+const ConfirmacionCotizacionPage = lazyPage(
+  () => import("./app/confirmacion-cotizacion/[token]/page"),
+);
+const EntregaExtraordinariaConfirmacionPage = lazyPage(
+  () => import("./app/entregas-extraordinarias/confirmacion/page"),
+);
 const ForgotPasswordPage = lazyPage(() => import("./app/forgot-password/page"));
 const ResetPasswordPage = lazyPage(() => import("./app/reset-password/page"));
 const TwoFactorVerifyPage = lazyPage(() => import("./app/2fa-verify/page"));
 const CompaniesPage = lazyPage(() => import("./app/companies/page.tsx"));
-const ModulesCompanyPage = lazyPage(() => import("./app/modules/[company]/page.tsx"));
-const ModulesCompanyModulePage = lazyPage(() => import("./app/modules/[company]/[module]/page.tsx"));
+const ModulesCompanyPage = lazyPage(
+  () => import("./app/modules/[company]/page.tsx"),
+);
+const ModulesCompanyModulePage = lazyPage(
+  () => import("./app/modules/[company]/[module]/page.tsx"),
+);
 const FeedRoutePage = lazyPage(() => import("./app/feed/page.tsx"));
 const TestPage = lazyPage(() => import("./app/test/page.tsx"));
-const TrainingPage = lazyPage(() => import("./app/perfil/capacitaciones/page.tsx"));
+const TrainingPage = lazyPage(
+  () => import("./app/perfil/capacitaciones/page.tsx"),
+);
 const DocumentPage = lazyPage(() => import("./app/perfil/documentos/page.tsx"));
 const TeamPage = lazyPage(() => import("./app/perfil/equipo/page.tsx"));
-const TeamIndicatorsPage = lazyPage(() => import("./app/perfil/equipo/indicadores/page.tsx"));
-const TeamHierarchyPage = lazyPage(() => import("./app/perfil/equipo/jerarquica/page.tsx"));
-const NamuPerformancePage = lazyPage(() => import("./app/perfil/equipo/[id]/page.tsx"));
-const NamuPerformanceEvaluationPage = lazyPage(() => import("./app/perfil/equipo/[id]/evaluar/page.tsx"));
-const NamuPerformanceHistoryPage = lazyPage(() => import("./app/perfil/equipo/[id]/historial/page.tsx"));
-const PlanDesarrolloPage = lazyPage(() => import("./app/perfil/equipo/[id]/plan-desarrollo/page.tsx"));
-const CrearPlanDesarrolloPage = lazyPage(() => import("./app/perfil/equipo/[id]/plan-desarrollo/agregar/page.tsx"));
-const EconomicActivityPage = lazyPage(() => import("./app/ap/configuraciones/maestros-general/actividad-economica/page.tsx"));
-const WarehousePage = lazyPage(() => import("./app/ap/configuraciones/maestros-general/almacenes/page.tsx"));
-const AddWarehousePage = lazyPage(() => import("./app/ap/configuraciones/maestros-general/almacenes/agregar/page.tsx"));
-const UpdateWarehousePage = lazyPage(() => import("./app/ap/configuraciones/maestros-general/almacenes/actualizar/[id]/page.tsx"));
-const UserSeriesAssignmentPage = lazyPage(() => import("./app/ap/configuraciones/maestros-general/asignar-serie-usuario/page.tsx"));
-const AddUserSeriesAssignmentPage = lazyPage(() => import("./app/ap/configuraciones/maestros-general/asignar-serie-usuario/agregar/page.tsx"));
-const UpdateUserSeriesAssignmentPage = lazyPage(() => import("./app/ap/configuraciones/maestros-general/asignar-serie-usuario/actualizar/[id]/page.tsx"));
-const AssignSalesSeriesPage = lazyPage(() => import("./app/ap/configuraciones/maestros-general/series/page.tsx"));
-const AddAssignSalesSeriesPage = lazyPage(() => import("./app/ap/configuraciones/maestros-general/series/agregar/page.tsx"));
-const UpdateAssignSalesSeriesPage = lazyPage(() => import("./app/ap/configuraciones/maestros-general/series/actualizar/[id]/page.tsx"));
-const BankPage = lazyPage(() => import("./app/ap/configuraciones/maestros-general/bancos/page.tsx"));
-const CampaignPage = lazyPage(() => import("./app/ap/configuraciones/maestros-general/campanas/page.tsx"));
-const AddCampaignPage = lazyPage(() => import("./app/ap/configuraciones/maestros-general/campanas/agregar/page.tsx"));
-const UpdateCampaignPage = lazyPage(() => import("./app/ap/configuraciones/maestros-general/campanas/actualizar/[id]/page.tsx"));
-const ApBankPage = lazyPage(() => import("./app/ap/configuraciones/maestros-general/chequeras/page.tsx"));
-const AddApBankPage = lazyPage(() => import("./app/ap/configuraciones/maestros-general/chequeras/agregar/page.tsx"));
-const UpdateApBankPage = lazyPage(() => import("./app/ap/configuraciones/maestros-general/chequeras/actualizar/[id]/page.tsx"));
-const ClassArticlePage = lazyPage(() => import("./app/ap/configuraciones/maestros-general/clase-articulo/page.tsx"));
-const AddClassArticlePage = lazyPage(() => import("./app/ap/configuraciones/maestros-general/clase-articulo/agregar/page.tsx"));
-const UpdateClassArticlePage = lazyPage(() => import("./app/ap/configuraciones/maestros-general/clase-articulo/actualizar/[id]/page.tsx"));
-const MaritalStatusPage = lazyPage(() => import("./app/ap/configuraciones/maestros-general/estado-civil/page.tsx"));
-const ClientOriginPage = lazyPage(() => import("./app/ap/configuraciones/maestros-general/origen-cliente/page.tsx"));
-const AccountingAccountPlanPage = lazyPage(() => import("./app/ap/configuraciones/maestros-general/plan-cuenta-contable/page.tsx"));
-const PersonSegmentPage = lazyPage(() => import("./app/ap/configuraciones/maestros-general/segmentos-persona/page.tsx"));
-const TaxClassTypesPage = lazyPage(() => import("./app/ap/configuraciones/maestros-general/tipos-clase-impuesto/page.tsx"));
-const VoucherTypesPage = lazyPage(() => import("./app/ap/configuraciones/maestros-general/tipos-comprobante/page.tsx"));
-const AccountingAccountTypePage = lazyPage(() => import("./app/ap/configuraciones/maestros-general/tipos-cuenta-contable/page.tsx"));
-const DocumentTypePage = lazyPage(() => import("./app/ap/configuraciones/maestros-general/tipos-documento/page.tsx"));
-const CurrencyTypesPage = lazyPage(() => import("./app/ap/configuraciones/maestros-general/tipos-moneda/page.tsx"));
-const TypesOperationPage = lazyPage(() => import("./app/ap/configuraciones/maestros-general/tipos-operacion/page.tsx"));
-const TypeClientPage = lazyPage(() => import("./app/ap/configuraciones/maestros-general/tipos-persona/page.tsx"));
-const TypeGenderPage = lazyPage(() => import("./app/ap/configuraciones/maestros-general/tipos-sexo/page.tsx"));
-const DistrictPage = lazyPage(() => import("./app/ap/configuraciones/maestros-general/ubigeos/page.tsx"));
-const AddDistrictPage = lazyPage(() => import("./app/ap/configuraciones/maestros-general/ubigeos/agregar/page.tsx"));
-const UpdateDistrictPage = lazyPage(() => import("./app/ap/configuraciones/maestros-general/ubigeos/actualizar/[id]/page.tsx"));
-const UnitMeasurementPage = lazyPage(() => import("./app/ap/configuraciones/maestros-general/unidad-medida/page.tsx"));
-const VehicleCategoryPage = lazyPage(() => import("./app/ap/configuraciones/vehiculos/categorias/page.tsx"));
-const CategoryChecklistPage = lazyPage(() => import("./app/ap/configuraciones/vehiculos/categorias-checklist/page.tsx"));
-const ReceptionChecklistPage = lazyPage(() => import("./app/ap/configuraciones/vehiculos/checklist-recepcion/page.tsx"));
-const VehicleColorPage = lazyPage(() => import("./app/ap/configuraciones/vehiculos/colores-vehiculo/page.tsx"));
-const VehicleStatusPage = lazyPage(() => import("./app/ap/configuraciones/vehiculos/estados-vehiculo/page.tsx"));
-const AddVehicleStatusPage = lazyPage(() => import("./app/ap/configuraciones/vehiculos/estados-vehiculo/agregar/page.tsx"));
-const UpdateVehicleStatusPage = lazyPage(() => import("./app/ap/configuraciones/vehiculos/estados-vehiculo/actualizar/[id]/page.tsx"));
-const FamiliesPage = lazyPage(() => import("./app/ap/configuraciones/vehiculos/familias/page.tsx"));
-const BrandGroupPage = lazyPage(() => import("./app/ap/configuraciones/vehiculos/grupo-marcas/page.tsx"));
-const BrandsPage = lazyPage(() => import("./app/ap/configuraciones/vehiculos/marcas/page.tsx"));
-const AddBrandsPage = lazyPage(() => import("./app/ap/configuraciones/vehiculos/marcas/agregar/page.tsx"));
-const UpdateBrandPage = lazyPage(() => import("./app/ap/configuraciones/vehiculos/marcas/actualizar/[id]/page.tsx"));
-const ModelsVnPage = lazyPage(() => import("./app/ap/configuraciones/vehiculos/modelos-vn/page.tsx"));
-const AddModelsVnPage = lazyPage(() => import("./app/ap/configuraciones/vehiculos/modelos-vn/agregar/page.tsx"));
-const UpdateModelsVnPage = lazyPage(() => import("./app/ap/configuraciones/vehiculos/modelos-vn/actualizar/[id]/page.tsx"));
-const ModelsVnPvPage = lazyPage(() => import("./app/ap/post-venta/taller/modelos-vn-taller/page.tsx"));
-const ModelsVnRepuestosPage = lazyPage(() => import("./app/ap/post-venta/repuestos/modelos-vn-repuestos/page.tsx"));
-const TypeVehicleOriginPage = lazyPage(() => import("./app/ap/configuraciones/vehiculos/origen-vehiculo/page.tsx"));
-const BodyTypePage = lazyPage(() => import("./app/ap/configuraciones/vehiculos/tipos-carroceria/page.tsx"));
-const FuelTypePage = lazyPage(() => import("./app/ap/configuraciones/vehiculos/tipos-combustible/page.tsx"));
-const EngineTypesPage = lazyPage(() => import("./app/ap/configuraciones/vehiculos/tipos-motor/page.tsx"));
-const SupplierOrderTypePage = lazyPage(() => import("./app/ap/configuraciones/vehiculos/tipos-pedido-proveedor/page.tsx"));
-const ProductTypePage = lazyPage(() => import("./app/ap/configuraciones/vehiculos/tipos-producto/page.tsx"));
-const TractionTypePage = lazyPage(() => import("./app/ap/configuraciones/vehiculos/tipos-traccion/page.tsx"));
-const VehicleTypePage = lazyPage(() => import("./app/ap/configuraciones/vehiculos/tipos-vehiculo/page.tsx"));
-const GearShiftTypePage = lazyPage(() => import("./app/ap/configuraciones/vehiculos/transmision-vehiculo/page.tsx"));
-const AfterSalesParameterPage = lazyPage(() => import("./app/ap/configuraciones/post-venta/parametros/page.tsx"));
-const ReasonsAdjustmentPage = lazyPage(() => import("./app/ap/configuraciones/post-venta/motivos-ajuste/page.tsx"));
-const ReasonDiscardingTallerPage = lazyPage(() => import("./app/ap/configuraciones/post-venta/motivos-descarte-taller/page.tsx"));
-const ReasonDiscardingSparePartPage = lazyPage(() => import("./app/ap/configuraciones/post-venta/motivos-descarte-repuesto/page.tsx"));
-const TypesOperationsAppointmentPage = lazyPage(() => import("./app/ap/configuraciones/post-venta/tipos-operacion-cita/page.tsx"));
-const TypesPlanningPage = lazyPage(() => import("./app/ap/configuraciones/post-venta/tipos-planificacion/page.tsx"));
-const ConceptObjectivePvPage = lazyPage(() => import("./app/ap/configuraciones/post-venta/objetivos-taller-meson/page.tsx"));
-const CommercialManagerBrandGroupPage = lazyPage(() => import("./app/ap/configuraciones/ventas/asignar-grupo-marca/page.tsx"));
-const AddCommercialManagerBrandGroupPage = lazyPage(() => import("./app/ap/configuraciones/ventas/asignar-grupo-marca/agregar/page.tsx"));
-const UpdateCommercialManagerBrandGroupPage = lazyPage(() => import("./app/ap/configuraciones/ventas/asignar-grupo-marca/actualizar/[id]/page.tsx"));
-const AssignmentLeadershipPage = lazyPage(() => import("./app/ap/configuraciones/ventas/asignar-jefe/page.tsx"));
-const AddAssignmentLeadershipPage = lazyPage(() => import("./app/ap/configuraciones/ventas/asignar-jefe/agregar/page.tsx"));
-const UpdateAssignmentLeadershipPage = lazyPage(() => import("./app/ap/configuraciones/ventas/asignar-jefe/actualizar/[id]/page.tsx"));
-const AssignBrandConsultantPage = lazyPage(() => import("./app/ap/configuraciones/ventas/asignar-marca/page.tsx"));
-const AddAssignBrandConsultantPage = lazyPage(() => import("./app/ap/configuraciones/ventas/asignar-marca/gestionar/page.tsx"));
-const AssignCompanyBranchPage = lazyPage(() => import("./app/ap/configuraciones/ventas/asignar-sede/page.tsx"));
-const AddAssignCompanyBranchPage = lazyPage(() => import("./app/ap/configuraciones/ventas/asignar-sede/agregar/page.tsx"));
-const UpdateAssignCompanyBranchPage = lazyPage(() => import("./app/ap/configuraciones/ventas/asignar-sede/actualizar/[id]/page.tsx"));
-const ApSafeCreditGoalPage = lazyPage(() => import("./app/ap/configuraciones/ventas/metas-credito-seguro/page.tsx"));
-const ApGoalSellOutInPage = lazyPage(() => import("./app/ap/configuraciones/ventas/metas-venta/page.tsx"));
-const AddApGoalSellOutInPage = lazyPage(() => import("./app/ap/configuraciones/ventas/metas-venta/gestionar/page.tsx"));
-const ApGoalSellOutInSummaryPage = lazyPage(() => import("./app/ap/configuraciones/ventas/metas-venta/resumen/page.tsx"));
-const ShopPage = lazyPage(() => import("./app/ap/configuraciones/ventas/tiendas/page.tsx"));
-const WarehouseManagementPage = lazyPage(() => import("@/app/ap/post-venta/gestion-de-almacen/page.tsx"));
-const ProductCategoryPage = lazyPage(() => import("@/app/ap/post-venta/gestion-de-almacen/categorias-producto/page.tsx"));
-const BrandsPVPage = lazyPage(() => import("./app/ap/post-venta/gestion-de-almacen/marcas-producto/page.tsx"));
-const AddBrandsPVPage = lazyPage(() => import("@/app/ap/post-venta/gestion-de-almacen/marcas-producto/agregar/page.tsx"));
-const UpdateBrandsPVPage = lazyPage(() => import("@/app/ap/post-venta/gestion-de-almacen/marcas-producto/actualizar/[id]/page.tsx"));
-const ProductPVPage = lazyPage(() => import("./app/ap/post-venta/gestion-de-almacen/productos/page.tsx"));
-const AddProductPVPage = lazyPage(() => import("@/app/ap/post-venta/gestion-de-almacen/productos/agregar/page.tsx"));
-const UpdateProductPVPage = lazyPage(() => import("@/app/ap/post-venta/gestion-de-almacen/productos/actualizar/[id]/page.tsx"));
-const AssignWarehousePage = lazyPage(() => import("@/app/ap/post-venta/gestion-de-almacen/productos/asignar-almacen/[id]/page.tsx"));
-const ProductTransferPage = lazyPage(() => import("./app/ap/post-venta/gestion-de-almacen/guia-remision/page.tsx"));
-const AddProductTransferPage = lazyPage(() => import("@/app/ap/post-venta/gestion-de-almacen/guia-remision/agregar/page.tsx"));
-const UpdateProductTransferPage = lazyPage(() => import("@/app/ap/post-venta/gestion-de-almacen/guia-remision/actualizar/[id]/page.tsx"));
-const TransferReceptionsPage = lazyPage(() => import("@/app/ap/post-venta/gestion-de-almacen/guia-remision/recepcion/[productTransferId]/page.tsx"));
-const CreateTransferReceptionPage = lazyPage(() => import("@/app/ap/post-venta/gestion-de-almacen/guia-remision/recepcion/agregar/[productTransferId]/page.tsx"));
-const AdjustmentsProductPage = lazyPage(() => import("./app/ap/post-venta/gestion-de-almacen/ajuste-producto/page.tsx"));
-const AddAdjustmentsProductPage = lazyPage(() => import("@/app/ap/post-venta/gestion-de-almacen/ajuste-producto/agregar/page.tsx"));
-const UpdateAdjustmentsProductPage = lazyPage(() => import("@/app/ap/post-venta/gestion-de-almacen/ajuste-producto/actualizar/[id]/page.tsx"));
-const ProductShelfPage = lazyPage(() => import("./app/ap/post-venta/gestion-de-almacen/estantes-almacen/page.tsx"));
-const ManageShelfProductsPage = lazyPage(() => import("@/app/ap/post-venta/gestion-de-almacen/estantes-almacen/gestionar/[id]/page.tsx"));
-const InventoryPage = lazyPage(() => import("./app/ap/post-venta/gestion-de-almacen/inventario/page.tsx"));
-const InventoryKardexPage = lazyPage(() => import("@/app/ap/post-venta/gestion-de-almacen/inventario/kardex/page.tsx"));
-const ProductKardexPage = lazyPage(() => import("@/app/ap/post-venta/gestion-de-almacen/inventario/movimientos/[productId]/[warehouseId]/page.tsx"));
-const PurchaseHistoryPage = lazyPage(() => import("@/app/ap/post-venta/gestion-de-almacen/inventario/historico-compras/[productId]/[warehouseId]/page.tsx"));
-const PriceCalculationPage = lazyPage(() => import("@/app/ap/post-venta/gestion-de-almacen/inventario/historico-compras/[productId]/[warehouseId]/precio-calculo/page.tsx"));
-const ComparativaDynamicsPage = lazyPage(() => import("@/app/ap/post-venta/gestion-de-almacen/inventario/comparativa-dynamics/page.tsx"));
-const ReceptionsProductsPage = lazyPage(() => import("@/app/ap/post-venta/gestion-de-almacen/compra-proveedor/recepcionar/[supplierOrderId]/page.tsx"));
-const UpdateReceptionProductPage = lazyPage(() => import("@/app/ap/post-venta/gestion-de-almacen/compra-proveedor/recepcionar/actualizar/[supplierOrderId]/[id]/page.tsx"));
-const AddReceptionProductPage = lazyPage(() => import("@/app/ap/post-venta/gestion-de-almacen/compra-proveedor/recepcionar/agregar/[supplierOrderId]/page.tsx"));
-const SupplierOrderPage = lazyPage(() => import("./app/ap/post-venta/gestion-de-almacen/compra-proveedor/page.tsx"));
-const AddSupplierOrderPage = lazyPage(() => import("@/app/ap/post-venta/gestion-de-almacen/compra-proveedor/agregar/page.tsx"));
-const UpdateSupplierOrderPage = lazyPage(() => import("@/app/ap/post-venta/gestion-de-almacen/compra-proveedor/actualizar/[id]/page.tsx"));
-const InvoiceReceptionPage = lazyPage(() => import("@/app/ap/post-venta/gestion-de-almacen/compra-proveedor/recepcionar/facturar/[receptionId]/page.tsx"));
-const PurchaseOrderWarehousePage = lazyPage(() => import("@/app/ap/post-venta/gestion-de-almacen/factura-compra/page.tsx"));
-const ResendWarehousePurchaseOrderPage = lazyPage(() => import("@/app/ap/post-venta/gestion-de-almacen/factura-compra/reenviar/[id]/page.tsx"));
-const WarehousePurchaseRequestPage = lazyPage(() => import("./app/ap/post-venta/gestion-de-almacen/solicitud-compra-almacen/page.tsx"));
-const AddWarehousePurchaseRequestPage = lazyPage(() => import("@/app/ap/post-venta/gestion-de-almacen/solicitud-compra-almacen/agregar/page.tsx"));
-const UpdateWarehousePurchaseRequestPage = lazyPage(() => import("@/app/ap/post-venta/gestion-de-almacen/solicitud-compra-almacen/actualizar/[id]/page.tsx"));
-const SuppliersStorePage = lazyPage(() => import("./app/ap/post-venta/gestion-de-almacen/proveedor-almacen/page.tsx"));
-const AddSupplierStorePage = lazyPage(() => import("./app/ap/post-venta/gestion-de-almacen/proveedor-almacen/agregar/page.tsx"));
-const UpdateSuppliersStorePage = lazyPage(() => import("./app/ap/post-venta/gestion-de-almacen/proveedor-almacen/actualizar/[id]/page.tsx"));
-const SupplierStoreEstablishmentsListPage = lazyPage(() => import("./app/ap/post-venta/gestion-de-almacen/proveedor-almacen/establecimientos/[id]/page.tsx"));
-const AddSupplierStoreEstablishmentPage = lazyPage(() => import("./app/ap/post-venta/gestion-de-almacen/proveedor-almacen/establecimientos/[id]/agregar/page.tsx"));
-const UpdateSupplierStoreEstablishmentPage = lazyPage(() => import("./app/ap/post-venta/gestion-de-almacen/proveedor-almacen/establecimientos/[id]/actualizar/[establishmentId]/page.tsx"));
-const SparePartsPage = lazyPage(() => import("./app/ap/post-venta/repuestos/page.tsx"));
-const ApprovedAccesoriesPage = lazyPage(() => import("./app/ap/post-venta/repuestos/accesorios-homologados/page.tsx"));
-const AddApprovedAccesoriesPage = lazyPage(() => import("./app/ap/post-venta/repuestos/accesorios-homologados/agregar/page.tsx"));
-const UpdateApprovedAccesoriesPage = lazyPage(() => import("./app/ap/post-venta/repuestos/accesorios-homologados/actualizar/[id]/page.tsx"));
-const OrderQuotationMesonPage = lazyPage(() => import("./app/ap/post-venta/repuestos/cotizacion-meson/page.tsx"));
-const AddOrderQuotationMesonPage = lazyPage(() => import("./app/ap/post-venta/repuestos/cotizacion-meson/agregar/page.tsx"));
-const UpdateOrderQuotationMesonPage = lazyPage(() => import("./app/ap/post-venta/repuestos/cotizacion-meson/actualizar/[id]/page.tsx"));
-const RequestDiscountOrderQuotationMesonPage = lazyPage(() => import("./app/ap/post-venta/repuestos/cotizacion-meson/solicitar-descuento/[id]/page.tsx"));
-const OrderQuotationMesonDetallePage = lazyPage(() => import("./app/ap/post-venta/repuestos/cotizacion-meson/detalle/[id]/page.tsx"));
-const OrderQuotationMesonManagePage = lazyPage(() => import("./app/ap/post-venta/repuestos/cotizacion-meson/gestionar/[id]/page.tsx"));
-const AprobacionProductosMesonPage = lazyPage(() => import("./app/ap/post-venta/repuestos/cotizacion-meson/aprobar/[id]/page.tsx"));
-const SalesReceiptsRepuestoPage = lazyPage(() => import("./app/ap/post-venta/repuestos/comprobante-venta-repuesto/page.tsx"));
-const PurchaseRequestRepuestoPage = lazyPage(() => import("./app/ap/post-venta/repuestos/solicitud-compra-repuesto/page.tsx"));
-const AddPurchaseRequestRepuestoPage = lazyPage(() => import("./app/ap/post-venta/repuestos/solicitud-compra-repuesto/agregar/page.tsx"));
-const UpdatePurchaseRequestRepuestoPage = lazyPage(() => import("./app/ap/post-venta/repuestos/solicitud-compra-repuesto/actualizar/[id]/page.tsx"));
-const VehiclesRepuestosPage = lazyPage(() => import("./app/ap/post-venta/repuestos/vehiculos-repuestos/page.tsx"));
-const AddVehiclesRepuestosPage = lazyPage(() => import("./app/ap/post-venta/repuestos/vehiculos-repuestos/agregar/page.tsx"));
-const UpdateVehiclesRepuestosPage = lazyPage(() => import("./app/ap/post-venta/repuestos/vehiculos-repuestos/actualizar/[id]/page.tsx"));
-const ProductRepuestoPage = lazyPage(() => import("./app/ap/post-venta/repuestos/producto-repuesto/page.tsx"));
-const AddProductRepuestoPage = lazyPage(() => import("./app/ap/post-venta/repuestos/producto-repuesto/agregar/page.tsx"));
-const UpdateProductRepuestoPage = lazyPage(() => import("./app/ap/post-venta/repuestos/producto-repuesto/actualizar/[id]/page.tsx"));
-const AssignWarehouseRepuestoPage = lazyPage(() => import("./app/ap/post-venta/repuestos/producto-repuesto/asignar-almacen/[id]/page.tsx"));
-const CustomersRpPage = lazyPage(() => import("./app/ap/post-venta/repuestos/clientes-repuestos/page.tsx"));
-const AddCustomersRpPage = lazyPage(() => import("./app/ap/post-venta/repuestos/clientes-repuestos/agregar/page.tsx"));
-const UpdateCustomersRpPage = lazyPage(() => import("./app/ap/post-venta/repuestos/clientes-repuestos/actualizar/[id]/page.tsx"));
-const CustomerRpEstablishmentsListPage = lazyPage(() => import("./app/ap/post-venta/repuestos/clientes-repuestos/establecimientos/[id]/page.tsx"));
-const AddCustomerRpEstablishmentPage = lazyPage(() => import("./app/ap/post-venta/repuestos/clientes-repuestos/establecimientos/[id]/agregar/page.tsx"));
-const UpdateCustomerRpEstablishmentPage = lazyPage(() => import("./app/ap/post-venta/repuestos/clientes-repuestos/establecimientos/[id]/actualizar/[establishmentId]/page.tsx"));
-const WorkshopPage = lazyPage(() => import("./app/ap/post-venta/taller/page.tsx"));
-const CardWashPage = lazyPage(() => import("./app/ap/post-venta/taller/lavado-vehiculo/page.tsx"));
-const AppointmentPlanningPage = lazyPage(() => import("./app/ap/post-venta/taller/citas/page.tsx"));
-const AddAppointmentPlanningPage = lazyPage(() => import("./app/ap/post-venta/taller/citas/agregar/page.tsx"));
-const UpdateAppointmentPlanningPage = lazyPage(() => import("./app/ap/post-venta/taller/citas/actualizar/[id]/page.tsx"));
-const OrderQuotationPage = lazyPage(() => import("./app/ap/post-venta/taller/cotizacion-taller/page.tsx"));
-const AddOrderQuotationPage = lazyPage(() => import("./app/ap/post-venta/taller/cotizacion-taller/agregar/page.tsx"));
-const UpdateOrderQuotationPage = lazyPage(() => import("@/app/ap/post-venta/taller/cotizacion-taller/actualizar/[id]/page.tsx"));
-const ManageOrderQuotationPage = lazyPage(() => import("@/app/ap/post-venta/taller/cotizacion-taller/gestionar/[id]/page.tsx"));
-const AprobacionProductosPage = lazyPage(() => import("@/app/ap/post-venta/taller/cotizacion-taller/aprobar/[id]/page.tsx"));
-const PurchaseRequestPVPage = lazyPage(() => import("./app/ap/post-venta/taller/solicitud-compra-taller/page.tsx"));
-const AddPurchaseRequestPVPage = lazyPage(() => import("./app/ap/post-venta/taller/solicitud-compra-taller/agregar/page.tsx"));
-const UpdatePurchaseRequestPVPage = lazyPage(() => import("@/app/ap/post-venta/taller/solicitud-compra-taller/actualizar/[id]/page.tsx"));
-const CustomersPvPage = lazyPage(() => import("./app/ap/post-venta/taller/clientes-taller/page.tsx"));
-const AddCustomersPvPage = lazyPage(() => import("@/app/ap/post-venta/taller/clientes-taller/agregar/page.tsx"));
-const UpdateCustomersPvPage = lazyPage(() => import("@/app/ap/post-venta/taller/clientes-taller/actualizar/[id]/page.tsx"));
-const CustomerPvEstablishmentsListPage = lazyPage(() => import("./app/ap/post-venta/taller/clientes-taller/establecimientos/[id]/page.tsx"));
-const AddCustomerPvEstablishmentPage = lazyPage(() => import("@/app/ap/post-venta/taller/clientes-taller/establecimientos/[id]/agregar/page.tsx"));
-const UpdateCustomerPvEstablishmentPage = lazyPage(() => import("@/app/ap/post-venta/taller/clientes-taller/establecimientos/[id]/actualizar/[establishmentId]/page.tsx"));
-const VehiclesPostVentaPage = lazyPage(() => import("./app/ap/post-venta/taller/vehiculos-taller/page.tsx"));
-const AddVehiclePVPage = lazyPage(() => import("@/app/ap/post-venta/taller/vehiculos-taller/agregar/page.tsx"));
-const UpdateVehiclePVPage = lazyPage(() => import("@/app/ap/post-venta/taller/vehiculos-taller/actualizar/[id]/page.tsx"));
-const ProductTallerPage = lazyPage(() => import("./app/ap/post-venta/taller/producto-taller/page.tsx"));
-const AddProductTallerPage = lazyPage(() => import("./app/ap/post-venta/taller/producto-taller/agregar/page.tsx"));
-const UpdateProductTallerPage = lazyPage(() => import("./app/ap/post-venta/taller/producto-taller/actualizar/[id]/page.tsx"));
-const AssignWarehouseTallerPage = lazyPage(() => import("./app/ap/post-venta/taller/producto-taller/asignar-almacen/[id]/page.tsx"));
-const WorkOrderPage = lazyPage(() => import("./app/ap/post-venta/taller/orden-trabajo/page.tsx"));
-const InternalNoteMigrationPage = lazyPage(() => import("./app/ap/post-venta/taller/notas-internas/page.tsx"));
-const AddWorkOrderPage = lazyPage(() => import("./app/ap/post-venta/taller/orden-trabajo/agregar/page.tsx"));
-const UpdateWorkOrderPage = lazyPage(() => import("./app/ap/post-venta/taller/orden-trabajo/actualizar/[id]/page.tsx"));
-const ManageWorkOrderPage = lazyPage(() => import("./app/ap/post-venta/taller/orden-trabajo/gestionar/[id]/page.tsx"));
-const WorkOrderReceptionPage = lazyPage(() => import("./app/ap/post-venta/taller/recepcion-orden-trabajo/page.tsx"));
-const ManageWorkOrderReceptionPage = lazyPage(() => import("./app/ap/post-venta/taller/recepcion-orden-trabajo/gestionar/[id]/page.tsx"));
-const GeneralInformationPage = lazyPage(() => import("./app/ap/post-venta/taller/orden-trabajo/gestionar/[id]/informacion-general/page.tsx"));
-const WorkOrderPlanningPage = lazyPage(() => import("./app/ap/post-venta/taller/planificacion-orden-trabajo/page.tsx"));
-const AddWorkOrderPlanningPage = lazyPage(() => import("./app/ap/post-venta/taller/planificacion-orden-trabajo/agregar/page.tsx"));
-const AssignedWorkPage = lazyPage(() => import("./app/ap/post-venta/taller/trabajos-asignados/page.tsx"));
-const TechnicianProductivityPage = lazyPage(() => import("./app/ap/post-venta/taller/trabajos-asignados/productividad/page.tsx"));
-const VehicleInspectionPage = lazyPage(() => import("./app/ap/post-venta/taller/orden-trabajo/[workOrderId]/inspeccion/page.tsx"));
-const SalesReceiptsTallerPage = lazyPage(() => import("./app/ap/post-venta/taller/comprobante-venta-taller/page.tsx"));
-const CampaignSchedulePage = lazyPage(() => import("./app/ap/post-venta/taller/cronograma-campanas/page.tsx"));
-const AddCampaignSchedulePage = lazyPage(() => import("./app/ap/post-venta/taller/cronograma-campanas/agregar/page.tsx"));
+const TeamIndicatorsPage = lazyPage(
+  () => import("./app/perfil/equipo/indicadores/page.tsx"),
+);
+const TeamHierarchyPage = lazyPage(
+  () => import("./app/perfil/equipo/jerarquica/page.tsx"),
+);
+const NamuPerformancePage = lazyPage(
+  () => import("./app/perfil/equipo/[id]/page.tsx"),
+);
+const NamuPerformanceEvaluationPage = lazyPage(
+  () => import("./app/perfil/equipo/[id]/evaluar/page.tsx"),
+);
+const NamuPerformanceHistoryPage = lazyPage(
+  () => import("./app/perfil/equipo/[id]/historial/page.tsx"),
+);
+const PlanDesarrolloPage = lazyPage(
+  () => import("./app/perfil/equipo/[id]/plan-desarrollo/page.tsx"),
+);
+const CrearPlanDesarrolloPage = lazyPage(
+  () => import("./app/perfil/equipo/[id]/plan-desarrollo/agregar/page.tsx"),
+);
+const EconomicActivityPage = lazyPage(
+  () =>
+    import("./app/ap/configuraciones/maestros-general/actividad-economica/page.tsx"),
+);
+const WarehousePage = lazyPage(
+  () => import("./app/ap/configuraciones/maestros-general/almacenes/page.tsx"),
+);
+const AddWarehousePage = lazyPage(
+  () =>
+    import("./app/ap/configuraciones/maestros-general/almacenes/agregar/page.tsx"),
+);
+const UpdateWarehousePage = lazyPage(
+  () =>
+    import("./app/ap/configuraciones/maestros-general/almacenes/actualizar/[id]/page.tsx"),
+);
+const UserSeriesAssignmentPage = lazyPage(
+  () =>
+    import("./app/ap/configuraciones/maestros-general/asignar-serie-usuario/page.tsx"),
+);
+const AddUserSeriesAssignmentPage = lazyPage(
+  () =>
+    import("./app/ap/configuraciones/maestros-general/asignar-serie-usuario/agregar/page.tsx"),
+);
+const UpdateUserSeriesAssignmentPage = lazyPage(
+  () =>
+    import("./app/ap/configuraciones/maestros-general/asignar-serie-usuario/actualizar/[id]/page.tsx"),
+);
+const AssignSalesSeriesPage = lazyPage(
+  () => import("./app/ap/configuraciones/maestros-general/series/page.tsx"),
+);
+const AddAssignSalesSeriesPage = lazyPage(
+  () =>
+    import("./app/ap/configuraciones/maestros-general/series/agregar/page.tsx"),
+);
+const UpdateAssignSalesSeriesPage = lazyPage(
+  () =>
+    import("./app/ap/configuraciones/maestros-general/series/actualizar/[id]/page.tsx"),
+);
+const BankPage = lazyPage(
+  () => import("./app/ap/configuraciones/maestros-general/bancos/page.tsx"),
+);
+const CampaignPage = lazyPage(
+  () => import("./app/ap/configuraciones/maestros-general/campanas/page.tsx"),
+);
+const AddCampaignPage = lazyPage(
+  () =>
+    import("./app/ap/configuraciones/maestros-general/campanas/agregar/page.tsx"),
+);
+const UpdateCampaignPage = lazyPage(
+  () =>
+    import("./app/ap/configuraciones/maestros-general/campanas/actualizar/[id]/page.tsx"),
+);
+const ApBankPage = lazyPage(
+  () => import("./app/ap/configuraciones/maestros-general/chequeras/page.tsx"),
+);
+const AddApBankPage = lazyPage(
+  () =>
+    import("./app/ap/configuraciones/maestros-general/chequeras/agregar/page.tsx"),
+);
+const UpdateApBankPage = lazyPage(
+  () =>
+    import("./app/ap/configuraciones/maestros-general/chequeras/actualizar/[id]/page.tsx"),
+);
+const ClassArticlePage = lazyPage(
+  () =>
+    import("./app/ap/configuraciones/maestros-general/clase-articulo/page.tsx"),
+);
+const AddClassArticlePage = lazyPage(
+  () =>
+    import("./app/ap/configuraciones/maestros-general/clase-articulo/agregar/page.tsx"),
+);
+const UpdateClassArticlePage = lazyPage(
+  () =>
+    import("./app/ap/configuraciones/maestros-general/clase-articulo/actualizar/[id]/page.tsx"),
+);
+const MaritalStatusPage = lazyPage(
+  () =>
+    import("./app/ap/configuraciones/maestros-general/estado-civil/page.tsx"),
+);
+const ClientOriginPage = lazyPage(
+  () =>
+    import("./app/ap/configuraciones/maestros-general/origen-cliente/page.tsx"),
+);
+const AccountingAccountPlanPage = lazyPage(
+  () =>
+    import("./app/ap/configuraciones/maestros-general/plan-cuenta-contable/page.tsx"),
+);
+const PersonSegmentPage = lazyPage(
+  () =>
+    import("./app/ap/configuraciones/maestros-general/segmentos-persona/page.tsx"),
+);
+const TaxClassTypesPage = lazyPage(
+  () =>
+    import("./app/ap/configuraciones/maestros-general/tipos-clase-impuesto/page.tsx"),
+);
+const VoucherTypesPage = lazyPage(
+  () =>
+    import("./app/ap/configuraciones/maestros-general/tipos-comprobante/page.tsx"),
+);
+const AccountingAccountTypePage = lazyPage(
+  () =>
+    import("./app/ap/configuraciones/maestros-general/tipos-cuenta-contable/page.tsx"),
+);
+const DocumentTypePage = lazyPage(
+  () =>
+    import("./app/ap/configuraciones/maestros-general/tipos-documento/page.tsx"),
+);
+const CurrencyTypesPage = lazyPage(
+  () =>
+    import("./app/ap/configuraciones/maestros-general/tipos-moneda/page.tsx"),
+);
+const TypesOperationPage = lazyPage(
+  () =>
+    import("./app/ap/configuraciones/maestros-general/tipos-operacion/page.tsx"),
+);
+const TypeClientPage = lazyPage(
+  () =>
+    import("./app/ap/configuraciones/maestros-general/tipos-persona/page.tsx"),
+);
+const TypeGenderPage = lazyPage(
+  () => import("./app/ap/configuraciones/maestros-general/tipos-sexo/page.tsx"),
+);
+const DistrictPage = lazyPage(
+  () => import("./app/ap/configuraciones/maestros-general/ubigeos/page.tsx"),
+);
+const AddDistrictPage = lazyPage(
+  () =>
+    import("./app/ap/configuraciones/maestros-general/ubigeos/agregar/page.tsx"),
+);
+const UpdateDistrictPage = lazyPage(
+  () =>
+    import("./app/ap/configuraciones/maestros-general/ubigeos/actualizar/[id]/page.tsx"),
+);
+const UnitMeasurementPage = lazyPage(
+  () =>
+    import("./app/ap/configuraciones/maestros-general/unidad-medida/page.tsx"),
+);
+const VehicleCategoryPage = lazyPage(
+  () => import("./app/ap/configuraciones/vehiculos/categorias/page.tsx"),
+);
+const CategoryChecklistPage = lazyPage(
+  () =>
+    import("./app/ap/configuraciones/vehiculos/categorias-checklist/page.tsx"),
+);
+const ReceptionChecklistPage = lazyPage(
+  () =>
+    import("./app/ap/configuraciones/vehiculos/checklist-recepcion/page.tsx"),
+);
+const VehicleColorPage = lazyPage(
+  () => import("./app/ap/configuraciones/vehiculos/colores-vehiculo/page.tsx"),
+);
+const VehicleStatusPage = lazyPage(
+  () => import("./app/ap/configuraciones/vehiculos/estados-vehiculo/page.tsx"),
+);
+const AddVehicleStatusPage = lazyPage(
+  () =>
+    import("./app/ap/configuraciones/vehiculos/estados-vehiculo/agregar/page.tsx"),
+);
+const UpdateVehicleStatusPage = lazyPage(
+  () =>
+    import("./app/ap/configuraciones/vehiculos/estados-vehiculo/actualizar/[id]/page.tsx"),
+);
+const FamiliesPage = lazyPage(
+  () => import("./app/ap/configuraciones/vehiculos/familias/page.tsx"),
+);
+const BrandGroupPage = lazyPage(
+  () => import("./app/ap/configuraciones/vehiculos/grupo-marcas/page.tsx"),
+);
+const BrandsPage = lazyPage(
+  () => import("./app/ap/configuraciones/vehiculos/marcas/page.tsx"),
+);
+const AddBrandsPage = lazyPage(
+  () => import("./app/ap/configuraciones/vehiculos/marcas/agregar/page.tsx"),
+);
+const UpdateBrandPage = lazyPage(
+  () =>
+    import("./app/ap/configuraciones/vehiculos/marcas/actualizar/[id]/page.tsx"),
+);
+const ModelsVnPage = lazyPage(
+  () => import("./app/ap/configuraciones/vehiculos/modelos-vn/page.tsx"),
+);
+const AddModelsVnPage = lazyPage(
+  () =>
+    import("./app/ap/configuraciones/vehiculos/modelos-vn/agregar/page.tsx"),
+);
+const UpdateModelsVnPage = lazyPage(
+  () =>
+    import("./app/ap/configuraciones/vehiculos/modelos-vn/actualizar/[id]/page.tsx"),
+);
+const ModelsVnPvPage = lazyPage(
+  () => import("./app/ap/post-venta/taller/modelos-vn-taller/page.tsx"),
+);
+const ModelsVnRepuestosPage = lazyPage(
+  () => import("./app/ap/post-venta/repuestos/modelos-vn-repuestos/page.tsx"),
+);
+const TypeVehicleOriginPage = lazyPage(
+  () => import("./app/ap/configuraciones/vehiculos/origen-vehiculo/page.tsx"),
+);
+const BodyTypePage = lazyPage(
+  () => import("./app/ap/configuraciones/vehiculos/tipos-carroceria/page.tsx"),
+);
+const FuelTypePage = lazyPage(
+  () => import("./app/ap/configuraciones/vehiculos/tipos-combustible/page.tsx"),
+);
+const EngineTypesPage = lazyPage(
+  () => import("./app/ap/configuraciones/vehiculos/tipos-motor/page.tsx"),
+);
+const SupplierOrderTypePage = lazyPage(
+  () =>
+    import("./app/ap/configuraciones/vehiculos/tipos-pedido-proveedor/page.tsx"),
+);
+const ProductTypePage = lazyPage(
+  () => import("./app/ap/configuraciones/vehiculos/tipos-producto/page.tsx"),
+);
+const TractionTypePage = lazyPage(
+  () => import("./app/ap/configuraciones/vehiculos/tipos-traccion/page.tsx"),
+);
+const VehicleTypePage = lazyPage(
+  () => import("./app/ap/configuraciones/vehiculos/tipos-vehiculo/page.tsx"),
+);
+const GearShiftTypePage = lazyPage(
+  () =>
+    import("./app/ap/configuraciones/vehiculos/transmision-vehiculo/page.tsx"),
+);
+const AfterSalesParameterPage = lazyPage(
+  () => import("./app/ap/configuraciones/post-venta/parametros/page.tsx"),
+);
+const ReasonsAdjustmentPage = lazyPage(
+  () => import("./app/ap/configuraciones/post-venta/motivos-ajuste/page.tsx"),
+);
+const ReasonDiscardingTallerPage = lazyPage(
+  () =>
+    import("./app/ap/configuraciones/post-venta/motivos-descarte-taller/page.tsx"),
+);
+const ReasonDiscardingSparePartPage = lazyPage(
+  () =>
+    import("./app/ap/configuraciones/post-venta/motivos-descarte-repuesto/page.tsx"),
+);
+const TypesOperationsAppointmentPage = lazyPage(
+  () =>
+    import("./app/ap/configuraciones/post-venta/tipos-operacion-cita/page.tsx"),
+);
+const TypesPlanningPage = lazyPage(
+  () =>
+    import("./app/ap/configuraciones/post-venta/tipos-planificacion/page.tsx"),
+);
+const ConceptObjectivePvPage = lazyPage(
+  () =>
+    import("./app/ap/configuraciones/post-venta/objetivos-taller-meson/page.tsx"),
+);
+const CommercialManagerBrandGroupPage = lazyPage(
+  () => import("./app/ap/configuraciones/ventas/asignar-grupo-marca/page.tsx"),
+);
+const AddCommercialManagerBrandGroupPage = lazyPage(
+  () =>
+    import("./app/ap/configuraciones/ventas/asignar-grupo-marca/agregar/page.tsx"),
+);
+const UpdateCommercialManagerBrandGroupPage = lazyPage(
+  () =>
+    import("./app/ap/configuraciones/ventas/asignar-grupo-marca/actualizar/[id]/page.tsx"),
+);
+const AssignmentLeadershipPage = lazyPage(
+  () => import("./app/ap/configuraciones/ventas/asignar-jefe/page.tsx"),
+);
+const AddAssignmentLeadershipPage = lazyPage(
+  () => import("./app/ap/configuraciones/ventas/asignar-jefe/agregar/page.tsx"),
+);
+const UpdateAssignmentLeadershipPage = lazyPage(
+  () =>
+    import("./app/ap/configuraciones/ventas/asignar-jefe/actualizar/[id]/page.tsx"),
+);
+const AssignBrandConsultantPage = lazyPage(
+  () => import("./app/ap/configuraciones/ventas/asignar-marca/page.tsx"),
+);
+const AddAssignBrandConsultantPage = lazyPage(
+  () =>
+    import("./app/ap/configuraciones/ventas/asignar-marca/gestionar/page.tsx"),
+);
+const AssignCompanyBranchPage = lazyPage(
+  () => import("./app/ap/configuraciones/ventas/asignar-sede/page.tsx"),
+);
+const AddAssignCompanyBranchPage = lazyPage(
+  () => import("./app/ap/configuraciones/ventas/asignar-sede/agregar/page.tsx"),
+);
+const UpdateAssignCompanyBranchPage = lazyPage(
+  () =>
+    import("./app/ap/configuraciones/ventas/asignar-sede/actualizar/[id]/page.tsx"),
+);
+const ApSafeCreditGoalPage = lazyPage(
+  () => import("./app/ap/configuraciones/ventas/metas-credito-seguro/page.tsx"),
+);
+const ApGoalSellOutInPage = lazyPage(
+  () => import("./app/ap/configuraciones/ventas/metas-venta/page.tsx"),
+);
+const AddApGoalSellOutInPage = lazyPage(
+  () =>
+    import("./app/ap/configuraciones/ventas/metas-venta/gestionar/page.tsx"),
+);
+const ApGoalSellOutInSummaryPage = lazyPage(
+  () => import("./app/ap/configuraciones/ventas/metas-venta/resumen/page.tsx"),
+);
+const ShopPage = lazyPage(
+  () => import("./app/ap/configuraciones/ventas/tiendas/page.tsx"),
+);
+const WarehouseManagementPage = lazyPage(
+  () => import("@/app/ap/post-venta/gestion-de-almacen/page.tsx"),
+);
+const ProductCategoryPage = lazyPage(
+  () =>
+    import("@/app/ap/post-venta/gestion-de-almacen/categorias-producto/page.tsx"),
+);
+const SalesReceiptsAlmacenPage = lazyPage(
+  () =>
+    import("@/app/ap/post-venta/gestion-de-almacen/comprobante-venta-travesia/page.tsx"),
+);
+const AssociatePurchaseTraversePage = lazyPage(
+  () =>
+    import("@/app/ap/post-venta/gestion-de-almacen/comprobante-venta-travesia/asociar-compra/[id]/page.tsx"),
+);
+const BrandsPVPage = lazyPage(
+  () =>
+    import("./app/ap/post-venta/gestion-de-almacen/marcas-producto/page.tsx"),
+);
+const AddBrandsPVPage = lazyPage(
+  () =>
+    import("@/app/ap/post-venta/gestion-de-almacen/marcas-producto/agregar/page.tsx"),
+);
+const UpdateBrandsPVPage = lazyPage(
+  () =>
+    import("@/app/ap/post-venta/gestion-de-almacen/marcas-producto/actualizar/[id]/page.tsx"),
+);
+const ProductPVPage = lazyPage(
+  () => import("./app/ap/post-venta/gestion-de-almacen/productos/page.tsx"),
+);
+const AddProductPVPage = lazyPage(
+  () =>
+    import("@/app/ap/post-venta/gestion-de-almacen/productos/agregar/page.tsx"),
+);
+const UpdateProductPVPage = lazyPage(
+  () =>
+    import("@/app/ap/post-venta/gestion-de-almacen/productos/actualizar/[id]/page.tsx"),
+);
+const AssignWarehousePage = lazyPage(
+  () =>
+    import("@/app/ap/post-venta/gestion-de-almacen/productos/asignar-almacen/[id]/page.tsx"),
+);
+const ProductTransferPage = lazyPage(
+  () => import("./app/ap/post-venta/gestion-de-almacen/guia-remision/page.tsx"),
+);
+const AddProductTransferPage = lazyPage(
+  () =>
+    import("@/app/ap/post-venta/gestion-de-almacen/guia-remision/agregar/page.tsx"),
+);
+const UpdateProductTransferPage = lazyPage(
+  () =>
+    import("@/app/ap/post-venta/gestion-de-almacen/guia-remision/actualizar/[id]/page.tsx"),
+);
+const TransferReceptionsPage = lazyPage(
+  () =>
+    import("@/app/ap/post-venta/gestion-de-almacen/guia-remision/recepcion/[productTransferId]/page.tsx"),
+);
+const CreateTransferReceptionPage = lazyPage(
+  () =>
+    import("@/app/ap/post-venta/gestion-de-almacen/guia-remision/recepcion/agregar/[productTransferId]/page.tsx"),
+);
+const AdjustmentsProductPage = lazyPage(
+  () =>
+    import("./app/ap/post-venta/gestion-de-almacen/ajuste-producto/page.tsx"),
+);
+const AddAdjustmentsProductPage = lazyPage(
+  () =>
+    import("@/app/ap/post-venta/gestion-de-almacen/ajuste-producto/agregar/page.tsx"),
+);
+const UpdateAdjustmentsProductPage = lazyPage(
+  () =>
+    import("@/app/ap/post-venta/gestion-de-almacen/ajuste-producto/actualizar/[id]/page.tsx"),
+);
+const ProductShelfPage = lazyPage(
+  () =>
+    import("./app/ap/post-venta/gestion-de-almacen/estantes-almacen/page.tsx"),
+);
+const ManageShelfProductsPage = lazyPage(
+  () =>
+    import("@/app/ap/post-venta/gestion-de-almacen/estantes-almacen/gestionar/[id]/page.tsx"),
+);
+const InventoryPage = lazyPage(
+  () => import("./app/ap/post-venta/gestion-de-almacen/inventario/page.tsx"),
+);
+const InventoryKardexPage = lazyPage(
+  () =>
+    import("@/app/ap/post-venta/gestion-de-almacen/inventario/kardex/page.tsx"),
+);
+const ProductKardexPage = lazyPage(
+  () =>
+    import("@/app/ap/post-venta/gestion-de-almacen/inventario/movimientos/[productId]/[warehouseId]/page.tsx"),
+);
+const PurchaseHistoryPage = lazyPage(
+  () =>
+    import("@/app/ap/post-venta/gestion-de-almacen/inventario/historico-compras/[productId]/[warehouseId]/page.tsx"),
+);
+const PriceCalculationPage = lazyPage(
+  () =>
+    import("@/app/ap/post-venta/gestion-de-almacen/inventario/historico-compras/[productId]/[warehouseId]/precio-calculo/page.tsx"),
+);
+const ComparativaDynamicsPage = lazyPage(
+  () =>
+    import("@/app/ap/post-venta/gestion-de-almacen/inventario/comparativa-dynamics/page.tsx"),
+);
+const ReceptionsProductsPage = lazyPage(
+  () =>
+    import("@/app/ap/post-venta/gestion-de-almacen/compra-proveedor/recepcionar/[supplierOrderId]/page.tsx"),
+);
+const UpdateReceptionProductPage = lazyPage(
+  () =>
+    import("@/app/ap/post-venta/gestion-de-almacen/compra-proveedor/recepcionar/actualizar/[supplierOrderId]/[id]/page.tsx"),
+);
+const AddReceptionProductPage = lazyPage(
+  () =>
+    import("@/app/ap/post-venta/gestion-de-almacen/compra-proveedor/recepcionar/agregar/[supplierOrderId]/page.tsx"),
+);
+const SupplierOrderPage = lazyPage(
+  () =>
+    import("./app/ap/post-venta/gestion-de-almacen/compra-proveedor/page.tsx"),
+);
+const AddSupplierOrderPage = lazyPage(
+  () =>
+    import("@/app/ap/post-venta/gestion-de-almacen/compra-proveedor/agregar/page.tsx"),
+);
+const UpdateSupplierOrderPage = lazyPage(
+  () =>
+    import("@/app/ap/post-venta/gestion-de-almacen/compra-proveedor/actualizar/[id]/page.tsx"),
+);
+const InvoiceReceptionPage = lazyPage(
+  () =>
+    import("@/app/ap/post-venta/gestion-de-almacen/compra-proveedor/recepcionar/facturar/[receptionId]/page.tsx"),
+);
+const PurchaseOrderWarehousePage = lazyPage(
+  () =>
+    import("@/app/ap/post-venta/gestion-de-almacen/factura-compra/page.tsx"),
+);
+const ResendWarehousePurchaseOrderPage = lazyPage(
+  () =>
+    import("@/app/ap/post-venta/gestion-de-almacen/factura-compra/reenviar/[id]/page.tsx"),
+);
+const WarehousePurchaseRequestPage = lazyPage(
+  () =>
+    import("./app/ap/post-venta/gestion-de-almacen/solicitud-compra-almacen/page.tsx"),
+);
+const AddWarehousePurchaseRequestPage = lazyPage(
+  () =>
+    import("@/app/ap/post-venta/gestion-de-almacen/solicitud-compra-almacen/agregar/page.tsx"),
+);
+const UpdateWarehousePurchaseRequestPage = lazyPage(
+  () =>
+    import("@/app/ap/post-venta/gestion-de-almacen/solicitud-compra-almacen/actualizar/[id]/page.tsx"),
+);
+const SuppliersStorePage = lazyPage(
+  () =>
+    import("./app/ap/post-venta/gestion-de-almacen/proveedor-almacen/page.tsx"),
+);
+const AddSupplierStorePage = lazyPage(
+  () =>
+    import("./app/ap/post-venta/gestion-de-almacen/proveedor-almacen/agregar/page.tsx"),
+);
+const UpdateSuppliersStorePage = lazyPage(
+  () =>
+    import("./app/ap/post-venta/gestion-de-almacen/proveedor-almacen/actualizar/[id]/page.tsx"),
+);
+const SupplierStoreEstablishmentsListPage = lazyPage(
+  () =>
+    import("./app/ap/post-venta/gestion-de-almacen/proveedor-almacen/establecimientos/[id]/page.tsx"),
+);
+const AddSupplierStoreEstablishmentPage = lazyPage(
+  () =>
+    import("./app/ap/post-venta/gestion-de-almacen/proveedor-almacen/establecimientos/[id]/agregar/page.tsx"),
+);
+const UpdateSupplierStoreEstablishmentPage = lazyPage(
+  () =>
+    import("./app/ap/post-venta/gestion-de-almacen/proveedor-almacen/establecimientos/[id]/actualizar/[establishmentId]/page.tsx"),
+);
+const SparePartsPage = lazyPage(
+  () => import("./app/ap/post-venta/repuestos/page.tsx"),
+);
+const ApprovedAccesoriesPage = lazyPage(
+  () => import("./app/ap/post-venta/repuestos/accesorios-homologados/page.tsx"),
+);
+const AddApprovedAccesoriesPage = lazyPage(
+  () =>
+    import("./app/ap/post-venta/repuestos/accesorios-homologados/agregar/page.tsx"),
+);
+const UpdateApprovedAccesoriesPage = lazyPage(
+  () =>
+    import("./app/ap/post-venta/repuestos/accesorios-homologados/actualizar/[id]/page.tsx"),
+);
+const OrderQuotationMesonPage = lazyPage(
+  () => import("./app/ap/post-venta/repuestos/cotizacion-meson/page.tsx"),
+);
+const AddOrderQuotationMesonPage = lazyPage(
+  () =>
+    import("./app/ap/post-venta/repuestos/cotizacion-meson/agregar/page.tsx"),
+);
+const UpdateOrderQuotationMesonPage = lazyPage(
+  () =>
+    import("./app/ap/post-venta/repuestos/cotizacion-meson/actualizar/[id]/page.tsx"),
+);
+const RequestDiscountOrderQuotationMesonPage = lazyPage(
+  () =>
+    import("./app/ap/post-venta/repuestos/cotizacion-meson/solicitar-descuento/[id]/page.tsx"),
+);
+const OrderQuotationMesonDetallePage = lazyPage(
+  () =>
+    import("./app/ap/post-venta/repuestos/cotizacion-meson/detalle/[id]/page.tsx"),
+);
+const OrderQuotationMesonManagePage = lazyPage(
+  () =>
+    import("./app/ap/post-venta/repuestos/cotizacion-meson/gestionar/[id]/page.tsx"),
+);
+const AprobacionProductosMesonPage = lazyPage(
+  () =>
+    import("./app/ap/post-venta/repuestos/cotizacion-meson/aprobar/[id]/page.tsx"),
+);
+const SalesReceiptsRepuestoPage = lazyPage(
+  () =>
+    import("./app/ap/post-venta/repuestos/comprobante-venta-repuesto/page.tsx"),
+);
+const PurchaseRequestRepuestoPage = lazyPage(
+  () =>
+    import("./app/ap/post-venta/repuestos/solicitud-compra-repuesto/page.tsx"),
+);
+const AddPurchaseRequestRepuestoPage = lazyPage(
+  () =>
+    import("./app/ap/post-venta/repuestos/solicitud-compra-repuesto/agregar/page.tsx"),
+);
+const UpdatePurchaseRequestRepuestoPage = lazyPage(
+  () =>
+    import("./app/ap/post-venta/repuestos/solicitud-compra-repuesto/actualizar/[id]/page.tsx"),
+);
+const VehiclesRepuestosPage = lazyPage(
+  () => import("./app/ap/post-venta/repuestos/vehiculos-repuestos/page.tsx"),
+);
+const AddVehiclesRepuestosPage = lazyPage(
+  () =>
+    import("./app/ap/post-venta/repuestos/vehiculos-repuestos/agregar/page.tsx"),
+);
+const UpdateVehiclesRepuestosPage = lazyPage(
+  () =>
+    import("./app/ap/post-venta/repuestos/vehiculos-repuestos/actualizar/[id]/page.tsx"),
+);
+const ProductRepuestoPage = lazyPage(
+  () => import("./app/ap/post-venta/repuestos/producto-repuesto/page.tsx"),
+);
+const AddProductRepuestoPage = lazyPage(
+  () =>
+    import("./app/ap/post-venta/repuestos/producto-repuesto/agregar/page.tsx"),
+);
+const UpdateProductRepuestoPage = lazyPage(
+  () =>
+    import("./app/ap/post-venta/repuestos/producto-repuesto/actualizar/[id]/page.tsx"),
+);
+const AssignWarehouseRepuestoPage = lazyPage(
+  () =>
+    import("./app/ap/post-venta/repuestos/producto-repuesto/asignar-almacen/[id]/page.tsx"),
+);
+const CustomersRpPage = lazyPage(
+  () => import("./app/ap/post-venta/repuestos/clientes-repuestos/page.tsx"),
+);
+const AddCustomersRpPage = lazyPage(
+  () =>
+    import("./app/ap/post-venta/repuestos/clientes-repuestos/agregar/page.tsx"),
+);
+const UpdateCustomersRpPage = lazyPage(
+  () =>
+    import("./app/ap/post-venta/repuestos/clientes-repuestos/actualizar/[id]/page.tsx"),
+);
+const CustomerRpEstablishmentsListPage = lazyPage(
+  () =>
+    import("./app/ap/post-venta/repuestos/clientes-repuestos/establecimientos/[id]/page.tsx"),
+);
+const AddCustomerRpEstablishmentPage = lazyPage(
+  () =>
+    import("./app/ap/post-venta/repuestos/clientes-repuestos/establecimientos/[id]/agregar/page.tsx"),
+);
+const UpdateCustomerRpEstablishmentPage = lazyPage(
+  () =>
+    import("./app/ap/post-venta/repuestos/clientes-repuestos/establecimientos/[id]/actualizar/[establishmentId]/page.tsx"),
+);
+const WorkshopPage = lazyPage(
+  () => import("./app/ap/post-venta/taller/page.tsx"),
+);
+const CardWashPage = lazyPage(
+  () => import("./app/ap/post-venta/taller/lavado-vehiculo/page.tsx"),
+);
+const AppointmentPlanningPage = lazyPage(
+  () => import("./app/ap/post-venta/taller/citas/page.tsx"),
+);
+const AddAppointmentPlanningPage = lazyPage(
+  () => import("./app/ap/post-venta/taller/citas/agregar/page.tsx"),
+);
+const UpdateAppointmentPlanningPage = lazyPage(
+  () => import("./app/ap/post-venta/taller/citas/actualizar/[id]/page.tsx"),
+);
+const OrderQuotationPage = lazyPage(
+  () => import("./app/ap/post-venta/taller/cotizacion-taller/page.tsx"),
+);
+const AddOrderQuotationPage = lazyPage(
+  () => import("./app/ap/post-venta/taller/cotizacion-taller/agregar/page.tsx"),
+);
+const UpdateOrderQuotationPage = lazyPage(
+  () =>
+    import("@/app/ap/post-venta/taller/cotizacion-taller/actualizar/[id]/page.tsx"),
+);
+const ManageOrderQuotationPage = lazyPage(
+  () =>
+    import("@/app/ap/post-venta/taller/cotizacion-taller/gestionar/[id]/page.tsx"),
+);
+const AprobacionProductosPage = lazyPage(
+  () =>
+    import("@/app/ap/post-venta/taller/cotizacion-taller/aprobar/[id]/page.tsx"),
+);
+const PurchaseRequestPVPage = lazyPage(
+  () => import("./app/ap/post-venta/taller/solicitud-compra-taller/page.tsx"),
+);
+const AddPurchaseRequestPVPage = lazyPage(
+  () =>
+    import("./app/ap/post-venta/taller/solicitud-compra-taller/agregar/page.tsx"),
+);
+const UpdatePurchaseRequestPVPage = lazyPage(
+  () =>
+    import("@/app/ap/post-venta/taller/solicitud-compra-taller/actualizar/[id]/page.tsx"),
+);
+const CustomersPvPage = lazyPage(
+  () => import("./app/ap/post-venta/taller/clientes-taller/page.tsx"),
+);
+const AddCustomersPvPage = lazyPage(
+  () => import("@/app/ap/post-venta/taller/clientes-taller/agregar/page.tsx"),
+);
+const UpdateCustomersPvPage = lazyPage(
+  () =>
+    import("@/app/ap/post-venta/taller/clientes-taller/actualizar/[id]/page.tsx"),
+);
+const CustomerPvEstablishmentsListPage = lazyPage(
+  () =>
+    import("./app/ap/post-venta/taller/clientes-taller/establecimientos/[id]/page.tsx"),
+);
+const AddCustomerPvEstablishmentPage = lazyPage(
+  () =>
+    import("@/app/ap/post-venta/taller/clientes-taller/establecimientos/[id]/agregar/page.tsx"),
+);
+const UpdateCustomerPvEstablishmentPage = lazyPage(
+  () =>
+    import("@/app/ap/post-venta/taller/clientes-taller/establecimientos/[id]/actualizar/[establishmentId]/page.tsx"),
+);
+const VehiclesPostVentaPage = lazyPage(
+  () => import("./app/ap/post-venta/taller/vehiculos-taller/page.tsx"),
+);
+const AddVehiclePVPage = lazyPage(
+  () => import("@/app/ap/post-venta/taller/vehiculos-taller/agregar/page.tsx"),
+);
+const UpdateVehiclePVPage = lazyPage(
+  () =>
+    import("@/app/ap/post-venta/taller/vehiculos-taller/actualizar/[id]/page.tsx"),
+);
+const ProductTallerPage = lazyPage(
+  () => import("./app/ap/post-venta/taller/producto-taller/page.tsx"),
+);
+const AddProductTallerPage = lazyPage(
+  () => import("./app/ap/post-venta/taller/producto-taller/agregar/page.tsx"),
+);
+const UpdateProductTallerPage = lazyPage(
+  () =>
+    import("./app/ap/post-venta/taller/producto-taller/actualizar/[id]/page.tsx"),
+);
+const AssignWarehouseTallerPage = lazyPage(
+  () =>
+    import("./app/ap/post-venta/taller/producto-taller/asignar-almacen/[id]/page.tsx"),
+);
+const WorkOrderPage = lazyPage(
+  () => import("./app/ap/post-venta/taller/orden-trabajo/page.tsx"),
+);
+const InternalNoteMigrationPage = lazyPage(
+  () => import("./app/ap/post-venta/taller/notas-internas/page.tsx"),
+);
+const AddWorkOrderPage = lazyPage(
+  () => import("./app/ap/post-venta/taller/orden-trabajo/agregar/page.tsx"),
+);
+const UpdateWorkOrderPage = lazyPage(
+  () =>
+    import("./app/ap/post-venta/taller/orden-trabajo/actualizar/[id]/page.tsx"),
+);
+const ManageWorkOrderPage = lazyPage(
+  () =>
+    import("./app/ap/post-venta/taller/orden-trabajo/gestionar/[id]/page.tsx"),
+);
+const WorkOrderReceptionPage = lazyPage(
+  () => import("./app/ap/post-venta/taller/recepcion-orden-trabajo/page.tsx"),
+);
+const ManageWorkOrderReceptionPage = lazyPage(
+  () =>
+    import("./app/ap/post-venta/taller/recepcion-orden-trabajo/gestionar/[id]/page.tsx"),
+);
+const GeneralInformationPage = lazyPage(
+  () =>
+    import("./app/ap/post-venta/taller/orden-trabajo/gestionar/[id]/informacion-general/page.tsx"),
+);
+const WorkOrderPlanningPage = lazyPage(
+  () =>
+    import("./app/ap/post-venta/taller/planificacion-orden-trabajo/page.tsx"),
+);
+const AddWorkOrderPlanningPage = lazyPage(
+  () =>
+    import("./app/ap/post-venta/taller/planificacion-orden-trabajo/agregar/page.tsx"),
+);
+const AssignedWorkPage = lazyPage(
+  () => import("./app/ap/post-venta/taller/trabajos-asignados/page.tsx"),
+);
+const TechnicianProductivityPage = lazyPage(
+  () =>
+    import("./app/ap/post-venta/taller/trabajos-asignados/productividad/page.tsx"),
+);
+const VehicleInspectionPage = lazyPage(
+  () =>
+    import("./app/ap/post-venta/taller/orden-trabajo/[workOrderId]/inspeccion/page.tsx"),
+);
+const SalesReceiptsTallerPage = lazyPage(
+  () => import("./app/ap/post-venta/taller/comprobante-venta-taller/page.tsx"),
+);
+const CampaignSchedulePage = lazyPage(
+  () => import("./app/ap/post-venta/taller/cronograma-campanas/page.tsx"),
+);
+const AddCampaignSchedulePage = lazyPage(
+  () =>
+    import("./app/ap/post-venta/taller/cronograma-campanas/agregar/page.tsx"),
+);
 const BoxPage = lazyPage(() => import("./app/ap/post-venta/caja/page.tsx"));
-const SalesReceiptsCajaPage = lazyPage(() => import("./app/ap/post-venta/caja/comprobante-venta-caja/page.tsx"));
-const UpdateSalesReceiptsCajaPage = lazyPage(() => import("@/app/ap/post-venta/caja/comprobante-venta-caja/actualizar/[id]/page.tsx"));
-const AddGeneralSalesReceiptsCajaPage = lazyPage(() => import("@/app/ap/post-venta/caja/comprobante-venta-caja/agregar-otros/page.tsx"));
-const AddHistoricalFinalSaleWithAdvanceCajaPage = lazyPage(() => import("@/app/ap/post-venta/caja/comprobante-venta-caja/agregar-otros-historico/page.tsx"));
-const AddRegularizeAdvancePaymentCajaPage = lazyPage(() => import("@/app/ap/post-venta/caja/comprobante-venta-caja/agregar-regularizacion-anticipo/page.tsx"));
-const AddCreditNoteCajaPage = lazyPage(() => import("./app/ap/post-venta/caja/comprobante-venta-caja/[id]/credit-note/page.tsx"));
-const UpdateCreditNoteCajaPage = lazyPage(() => import("@/app/ap/post-venta/caja/comprobante-venta-caja/[id]/credit-note/actualizar/[credit]/page.tsx"));
-const AddDebitNoteCajaPage = lazyPage(() => import("./app/ap/post-venta/caja/comprobante-venta-caja/[id]/debit-note/page.tsx"));
-const UpdateDebitNoteCajaPage = lazyPage(() => import("@/app/ap/post-venta/caja/comprobante-venta-caja/[id]/debit-note/actualizar/[debit]/page.tsx"));
-const OrderQuotationMesonCajaPage = lazyPage(() => import("./app/ap/post-venta/caja/cotizacion-repuesto-caja/page.tsx"));
-const WorkOrderCajaPage = lazyPage(() => import("./app/ap/post-venta/caja/order-trabajo-taller-caja/page.tsx"));
-const DirectInvoicePage = lazyPage(() => import("./app/ap/post-venta/caja/order-trabajo-taller-caja/factura-directa/page.tsx"));
-const BillWorkOrderCajaPage = lazyPage(() => import("./app/ap/post-venta/caja/order-trabajo-taller-caja/facturar/[id]/page.tsx"));
-const BillOrderQuotationMesonCajaPage = lazyPage(() => import("./app/ap/post-venta/caja/cotizacion-repuesto-caja/facturar/[id]/page.tsx"));
-const IndicadoresReportesPage = lazyPage(() => import("./app/ap/post-venta/indicadores-y-reportes/page.tsx"));
-const ReportesPostVentaPage = lazyPage(() => import("./app/ap/post-venta/indicadores-y-reportes/reportes/page.tsx"));
-const ObjectivesDashboardPage = lazyPage(() => import("./app/ap/post-venta/indicadores-y-reportes/dashboard-objetivos/page.tsx"));
-const ProductivityDashboardPage = lazyPage(() => import("./app/ap/post-venta/indicadores-y-reportes/dashboard-productividad/page.tsx"));
-const ConsultasMasivasPostVentaPage = lazyPage(() => import("./app/ap/post-venta/indicadores-y-reportes/consultas-masivas/page.tsx"));
-const AdoptionDashboardPage = lazyPage(() => import("./app/gp/gestion-del-sistema/adoption-dashboard/page"));
-const RolePage = lazyPage(() => import("./app/gp/gestion-del-sistema/roles/page.tsx"));
-const PermissionPage = lazyPage(() => import("./app/gp/gestion-del-sistema/roles/permisos/[id]/page.tsx"));
-const AddUserPage = lazyPage(() => import("./app/gp/gestion-del-sistema/usuarios/agregar/page.tsx"));
-const UpdateUserPage = lazyPage(() => import("./app/gp/gestion-del-sistema/usuarios/actualizar/[id]/page.tsx"));
-const ViewPage = lazyPage(() => import("./app/gp/gestion-del-sistema/vistas/page.tsx"));
-const AddViewPage = lazyPage(() => import("./app/gp/gestion-del-sistema/vistas/agregar/page.tsx"));
-const UpdateViewPage = lazyPage(() => import("./app/gp/gestion-del-sistema/vistas/actualizar/[id]/page.tsx"));
-const ViewPermissionsPage = lazyPage(() => import("./app/gp/gestion-del-sistema/vistas/permisos/[id]/page.tsx"));
-const WorkersPage = lazyPage(() => import("./app/gp/gestion-humana/gestion-de-personal/trabajadores/page.tsx"));
-const UpdateWorkerSignaturePage = lazyPage(() => import("./app/gp/gestion-humana/gestion-de-personal/trabajadores/actualizar/[id]/page.tsx"));
+const SalesReceiptsCajaPage = lazyPage(
+  () => import("./app/ap/post-venta/caja/comprobante-venta-caja/page.tsx"),
+);
+const UpdateSalesReceiptsCajaPage = lazyPage(
+  () =>
+    import("@/app/ap/post-venta/caja/comprobante-venta-caja/actualizar/[id]/page.tsx"),
+);
+const AddGeneralSalesReceiptsCajaPage = lazyPage(
+  () =>
+    import("@/app/ap/post-venta/caja/comprobante-venta-caja/agregar-otros/page.tsx"),
+);
+const AddHistoricalFinalSaleWithAdvanceCajaPage = lazyPage(
+  () =>
+    import("@/app/ap/post-venta/caja/comprobante-venta-caja/agregar-otros-historico/page.tsx"),
+);
+const AddRegularizeAdvancePaymentCajaPage = lazyPage(
+  () =>
+    import("@/app/ap/post-venta/caja/comprobante-venta-caja/agregar-regularizacion-anticipo/page.tsx"),
+);
+const AddCreditNoteCajaPage = lazyPage(
+  () =>
+    import("./app/ap/post-venta/caja/comprobante-venta-caja/[id]/credit-note/page.tsx"),
+);
+const UpdateCreditNoteCajaPage = lazyPage(
+  () =>
+    import("@/app/ap/post-venta/caja/comprobante-venta-caja/[id]/credit-note/actualizar/[credit]/page.tsx"),
+);
+const AddDebitNoteCajaPage = lazyPage(
+  () =>
+    import("./app/ap/post-venta/caja/comprobante-venta-caja/[id]/debit-note/page.tsx"),
+);
+const UpdateDebitNoteCajaPage = lazyPage(
+  () =>
+    import("@/app/ap/post-venta/caja/comprobante-venta-caja/[id]/debit-note/actualizar/[debit]/page.tsx"),
+);
+const OrderQuotationMesonCajaPage = lazyPage(
+  () => import("./app/ap/post-venta/caja/cotizacion-repuesto-caja/page.tsx"),
+);
+const WorkOrderCajaPage = lazyPage(
+  () => import("./app/ap/post-venta/caja/order-trabajo-taller-caja/page.tsx"),
+);
+const DirectInvoicePage = lazyPage(
+  () =>
+    import("./app/ap/post-venta/caja/order-trabajo-taller-caja/factura-directa/page.tsx"),
+);
+const BillWorkOrderCajaPage = lazyPage(
+  () =>
+    import("./app/ap/post-venta/caja/order-trabajo-taller-caja/facturar/[id]/page.tsx"),
+);
+const BillOrderQuotationMesonCajaPage = lazyPage(
+  () =>
+    import("./app/ap/post-venta/caja/cotizacion-repuesto-caja/facturar/[id]/page.tsx"),
+);
+const IndicadoresReportesPage = lazyPage(
+  () => import("./app/ap/post-venta/indicadores-y-reportes/page.tsx"),
+);
+const ReportesPostVentaPage = lazyPage(
+  () => import("./app/ap/post-venta/indicadores-y-reportes/reportes/page.tsx"),
+);
+const ObjectivesDashboardPage = lazyPage(
+  () =>
+    import("./app/ap/post-venta/indicadores-y-reportes/dashboard-objetivos/page.tsx"),
+);
+const ProductivityDashboardPage = lazyPage(
+  () =>
+    import("./app/ap/post-venta/indicadores-y-reportes/dashboard-productividad/page.tsx"),
+);
+const ProductivityTechnicianDetailPageRoute = lazyPage(
+  () =>
+    import("./app/ap/post-venta/indicadores-y-reportes/dashboard-productividad/tecnico/[workerId]/page.tsx"),
+);
+const ConsultasMasivasPostVentaPage = lazyPage(
+  () =>
+    import("./app/ap/post-venta/indicadores-y-reportes/consultas-masivas/page.tsx"),
+);
+const AdoptionDashboardPage = lazyPage(
+  () => import("./app/gp/gestion-del-sistema/adoption-dashboard/page"),
+);
+const RolePage = lazyPage(
+  () => import("./app/gp/gestion-del-sistema/roles/page.tsx"),
+);
+const PermissionPage = lazyPage(
+  () => import("./app/gp/gestion-del-sistema/roles/permisos/[id]/page.tsx"),
+);
+const AddUserPage = lazyPage(
+  () => import("./app/gp/gestion-del-sistema/usuarios/agregar/page.tsx"),
+);
+const UpdateUserPage = lazyPage(
+  () =>
+    import("./app/gp/gestion-del-sistema/usuarios/actualizar/[id]/page.tsx"),
+);
+const ViewPage = lazyPage(
+  () => import("./app/gp/gestion-del-sistema/vistas/page.tsx"),
+);
+const AddViewPage = lazyPage(
+  () => import("./app/gp/gestion-del-sistema/vistas/agregar/page.tsx"),
+);
+const UpdateViewPage = lazyPage(
+  () => import("./app/gp/gestion-del-sistema/vistas/actualizar/[id]/page.tsx"),
+);
+const ViewPermissionsPage = lazyPage(
+  () => import("./app/gp/gestion-del-sistema/vistas/permisos/[id]/page.tsx"),
+);
+const WorkersPage = lazyPage(
+  () =>
+    import("./app/gp/gestion-humana/gestion-de-personal/trabajadores/page.tsx"),
+);
+const UpdateWorkerSignaturePage = lazyPage(
+  () =>
+    import("./app/gp/gestion-humana/gestion-de-personal/trabajadores/actualizar/[id]/page.tsx"),
+);
 const WorkerDetailPage = lazyPage(() => import("./app/gp/gestion-humana/gestion-de-personal/trabajadores/ficha/[id]/page.tsx"));
-const RecruitmentProcessPage = lazyPage(() => import("./app/gp/gestion-humana/gestion-de-personal/procesos-postulacion/page.tsx"));
-const AddRecruitmentProcessPage = lazyPage(() => import("./app/gp/gestion-humana/gestion-de-personal/procesos-postulacion/agregar/page.tsx"));
-const UpdateRecruitmentProcessPage = lazyPage(() => import("./app/gp/gestion-humana/gestion-de-personal/procesos-postulacion/actualizar/[id]/page.tsx"));
-const ProcessApplicantsPage = lazyPage(() => import("./app/gp/gestion-humana/gestion-de-personal/procesos-postulacion/postulantes/page.tsx"));
-const ProcessInterviewsPage = lazyPage(() => import("./app/gp/gestion-humana/gestion-de-personal/procesos-postulacion/entrevistas/page.tsx"));
-const ApplicantStatusMessagesPage = lazyPage(() => import("./app/gp/gestion-humana/gestion-de-personal/procesos-postulacion/mensajes-postulante/page.tsx"));
-const ProcessStageMessagesPage = lazyPage(() => import("./app/gp/gestion-humana/gestion-de-personal/procesos-postulacion/mensajes-proceso/page.tsx"));
-const ApplicantPage = lazyPage(() => import("./app/gp/gestion-humana/gestion-de-personal/postulantes/page.tsx"));
-const AddApplicantPage = lazyPage(() => import("./app/gp/gestion-humana/gestion-de-personal/postulantes/agregar/page.tsx"));
-const UpdateApplicantPage = lazyPage(() => import("./app/gp/gestion-humana/gestion-de-personal/postulantes/actualizar/[id]/page.tsx"));
-const ApplicantDataChangeQueuePage = lazyPage(() => import("./app/gp/gestion-humana/gestion-de-personal/postulantes/aprobaciones/page.tsx"));
-const OutOfQuotaApplicantsPage = lazyPage(() => import("./app/gp/gestion-humana/gestion-de-personal/fuera-de-cupo/page.tsx"));
-const BlacklistApplicantsPage = lazyPage(() => import("./app/gp/gestion-humana/gestion-de-personal/lista-negra-rechazados/page.tsx"));
-const SelectedWorkersPage = lazyPage(() => import("./app/gp/gestion-humana/gestion-de-personal/seleccionados/page.tsx"));
-const ContractTypePage = lazyPage(() => import("./app/gp/gestion-humana/gestion-de-personal/tipos-contrato/page.tsx"));
-const AddContractTypePage = lazyPage(() => import("./app/gp/gestion-humana/gestion-de-personal/tipos-contrato/agregar/page.tsx"));
-const UpdateContractTypePage = lazyPage(() => import("./app/gp/gestion-humana/gestion-de-personal/tipos-contrato/actualizar/[id]/page.tsx"));
-const ContractTemplatePage = lazyPage(() => import("./app/gp/gestion-humana/gestion-de-personal/plantillas-contrato/page.tsx"));
-const AddContractTemplatePage = lazyPage(() => import("./app/gp/gestion-humana/gestion-de-personal/plantillas-contrato/agregar/page.tsx"));
-const UpdateContractTemplatePage = lazyPage(() => import("./app/gp/gestion-humana/gestion-de-personal/plantillas-contrato/actualizar/[id]/page.tsx"));
-const SignerPage = lazyPage(() => import("./app/gp/gestion-humana/gestion-de-personal/firmantes/page.tsx"));
-const AddSignerPage = lazyPage(() => import("./app/gp/gestion-humana/gestion-de-personal/firmantes/agregar/page.tsx"));
-const UpdateSignerPage = lazyPage(() => import("./app/gp/gestion-humana/gestion-de-personal/firmantes/actualizar/[id]/page.tsx"));
-const ContractPage = lazyPage(() => import("./app/gp/gestion-humana/gestion-de-personal/contratos/page.tsx"));
-const AddContractPage = lazyPage(() => import("./app/gp/gestion-humana/gestion-de-personal/contratos/agregar/page.tsx"));
-const UpdateContractPage = lazyPage(() => import("./app/gp/gestion-humana/gestion-de-personal/contratos/actualizar/[id]/page.tsx"));
-const PerDiemCategoryPage = lazyPage(() => import("./app/gp/gestion-humana/viaticos/categoria-viaticos/page.tsx"));
-const PerDiemPolicyPage = lazyPage(() => import("./app/gp/gestion-humana/viaticos/politica-viaticos/page.tsx"));
-const AddPerDiemPolicyPage = lazyPage(() => import("./app/gp/gestion-humana/viaticos/politica-viaticos/agregar/page.tsx"));
-const UpdatePerDiemPolicyPage = lazyPage(() => import("./app/gp/gestion-humana/viaticos/politica-viaticos/actualizar/[id]/page.tsx"));
-const HotelAgreementPage = lazyPage(() => import("./app/gp/gestion-humana/viaticos/convenios-hoteles/page.tsx"));
-const AddHotelAgreementPage = lazyPage(() => import("./app/gp/gestion-humana/viaticos/convenios-hoteles/agregar/page.tsx"));
-const UpdateHotelAgreementPage = lazyPage(() => import("./app/gp/gestion-humana/viaticos/convenios-hoteles/actualizar/[id]/page.tsx"));
-const ExpenseTypePage = lazyPage(() => import("./app/gp/gestion-humana/viaticos/tipo-gasto/page.tsx"));
-const PerDiemRatePage = lazyPage(() => import("./app/gp/gestion-humana/viaticos/tarifa/page.tsx"));
-const AddPerDiemRatePage = lazyPage(() => import("./app/gp/gestion-humana/viaticos/tarifa/agregar/page.tsx"));
-const UpdatePerDiemRatePage = lazyPage(() => import("./app/gp/gestion-humana/viaticos/tarifa/actualizar/[id]/page.tsx"));
-const PerDiemRequestPage = lazyPage(() => import("./app/gp/gestion-humana/viaticos/solicitud-viaticos/page.tsx"));
-const PerDiemRequestDetailAdminPage = lazyPage(() => import("./app/gp/gestion-humana/viaticos/solicitud-viaticos/[id]/page.tsx"));
-const AddAdminHotelReservationPage = lazyPage(() => import("./app/gp/gestion-humana/viaticos/solicitud-viaticos/[id]/reserva-hotel/agregar/page.tsx"));
-const UpdateAdminHotelReservationPage = lazyPage(() => import("./app/gp/gestion-humana/viaticos/solicitud-viaticos/[id]/reserva-hotel/actualizar/[reservationId]/page.tsx"));
-const AddPerDiemRequestPage = lazyPage(() => import("./app/perfil/viaticos/agregar/page.tsx"));
-const UpdatePerDiemRequestPage = lazyPage(() => import("./app/perfil/viaticos/actualizar/[id]/page.tsx"));
-const ApprovePerDiemRequestPage = lazyPage(() => import("./app/perfil/viaticos/aprobar/page.tsx"));
-const ApproveSettlementPage = lazyPage(() => import("./app/perfil/viaticos/aprobar-liquidaciones/page.tsx"));
-const PerDiemRequestDetailPage = lazyPage(() => import("./app/perfil/viaticos/[id]/page.tsx"));
-const AddExpensePage = lazyPage(() => import("./app/perfil/viaticos/[id]/gastos/agregar/page.tsx"));
-const UpdateExpensePage = lazyPage(() => import("./app/perfil/viaticos/[id]/gastos/actualizar/[expenseId]/page.tsx"));
-const UploadDepositPage = lazyPage(() => import("./app/ap/contabilidad/solicitud-viaticos/[id]/deposito/page.tsx"));
-const AccountantDistrictAssignmentPage = lazyPage(() => import("./app/gp/gestion-humana/viaticos/asignacion-asistentes/page.tsx"));
-const UpdatePositionPage = lazyPage(() => import("./app/gp/gestion-humana/configuraciones/posiciones/actualizar/[id]/page"));
-const UpdateHierarchicalCategoryPage = lazyPage(() => import("./app/gp/gestion-humana/evaluaciones-de-desempeno/categorias-jerarquicas/actualizar/[id]/page"));
-const SedePage = lazyPage(() => import("./app/gp/maestro-general/sede/page.tsx"));
-const UpdateSedePage = lazyPage(() => import("./app/gp/maestro-general/sede/actualizar/[id]/page.tsx"));
-const AddSedePage = lazyPage(() => import("./app/gp/maestro-general/sede/agregar/page.tsx"));
-const CompanyPage = lazyPage(() => import("./app/gp/maestro-general/empresa/page.tsx"));
-const UpdateCompanyPage = lazyPage(() => import("./app/gp/maestro-general/empresa/actualizar/[id]/page.tsx"));
+const RecruitmentProcessPage = lazyPage(
+  () =>
+    import("./app/gp/gestion-humana/gestion-de-personal/procesos-postulacion/page.tsx"),
+);
+const AddRecruitmentProcessPage = lazyPage(
+  () =>
+    import("./app/gp/gestion-humana/gestion-de-personal/procesos-postulacion/agregar/page.tsx"),
+);
+const UpdateRecruitmentProcessPage = lazyPage(
+  () =>
+    import("./app/gp/gestion-humana/gestion-de-personal/procesos-postulacion/actualizar/[id]/page.tsx"),
+);
+const ProcessApplicantsPage = lazyPage(
+  () =>
+    import("./app/gp/gestion-humana/gestion-de-personal/procesos-postulacion/postulantes/page.tsx"),
+);
+const ProcessInterviewsPage = lazyPage(
+  () =>
+    import("./app/gp/gestion-humana/gestion-de-personal/procesos-postulacion/entrevistas/page.tsx"),
+);
+const ApplicantStatusMessagesPage = lazyPage(
+  () =>
+    import("./app/gp/gestion-humana/gestion-de-personal/procesos-postulacion/mensajes-postulante/page.tsx"),
+);
+const ProcessStageMessagesPage = lazyPage(
+  () =>
+    import("./app/gp/gestion-humana/gestion-de-personal/procesos-postulacion/mensajes-proceso/page.tsx"),
+);
+const ApplicantPage = lazyPage(
+  () =>
+    import("./app/gp/gestion-humana/gestion-de-personal/postulantes/page.tsx"),
+);
+const AddApplicantPage = lazyPage(
+  () =>
+    import("./app/gp/gestion-humana/gestion-de-personal/postulantes/agregar/page.tsx"),
+);
+const UpdateApplicantPage = lazyPage(
+  () =>
+    import("./app/gp/gestion-humana/gestion-de-personal/postulantes/actualizar/[id]/page.tsx"),
+);
+const ApplicantDataChangeQueuePage = lazyPage(
+  () =>
+    import("./app/gp/gestion-humana/gestion-de-personal/postulantes/aprobaciones/page.tsx"),
+);
+const OutOfQuotaApplicantsPage = lazyPage(
+  () =>
+    import("./app/gp/gestion-humana/gestion-de-personal/fuera-de-cupo/page.tsx"),
+);
+const BlacklistApplicantsPage = lazyPage(
+  () =>
+    import("./app/gp/gestion-humana/gestion-de-personal/lista-negra-rechazados/page.tsx"),
+);
+const SelectedWorkersPage = lazyPage(
+  () =>
+    import("./app/gp/gestion-humana/gestion-de-personal/seleccionados/page.tsx"),
+);
+const ContractTypePage = lazyPage(
+  () =>
+    import("./app/gp/gestion-humana/gestion-de-personal/tipos-contrato/page.tsx"),
+);
+const AddContractTypePage = lazyPage(
+  () =>
+    import("./app/gp/gestion-humana/gestion-de-personal/tipos-contrato/agregar/page.tsx"),
+);
+const UpdateContractTypePage = lazyPage(
+  () =>
+    import("./app/gp/gestion-humana/gestion-de-personal/tipos-contrato/actualizar/[id]/page.tsx"),
+);
+const ContractTemplatePage = lazyPage(
+  () =>
+    import("./app/gp/gestion-humana/gestion-de-personal/plantillas-contrato/page.tsx"),
+);
+const AddContractTemplatePage = lazyPage(
+  () =>
+    import("./app/gp/gestion-humana/gestion-de-personal/plantillas-contrato/agregar/page.tsx"),
+);
+const UpdateContractTemplatePage = lazyPage(
+  () =>
+    import("./app/gp/gestion-humana/gestion-de-personal/plantillas-contrato/actualizar/[id]/page.tsx"),
+);
+const SignerPage = lazyPage(
+  () =>
+    import("./app/gp/gestion-humana/gestion-de-personal/firmantes/page.tsx"),
+);
+const AddSignerPage = lazyPage(
+  () =>
+    import("./app/gp/gestion-humana/gestion-de-personal/firmantes/agregar/page.tsx"),
+);
+const UpdateSignerPage = lazyPage(
+  () =>
+    import("./app/gp/gestion-humana/gestion-de-personal/firmantes/actualizar/[id]/page.tsx"),
+);
+const ContractPage = lazyPage(
+  () =>
+    import("./app/gp/gestion-humana/gestion-de-personal/contratos/page.tsx"),
+);
+const AddContractPage = lazyPage(
+  () =>
+    import("./app/gp/gestion-humana/gestion-de-personal/contratos/agregar/page.tsx"),
+);
+const UpdateContractPage = lazyPage(
+  () =>
+    import("./app/gp/gestion-humana/gestion-de-personal/contratos/actualizar/[id]/page.tsx"),
+);
+const PerDiemCategoryPage = lazyPage(
+  () => import("./app/gp/gestion-humana/viaticos/categoria-viaticos/page.tsx"),
+);
+const PerDiemPolicyPage = lazyPage(
+  () => import("./app/gp/gestion-humana/viaticos/politica-viaticos/page.tsx"),
+);
+const AddPerDiemPolicyPage = lazyPage(
+  () =>
+    import("./app/gp/gestion-humana/viaticos/politica-viaticos/agregar/page.tsx"),
+);
+const UpdatePerDiemPolicyPage = lazyPage(
+  () =>
+    import("./app/gp/gestion-humana/viaticos/politica-viaticos/actualizar/[id]/page.tsx"),
+);
+const HotelAgreementPage = lazyPage(
+  () => import("./app/gp/gestion-humana/viaticos/convenios-hoteles/page.tsx"),
+);
+const AddHotelAgreementPage = lazyPage(
+  () =>
+    import("./app/gp/gestion-humana/viaticos/convenios-hoteles/agregar/page.tsx"),
+);
+const UpdateHotelAgreementPage = lazyPage(
+  () =>
+    import("./app/gp/gestion-humana/viaticos/convenios-hoteles/actualizar/[id]/page.tsx"),
+);
+const ExpenseTypePage = lazyPage(
+  () => import("./app/gp/gestion-humana/viaticos/tipo-gasto/page.tsx"),
+);
+const PerDiemRatePage = lazyPage(
+  () => import("./app/gp/gestion-humana/viaticos/tarifa/page.tsx"),
+);
+const AddPerDiemRatePage = lazyPage(
+  () => import("./app/gp/gestion-humana/viaticos/tarifa/agregar/page.tsx"),
+);
+const UpdatePerDiemRatePage = lazyPage(
+  () =>
+    import("./app/gp/gestion-humana/viaticos/tarifa/actualizar/[id]/page.tsx"),
+);
+const PerDiemRequestPage = lazyPage(
+  () => import("./app/gp/gestion-humana/viaticos/solicitud-viaticos/page.tsx"),
+);
+const PerDiemRequestDetailAdminPage = lazyPage(
+  () =>
+    import("./app/gp/gestion-humana/viaticos/solicitud-viaticos/[id]/page.tsx"),
+);
+const AddAdminHotelReservationPage = lazyPage(
+  () =>
+    import("./app/gp/gestion-humana/viaticos/solicitud-viaticos/[id]/reserva-hotel/agregar/page.tsx"),
+);
+const UpdateAdminHotelReservationPage = lazyPage(
+  () =>
+    import("./app/gp/gestion-humana/viaticos/solicitud-viaticos/[id]/reserva-hotel/actualizar/[reservationId]/page.tsx"),
+);
+const AddPerDiemRequestPage = lazyPage(
+  () => import("./app/perfil/viaticos/agregar/page.tsx"),
+);
+const UpdatePerDiemRequestPage = lazyPage(
+  () => import("./app/perfil/viaticos/actualizar/[id]/page.tsx"),
+);
+const ApprovePerDiemRequestPage = lazyPage(
+  () => import("./app/perfil/viaticos/aprobar/page.tsx"),
+);
+const ApproveSettlementPage = lazyPage(
+  () => import("./app/perfil/viaticos/aprobar-liquidaciones/page.tsx"),
+);
+const PerDiemRequestDetailPage = lazyPage(
+  () => import("./app/perfil/viaticos/[id]/page.tsx"),
+);
+const AddExpensePage = lazyPage(
+  () => import("./app/perfil/viaticos/[id]/gastos/agregar/page.tsx"),
+);
+const UpdateExpensePage = lazyPage(
+  () =>
+    import("./app/perfil/viaticos/[id]/gastos/actualizar/[expenseId]/page.tsx"),
+);
+const UploadDepositPage = lazyPage(
+  () =>
+    import("./app/ap/contabilidad/solicitud-viaticos/[id]/deposito/page.tsx"),
+);
+const AccountantDistrictAssignmentPage = lazyPage(
+  () =>
+    import("./app/gp/gestion-humana/viaticos/asignacion-asistentes/page.tsx"),
+);
+const UpdatePositionPage = lazyPage(
+  () =>
+    import("./app/gp/gestion-humana/configuraciones/posiciones/actualizar/[id]/page"),
+);
+const UpdateHierarchicalCategoryPage = lazyPage(
+  () =>
+    import("./app/gp/gestion-humana/evaluaciones-de-desempeno/categorias-jerarquicas/actualizar/[id]/page"),
+);
+const SedePage = lazyPage(
+  () => import("./app/gp/maestro-general/sede/page.tsx"),
+);
+const UpdateSedePage = lazyPage(
+  () => import("./app/gp/maestro-general/sede/actualizar/[id]/page.tsx"),
+);
+const AddSedePage = lazyPage(
+  () => import("./app/gp/maestro-general/sede/agregar/page.tsx"),
+);
+const CompanyPage = lazyPage(
+  () => import("./app/gp/maestro-general/empresa/page.tsx"),
+);
+const UpdateCompanyPage = lazyPage(
+  () => import("./app/gp/maestro-general/empresa/actualizar/[id]/page.tsx"),
+);
 const TICsModulePage = lazyPage(() => import("./app/gp/tics/page.tsx"));
 const EquipmentPage = lazyPage(() => import("./app/gp/tics/equipos/page.tsx"));
-const AddEquipmentPage = lazyPage(() => import("./app/gp/tics/equipos/agregar/page.tsx"));
-const UpdateEquipmentPage = lazyPage(() => import("./app/gp/tics/equipos/actualizar/[id]/page.tsx"));
-const AuditLogsPage = lazyPage(() => import("./app/gp/tics/auditoria/page.tsx"));
-const ActiveSessionsPage = lazyPage(() => import("./app/gp/tics/sesiones-activas/page.tsx"));
-const ScrumProjectPage = lazyPage(() => import("./app/gp/tics/pm/proyectos/page.tsx"));
-const AddScrumProjectPage = lazyPage(() => import("./app/gp/tics/pm/proyectos/agregar/page.tsx"));
-const UpdateScrumProjectPage = lazyPage(() => import("./app/gp/tics/pm/proyectos/actualizar/[id]/page.tsx"));
-const ScrumSprintPage = lazyPage(() => import("./app/gp/tics/pm/sprints/page.tsx"));
-const AddScrumSprintPage = lazyPage(() => import("./app/gp/tics/pm/sprints/agregar/page.tsx"));
-const UpdateScrumSprintPage = lazyPage(() => import("./app/gp/tics/pm/sprints/actualizar/[id]/page.tsx"));
+const AddEquipmentPage = lazyPage(
+  () => import("./app/gp/tics/equipos/agregar/page.tsx"),
+);
+const UpdateEquipmentPage = lazyPage(
+  () => import("./app/gp/tics/equipos/actualizar/[id]/page.tsx"),
+);
+const AuditLogsPage = lazyPage(
+  () => import("./app/gp/tics/auditoria/page.tsx"),
+);
+const ActiveSessionsPage = lazyPage(
+  () => import("./app/gp/tics/sesiones-activas/page.tsx"),
+);
+const ScrumProjectPage = lazyPage(
+  () => import("./app/gp/tics/pm/proyectos/page.tsx"),
+);
+const AddScrumProjectPage = lazyPage(
+  () => import("./app/gp/tics/pm/proyectos/agregar/page.tsx"),
+);
+const UpdateScrumProjectPage = lazyPage(
+  () => import("./app/gp/tics/pm/proyectos/actualizar/[id]/page.tsx"),
+);
+const ScrumSprintPage = lazyPage(
+  () => import("./app/gp/tics/pm/sprints/page.tsx"),
+);
+const AddScrumSprintPage = lazyPage(
+  () => import("./app/gp/tics/pm/sprints/agregar/page.tsx"),
+);
+const UpdateScrumSprintPage = lazyPage(
+  () => import("./app/gp/tics/pm/sprints/actualizar/[id]/page.tsx"),
+);
 const KanbanPage = lazyPage(() => import("./app/gp/tics/pm/kanban/page.tsx"));
-const CompanyModulePage = lazyPage(() => import("./app/[company]/[module]/page.tsx"));
-const CompanyModuleSubmodulePage = lazyPage(() => import("./app/[company]/[module]/[submodule]/page.tsx"));
+const CompanyModulePage = lazyPage(
+  () => import("./app/[company]/[module]/page.tsx"),
+);
+const CompanyModuleSubmodulePage = lazyPage(
+  () => import("./app/[company]/[module]/[submodule]/page.tsx"),
+);
 const ProfilePage = lazyPage(() => import("./app/perfil/page.tsx"));
-const UserPage = lazyPage(() => import("./app/gp/gestion-del-sistema/usuarios/page.tsx"));
+const UserPage = lazyPage(
+  () => import("./app/gp/gestion-del-sistema/usuarios/page.tsx"),
+);
 const MyPerDiemPage = lazyPage(() => import("./app/perfil/viaticos/page.tsx"));
-const AddGeneralElectronicDocumentPage = lazyPage(() => import("./app/ap/comercial/electronic-documents/agregar-otros/page.tsx"));
-const PerDiemRequestAPPage = lazyPage(() => import("./app/ap/contabilidad/solicitud-viaticos/page.tsx"));
-const PerDiemRequestDetailAdminAPPage = lazyPage(() => import("./app/ap/contabilidad/solicitud-viaticos/[id]/page.tsx"));
-const CommercialMastersPage = lazyPage(() => import("./app/ap/configuraciones/maestros-general/maestros-generales/page.tsx"));
-const ControlTravelPage = lazyPage(() => import("./app/tp/comercial-tp/control-viajes/page.tsx"));
-const AccountsReceivablePage = lazyPage(() => import("./app/dp/comercial/accounts-receivable/page.tsx"));
-const AccountsReceivableDashboardPage = lazyPage(() => import("./app/dp/comercial/accounts-receivable/dashboard/page.tsx"));
-const AccountsReceivableApPage = lazyPage(() => import("./app/ap/comercial/accounts-receivable/page.tsx"));
-const AccountsReceivableDashboardApPage = lazyPage(() => import("./app/ap/comercial/accounts-receivable/dashboard/page.tsx"));
-const AccountsPayablePage = lazyPage(() => import("./app/dp/comercial/accounts-payable/page.tsx"));
-const AccountsPayableDashboardPage = lazyPage(() => import("./app/dp/comercial/accounts-payable/dashboard/page.tsx"));
-const AccountsPayableApPage = lazyPage(() => import("./app/ap/comercial/accounts-payable/page.tsx"));
-const AccountsPayableDashboardApPage = lazyPage(() => import("./app/ap/comercial/accounts-payable/dashboard/page.tsx"));
+const AddGeneralElectronicDocumentPage = lazyPage(
+  () =>
+    import("./app/ap/comercial/electronic-documents/agregar-otros/page.tsx"),
+);
+const PerDiemRequestAPPage = lazyPage(
+  () => import("./app/ap/contabilidad/solicitud-viaticos/page.tsx"),
+);
+const PerDiemRequestDetailAdminAPPage = lazyPage(
+  () => import("./app/ap/contabilidad/solicitud-viaticos/[id]/page.tsx"),
+);
+const CommercialMastersPage = lazyPage(
+  () =>
+    import("./app/ap/configuraciones/maestros-general/maestros-generales/page.tsx"),
+);
+const ControlTravelPage = lazyPage(
+  () => import("./app/tp/comercial-tp/control-viajes/page.tsx"),
+);
+const AccountsReceivablePage = lazyPage(
+  () => import("./app/dp/comercial/accounts-receivable/page.tsx"),
+);
+const AccountsReceivableDashboardPage = lazyPage(
+  () => import("./app/dp/comercial/accounts-receivable/dashboard/page.tsx"),
+);
+const AccountsReceivableApPage = lazyPage(
+  () => import("./app/ap/comercial/accounts-receivable/page.tsx"),
+);
+const AccountsReceivableDashboardApPage = lazyPage(
+  () => import("./app/ap/comercial/accounts-receivable/dashboard/page.tsx"),
+);
+const AccountsPayablePage = lazyPage(
+  () => import("./app/dp/comercial/accounts-payable/page.tsx"),
+);
+const AccountsPayableDashboardPage = lazyPage(
+  () => import("./app/dp/comercial/accounts-payable/dashboard/page.tsx"),
+);
+const AccountsPayableApPage = lazyPage(
+  () => import("./app/ap/comercial/accounts-payable/page.tsx"),
+);
+const AccountsPayableDashboardApPage = lazyPage(
+  () => import("./app/ap/comercial/accounts-payable/dashboard/page.tsx"),
+);
 import DPComercialLayout from "./app/dp/comercial/layout.tsx";
 import ManualesPage from "./features/manuales/components/ManualesPage";
 
-const GeneralMastersPage = lazyPage(() => import("./app/gp/maestros-generales/page.tsx"));
+const GeneralMastersPage = lazyPage(
+  () => import("./app/gp/maestros-generales/page.tsx"),
+);
 import { PER_DIEM_REQUEST } from "./features/profile/viaticos/lib/perDiemRequest.constants.ts";
-const ControlFreightPage = lazyPage(() => import("./app/tp/comercial-tp/control-fletes/page.tsx"));
-const PayrollPeriodsPage = lazyPage(() => import("./app/gp/gestion-humana/planillas/periodos/page.tsx"));
-const AddPayrollPeriodPage = lazyPage(() => import("./app/gp/gestion-humana/planillas/periodos/agregar/page.tsx"));
-const UpdatePayrollPeriodPage = lazyPage(() => import("./app/gp/gestion-humana/planillas/periodos/actualizar/[id]/page.tsx"));
-const PayrollCalculationPage = lazyPage(() => import("./app/gp/gestion-humana/planillas/periodos/calcular/[id]/page.tsx"));
-const AttendanceRulePage = lazyPage(() => import("./app/gp/gestion-humana/planillas/reglas-asistencia/page.tsx"));
-const AddAttendanceRulePage = lazyPage(() => import("./app/gp/gestion-humana/planillas/reglas-asistencia/agregar/page.tsx"));
-const UpdateAttendanceRulePage = lazyPage(() => import("./app/gp/gestion-humana/planillas/reglas-asistencia/actualizar/[id]/page.tsx"));
-const LiquidacionBbssPage = lazyPage(() => import("./app/gp/gestion-humana/planillas/liquidacion-bbss/page.tsx"));
-const AddLiquidacionBbssPage = lazyPage(() => import("./app/gp/gestion-humana/planillas/liquidacion-bbss/agregar/page.tsx"));
-const UpdateLiquidacionBbssPage = lazyPage(() => import("./app/gp/gestion-humana/planillas/liquidacion-bbss/actualizar/[id]/page.tsx"));
-const LoanPage = lazyPage(() => import("./app/gp/gestion-humana/planillas/prestamos/page.tsx"));
-const AddLoanPage = lazyPage(() => import("./app/gp/gestion-humana/planillas/prestamos/agregar/page.tsx"));
-const UpdateLoanPage = lazyPage(() => import("./app/gp/gestion-humana/planillas/prestamos/actualizar/[id]/page.tsx"));
-const LoanAmortizacionesPage = lazyPage(() => import("./app/gp/gestion-humana/planillas/prestamos/[id]/amortizaciones/page.tsx"));
-const InsurancePage = lazyPage(() => import("./app/gp/gestion-humana/planillas/seguros/page.tsx"));
-const WorkingConditionPage = lazyPage(() => import("./app/gp/gestion-humana/planillas/condiciones-trabajo/page.tsx"));
-const InsurerPage = lazyPage(() => import("./app/gp/gestion-humana/planillas/aseguradora/page.tsx"));
-const AddInsurerPage = lazyPage(() => import("./app/gp/gestion-humana/planillas/aseguradora/agregar/page.tsx"));
-const UpdateInsurerPage = lazyPage(() => import("./app/gp/gestion-humana/planillas/aseguradora/actualizar/[id]/page.tsx"));
-const AddInsurancePage = lazyPage(() => import("./app/gp/gestion-humana/planillas/seguros/agregar/page.tsx"));
-const UpdateInsurancePage = lazyPage(() => import("./app/gp/gestion-humana/planillas/seguros/actualizar/[id]/page.tsx"));
-const BonusPage = lazyPage(() => import("./app/gp/gestion-humana/planillas/bonificaciones/page.tsx"));
-const PayrollRegisterPage = lazyPage(() => import("./app/gp/gestion-humana/planillas/registro-planilla/page.tsx"));
-const AddBonusPage = lazyPage(() => import("./app/gp/gestion-humana/planillas/bonificaciones/agregar/page.tsx"));
-const UpdateBonusPage = lazyPage(() => import("./app/gp/gestion-humana/planillas/bonificaciones/actualizar/[id]/page.tsx"));
-const FoodCardPage = lazyPage(() => import("./app/gp/gestion-humana/planillas/tarjeta-de-alimentos/page.tsx"));
-const AssignFoodCardPage = lazyPage(() => import("./app/gp/gestion-humana/planillas/tarjeta-de-alimentos/asignar/page.tsx"));
-const FamilyAllowancePage = lazyPage(() => import("./app/gp/gestion-humana/planillas/asignacion-familiar/page.tsx"));
-const AssignFamilyAllowancePage = lazyPage(() => import("./app/gp/gestion-humana/planillas/asignacion-familiar/asignar/page.tsx"));
-const ExclusionPage = lazyPage(() => import("./app/gp/gestion-humana/planillas/exclusiones/page.tsx"));
+const ControlFreightPage = lazyPage(
+  () => import("./app/tp/comercial-tp/control-fletes/page.tsx"),
+);
+const PayrollPeriodsPage = lazyPage(
+  () => import("./app/gp/gestion-humana/planillas/periodos/page.tsx"),
+);
+const AddPayrollPeriodPage = lazyPage(
+  () => import("./app/gp/gestion-humana/planillas/periodos/agregar/page.tsx"),
+);
+const UpdatePayrollPeriodPage = lazyPage(
+  () =>
+    import("./app/gp/gestion-humana/planillas/periodos/actualizar/[id]/page.tsx"),
+);
+const PayrollCalculationPage = lazyPage(
+  () =>
+    import("./app/gp/gestion-humana/planillas/periodos/calcular/[id]/page.tsx"),
+);
+const AttendanceRulePage = lazyPage(
+  () => import("./app/gp/gestion-humana/planillas/reglas-asistencia/page.tsx"),
+);
+const AddAttendanceRulePage = lazyPage(
+  () =>
+    import("./app/gp/gestion-humana/planillas/reglas-asistencia/agregar/page.tsx"),
+);
+const UpdateAttendanceRulePage = lazyPage(
+  () =>
+    import("./app/gp/gestion-humana/planillas/reglas-asistencia/actualizar/[id]/page.tsx"),
+);
+const LiquidacionBbssPage = lazyPage(
+  () => import("./app/gp/gestion-humana/planillas/liquidacion-bbss/page.tsx"),
+);
+const AddLiquidacionBbssPage = lazyPage(
+  () =>
+    import("./app/gp/gestion-humana/planillas/liquidacion-bbss/agregar/page.tsx"),
+);
+const UpdateLiquidacionBbssPage = lazyPage(
+  () =>
+    import("./app/gp/gestion-humana/planillas/liquidacion-bbss/actualizar/[id]/page.tsx"),
+);
+const LoanPage = lazyPage(
+  () => import("./app/gp/gestion-humana/planillas/prestamos/page.tsx"),
+);
+const AddLoanPage = lazyPage(
+  () => import("./app/gp/gestion-humana/planillas/prestamos/agregar/page.tsx"),
+);
+const UpdateLoanPage = lazyPage(
+  () =>
+    import("./app/gp/gestion-humana/planillas/prestamos/actualizar/[id]/page.tsx"),
+);
+const LoanAmortizacionesPage = lazyPage(
+  () =>
+    import("./app/gp/gestion-humana/planillas/prestamos/[id]/amortizaciones/page.tsx"),
+);
+const InsurancePage = lazyPage(
+  () => import("./app/gp/gestion-humana/planillas/seguros/page.tsx"),
+);
+const WorkingConditionPage = lazyPage(
+  () =>
+    import("./app/gp/gestion-humana/planillas/condiciones-trabajo/page.tsx"),
+);
+const InsurerPage = lazyPage(
+  () => import("./app/gp/gestion-humana/planillas/aseguradora/page.tsx"),
+);
+const AddInsurerPage = lazyPage(
+  () =>
+    import("./app/gp/gestion-humana/planillas/aseguradora/agregar/page.tsx"),
+);
+const UpdateInsurerPage = lazyPage(
+  () =>
+    import("./app/gp/gestion-humana/planillas/aseguradora/actualizar/[id]/page.tsx"),
+);
+const AddInsurancePage = lazyPage(
+  () => import("./app/gp/gestion-humana/planillas/seguros/agregar/page.tsx"),
+);
+const UpdateInsurancePage = lazyPage(
+  () =>
+    import("./app/gp/gestion-humana/planillas/seguros/actualizar/[id]/page.tsx"),
+);
+const BonusPage = lazyPage(
+  () => import("./app/gp/gestion-humana/planillas/bonificaciones/page.tsx"),
+);
+const PayrollRegisterPage = lazyPage(
+  () => import("./app/gp/gestion-humana/planillas/registro-planilla/page.tsx"),
+);
+const AddBonusPage = lazyPage(
+  () =>
+    import("./app/gp/gestion-humana/planillas/bonificaciones/agregar/page.tsx"),
+);
+const UpdateBonusPage = lazyPage(
+  () =>
+    import("./app/gp/gestion-humana/planillas/bonificaciones/actualizar/[id]/page.tsx"),
+);
+const FoodCardPage = lazyPage(
+  () =>
+    import("./app/gp/gestion-humana/planillas/tarjeta-de-alimentos/page.tsx"),
+);
+const AssignFoodCardPage = lazyPage(
+  () =>
+    import("./app/gp/gestion-humana/planillas/tarjeta-de-alimentos/asignar/page.tsx"),
+);
+const FamilyAllowancePage = lazyPage(
+  () =>
+    import("./app/gp/gestion-humana/planillas/asignacion-familiar/page.tsx"),
+);
+const AssignFamilyAllowancePage = lazyPage(
+  () =>
+    import("./app/gp/gestion-humana/planillas/asignacion-familiar/asignar/page.tsx"),
+);
+const ExclusionPage = lazyPage(
+  () => import("./app/gp/gestion-humana/planillas/exclusiones/page.tsx"),
+);
 const SctrRatePage = lazyPage(() => import("./app/gp/gestion-humana/planillas/tasas-sctr/page.tsx"));
 const LifeInsurancePolicyPage = lazyPage(() => import("./app/gp/gestion-humana/planillas/polizas-vida-ley/page.tsx"));
 const SubsidyPage = lazyPage(() => import("./app/gp/gestion-humana/planillas/subsidios/page.tsx"));
-const WorkSchedulesPage = lazyPage(() => import("./app/gp/gestion-humana/planillas/dia-trabajo/page.tsx"));
-const PayrollParameterPage = lazyPage(() => import("./app/gp/gestion-humana/planillas/parametros/page.tsx"));
-const PayrollRatesPercentagesPage = lazyPage(() => import("./app/gp/gestion-humana/planillas/tasas-porcentajes/page.tsx"));
-const PayrollConceptsPage = lazyPage(() => import("./app/gp/gestion-humana/planillas/conceptos-planilla/page.tsx"));
-const AttendancePage = lazyPage(() => import("./app/gp/gestion-humana/asistencias/page.tsx"));
-const AttendancePersonPage = lazyPage(() => import("./app/gp/gestion-humana/asistencias/persona/[personId]/page.tsx"));
-const AttendanceBulkStoreRoutePage = lazyPage(() => import("./app/gp/gestion-humana/asistencias/marcacion-masiva/page.tsx"));
-const SunafilReportPage = lazyPage(() => import("./app/gp/gestion-humana/asistencias/sunafil/page.tsx"));
-const InternalReportPage = lazyPage(() => import("./app/gp/gestion-humana/asistencias/interno/page.tsx"));
-const WorkSchedulePage = lazyPage(() => import("./app/gp/gestion-humana/asistencias/horarios/page.tsx"));
-const AddWorkSchedulePage = lazyPage(() => import("./app/gp/gestion-humana/asistencias/horarios/agregar/page.tsx"));
-const UpdateWorkSchedulePage = lazyPage(() => import("./app/gp/gestion-humana/asistencias/horarios/actualizar/[id]/page.tsx"));
-const AttendanceExclusionPage = lazyPage(() => import("./app/gp/gestion-humana/asistencias/exclusiones/page.tsx"));
-const AttendanceCodeMappingPage = lazyPage(() => import("./app/gp/gestion-humana/asistencias/mapeo-codigos/page.tsx"));
+const WorkSchedulesPage = lazyPage(
+  () => import("./app/gp/gestion-humana/planillas/dia-trabajo/page.tsx"),
+);
+const PayrollParameterPage = lazyPage(
+  () => import("./app/gp/gestion-humana/planillas/parametros/page.tsx"),
+);
+const PayrollRatesPercentagesPage = lazyPage(
+  () => import("./app/gp/gestion-humana/planillas/tasas-porcentajes/page.tsx"),
+);
+const PayrollConceptsPage = lazyPage(
+  () => import("./app/gp/gestion-humana/planillas/conceptos-planilla/page.tsx"),
+);
+const AttendancePage = lazyPage(
+  () => import("./app/gp/gestion-humana/asistencias/page.tsx"),
+);
+const AttendancePersonPage = lazyPage(
+  () =>
+    import("./app/gp/gestion-humana/asistencias/persona/[personId]/page.tsx"),
+);
+const AttendanceBulkStoreRoutePage = lazyPage(
+  () => import("./app/gp/gestion-humana/asistencias/marcacion-masiva/page.tsx"),
+);
+const SunafilReportPage = lazyPage(
+  () => import("./app/gp/gestion-humana/asistencias/sunafil/page.tsx"),
+);
+const InternalReportPage = lazyPage(
+  () => import("./app/gp/gestion-humana/asistencias/interno/page.tsx"),
+);
+const WorkSchedulePage = lazyPage(
+  () => import("./app/gp/gestion-humana/asistencias/horarios/page.tsx"),
+);
+const AddWorkSchedulePage = lazyPage(
+  () => import("./app/gp/gestion-humana/asistencias/horarios/agregar/page.tsx"),
+);
+const UpdateWorkSchedulePage = lazyPage(
+  () =>
+    import("./app/gp/gestion-humana/asistencias/horarios/actualizar/[id]/page.tsx"),
+);
+const AttendanceExclusionPage = lazyPage(
+  () => import("./app/gp/gestion-humana/asistencias/exclusiones/page.tsx"),
+);
+const AttendanceCodeMappingPage = lazyPage(
+  () => import("./app/gp/gestion-humana/asistencias/mapeo-codigos/page.tsx"),
+);
 import ProfileLayout from "./features/dashboard/components/ProfileLayout.tsx";
-const ControlGoalPage = lazyPage(() => import("./app/tp/comercial-tp/control-metas/page.tsx"));
-const EquipmentTypePage = lazyPage(() => import("./app/gp/tics/tipos-de-equipo/page.tsx"));
+const ControlGoalPage = lazyPage(
+  () => import("./app/tp/comercial-tp/control-metas/page.tsx"),
+);
+const EquipmentTypePage = lazyPage(
+  () => import("./app/gp/tics/tipos-de-equipo/page.tsx"),
+);
 import { PHONE_LINE } from "./features/gp/tics/phoneLine/lib/phoneLine.constants.ts";
-const PhoneLinePage = lazyPage(() => import("./app/gp/tics/lineas-telefonicas/page.tsx"));
-const AddPhoneLinePage = lazyPage(() => import("./app/gp/tics/lineas-telefonicas/agregar/page.tsx"));
-const UpdatePhoneLinePage = lazyPage(() => import("./app/gp/tics/lineas-telefonicas/actualizar/[id]/page.tsx"));
-const TelephoneAccountPage = lazyPage(() => import("./app/gp/tics/cuentas-telefonicas/page.tsx"));
-const TelephonePlanPage = lazyPage(() => import("./app/gp/tics/planes-telefonicos/page.tsx"));
-const AssignmentsPage = lazyPage(() => import("./app/gp/tics/asignaciones/page.tsx"));
-const GestionManualesPage = lazyPage(() => import("./app/gp/tics/gestion-manuales/page.tsx"));
-const ControlVehicleAssignmentPage = lazyPage(() => import("./app/tp/comercial-tp/control-asignacionVehiculos/page.tsx"));
-const AddControlUnitsPage = lazyPage(() => import("./app/ap/comercial/control-unidades/agregar/page.tsx"));
-const UpdateControlUnitsPage = lazyPage(() => import("./app/ap/comercial/control-unidades/actualizar/[id]/page.tsx"));
-const ControlUnitCheckListPage = lazyPage(() => import("./app/ap/comercial/control-unidades/checklist/[id]/page.tsx"));
-const ControlUnitsPage = lazyPage(() => import("./app/ap/comercial/control-unidades/page.tsx"));
+const PhoneLinePage = lazyPage(
+  () => import("./app/gp/tics/lineas-telefonicas/page.tsx"),
+);
+const AddPhoneLinePage = lazyPage(
+  () => import("./app/gp/tics/lineas-telefonicas/agregar/page.tsx"),
+);
+const UpdatePhoneLinePage = lazyPage(
+  () => import("./app/gp/tics/lineas-telefonicas/actualizar/[id]/page.tsx"),
+);
+const TelephoneAccountPage = lazyPage(
+  () => import("./app/gp/tics/cuentas-telefonicas/page.tsx"),
+);
+const TelephonePlanPage = lazyPage(
+  () => import("./app/gp/tics/planes-telefonicos/page.tsx"),
+);
+const AssignmentsPage = lazyPage(
+  () => import("./app/gp/tics/asignaciones/page.tsx"),
+);
+const GestionManualesPage = lazyPage(
+  () => import("./app/gp/tics/gestion-manuales/page.tsx"),
+);
+const ControlVehicleAssignmentPage = lazyPage(
+  () => import("./app/tp/comercial-tp/control-asignacionVehiculos/page.tsx"),
+);
+const AddControlUnitsPage = lazyPage(
+  () => import("./app/ap/comercial/control-unidades/agregar/page.tsx"),
+);
+const UpdateControlUnitsPage = lazyPage(
+  () => import("./app/ap/comercial/control-unidades/actualizar/[id]/page.tsx"),
+);
+const ControlUnitCheckListPage = lazyPage(
+  () => import("./app/ap/comercial/control-unidades/checklist/[id]/page.tsx"),
+);
+const ControlUnitsPage = lazyPage(
+  () => import("./app/ap/comercial/control-unidades/page.tsx"),
+);
 import { CONTROL_UNITS } from "./features/ap/comercial/control-unidades/lib/controlUnits.constants.ts";
-const MonitoreoPage = lazyPage(() => import("./app/tp/comercial-tp/monitoreo/page.tsx"));
+const MonitoreoPage = lazyPage(
+  () => import("./app/tp/comercial-tp/monitoreo/page.tsx"),
+);
 import { LocationTracker } from "./features/tp/comercial/Monitoreo/LocationTracker.tsx";
 import { DeviceInactiveAlert } from "./features/tp/comercial/Monitoreo/components/DeviceInactiveAlert.tsx";
 import SupplyControlPage from "./app/tp/comercial-tp/control-abastecimiento/page.tsx";
-const ExitGuidePage = lazyPage(() => import("./app/ap/comercial/entrega-vehiculo/guia-salida/page.tsx"));
-const ControlTipoVehiculoPage = lazyPage(() => import("./app/tp/configuraciones/control-tipo-vehiculo/page.tsx"));
-const ControlVehiculoPage = lazyPage(() => import("./app/tp/configuraciones/control-vehiculo/page.tsx"));
+const ExitGuidePage = lazyPage(
+  () => import("./app/ap/comercial/entrega-vehiculo/guia-salida/page.tsx"),
+);
+const ControlTipoVehiculoPage = lazyPage(
+  () => import("./app/tp/configuraciones/control-tipo-vehiculo/page.tsx"),
+);
+const ControlVehiculoPage = lazyPage(
+  () => import("./app/tp/configuraciones/control-vehiculo/page.tsx"),
+);
 
 // ============================================================================
 // PROTECTED ROUTE COMPONENT
@@ -777,10 +2061,7 @@ function App() {
                 path="equipo/indicadores"
                 element={<TeamIndicatorsPage />}
               />
-              <Route
-                path="equipo/jerarquica"
-                element={<TeamHierarchyPage />}
-              />
+              <Route path="equipo/jerarquica" element={<TeamHierarchyPage />} />
               <Route path="equipo/:id" element={<NamuPerformancePage />} />
               <Route
                 path="equipo/:id/evaluar"
@@ -1603,6 +2884,14 @@ function App() {
                 element={<ProductCategoryPage />}
               />
               <Route
+                path="gestion-de-almacen/comprobante-venta-travesia"
+                element={<SalesReceiptsAlmacenPage />}
+              />
+              <Route
+                path="gestion-de-almacen/comprobante-venta-travesia/asociar-compra/:id"
+                element={<AssociatePurchaseTraversePage />}
+              />
+              <Route
                 path="gestion-de-almacen/marcas-producto"
                 element={<BrandsPVPage />}
               />
@@ -2127,6 +3416,10 @@ function App() {
                 element={<ProductivityDashboardPage />}
               />
               <Route
+                path="indicadores-y-reportes/dashboard-productividad/tecnico/:workerId"
+                element={<ProductivityTechnicianDetailPageRoute />}
+              />
+              <Route
                 path="indicadores-y-reportes/consultas-masivas"
                 element={<ConsultasMasivasPostVentaPage />}
               />
@@ -2539,10 +3832,7 @@ function App() {
                 element={<AssignFamilyAllowancePage />}
               />
               {/* Exclusiones */}
-              <Route
-                path="planillas/exclusiones"
-                element={<ExclusionPage />}
-              />
+              <Route path="planillas/exclusiones" element={<ExclusionPage />} />
               {/* Tasas SCTR, Pólizas Vida Ley y Subsidios */}
               <Route path="planillas/tasas-sctr" element={<SctrRatePage />} />
               <Route
@@ -2720,7 +4010,10 @@ function App() {
               <Route path="control-viajes" element={<ControlTravelPage />} />
               <Route path="control-fletes" element={<ControlFreightPage />} />
               <Route path="control-metas" element={<ControlGoalPage />} />
-              <Route path="control-abastecimiento" element={<SupplyControlPage />} />
+              <Route
+                path="control-abastecimiento"
+                element={<SupplyControlPage />}
+              />
               <Route
                 path="control-asignacionVehiculos"
                 element={<ControlVehicleAssignmentPage />}

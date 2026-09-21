@@ -1,6 +1,7 @@
 "use client";
 
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
+import { useScopedFilters } from "@/shared/hooks/useScopedFilters";
 import { useEffect, useState } from "react";
 import PageSkeleton from "@/shared/components/PageSkeleton";
 import TitleComponent from "@/shared/components/TitleComponent";
@@ -34,15 +35,31 @@ export default function WarehousePage() {
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
   const [page, setPage] = useState(1);
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
-  const [search, setSearch] = useState("");
   const [deleteId, setDeleteId] = useState<number | null>(null);
-  const [sedeId, setSedeId] = useState<string>("");
-  const [typeOperation, setTypeOperationId] = useState<string>("");
-  const [articleClassId, setArticleClassId] = useState<string>("");
-  const [status, setStatus] = useState<string>("");
-  const [isReceived, setIsReceived] = useState<string>("");
-  const { MODEL, ROUTE } = WAREHOUSE;
+  const { MODEL, ROUTE, ABSOLUTE_ROUTE } = WAREHOUSE;
   const permissions = useModulePermissions(ROUTE);
+
+  const { values: filters, setFieldValue: setFilter } = useScopedFilters(
+    ABSOLUTE_ROUTE,
+    {
+      search: "",
+      sedeId: "",
+      typeOperation: "",
+      articleClassId: "",
+      status: "",
+      isReceived: "",
+    },
+  );
+  const { search, sedeId, typeOperation, articleClassId, status, isReceived } =
+    filters;
+  const setSearch = (value: string) => setFilter("search", value);
+  const setSedeId = (value: string) => setFilter("sedeId", value);
+  const setTypeOperationId = (value: string) =>
+    setFilter("typeOperation", value);
+  const setArticleClassId = (value: string) =>
+    setFilter("articleClassId", value);
+  const setStatus = (value: string) => setFilter("status", value);
+  const setIsReceived = (value: string) => setFilter("isReceived", value);
 
   useEffect(() => {
     setPage(1);

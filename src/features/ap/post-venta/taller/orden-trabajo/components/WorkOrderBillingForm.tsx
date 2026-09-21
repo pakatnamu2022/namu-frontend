@@ -261,6 +261,7 @@ export default function WorkOrderBillingForm({
               item.anticipo_documento_serie ?? undefined,
             anticipo_documento_numero:
               item.anticipo_documento_numero ?? undefined,
+            is_traverse: item.is_traverse ?? undefined,
           };
         });
 

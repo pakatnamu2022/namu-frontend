@@ -8,9 +8,11 @@ import {
 import {
   findVehiclePurchaseOrderById,
   getAllVehiclePurchaseOrder,
+  getAvailableTraverseItems,
   getNextCorrelative,
   getVehiclePurchaseOrder,
 } from "./vehiclePurchaseOrder.actions";
+import { PurchaseOrderItemTraverseResponse } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.interface";
 
 const { QUERY_KEY } = VEHICLE_PURCHASE_ORDER;
 
@@ -47,5 +49,19 @@ export const useNextCorrelative = (
     queryKey: [QUERY_KEY, "next-correlative", sedeId, typeOperationId],
     queryFn: () => getNextCorrelative(sedeId!, typeOperationId!),
     enabled: !!sedeId && !!typeOperationId,
+  });
+};
+
+export const useAvailableTraverseItems = (params: {
+  electronic_document_id: number;
+  search?: string;
+  page?: number;
+  per_page?: number;
+}) => {
+  return useQuery<PurchaseOrderItemTraverseResponse>({
+    queryKey: [QUERY_KEY, "available-traverse", params],
+    queryFn: () => getAvailableTraverseItems(params),
+    enabled: !!params.electronic_document_id && params.electronic_document_id > 0,
+    refetchOnWindowFocus: false,
   });
 };

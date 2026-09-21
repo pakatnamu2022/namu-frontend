@@ -1,12 +1,13 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
-import { Receipt } from "lucide-react";
+import { Calendar, Receipt } from "lucide-react";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { Badge } from "@/components/ui/badge";
 import { OrderQuotationResource } from "../../../taller/cotizacion/lib/proforma.interface";
 import { CopyCell } from "@/shared/components/CopyCell";
 import { STATUS_ORDER_QUOTE_COLOR } from "../../../taller/cotizacion/lib/proforma.constants";
+import { formatDate } from "@/core/core.function";
 
 export type OrderQuotationMesonCajaColumns = ColumnDef<OrderQuotationResource>;
 
@@ -31,29 +32,32 @@ export const orderQuotationMesonCajaColumns = ({
     },
   },
   {
-    accessorKey: "quotation_date",
-    header: "Fecha de Cotización",
-    cell: ({ getValue }) => {
-      const date = getValue() as string;
-      if (!date) return "-";
-      try {
-        return format(new Date(date), "dd/MM/yyyy", { locale: es });
-      } catch {
-        return date;
-      }
-    },
-  },
-  {
-    accessorKey: "expiration_date",
-    header: "Fecha de Vencimiento",
-    cell: ({ getValue }) => {
-      const date = getValue() as string;
-      if (!date) return "-";
-      try {
-        return format(new Date(date), "dd/MM/yyyy", { locale: es });
-      } catch {
-        return date;
-      }
+    id: "dates",
+    header: "Fechas",
+    cell: ({ row }) => {
+      const opening = row.original.quotation_date;
+      const estimated = row.original.expiration_date;
+      const fmt = (v: string) => {
+        try {
+          return formatDate(v);
+        } catch {
+          return v;
+        }
+      };
+      return (
+        <div className="flex flex-col gap-0.5 text-xs">
+          <span className="flex items-center gap-1">
+            <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
+            <span className="text-muted-foreground">Apertura:</span>
+            {opening ? fmt(opening) : "-"}
+          </span>
+          <span className="flex items-center gap-1">
+            <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
+            <span className="text-muted-foreground">Vencimiento:</span>
+            {estimated ? fmt(estimated) : "-"}
+          </span>
+        </div>
+      );
     },
   },
   {
@@ -113,21 +117,6 @@ export const orderQuotationMesonCajaColumns = ({
   {
     accessorKey: "discarded_at",
     header: "Fecha de Descarte",
-  },
-  {
-    accessorKey: "is_fully_paid",
-    header: "Pagado",
-    cell: ({ getValue }) => {
-      const value = getValue() as boolean;
-      return (
-        <Badge
-          color={value ? "default" : "secondary"}
-          className="capitalize w-8 flex items-center justify-center"
-        >
-          {value ? "Sí" : "No"}
-        </Badge>
-      );
-    },
   },
   {
     accessorKey: "status",

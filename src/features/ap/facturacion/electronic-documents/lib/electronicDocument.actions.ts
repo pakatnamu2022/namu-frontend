@@ -25,6 +25,7 @@ import {
   DynamicsPayloadPreviewResource,
   HistoricalFinalSaleBulkResponse,
 } from "./electronicDocument.interface";
+import { MessageResponse } from "@/core/core.interface";
 import { ParamsProps } from "@/core/core.interface";
 
 const { ENDPOINT } = ELECTRONIC_DOCUMENT;
@@ -38,6 +39,21 @@ export async function getElectronicDocuments(
     },
   };
   const { data } = await api.get<ElectronicDocumentResponse>(ENDPOINT, config);
+  return data;
+}
+
+export async function getElectronicDocumentsSimplified(
+  params?: ParamsProps,
+): Promise<ElectronicDocumentResponse> {
+  const config: AxiosRequestConfig = {
+    params: {
+      ...params,
+    },
+  };
+  const { data } = await api.get<ElectronicDocumentResponse>(
+    `${ENDPOINT}/simplified`,
+    config,
+  );
   return data;
 }
 
@@ -567,4 +583,24 @@ export async function getExchangeRateByDateAndCurrency(
     },
   );
   return data.data;
+}
+
+export async function associatePurchaseTraverse(
+  id: number,
+  purchase_order_item_ids: number[],
+): Promise<MessageResponse> {
+  const { data } = await api.post<MessageResponse>(
+    `${ENDPOINT}/${id}/associate-purchase-traverse`,
+    { purchase_order_item_ids },
+  );
+  return data;
+}
+
+export async function revertPurchaseTraverse(
+  id: number,
+): Promise<MessageResponse> {
+  const { data } = await api.post<MessageResponse>(
+    `${ENDPOINT}/${id}/revert-purchase-traverse`,
+  );
+  return data;
 }

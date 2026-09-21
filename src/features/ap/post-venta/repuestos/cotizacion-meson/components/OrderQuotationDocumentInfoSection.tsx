@@ -145,13 +145,6 @@ export function OrderQuotationDocumentInfoSection({
 
   // Filtrar tipos de documento según el document_type_id del cliente
   const filteredDocumentTypes = documentTypes.filter((type) => {
-    // Prioridad 1: si hay cliente bloqueado, determinar por longitud del doc
-    if (lockedClientId && lockedClientDoc) {
-      const isRuc = lockedClientDoc.trim().length === 11;
-      if (isRuc) return type.id === SUNAT_TYPE_INVOICES_ID.FACTURA;
-      return type.id === SUNAT_TYPE_INVOICES_ID.BOLETA;
-    }
-
     if (!effectiveCustomer) return true; // Si no hay cliente seleccionado, mostrar todos
 
     const documentTypeId = effectiveCustomer.document_type_id;

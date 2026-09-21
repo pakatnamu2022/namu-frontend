@@ -39,8 +39,16 @@ export const classArticleColumns = ({
     header: "Descripción",
   },
   {
-    accessorKey: "account",
-    header: "Cuenta",
+    accessorKey: "inventory_account",
+    header: "Cta. Inventario",
+  },
+  {
+    accessorKey: "counterparty_account",
+    header: "Cta. Contrapartida",
+  },
+  {
+    accessorKey: "account_sales",
+    header: "Cta. Venta",
   },
   {
     accessorKey: "type_operation_description",
@@ -53,7 +61,7 @@ export const classArticleColumns = ({
       const value = getValue() as boolean;
       return (
         <Badge
-          color={value ? "default" : "secondary"}                      
+          color={value ? "default" : "secondary"}
           className="capitalize w-20 flex items-center justify-center"
         >
           {value ? "Activo" : "Inactivo"}

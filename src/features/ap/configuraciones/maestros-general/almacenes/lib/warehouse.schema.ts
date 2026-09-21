@@ -14,8 +14,9 @@ export const warehouseSchemaCreate = z
       .refine((value) => value.trim() !== "", {
         message: "Descripción es requerido",
       }),
-    inventory_account: z.string().max(100).optional(),
-    counterparty_account: z.string().max(100).optional(),
+    inventory_account: z.string().max(20).optional(),
+    counterparty_account: z.string().max(20).optional(),
+    account_sales: z.string().max(20).optional(),
     asset_account: z.string().max(50).optional(),
     type_operation_id: z.string().optional(),
     sede_id: z.string().optional(),

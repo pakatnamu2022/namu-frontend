@@ -123,6 +123,7 @@ export interface WorkOrderInvoiceItemResource {
   subtotal: number;
   igv: number;
   total: number;
+  is_traverse?: boolean;
 }
 
 export interface WorkOrderInvoicePreviewResource {

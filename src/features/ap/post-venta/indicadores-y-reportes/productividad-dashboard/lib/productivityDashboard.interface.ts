@@ -127,23 +127,27 @@ export interface ProductivityDetailSummary {
   total_work_orders: number;
 }
 
+export interface ProductivityWorkOrderTrabajo {
+  descripcion_labour: string;
+  horas_facturadas_tecnico: number;
+  labour_hourly_rate?: number;
+  labour_current_hourly_cost?: number;
+}
+
 export interface ProductivityWorkOrder {
   work_order_id: number;
   work_order_number: string;
   vehicle_plate: string;
   sede: string;
   asesor: string;
-  asesor_id: number;
+  asesor_id?: number;
   fecha_facturacion: string;
   tipo_planificacion: string;
   categoria_tipo?: string;
-  descripcion_labour?: string;
   horas_facturadas_total_ot: number;
   cantidad_tecnicos: number;
-  horas_facturadas_tecnico: number;
   tiene_mano_obra: boolean;
-  labour_hourly_rate?: number;
-  labour_current_hourly_cost?: number;
+  trabajos: ProductivityWorkOrderTrabajo[];
 }
 
 export interface ProductivityWorkOrderWithoutLabour {
