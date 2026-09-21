@@ -33,7 +33,16 @@ const todayIso = () => {
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
 };
 
-export default function WorkerContractsTab({ workerId }: { workerId: number }) {
+interface Props {
+  workerId: number;
+  /** Permiso "Gestionar" del usuario; sin él no se ofrece registrar aumentos. */
+  canRegisterIncrease?: boolean;
+}
+
+export default function WorkerContractsTab({
+  workerId,
+  canRegisterIncrease = false,
+}: Props) {
   const { data, isLoading, isError } = useWorkerContractsSummary(workerId);
   const [increaseOpen, setIncreaseOpen] = useState(false);
 
@@ -85,7 +94,7 @@ export default function WorkerContractsTab({ workerId }: { workerId: number }) {
             <CardTitle>Contratos ({data.contracts.length})</CardTitle>
             <CardDescription>Resumen de contratos y sueldo</CardDescription>
           </div>
-          {data.can_register_increase && (
+          {canRegisterIncrease && data.can_register_increase && (
             <Button size="sm" variant="outline" onClick={() => setIncreaseOpen(true)}>
               <TrendingUp className="mr-2 h-4 w-4" />
               Registrar aumento

@@ -11,6 +11,7 @@ export interface LoanResource {
   worker_id: number;
   worker: string | null;
   delivery_date: string | null;
+  concept: string | null;
   reason: string | null;
   payment_start: string | null;
   payment_days: number[] | null;

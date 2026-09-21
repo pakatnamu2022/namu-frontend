@@ -589,7 +589,7 @@ export const colsDescuentos: Col[] = [
     header: sortableHeader(
       "Préstamos",
       "right",
-      "Sin fuente de datos identificada aún — queda fijo en 0.00 (pendiente).",
+      "Suma de las cuotas de préstamos y adelantos (incluye colaboraciones) con fecha dentro del período (Préstamos → cuotas \"PAGO DE CUOTA\"). No incluye pagos manuales del sistema anterior (ej. \"PAGADO EN LBS\").",
     ),
     cell: ({ getValue }) => (
       <span className="font-mono text-xs text-right block">
