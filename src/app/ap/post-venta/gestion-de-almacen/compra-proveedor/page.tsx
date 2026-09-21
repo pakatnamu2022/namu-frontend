@@ -27,7 +27,10 @@ import SupplierOrderActions from "@/features/ap/post-venta/gestion-almacen/compr
 import SupplierOrderTable from "@/features/ap/post-venta/gestion-almacen/compra-proveedor/components/SupplierOrderTable.tsx";
 import { supplierOrderColumns } from "@/features/ap/post-venta/gestion-almacen/compra-proveedor/components/SupplierOrderColumns.tsx";
 import SupplierOrderOptions from "@/features/ap/post-venta/gestion-almacen/compra-proveedor/components/SupplierOrderOptions.tsx";
-import { SUPPLIER_ORDER } from "@/features/ap/post-venta/gestion-almacen/compra-proveedor/lib/supplierOrder.constants.ts";
+import {
+  SUPPLIER_ORDER,
+  SUPPLIER_ORDER_ROUTE_REPLACE,
+} from "@/features/ap/post-venta/gestion-almacen/compra-proveedor/lib/supplierOrder.constants.ts";
 import { SupplierOrderViewSheet } from "@/features/ap/post-venta/gestion-almacen/compra-proveedor/components/SupplierOrderViewSheet.tsx";
 import { useMySedes } from "@/features/gp/maestro-general/sede/lib/sede.hook.ts";
 
@@ -136,6 +139,7 @@ export default function SupplierOrderPage() {
           permissions,
           routeUpdate: ROUTE_UPDATE,
           routeReception: `${ABSOLUTE_ROUTE}/recepcionar`,
+          routeReplace: SUPPLIER_ORDER_ROUTE_REPLACE,
         })}
         data={data?.data || []}
       >

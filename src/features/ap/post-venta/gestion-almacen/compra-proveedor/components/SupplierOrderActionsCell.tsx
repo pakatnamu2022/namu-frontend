@@ -8,14 +8,23 @@ import {
   ShieldCheck,
   XCircle,
   Loader2,
+  Replace,
+  Trash2,
+  MoreHorizontal,
 } from "lucide-react";
-import { DeleteButton } from "@/shared/components/SimpleDeleteDialog.tsx";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
 import { errorToast, successToast } from "@/core/core.function.ts";
 import { SupplierOrderResource } from "../lib/supplierOrder.interface.ts";
 import { downloadSupplierOrderPdf } from "../lib/supplierOrder.actions.ts";
 import { DiscardSupplierOrderModal } from "./DiscardSupplierOrderModal";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 interface SupplierOrderActionsCellProps {
   row: SupplierOrderResource;
@@ -30,6 +39,7 @@ interface SupplierOrderActionsCellProps {
   };
   routeUpdate?: string;
   routeReception: string;
+  routeReplace: string;
 }
 
 export const SupplierOrderActionsCell = ({
@@ -40,6 +50,7 @@ export const SupplierOrderActionsCell = ({
   permissions,
   routeUpdate,
   routeReception,
+  routeReplace,
 }: SupplierOrderActionsCellProps) => {
   const {
     id,
@@ -51,6 +62,7 @@ export const SupplierOrderActionsCell = ({
     approved_by,
     status,
   } = row;
+  const navigate = useNavigate();
   const [showDiscardModal, setShowDiscardModal] = useState(false);
   const [isDownloadingPdf, setIsDownloadingPdf] = useState(false);
 
@@ -60,6 +72,7 @@ export const SupplierOrderActionsCell = ({
   const canApprove = permissions.canApprove && order_number_external === null;
   const canUpdateAndActive = permissions.canUpdate && isActive;
   const canReception = canUpdateAndActive;
+  const canReplace = canUpdateAndActive;
   const canEdit = canUpdateAndActive && !has_receptions && Boolean(routeUpdate);
   const canDiscard =
     Boolean(has_receptions_annulled) && isActive && !has_receptions_active;
@@ -141,19 +154,6 @@ export const SupplierOrderActionsCell = ({
           </Link>
         )}
 
-        {canEdit && (
-          <Link to={`${routeUpdate}/${id}`}>
-            <Button
-              variant="outline"
-              size="icon"
-              className="size-7"
-              tooltip="Editar"
-            >
-              <Pencil className="size-4" />
-            </Button>
-          </Link>
-        )}
-
         {canDiscard && (
           <Button
             variant="outline"
@@ -166,7 +166,50 @@ export const SupplierOrderActionsCell = ({
           </Button>
         )}
 
-        {canDelete && <DeleteButton onClick={() => onDelete(id)} />}
+        {(canReplace || canEdit || canDelete) && (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="outline"
+                size="icon"
+                className="size-7"
+                tooltip="Más acciones"
+              >
+                <MoreHorizontal className="size-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              {canReplace && (
+                <DropdownMenuItem
+                  onClick={() => navigate(`${routeReplace}/${id}`)}
+                >
+                  <Replace className="size-4 mr-2" />
+                  Reemplazar
+                </DropdownMenuItem>
+              )}
+              {canEdit && (
+                <DropdownMenuItem
+                  onClick={() => navigate(`${routeUpdate}/${id}`)}
+                >
+                  <Pencil className="size-4 mr-2" />
+                  Editar
+                </DropdownMenuItem>
+              )}
+              {canDelete && (
+                <>
+                  {(canReplace || canEdit) && <DropdownMenuSeparator />}
+                  <DropdownMenuItem
+                    className="text-red-600 focus:text-red-600 focus:bg-red-50"
+                    onClick={() => onDelete(id)}
+                  >
+                    <Trash2 className="size-4 mr-2" />
+                    Eliminar
+                  </DropdownMenuItem>
+                </>
+              )}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        )}
       </div>
 
       <DiscardSupplierOrderModal

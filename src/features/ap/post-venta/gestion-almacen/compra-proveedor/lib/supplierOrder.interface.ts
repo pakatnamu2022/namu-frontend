@@ -99,3 +99,9 @@ export interface SupplierOrderRequest {
 export interface getSupplierOrderProps {
   params?: Record<string, any>;
 }
+
+export interface ReplaceSupplierOrderProductRequest {
+  original_product_id: number;
+  new_product_id: number;
+  replacement_reason?: string | null;
+}
