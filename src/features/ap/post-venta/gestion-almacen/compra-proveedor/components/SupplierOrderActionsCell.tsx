@@ -61,6 +61,7 @@ export const SupplierOrderActionsCell = ({
     has_receptions_annulled,
     approved_by,
     status,
+    reception_type,
   } = row;
   const navigate = useNavigate();
   const [showDiscardModal, setShowDiscardModal] = useState(false);
@@ -72,7 +73,7 @@ export const SupplierOrderActionsCell = ({
   const canApprove = permissions.canApprove && order_number_external === null;
   const canUpdateAndActive = permissions.canUpdate && isActive;
   const canReception = canUpdateAndActive;
-  const canReplace = canUpdateAndActive;
+  const canReplace = canUpdateAndActive && reception_type !== "COMPLETE";
   const canEdit = canUpdateAndActive && !has_receptions && Boolean(routeUpdate);
   const canDiscard =
     Boolean(has_receptions_annulled) && isActive && !has_receptions_active;
