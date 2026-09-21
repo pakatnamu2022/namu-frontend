@@ -19,6 +19,7 @@ import {
   CheckCircle,
   XCircle,
   Smartphone,
+  ShieldAlert,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "@/features/auth/lib/auth.store";
@@ -154,6 +155,16 @@ export default function ProfileHeader() {
             <User className="w-4 h-4" />
             <p>Ver Perfil</p>
           </DropdownMenuItem>
+
+          {user?.role_id === TICS_ROLE && (
+            <DropdownMenuItem
+              onClick={() => push("/ap/comercial/auditoria-estados-venta")}
+              className="gap-2"
+            >
+              <ShieldAlert className="w-4 h-4" />
+              <p>Auditoría de estados de venta</p>
+            </DropdownMenuItem>
+          )}
 
           {isConductor && (
             <>
