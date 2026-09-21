@@ -447,6 +447,7 @@ export const electronicDocumentColumns = ({
         const canSyncAccountingStatus =
           !!onSyncAccountingStatus &&
           !!permissions.canMigrate &&
+          !document.is_accounted &&
           document.migration_status === "completed";
 
         const canSendToSunat =
