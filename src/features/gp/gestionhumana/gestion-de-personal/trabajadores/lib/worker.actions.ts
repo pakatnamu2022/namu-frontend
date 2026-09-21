@@ -5,12 +5,17 @@ import {
   getWorkerProps,
   getWorkersProps,
   PersonBirthdayResponse,
+  WorkerContractsSummary,
   WorkerResource,
   WorkerResponse,
+  WorkerVacationResource,
 } from "./worker.interface.ts";
 import { WORKER } from "./worker.constant.ts";
+import { type UserCompleteResource } from "@/features/gp/gestionsistema/usuarios/lib/user.interface.ts";
 
 const { ENDPOINT } = WORKER;
+const VACATION_ENDPOINT = "/gp/gh/personal/vacation";
+const SALARY_INCREASE_ENDPOINT = "/gp/gh/personal/salary-increases";
 
 export async function getBirthdays(): Promise<PersonBirthdayResponse> {
   const config: AxiosRequestConfig = {
@@ -74,6 +79,56 @@ export async function findWorkerById(
     params,
   });
   return response.data;
+}
+
+/** Ficha completa (misma forma que el perfil de usuario) de un trabajador. */
+export async function getWorkerComplete(
+  id: number,
+): Promise<UserCompleteResource> {
+  const { data } = await api.get<UserCompleteResource>(
+    `${ENDPOINT}/${id}/complete`,
+  );
+  return data;
+}
+
+/** Contratos del trabajador + evolución de su sueldo. */
+export async function getWorkerContractsSummary(
+  id: number,
+): Promise<WorkerContractsSummary> {
+  const { data } = await api.get<WorkerContractsSummary>(
+    `${ENDPOINT}/${id}/contracts-summary`,
+  );
+  return data;
+}
+
+export interface StoreSalaryIncreaseBody {
+  worker_id: number;
+  new_salary: number;
+  effective_date: string;
+  previous_salary?: number;
+  reason?: string;
+}
+
+/** Registra un aumento de sueldo (solo trabajadores con contrato indeterminado). */
+export async function storeSalaryIncrease(
+  body: StoreSalaryIncreaseBody,
+): Promise<unknown> {
+  const { data } = await api.post(SALARY_INCREASE_ENDPOINT, body);
+  return data;
+}
+
+export async function getWorkerVacations(
+  workerId: number,
+): Promise<WorkerVacationResource[]> {
+  const { data } = await api.get<WorkerVacationResource[]>(VACATION_ENDPOINT, {
+    params: {
+      empleado_id: workerId,
+      all: true,
+      sort: "fecha_inicio",
+      direction: "desc",
+    },
+  });
+  return data;
 }
 
 export async function storeWorker(data: any): Promise<WorkerResponse> {

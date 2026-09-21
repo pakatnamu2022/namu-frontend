@@ -13,13 +13,20 @@ const suppliersBaseObject = z.object({
   num_doc: z.string().min(1, "El número de documento es requerido"),
   direction: z.string().min(1, "La dirección es requerida"),
   email: z.string().email("Email inválido"),
-  phone: z.string().min(9, "El teléfono es requerido"),
+  phone: z
+    .string()
+    .min(1, "El teléfono es requerido")
+    .regex(/^[0-9]{9}$/, "El teléfono debe tener 9 dígitos"),
   secondary_email: z
     .string()
     .email("Email opcional inválido")
     .optional()
     .or(z.literal("")),
-  secondary_phone: z.string().optional(),
+  secondary_phone: z
+    .string()
+    .regex(/^[0-9]{9}$/, "El teléfono debe tener 9 dígitos")
+    .optional()
+    .or(z.literal("")),
   secondary_phone_contact_name: z.string().optional(),
   supplier_tax_class_id: requiredStringId(
     "La clase de contribuyente es requerida"

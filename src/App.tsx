@@ -475,6 +475,7 @@ const CommercialPage = lazyPage(() => import("./app/ap/comercial/page.tsx"));
 const DashboardDeliveryPage = lazyPage(
   () => import("./app/ap/comercial/dashboard-entregas/page.tsx"),
 );
+const VehicleSaleAuditPage = lazyPage(() => import("./app/ap/comercial/auditoria-estados-venta/page.tsx"));
 const TeamLeadsDashboard = lazyPage(
   () => import("./app/ap/comercial/dashboard-equipo-leads/page.tsx"),
 );
@@ -1403,6 +1404,7 @@ const UpdateWorkerSignaturePage = lazyPage(
   () =>
     import("./app/gp/gestion-humana/gestion-de-personal/trabajadores/actualizar/[id]/page.tsx"),
 );
+const WorkerDetailPage = lazyPage(() => import("./app/gp/gestion-humana/gestion-de-personal/trabajadores/ficha/[id]/page.tsx"));
 const RecruitmentProcessPage = lazyPage(
   () =>
     import("./app/gp/gestion-humana/gestion-de-personal/procesos-postulacion/page.tsx"),
@@ -1816,6 +1818,9 @@ const AssignFamilyAllowancePage = lazyPage(
 const ExclusionPage = lazyPage(
   () => import("./app/gp/gestion-humana/planillas/exclusiones/page.tsx"),
 );
+const SctrRatePage = lazyPage(() => import("./app/gp/gestion-humana/planillas/tasas-sctr/page.tsx"));
+const LifeInsurancePolicyPage = lazyPage(() => import("./app/gp/gestion-humana/planillas/polizas-vida-ley/page.tsx"));
+const SubsidyPage = lazyPage(() => import("./app/gp/gestion-humana/planillas/subsidios/page.tsx"));
 const WorkSchedulesPage = lazyPage(
   () => import("./app/gp/gestion-humana/planillas/dia-trabajo/page.tsx"),
 );
@@ -2406,6 +2411,12 @@ function App() {
               <Route
                 path="dashboard-entregas"
                 element={<DashboardDeliveryPage />}
+              />
+
+              {/* Auditoría de estados de venta */}
+              <Route
+                path="auditoria-estados-venta"
+                element={<VehicleSaleAuditPage />}
               />
 
               {/* Dashboard Equipo Leads */}
@@ -3478,6 +3489,10 @@ function App() {
                 path="gestion-de-personal/trabajadores/actualizar/:id"
                 element={<UpdateWorkerSignaturePage />}
               />
+              <Route
+                path="gestion-de-personal/trabajadores/ficha/:id"
+                element={<WorkerDetailPage />}
+              />
               {RouterCrud(
                 "gestion-de-personal/procesos-postulacion",
                 <RecruitmentProcessPage />,
@@ -3818,6 +3833,13 @@ function App() {
               />
               {/* Exclusiones */}
               <Route path="planillas/exclusiones" element={<ExclusionPage />} />
+              {/* Tasas SCTR, Pólizas Vida Ley y Subsidios */}
+              <Route path="planillas/tasas-sctr" element={<SctrRatePage />} />
+              <Route
+                path="planillas/polizas-vida-ley"
+                element={<LifeInsurancePolicyPage />}
+              />
+              <Route path="planillas/subsidios" element={<SubsidyPage />} />
               {/* Constantes de Planilla */}
               <Route
                 path="planillas/parametros-planilla"

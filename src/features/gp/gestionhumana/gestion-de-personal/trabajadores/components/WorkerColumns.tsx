@@ -3,7 +3,13 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import { WorkerResource } from "@/features/gp/gestionhumana/gestion-de-personal/trabajadores/lib/worker.interface.ts";
 import { Button } from "@/components/ui/button.tsx";
-import { CalendarClock, Hourglass, Pencil, Signature } from "lucide-react";
+import {
+  CalendarClock,
+  Hourglass,
+  Pencil,
+  Signature,
+  UserRound,
+} from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog.tsx";
 import { Badge } from "@/components/ui/badge.tsx";
@@ -15,7 +21,8 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 
-const { ROUTE_UPDATE } = WORKER;
+const { ROUTE_UPDATE, ABSOLUTE_ROUTE } = WORKER;
+const ROUTE_DETAIL = `${ABSOLUTE_ROUTE}/ficha`;
 
 export type WorkerColumns = ColumnDef<WorkerResource>;
 
@@ -113,6 +120,24 @@ export const workerColumns = ({
 
       return (
         <div className="flex items-center gap-2">
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="size-7"
+                  onClick={() => router(`${ROUTE_DETAIL}/${id}`)}
+                >
+                  <UserRound className="size-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Ver información</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
