@@ -11,7 +11,7 @@ import {
 } from "@/core/core.function";
 import FormWrapper from "@/shared/components/FormWrapper";
 import TitleFormComponent from "@/shared/components/TitleFormComponent";
-import { EMPRESA_AP } from "@/core/core.constants";
+import { EMPRESA_GP } from "@/core/core.constants";
 import { INSURER } from "@/features/gp/gestionhumana/planillas/aseguradora/lib/insurer.constants";
 import { storeInsurer } from "@/features/gp/gestionhumana/planillas/aseguradora/lib/insurer.actions";
 import { SuppliersSchema } from "@/features/ap/comercial/proveedores/lib/suppliers.schema";
@@ -68,7 +68,7 @@ export default function AddInsurerPage() {
           district_id: "",
           document_type_id: "",
           person_segment_id: "",
-          company_id: EMPRESA_AP.id,
+          company_id: EMPRESA_GP.id,
           type: "",
           company_status: "",
           company_condition: "",
@@ -76,6 +76,7 @@ export default function AddInsurerPage() {
         onSubmit={handleSubmit}
         isSubmitting={isPending}
         mode="create"
+        companyId={EMPRESA_GP.id}
         onCancel={() => router(ABSOLUTE_ROUTE!)}
       />
     </FormWrapper>

@@ -19,6 +19,7 @@ import { SuppliersSchema } from "@/features/ap/comercial/proveedores/lib/supplie
 import { SuppliersResource } from "@/features/ap/comercial/proveedores/lib/suppliers.interface";
 import { SuppliersForm } from "@/features/ap/comercial/proveedores/components/SuppliersForm";
 import { notFound } from "@/shared/hooks/useNotFound";
+import { EMPRESA_GP } from "@/core/core.constants";
 
 function mapInsurerToForm(data: SuppliersResource): Partial<SuppliersSchema> {
   return {
@@ -45,7 +46,7 @@ function mapInsurerToForm(data: SuppliersResource): Partial<SuppliersSchema> {
     person_segment_id: data.person_segment_id
       ? String(data.person_segment_id)
       : "",
-    company_id: data.company_id,
+    company_id: EMPRESA_GP.id,
     company_status: data.company_status || "",
     company_condition: data.company_condition || "",
     type: data.type || "",
@@ -90,6 +91,7 @@ export default function UpdateInsurerPage() {
         onSubmit={(data) => mutate(data)}
         isSubmitting={isPending}
         mode="update"
+        companyId={EMPRESA_GP.id}
         onCancel={() => router(ABSOLUTE_ROUTE!)}
       />
     </FormWrapper>

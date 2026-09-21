@@ -1,5 +1,6 @@
 import { useState, useId } from "react";
-import { Area, AreaChart, CartesianGrid, XAxis } from "recharts";
+import { cn } from "@/lib/utils";
+import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from "recharts";
 import {
   Card,
   CardContent,
@@ -43,6 +44,14 @@ interface Props {
   valueLabel?: string;
   value2Label?: string;
   valueFormatter?: (value: number) => string;
+  /** Rango inicial ("3", "6", "12" o "all"). Por defecto "12" si hay datos suficientes. */
+  defaultRange?: string;
+  /** Muestra el eje Y a la izquierda con los valores de referencia. Ajusta el rango a los datos en vez de partir de 0. */
+  showYAxis?: boolean;
+  /** Dibuja un punto en cada dato de la serie principal. */
+  showDots?: boolean;
+  /** Ocupa toda la altura del contenedor (útil al alinear con otra tarjeta en un grid). Mínimo 250px. */
+  fillHeight?: boolean;
 }
 
 export function ChartAreaDefault({
@@ -52,6 +61,10 @@ export function ChartAreaDefault({
   valueLabel = "Valor",
   value2Label = "Valor 2",
   valueFormatter,
+  defaultRange: defaultRangeProp,
+  showYAxis = false,
+  showDots = false,
+  fillHeight = false,
 }: Props) {
   const id = useId();
   const hasSecondSeries = data.some((d) => d.value2 !== undefined);
@@ -61,7 +74,7 @@ export function ChartAreaDefault({
   );
 
   const defaultRange =
-    availableRanges.find((o) => o.value === "12") ??
+    availableRanges.find((o) => o.value === (defaultRangeProp ?? "12")) ??
     availableRanges[availableRanges.length - 1];
 
   const [range, setRange] = useState(defaultRange?.value ?? "all");
@@ -80,7 +93,7 @@ export function ChartAreaDefault({
   const fillId2 = `fill-value2-${id}`;
 
   return (
-    <Card className="pt-0">
+    <Card className={cn("pt-0", fillHeight && "h-full")}>
       <CardHeader className="flex items-center gap-2 space-y-0 border-b py-5 sm:flex-row">
         <div className="grid flex-1 gap-1">
           <CardTitle>{title}</CardTitle>
@@ -108,10 +121,18 @@ export function ChartAreaDefault({
           </Select>
         )}
       </CardHeader>
-      <CardContent className="px-2 pt-4 sm:px-6 sm:pt-6">
+      <CardContent
+        className={cn(
+          "px-2 pt-4 sm:px-6 sm:pt-6",
+          fillHeight && "flex flex-1 flex-col",
+        )}
+      >
         <ChartContainer
           config={config}
-          className="aspect-auto h-[250px] w-full"
+          className={cn(
+            "aspect-auto w-full",
+            fillHeight ? "min-h-[250px] flex-1" : "h-[250px]",
+          )}
         >
           <AreaChart data={visibleData}>
             <defs>
@@ -150,6 +171,21 @@ export function ChartAreaDefault({
               tickMargin={8}
               minTickGap={32}
             />
+            {showYAxis && (
+              <YAxis
+                width={72}
+                tickLine={false}
+                axisLine={false}
+                tickMargin={8}
+                domain={[
+                  (min: number) => Math.floor(min * 0.9),
+                  (max: number) => Math.ceil(max * 1.05),
+                ]}
+                tickFormatter={(value: number) =>
+                  valueFormatter ? valueFormatter(value) : value.toLocaleString()
+                }
+              />
+            )}
             <ChartTooltip
               cursor={false}
               content={
@@ -178,6 +214,17 @@ export function ChartAreaDefault({
               fill={`url(#${fillId1})`}
               stroke="var(--color-value)"
               stackId="a"
+              dot={
+                showDots
+                  ? {
+                      r: 4,
+                      fill: "var(--color-value)",
+                      stroke: "var(--background)",
+                      strokeWidth: 2,
+                    }
+                  : false
+              }
+              activeDot={showDots ? { r: 6 } : undefined}
             />
             {hasSecondSeries && <ChartLegend content={<ChartLegendContent />} />}
           </AreaChart>

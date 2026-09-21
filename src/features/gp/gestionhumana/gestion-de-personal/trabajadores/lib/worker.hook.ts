@@ -2,9 +2,12 @@ import { useQuery } from "@tanstack/react-query";
 import {
   getWorkerProps,
   PersonBirthdayResponse,
+  WorkerContractsSummary,
   WorkerResource,
   WorkerResponse,
+  WorkerVacationResource,
 } from "./worker.interface.ts";
+import { type UserCompleteResource } from "@/features/gp/gestionsistema/usuarios/lib/user.interface.ts";
 import {
   getAllWorkers,
   getWorker,
@@ -14,6 +17,9 @@ import {
   getMyConsultants,
   getBirthdays,
   findWorkerById,
+  getWorkerComplete,
+  getWorkerContractsSummary,
+  getWorkerVacations,
 } from "./worker.actions.ts";
 import { WORKER } from "./worker.constant.ts";
 
@@ -42,6 +48,33 @@ export const useWorkerById = (
     queryKey: [QUERY_KEY, id, params],
     queryFn: () => findWorkerById(id, params),
     enabled: enabled && id > 0,
+  });
+};
+
+export const useWorkerComplete = (id: number) => {
+  return useQuery<UserCompleteResource>({
+    queryKey: [QUERY_KEY, id, "complete"],
+    queryFn: () => getWorkerComplete(id),
+    enabled: id > 0,
+    refetchOnWindowFocus: false,
+  });
+};
+
+export const useWorkerContractsSummary = (id: number) => {
+  return useQuery<WorkerContractsSummary>({
+    queryKey: [QUERY_KEY, id, "contracts-summary"],
+    queryFn: () => getWorkerContractsSummary(id),
+    enabled: id > 0,
+    refetchOnWindowFocus: false,
+  });
+};
+
+export const useWorkerVacations = (id: number) => {
+  return useQuery<WorkerVacationResource[]>({
+    queryKey: [QUERY_KEY, id, "vacations"],
+    queryFn: () => getWorkerVacations(id),
+    enabled: id > 0,
+    refetchOnWindowFocus: false,
   });
 };
 

@@ -123,6 +123,18 @@ export const colsIdentidad: Col[] = [
     size: 90,
   },
   {
+    accessorKey: "cuspp",
+    header: sortableHeader(
+      "CUSPP",
+      "left",
+      "Código Único de Identificación del Sistema Privado de Pensiones (rrhh_persona.cuspp), guardado al generar el registro. Vacío si el trabajador está en ONP o no lo tiene registrado.",
+    ),
+    cell: ({ getValue }) => (
+      <span className="font-mono text-xs">{(getValue() as string) ?? "—"}</span>
+    ),
+    size: 120,
+  },
+  {
     accessorKey: "occupation",
     header: sortableHeader("Cargo", "left", "Cargo/puesto vigente del trabajador (worker.position)."),
     cell: ({ getValue }) => (
@@ -134,7 +146,7 @@ export const colsIdentidad: Col[] = [
   },
   {
     accessorKey: "cost_center",
-    header: sortableHeader("C. Costo", "left", "Sede / centro de costo al que pertenece el trabajador."),
+    header: sortableHeader("C. Costo", "left", "Centro de costo del trabajador (rrhh_persona.centro_costo_id → rrhh_centro_costo), guardado al generar el registro."),
     cell: ({ getValue }) => (
       <span className="text-xs">{(getValue() as string) ?? "—"}</span>
     ),
@@ -275,7 +287,7 @@ export const colsIngresos: Col[] = [
     header: sortableHeader(
       "Asig. Familiar",
       "right",
-      "10% de la RMV vigente (GeneralMaster 'FAMILY_ALLOWANCE', S/ 113.00 por defecto). Automática si rrhh_persona.asignacion = 'SI' y no hay exclusión puntual (gh_payroll_exclusions) para ese trabajador/período.",
+      "Fórmula: 100% del 10% de la RMV vigente (GeneralMaster 'FAMILY_ALLOWANCE', S/ 113.00 por defecto), sin prorrateo por días trabajados, vacaciones ni subsidio. Automática si rrhh_persona.asignacion = 'SI' y no hay exclusión puntual (gh_payroll_exclusions) para ese trabajador/período.",
     ),
     cell: ({ getValue }) => (
       <span className="font-mono text-xs text-right block">
@@ -331,7 +343,7 @@ export const colsIngresos: Col[] = [
     header: sortableHeader(
       "Vacaciones",
       "right",
-      "Fórmula: días de vacación × valor del día vacacional. Con cálculo de asistencias, el valor del día usa el promedio de los últimos 6 meses; sin cálculo, se aproxima a Sueldo ÷ 30.",
+      "Fórmula: días de vacación × valor del día vacacional, donde valor del día = (Sueldo + promedio de variables de los últimos 6 meses) ÷ 30. No incluye la asignación familiar: esa se paga completa en su propia columna.",
     ),
     cell: ({ getValue }) => (
       <span className="font-mono text-xs text-right block">

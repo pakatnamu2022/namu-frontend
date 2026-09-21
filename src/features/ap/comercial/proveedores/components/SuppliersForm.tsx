@@ -53,6 +53,7 @@ interface SuppliersFormProps {
   isSubmitting?: boolean;
   mode?: "create" | "update";
   onCancel?: () => void;
+  companyId?: number;
 }
 
 export const SuppliersForm = ({
@@ -61,6 +62,7 @@ export const SuppliersForm = ({
   isSubmitting = false,
   mode = "create",
   onCancel,
+  companyId = EMPRESA_AP.id,
 }: SuppliersFormProps) => {
   const form = useForm({
     resolver: zodResolver(
@@ -68,7 +70,7 @@ export const SuppliersForm = ({
     ),
     defaultValues: {
       ...defaultValues,
-      company_id: EMPRESA_AP.id,
+      company_id: companyId,
       type: defaultValues?.type || TYPE_BUSINESS_PARTNERS.PROVEEDOR,
     },
     mode: "onChange",
@@ -379,10 +381,10 @@ export const SuppliersForm = ({
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 w-full">
         {/* GRUPO 1: INFORMACIÓN PERSONAL */}
-        <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-          <div className="bg-blue-50 px-6 py-4 border-b border-gray-200">
+        <div className="bg-background rounded-xl border border-muted shadow-sm overflow-hidden">
+          <div className="bg-blue-50 dark:bg-blue-950 px-6 py-4 border-b border-muted">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-              <h3 className="text-lg font-semibold text-gray-800 flex items-center">
+              <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200 flex items-center">
                 <User className="size-5 text-primary mr-2" />
                 Información Personal
               </h3>
@@ -391,8 +393,8 @@ export const SuppliersForm = ({
                 <div
                   className={`px-2 py-1 rounded-md flex items-center gap-2 text-sm sm:text-base ${
                     businessPartnerType === TYPE_BUSINESS_PARTNERS.CLIENTE
-                      ? "bg-blue-100 text-primary border border-blue-200"
-                      : "bg-red-100 text-secondary border border-red-200"
+                      ? "bg-blue-100 text-primary border border-blue-200 dark:bg-blue-950 dark:text-blue-300 dark:border-blue-900"
+                      : "bg-red-100 text-secondary border border-red-200 dark:bg-red-950 dark:text-red-300 dark:border-red-900"
                   }`}
                 >
                   <Info className="size-4 shrink-0" />
@@ -502,8 +504,8 @@ export const SuppliersForm = ({
                                   <div
                                     className={`px-2 py-1 rounded-full text-xs font-medium flex items-center gap-1 ${
                                       companyStatus === "ACTIVO"
-                                        ? "bg-green-100 text-green-800 border border-green-200"
-                                        : "bg-red-100 text-red-800 border border-red-200"
+                                        ? "bg-green-100 text-green-800 border border-green-200 dark:bg-green-950 dark:text-green-300 dark:border-green-900"
+                                        : "bg-red-100 text-red-800 border border-red-200 dark:bg-red-950 dark:text-red-300 dark:border-red-900"
                                     }`}
                                   >
                                     <div
@@ -520,8 +522,8 @@ export const SuppliersForm = ({
                                   <div
                                     className={`px-2 py-1 rounded-full text-xs font-medium flex items-center gap-1 ${
                                       companyCondition === "HABIDO"
-                                        ? "bg-green-100 text-green-800 border border-green-200"
-                                        : "bg-yellow-100 text-yellow-800 border border-yellow-200"
+                                        ? "bg-green-100 text-green-800 border border-green-200 dark:bg-green-950 dark:text-green-300 dark:border-green-900"
+                                        : "bg-yellow-100 text-yellow-800 border border-yellow-200 dark:bg-yellow-950 dark:text-yellow-300 dark:border-yellow-900"
                                     }`}
                                   >
                                     <div
@@ -682,6 +684,8 @@ export const SuppliersForm = ({
             label="Teléfono Principal"
             placeholder="Ingrese teléfono"
             control={form.control}
+            maxLength={9}
+            inputMode="numeric"
           />
 
           <FormInput
@@ -704,6 +708,8 @@ export const SuppliersForm = ({
             label="Teléfono Opcional"
             placeholder="Teléfono 2"
             control={form.control}
+            maxLength={9}
+            inputMode="numeric"
           />
         </GroupFormSection>
 
