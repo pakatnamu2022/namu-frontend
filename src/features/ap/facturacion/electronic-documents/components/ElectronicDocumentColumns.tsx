@@ -37,7 +37,7 @@ interface Props {
   routeAbsolute: string;
   onView: (document: ElectronicDocumentResource) => void;
   onSendToSunat?: (id: number) => void;
-  onAnnul?: (id: number, reason: string) => void;
+  onAnnul?: (id: number, reason: string, willReinvoice: boolean) => void;
   onPreCancel?: (id: number) => Promise<boolean>;
   onMigrate?: (id: number) => void;
   onResetMigration?: (id: number) => void;
@@ -68,6 +68,9 @@ export const electronicDocumentColumns = ({
   permissions,
   isCommercial = false,
 }: Props): ElectronicDocumentColumn[] => {
+  // El switch "Se volverá a facturar" solo aplica a posventa (Caja,
+  // Repuestos, Taller); en comercial se oculta y siempre viaja en false.
+  const showReinvoiceSwitch = !isCommercial;
   // Determinar la ruta según el módulo
 
   return [
@@ -626,12 +629,15 @@ export const electronicDocumentColumns = ({
 
             {/* Anular en Nubefact (solo si no está anulado) */}
             <AnnulDocumentDialog
-              onConfirm={(reason) => onAnnul && onAnnul(document.id, reason)}
+              onConfirm={(reason, willReinvoice) =>
+                onAnnul && onAnnul(document.id, reason, willReinvoice)
+              }
               onPreCancel={
                 onPreCancel
                   ? async () => await onPreCancel(document.id)
                   : undefined
               }
+              showReinvoiceSwitch={showReinvoiceSwitch}
               trigger={
                 <ButtonAction
                   tooltip="Anular en Nubefact"

@@ -67,7 +67,10 @@ export const ignoreInventoryMovement = async (
   id: number,
   payload?: { reason?: string | null },
 ): Promise<void> => {
-  await api.post(`/ap/postVenta/inventoryMovements/${id}/ignore`, payload ?? {});
+  await api.post(
+    `/ap/postVenta/inventoryMovements/${id}/ignore`,
+    payload ?? {},
+  );
 };
 
 /** Revierte / restaura un movimiento de inventario previamente descartado. */
@@ -390,7 +393,7 @@ export async function reReserveStockAfterCreditNote(payload: {
   quotation_id?: number;
 }): Promise<void> {
   await api.post(
-    `/ap/postVenta/productWarehouseStock/re-reserve-after-credit-note`,
+    `/ap/postVenta/productWarehouseStock/re-reserve-after-cancellation`,
     payload,
   );
 }

@@ -308,10 +308,11 @@ export async function preCancelElectronicDocument(
 export async function cancelElectronicDocument(
   id: number,
   reason: string,
+  willReinvoice?: boolean,
 ): Promise<ElectronicDocumentResource> {
   const response = await api.post<ElectronicDocumentResource>(
     `${ENDPOINT}/${id}/cancel`,
-    { reason },
+    { reason, will_reinvoice: willReinvoice ?? false },
   );
   return response.data;
 }

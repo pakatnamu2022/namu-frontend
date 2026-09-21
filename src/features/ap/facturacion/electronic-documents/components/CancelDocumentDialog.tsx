@@ -11,23 +11,28 @@ import {
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Switch } from "@/components/ui/switch";
 import { errorToast, warningToast } from "@/core/core.function";
 
 interface AnnulDocumentDialogProps {
-  onConfirm: (reason: string) => void;
+  onConfirm: (reason: string, willReinvoice: boolean) => void;
   trigger: React.ReactNode;
   onPreCancel?: () => Promise<boolean>;
+  /** Solo posventa: muestra el switch para indicar si se re-facturará. */
+  showReinvoiceSwitch?: boolean;
 }
 
 export function AnnulDocumentDialog({
   onConfirm,
   trigger,
   onPreCancel,
+  showReinvoiceSwitch = false,
 }: AnnulDocumentDialogProps) {
   const [open, setOpen] = useState(false);
   const [reason, setReason] = useState("");
   const [error, setError] = useState("");
   const [isValidating, setIsValidating] = useState(false);
+  const [willReinvoice, setWillReinvoice] = useState(false);
 
   const handleTriggerClick = async () => {
     if (onPreCancel) {
@@ -60,6 +65,7 @@ export function AnnulDocumentDialog({
     if (!newOpen) {
       setReason("");
       setError("");
+      setWillReinvoice(false);
     }
   };
 
@@ -74,16 +80,18 @@ export function AnnulDocumentDialog({
       return;
     }
 
-    onConfirm(reason.trim());
+    onConfirm(reason.trim(), showReinvoiceSwitch ? willReinvoice : false);
     setOpen(false);
     setReason("");
     setError("");
+    setWillReinvoice(false);
   };
 
   const handleAnnul = () => {
     setOpen(false);
     setReason("");
     setError("");
+    setWillReinvoice(false);
   };
 
   const handleReasonChange = (value: string) => {
@@ -140,6 +148,23 @@ export function AnnulDocumentDialog({
               </div>
               {error && <p className="text-sm text-red-500">{error}</p>}
             </div>
+
+            {showReinvoiceSwitch && (
+              <div className="flex items-center justify-between rounded-lg border p-3">
+                <div className="space-y-0.5">
+                  <Label htmlFor="will-reinvoice">Se volverá a facturar</Label>
+                  <p className="text-xs text-muted-foreground">
+                    Active esta opción si este comprobante se volverá a emitir
+                    tras la anulación.
+                  </p>
+                </div>
+                <Switch
+                  id="will-reinvoice"
+                  checked={willReinvoice}
+                  onCheckedChange={setWillReinvoice}
+                />
+              </div>
+            )}
           </div>
 
           <DialogFooter>
