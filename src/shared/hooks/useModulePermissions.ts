@@ -390,6 +390,13 @@ export const PERMISSION_ACTIONS: PermissionAction[] = [
     description:
       "Permite vincular una compra a un comprobante de venta de travesía",
   },
+  {
+    value: "unlinkCrossingPurchase",
+    label: "Desvincular Compra Travesía",
+    icon: "Unlink",
+    description:
+      "Permite desvincular una compra de un comprobante de venta de travesía",
+  },
 ];
 
 /**
@@ -491,5 +498,6 @@ export function useModulePermissions(moduleCode: string) {
       "viewComparisonByLocation",
     ),
     canLinkCrossingPurchase: hasModulePermission("linkCrossingPurchase"),
+    canUnlinkCrossingPurchase: hasModulePermission("unlinkCrossingPurchase"),
   };
 }

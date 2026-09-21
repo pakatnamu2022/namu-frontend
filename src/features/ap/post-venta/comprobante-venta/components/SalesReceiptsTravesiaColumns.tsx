@@ -27,6 +27,7 @@ interface Props {
   onRevertPurchase?: (document: ElectronicDocumentResource) => void;
   permissions: {
     canLinkCrossingPurchase: boolean;
+    canUnlinkCrossingPurchase: boolean;
   };
 }
 
@@ -253,7 +254,7 @@ export const salesReceiptsTravesiaColumns = ({
 
         const canRevertPurchase =
           !!onRevertPurchase &&
-          permissions.canLinkCrossingPurchase &&
+          permissions.canUnlinkCrossingPurchase &&
           !!document.associate_purchase_traverse;
 
         const canViewMigrationHistory = document.migration_status !== "pending";
