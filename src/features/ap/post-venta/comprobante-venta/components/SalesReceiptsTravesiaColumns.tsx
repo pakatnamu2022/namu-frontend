@@ -13,7 +13,8 @@ import {
 } from "lucide-react";
 import { ElectronicDocumentResource } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.interface";
 import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
-import ElectronicDocumentMigrationHistory from "@/features/ap/facturacion/electronic-documents/components/ElectronicDocumentMigrationHistory";
+import ElectronicDocumentTraverseHistory from "@/features/ap/facturacion/electronic-documents/components/ElectronicDocumentTraverseHistory";
+import ElectronicDocumentTraverseDynamicsPreview from "@/features/ap/facturacion/electronic-documents/components/ElectronicDocumentTraverseDynamicsPreview";
 import { SUNAT_TYPE_INVOICES_ID } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.constants";
 import { ButtonAction } from "@/shared/components/ButtonAction";
 import { CopyCell } from "@/shared/components/CopyCell";
@@ -224,10 +225,6 @@ export const salesReceiptsTravesiaColumns = ({
       },
     },
     {
-      accessorKey: "advisor_name",
-      header: "Asesor",
-    },
-    {
       accessorKey: "associate_purchase_traverse",
       header: "Compra Asociada",
       cell: ({ getValue }) => {
@@ -300,10 +297,15 @@ export const salesReceiptsTravesiaColumns = ({
 
             {/* Migration History */}
             {canViewMigrationHistory && (
-              <ElectronicDocumentMigrationHistory
+              <ElectronicDocumentTraverseHistory
                 electronicDocumentId={document.id}
               />
             )}
+
+            {/* Preview payload Dynamics (Travesía) */}
+            <ElectronicDocumentTraverseDynamicsPreview
+              documentId={document.id}
+            />
           </div>
         );
       },
