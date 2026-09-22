@@ -69,42 +69,70 @@ const columns: ColumnDef<VehicleMovement>[] = [
   },
   {
     id: "status",
-    header: "Estado",
+    header: "Movimiento",
     cell: ({ row }) => {
       const statusColor = row.original.status_color || "#94a3b8";
+      const { previous_status, new_status } = row.original;
+      const showTransition =
+        previous_status && new_status && previous_status.id !== new_status.id;
+
       return (
-        <div className="flex items-center gap-1.5">
-          <span
-            className="size-2 rounded-full shrink-0"
-            style={{ backgroundColor: statusColor }}
-          />
-          <span
-            className="text-xs font-medium whitespace-nowrap"
-            style={{ color: statusColor }}
-          >
-            {row.original.status}
-          </span>
+        <div className="space-y-1">
+          <div className="flex items-center gap-1.5">
+            <span
+              className="size-2 rounded-full shrink-0"
+              style={{ backgroundColor: statusColor }}
+            />
+            <span
+              className="text-xs font-medium whitespace-nowrap"
+              style={{ color: statusColor }}
+            >
+              {row.original.status}
+            </span>
+          </div>
+
+          {showTransition && (
+            <div className="flex items-center gap-1 text-[10px] text-muted-foreground whitespace-nowrap">
+              <span style={{ color: previous_status.color }}>
+                {previous_status.description}
+              </span>
+              <span className="text-muted-foreground/60">→</span>
+              <span style={{ color: new_status.color }}>
+                {new_status.description}
+              </span>
+            </div>
+          )}
         </div>
       );
     },
   },
   {
-    id: "origin_warehouse",
-    header: "Almacén origen",
-    cell: ({ row }) => (
-      <span className="text-xs text-muted-foreground">
-        {row.original.origin_warehouse?.description ?? "—"}
-      </span>
-    ),
-  },
-  {
-    id: "warehouse",
-    header: "Almacén destino",
-    cell: ({ row }) => (
-      <span className="text-xs text-muted-foreground">
-        {row.original.warehouse?.description ?? "—"}
-      </span>
-    ),
+    id: "warehouse_route",
+    header: "Almacén",
+    cell: ({ row }) => {
+      const origin = row.original.origin_warehouse?.description;
+      const destination = row.original.warehouse?.description;
+
+      if (!origin && !destination) {
+        return <span className="text-xs text-muted-foreground">—</span>;
+      }
+
+      if (origin && destination && origin !== destination) {
+        return (
+          <div className="flex items-center gap-1 text-xs text-muted-foreground whitespace-nowrap">
+            <span>{origin}</span>
+            <span className="text-muted-foreground/60">→</span>
+            <span>{destination}</span>
+          </div>
+        );
+      }
+
+      return (
+        <span className="text-xs text-muted-foreground">
+          {destination ?? origin}
+        </span>
+      );
+    },
   },
   {
     id: "detalle",

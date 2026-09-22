@@ -111,21 +111,6 @@ export const controlUnitsSchemaCreate = controlUnitsSchemaBase
   )
   .refine(
     (data) => {
-      // Si el tipo de transporte es Público (ID: 83), el remitente no puede ser igual al transportista
-      const TRANSPORTE_PUBLICO_ID = "83";
-      if (data.transfer_modality_id === TRANSPORTE_PUBLICO_ID) {
-        return data.receiver_destination_id !== data.transport_company_id;
-      }
-      return true;
-    },
-    {
-      message:
-        "En transporte público, el remitente no puede ser igual al transportista",
-      path: ["transport_company_id"],
-    },
-  )
-  .refine(
-    (data) => {
       // sede_receiver_id es requerido excepto cuando el motivo de traslado es COMPRA u OTROS
       const TRANSFER_REASON_COMPRA = "15";
       const TRANSFER_REASON_OTROS = "23";
