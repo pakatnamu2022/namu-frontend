@@ -14,6 +14,12 @@ export interface VehicleMovementWarehouse {
   dyn_code: string;
 }
 
+export interface VehicleMovementStatus {
+  id: number;
+  description: string;
+  color: string;
+}
+
 export interface VehicleMovement {
   id: number;
   date: string;
@@ -24,6 +30,8 @@ export interface VehicleMovement {
   ap_vehicle_purchase_order_id: number | null;
   warehouse?: VehicleMovementWarehouse;
   origin_warehouse?: VehicleMovementWarehouse;
+  previous_status?: VehicleMovementStatus;
+  new_status?: VehicleMovementStatus;
 }
 
 export interface VehicleResource {
