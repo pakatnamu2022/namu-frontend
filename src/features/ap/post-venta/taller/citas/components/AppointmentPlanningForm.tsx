@@ -42,7 +42,7 @@ import { useAllWorkers } from "@/features/gp/gestionhumana/gestion-de-personal/t
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import AppointmentTimeSlotPicker from "./AppointmentTimeSlotPicker";
 import { GroupFormSection } from "@/shared/components/GroupFormSection";
-import { EMPRESA_AP } from "@/core/core.constants";
+import { EMPRESA_AP, STATUS_ACTIVE } from "@/core/core.constants";
 import { useMySedes } from "@/features/gp/maestro-general/sede/lib/sede.hook";
 import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
 import { APPOINTMENT_PLANNING } from "../lib/appointmentPlanning.constants";
@@ -114,7 +114,7 @@ export const AppointmentPlanningForm = ({
   const { data: typesOperations = [], isLoading: isLoadingOperations } =
     useAllTypesOperationsAppointment();
   const { data: typesPlanning = [], isLoading: isLoadingPlanning } =
-    useAllTypesPlanning();
+    useAllTypesPlanning({ status: STATUS_ACTIVE });
   const { data: sedes = [], isLoading: isLoadingSedes } = useMySedes({
     company: EMPRESA_AP.id,
     has_workshop: true,

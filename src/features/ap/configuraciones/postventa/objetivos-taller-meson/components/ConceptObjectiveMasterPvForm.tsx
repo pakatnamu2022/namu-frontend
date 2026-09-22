@@ -18,6 +18,7 @@ import {
   CONCEPT_OBJECTIVE_PV_AREA_OPTIONS,
 } from "../lib/conceptObjectiveMasterPv.constants.ts";
 import { useAllTypesPlanning } from "@/features/ap/configuraciones/postventa/tipos-planificacion/lib/typesPlanning.hook.ts";
+import { STATUS_ACTIVE } from "@/core/core.constants.ts";
 
 interface ConceptObjectivePvFormProps {
   defaultValues: Partial<ConceptObjectivePvSchema>;
@@ -47,7 +48,9 @@ export const ConceptObjectivePvForm = ({
   });
 
   const { data: typesPlanning = [], isLoading: loadingTypesPlanning } =
-    useAllTypesPlanning();
+    useAllTypesPlanning({
+      status: STATUS_ACTIVE,
+    });
 
   const isTaller = form.watch("area_id") === AREA_TALLER.toString();
   const isVehicularCrossing = form.watch("is_vehicular_crossing");

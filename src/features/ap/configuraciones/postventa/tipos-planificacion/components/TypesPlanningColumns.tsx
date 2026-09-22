@@ -1,7 +1,6 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button.tsx";
 import { Pencil } from "lucide-react";
-import { DeleteButton } from "@/shared/components/SimpleDeleteDialog.tsx";
 import { Switch } from "@/components/ui/switch.tsx";
 import { cn } from "@/lib/utils.ts";
 import { Badge } from "@/components/ui/badge.tsx";
@@ -14,18 +13,15 @@ import {
 export type TypesPlanningColumns = ColumnDef<TypesPlanningResource>;
 
 interface Props {
-  onDelete: (id: number) => void;
   onUpdate: (id: number) => void;
   onToggleStatus: (id: number, newStatus: boolean) => void;
   permissions: {
     canUpdate: boolean;
-    canDelete: boolean;
   };
 }
 
 export const typesPlanningColumns = ({
   onUpdate,
-  onDelete,
   onToggleStatus,
   permissions,
 }: Props): TypesPlanningColumns[] => [
@@ -139,11 +135,6 @@ export const typesPlanningColumns = ({
             >
               <Pencil className="size-5" />
             </Button>
-          )}
-
-          {/* Delete */}
-          {permissions.canDelete && (
-            <DeleteButton onClick={() => onDelete(id)} />
           )}
         </div>
       );

@@ -1,7 +1,6 @@
 import type { AxiosRequestConfig } from "axios";
 import { api } from "@/core/api.ts";
 import { GeneralResponse } from "@/shared/lib/response.interface.ts";
-import { STATUS_ACTIVE } from "@/core/core.constants.ts";
 import { TYPE_PLANNING } from "./typesPlanning.constants.ts";
 import {
   getTypesPlanningProps,
@@ -30,7 +29,6 @@ export async function getAllTypesPlanning({
     params: {
       all: true, // Assuming you want to fetch all periods
       ...params,
-      status: STATUS_ACTIVE,
     },
   };
   const { data } = await api.get<TypesPlanningResource[]>(ENDPOINT, config);
