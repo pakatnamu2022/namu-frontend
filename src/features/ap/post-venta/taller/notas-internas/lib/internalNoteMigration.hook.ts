@@ -3,6 +3,7 @@ import {
   getInternalNoteMigration,
   verifyInternalNoteMigration,
   updateInternalNoteAccountingStatus,
+  bulkUpdateInternalNoteAccountingStatus,
 } from "./internalNoteMigration.actions";
 import { getInternalNoteMigrationProps } from "./internalNoteMigration.interface";
 import { INTERNAL_NOTE_MIGRATION } from "./internalNoteMigration.constants";
@@ -51,6 +52,24 @@ export function useUpdateInternalNoteAccountingStatus() {
       const errorMessage =
         error?.response?.data?.message ||
         "Error al actualizar el estado contable de la nota interna";
+      errorToast(errorMessage);
+    },
+  });
+}
+
+export function useBulkUpdateInternalNoteAccountingStatus() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (ids: number[]) => bulkUpdateInternalNoteAccountingStatus(ids),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEY] });
+      successToast("Estado contable de las notas internas actualizado");
+    },
+    onError: (error: any) => {
+      const errorMessage =
+        error?.response?.data?.message ||
+        "Error al actualizar el estado contable de las notas internas";
       errorToast(errorMessage);
     },
   });
