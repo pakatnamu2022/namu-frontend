@@ -108,8 +108,8 @@ export function DocumentInfoSection({
       return type.id === 29;
     }
 
-    // Si el cliente tiene Cédula (809), solo mostrar el tipo con id 30
-    if (Number(documentTypeId) === 809) {
+    // Si el cliente tiene Cédula (809) o Carnet de Extranjería (811), solo mostrar Boleta
+    if (Number(documentTypeId) === 809 || Number(documentTypeId) === 811) {
       return type.id === 30;
     }
 

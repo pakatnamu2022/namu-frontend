@@ -15,13 +15,33 @@ import type { ViewResource } from "../lib/view.interface";
 import type { Permission } from "@/features/gp/gestionsistema/permissions/lib/permissions.interface";
 import { VIEW } from "../lib/view.constants";
 import { bulkCreatePermissions, getAllPermissions } from "@/features/gp/gestionsistema/permissions/lib/permissions.actions";
-import { PERMISSION_ACTIONS } from "@/shared/hooks/useModulePermissions";
+import { PERMISSION_ACTIONS, PermissionAction } from "@/shared/hooks/useModulePermissions";
 
 interface Props {
   viewId: number | null;
   open: boolean;
   onClose: () => void;
 }
+
+const GENERAL_GROUP = "General";
+
+// Agrupa PERMISSION_ACTIONS por su campo `group`, dejando "General" al inicio
+const actionGroups: [string, PermissionAction[]][] = (() => {
+  const groups = new Map<string, PermissionAction[]>();
+  PERMISSION_ACTIONS.forEach((action) => {
+    const groupName = action.group ?? GENERAL_GROUP;
+    if (!groups.has(groupName)) groups.set(groupName, []);
+    groups.get(groupName)!.push(action);
+  });
+
+  const entries = Array.from(groups.entries());
+  entries.sort(([a], [b]) => {
+    if (a === GENERAL_GROUP) return -1;
+    if (b === GENERAL_GROUP) return 1;
+    return a.localeCompare(b);
+  });
+  return entries;
+})();
 
 export default function ViewPermissionsSheet({ viewId, open, onClose }: Props) {
   const { ENDPOINT } = VIEW;
@@ -180,55 +200,64 @@ export default function ViewPermissionsSheet({ viewId, open, onClose }: Props) {
           </CardHeader>
           <CardContent>
             <TooltipProvider delayDuration={200}>
-              <div className="flex flex-wrap gap-2">
-                {PERMISSION_ACTIONS.map((action) => {
-                  const isSelected = selectedActions.includes(action.value);
-                  const existsInCurrent = existingPermissions.some(
-                    (perm) => perm.policy_method === action.value,
-                  );
+              <div className="space-y-4">
+                {actionGroups.map(([groupName, actions]) => (
+                  <div key={groupName}>
+                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">
+                      {groupName}
+                    </p>
+                    <div className="flex flex-wrap gap-2">
+                      {actions.map((action) => {
+                        const isSelected = selectedActions.includes(action.value);
+                        const existsInCurrent = existingPermissions.some(
+                          (perm) => perm.policy_method === action.value,
+                        );
 
-                  return (
-                    <Tooltip key={action.value}>
-                      <TooltipTrigger asChild>
-                        <div
-                          role="checkbox"
-                          aria-checked={isSelected}
-                          tabIndex={0}
-                          onClick={() => handleToggleAction(action.value)}
-                          onKeyDown={(e) => e.key === " " || e.key === "Enter" ? handleToggleAction(action.value) : undefined}
-                          className={`relative inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-sm font-medium transition-all select-none cursor-pointer ${
-                            isSelected
-                              ? "border-primary bg-primary text-primary-foreground shadow-sm"
-                              : "border-border bg-background hover:border-primary/60 hover:bg-muted"
-                          }`}
-                        >
-                          <span
-                            className={`size-3 rounded-sm border shrink-0 flex items-center justify-center ${
-                              isSelected
-                                ? "border-primary-foreground bg-primary-foreground/20"
-                                : "border-current opacity-50"
-                            }`}
-                          >
-                            {isSelected && (
-                              <svg viewBox="0 0 10 8" className="size-2 fill-current">
-                                <path d="M1 4l3 3 5-6" stroke="currentColor" strokeWidth="1.5" fill="none" strokeLinecap="round" strokeLinejoin="round" />
-                              </svg>
+                        return (
+                          <Tooltip key={action.value}>
+                            <TooltipTrigger asChild>
+                              <div
+                                role="checkbox"
+                                aria-checked={isSelected}
+                                tabIndex={0}
+                                onClick={() => handleToggleAction(action.value)}
+                                onKeyDown={(e) => e.key === " " || e.key === "Enter" ? handleToggleAction(action.value) : undefined}
+                                className={`relative inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-sm font-medium transition-all select-none cursor-pointer ${
+                                  isSelected
+                                    ? "border-primary bg-primary text-primary-foreground shadow-sm"
+                                    : "border-border bg-background hover:border-primary/60 hover:bg-muted"
+                                }`}
+                              >
+                                <span
+                                  className={`size-3 rounded-sm border shrink-0 flex items-center justify-center ${
+                                    isSelected
+                                      ? "border-primary-foreground bg-primary-foreground/20"
+                                      : "border-current opacity-50"
+                                  }`}
+                                >
+                                  {isSelected && (
+                                    <svg viewBox="0 0 10 8" className="size-2 fill-current">
+                                      <path d="M1 4l3 3 5-6" stroke="currentColor" strokeWidth="1.5" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+                                    </svg>
+                                  )}
+                                </span>
+                                {action.label}
+                                {existsInCurrent && (
+                                  <span className="size-1.5 rounded-full bg-current opacity-60 ml-0.5" />
+                                )}
+                              </div>
+                            </TooltipTrigger>
+                            {action.description && (
+                              <TooltipContent side="top" className="max-w-48 text-center">
+                                {action.description}
+                              </TooltipContent>
                             )}
-                          </span>
-                          {action.label}
-                          {existsInCurrent && (
-                            <span className="size-1.5 rounded-full bg-current opacity-60 ml-0.5" />
-                          )}
-                        </div>
-                      </TooltipTrigger>
-                      {action.description && (
-                        <TooltipContent side="top" className="max-w-48 text-center">
-                          {action.description}
-                        </TooltipContent>
-                      )}
-                    </Tooltip>
-                  );
-                })}
+                          </Tooltip>
+                        );
+                      })}
+                    </div>
+                  </div>
+                ))}
               </div>
             </TooltipProvider>
             <p className="text-xs text-muted-foreground mt-3 flex items-center gap-1">
