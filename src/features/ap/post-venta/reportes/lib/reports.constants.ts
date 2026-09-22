@@ -23,7 +23,7 @@ export const POST_VENTA_REPORTS: ReportConfig[] = [
         required: true,
         nameFrom: "date_from",
         nameTo: "date_to",
-        rangeParamName: "opening_date",
+        rangeParamName: "fecha_de_emision",
       },
       {
         name: "sede_id",
