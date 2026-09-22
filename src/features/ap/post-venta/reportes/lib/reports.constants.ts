@@ -124,7 +124,7 @@ export const POST_VENTA_REPORTS: ReportConfig[] = [
     defaultParams: {},
   },
   {
-    id: "worked-hours-by-sede",
+    id: "billed-hours-by-sede",
     title: "Reporte de Horas Facturadas por Sede",
     type: "Taller",
     section: "DERCO",
@@ -351,8 +351,11 @@ export const POST_VENTA_REPORTS: ReportConfig[] = [
   },
 ];
 
+const ROUTE = "reportes-postventa";
+const ABSOLUTE_ROUTE = `/ap/post-venta/indicadores-y-reportes/${ROUTE}`;
+
 export const POST_VENTA_REPORTS_CONSTANTS: ModelComplete = {
-  ROUTE: "/ap/post-venta/indicadores-y-reportes/reportes-postventa",
+  ROUTE,
   MODEL: {
     name: "Reportes de Post Venta",
     gender: false,
@@ -364,5 +367,5 @@ export const POST_VENTA_REPORTS_CONSTANTS: ModelComplete = {
   QUERY_KEY: "post-venta-reports",
   ROUTE_ADD: "/ap/post-venta/indicadores-y-reportes/reportes/nuevo",
   ROUTE_UPDATE: "/ap/post-venta/indicadores-y-reportes/reportes/editar",
-  ABSOLUTE_ROUTE: "/ap/post-venta/indicadores-y-reportes/reportes",
+  ABSOLUTE_ROUTE,
 };
