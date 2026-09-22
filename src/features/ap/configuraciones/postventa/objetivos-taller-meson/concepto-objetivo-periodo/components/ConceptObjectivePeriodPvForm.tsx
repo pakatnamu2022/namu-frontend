@@ -24,7 +24,7 @@ import {
   POSITION_TYPE,
   STATUS_WORKER,
 } from "@/features/gp/gestionhumana/gestion-de-personal/posiciones/lib/position.constant.ts";
-import { EMPRESA_AP } from "@/core/core.constants.ts";
+import { EMPRESA_AP, STATUS_ACTIVE } from "@/core/core.constants.ts";
 
 interface ConceptObjectivePeriodPvFormProps {
   defaultValues: Partial<ConceptObjectivePeriodPvSchema>;
@@ -52,7 +52,7 @@ export const ConceptObjectivePeriodPvForm = ({
   });
 
   const { data: typesPlanning = [], isLoading: loadingTypesPlanning } =
-    useAllTypesPlanning();
+    useAllTypesPlanning({ status: STATUS_ACTIVE });
   const { data: workers = [], isLoading: loadingWorkers } = useAllWorkers(
     {
       cargo_id: POSITION_TYPE.SERVICE_ADVISOR,

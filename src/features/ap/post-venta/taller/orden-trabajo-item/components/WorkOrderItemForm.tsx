@@ -17,6 +17,7 @@ import {
 import { FormTextArea } from "@/shared/components/FormTextArea";
 import { useAllTypesOperationsAppointment } from "@/features/ap/configuraciones/postventa/tipos-operacion-cita/lib/typesOperationsAppointment.hook";
 import { useUpdateWorkOrderItems } from "../../orden-trabajo/lib/workOrder.hook";
+import { STATUS_ACTIVE } from "@/core/core.constants";
 
 const workOrderItemSchema = z.object({
   work_order_id: z.number(),
@@ -46,7 +47,7 @@ export default function WorkOrderItemForm({
   const isEditing = !!item;
 
   const { data: typesPlanning = [], isLoading: isLoadingTypes } =
-    useAllTypesPlanning();
+    useAllTypesPlanning({ status: STATUS_ACTIVE });
 
   const { data: typesOperation = [], isLoading: isLoadingTypesOperation } =
     useAllTypesOperationsAppointment();
