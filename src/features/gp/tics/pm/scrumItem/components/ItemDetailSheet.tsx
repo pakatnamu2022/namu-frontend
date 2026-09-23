@@ -1,6 +1,6 @@
 "use client";
 
-import { Badge } from "@/components/ui/badge";
+import { Badge, BadgeColor } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
@@ -26,8 +26,9 @@ import {
   Pencil,
   X,
   Check,
+  LucideIcon,
 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { errorToast, successToast } from "@/core/core.function";
 import { useScrumItemById } from "../lib/scrumItem.hook";
@@ -52,6 +53,14 @@ const TYPE_LABEL: Record<ScrumItemType, string> = {
   error: "Error",
 };
 
+const TYPE_COLOR: Record<ScrumItemType, BadgeColor> = {
+  tarea: "gray",
+  historia: "blue",
+  funcion: "green",
+  solicitud: "orange",
+  error: "red",
+};
+
 const STATUS_LABEL: Record<ScrumItemStatus, string> = {
   backlog: "Backlog",
   por_hacer: "Por hacer",
@@ -60,17 +69,40 @@ const STATUS_LABEL: Record<ScrumItemStatus, string> = {
   hecho: "Hecho",
 };
 
-const PRIORITY_ICON: Record<ScrumItemPriority, React.FC<any>> = {
+const STATUS_COLOR: Record<ScrumItemStatus, BadgeColor> = {
+  backlog: "gray",
+  por_hacer: "orange",
+  en_progreso: "blue",
+  en_revision: "yellow",
+  hecho: "green",
+};
+
+const PRIORITY_ICON: Record<ScrumItemPriority, LucideIcon> = {
   alta: ArrowUp,
   media: Minus,
   baja: ArrowDown,
 };
 
-const PRIORITY_COLOR: Record<ScrumItemPriority, string> = {
-  alta: "text-red-500",
-  media: "text-amber-500",
-  baja: "text-blue-400",
+const PRIORITY_COLOR: Record<ScrumItemPriority, BadgeColor> = {
+  alta: "red",
+  media: "amber",
+  baja: "blue",
 };
+
+function InfoRow({
+  label,
+  children,
+}: {
+  label: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="grid grid-cols-[120px_1fr] items-start gap-x-4 py-1.5 text-sm">
+      <span className="text-muted-foreground">{label}</span>
+      <span className="font-medium">{children}</span>
+    </div>
+  );
+}
 
 interface EditState {
   title: string;
@@ -79,6 +111,7 @@ interface EditState {
   priority: ScrumItemPriority | "";
   story_points: string;
   estimated_hours: string;
+  start_date: string;
   due_date: string;
 }
 
@@ -89,9 +122,22 @@ function initEdit(item: ScrumItemDetail): EditState {
     status: item.status,
     priority: (item.priority as ScrumItemPriority) ?? "",
     story_points: item.story_points != null ? String(item.story_points) : "",
-    estimated_hours: item.estimated_hours != null ? String(item.estimated_hours) : "",
+    estimated_hours:
+      item.estimated_hours != null ? String(item.estimated_hours) : "",
+    start_date: item.start_date ?? "",
     due_date: item.due_date ?? "",
   };
+}
+
+function countDays(start?: string | null, end?: string | null): number | null {
+  if (!start || !end) return null;
+  const diff =
+    Math.round(
+      (new Date(end).setHours(0, 0, 0, 0) -
+        new Date(start).setHours(0, 0, 0, 0)) /
+        86400000,
+    ) + 1;
+  return diff > 0 ? diff : null;
 }
 
 interface Props {
@@ -107,9 +153,14 @@ export function ItemDetailSheet({ itemId, open, onClose }: Props) {
   const [editState, setEditState] = useState<EditState | null>(null);
   const { data: item, isLoading } = useScrumItemById(itemId);
 
+  useEffect(() => {
+    setEditing(false);
+    setEditState(null);
+    setComment("");
+  }, [itemId]);
+
   const commentMutation = useMutation({
-    mutationFn: () =>
-      storeScrumComment({ item_id: itemId!, content: comment }),
+    mutationFn: () => storeScrumComment({ item_id: itemId!, content: comment }),
     onSuccess: () => {
       setComment("");
       queryClient.invalidateQueries({ queryKey: ["scrumItem", itemId] });
@@ -134,7 +185,10 @@ export function ItemDetailSheet({ itemId, open, onClose }: Props) {
         status: state.status,
         priority: state.priority || undefined,
         story_points: state.story_points ? Number(state.story_points) : null,
-        estimated_hours: state.estimated_hours ? Number(state.estimated_hours) : null,
+        estimated_hours: state.estimated_hours
+          ? Number(state.estimated_hours)
+          : null,
+        start_date: state.start_date || null,
         due_date: state.due_date || null,
       }),
     onSuccess: () => {
@@ -168,7 +222,7 @@ export function ItemDetailSheet({ itemId, open, onClose }: Props) {
   };
 
   const set = (field: keyof EditState, value: string) =>
-    setEditState((s) => s ? { ...s, [field]: value } : s);
+    setEditState((s) => (s ? { ...s, [field]: value } : s));
 
   const footer = item ? (
     editing ? (
@@ -186,32 +240,44 @@ export function ItemDetailSheet({ itemId, open, onClose }: Props) {
         </Button>
       </div>
     ) : (
-      <Button variant="outline" size="sm" onClick={startEdit}>
-        <Pencil className="size-3.5 mr-1" /> Editar
-      </Button>
+      <div className="flex justify-end">
+        <Button variant="outline" size="sm" onClick={startEdit}>
+          <Pencil className="size-3.5 mr-1" /> Editar
+        </Button>
+      </div>
     )
   ) : null;
+  
 
   return (
     <GeneralSheet
       open={open}
       onClose={handleClose}
-      title={isLoading ? "Cargando..." : item?.title ?? "Detalle del item"}
+      title={isLoading ? "Cargando..." : (item?.title ?? "Detalle del item")}
       icon="LayoutList"
       size="2xl"
       modal={false}
       isLoading={isLoading && open}
       childrenFooter={footer}
+      onInteractOutside={(e) => e.preventDefault()}
     >
       {item && !editing && (
-        <div className="space-y-6 pb-4">
+        <div className="space-y-8 pb-4">
           {/* Meta badges */}
           <div className="flex flex-wrap gap-2">
-            <Badge variant="outline">{TYPE_LABEL[item.type as ScrumItemType]}</Badge>
-            <Badge variant="outline">{STATUS_LABEL[item.status as ScrumItemStatus]}</Badge>
+            <Badge color={TYPE_COLOR[item.type as ScrumItemType]}>
+              {TYPE_LABEL[item.type as ScrumItemType]}
+            </Badge>
+            <Badge color={STATUS_COLOR[item.status as ScrumItemStatus]}>
+              {STATUS_LABEL[item.status as ScrumItemStatus]}
+            </Badge>
             {priority && (
-              <Badge variant="outline" className={`gap-1 ${PRIORITY_COLOR[priority]}`}>
-                <PriorityIcon className="size-3" />
+              <Badge
+                variant="outline"
+                color={PRIORITY_COLOR[priority]}
+                icon={PriorityIcon}
+                className="uppercase"
+              >
                 {priority}
               </Badge>
             )}
@@ -220,79 +286,84 @@ export function ItemDetailSheet({ itemId, open, onClose }: Props) {
             )}
           </div>
 
-          {/* Description */}
-          {item.description && (
-            <div>
-              <p className="text-sm font-medium mb-1">Descripción</p>
-              <p className="text-sm text-muted-foreground whitespace-pre-wrap">{item.description}</p>
-            </div>
-          )}
-
-          {/* Meta info grid */}
-          <div className="grid grid-cols-2 gap-3 text-sm">
+          {/* Info en dos columnas: label a la izquierda, valor a la derecha */}
+          <div>
             {item.project && (
-              <div>
-                <p className="text-xs text-muted-foreground">Proyecto</p>
-                <p className="font-medium">{item.project.name}</p>
-              </div>
+              <InfoRow label="Proyecto">{item.project.name}</InfoRow>
             )}
             {item.sprint && (
-              <div>
-                <p className="text-xs text-muted-foreground">Sprint</p>
-                <p className="font-medium">{item.sprint.name}</p>
-              </div>
+              <InfoRow label="Sprint">{item.sprint.name}</InfoRow>
             )}
             {item.assignee && (
-              <div className="flex items-center gap-1">
-                <User className="size-3 text-muted-foreground" />
-                <div>
-                  <p className="text-xs text-muted-foreground">Asignado a</p>
-                  <p className="font-medium">{item.assignee.name}</p>
-                </div>
-              </div>
+              <InfoRow label="Asignado a">
+                <span className="inline-flex items-center gap-1.5">
+                  <User className="size-3 text-muted-foreground" />
+                  {item.assignee.name}
+                </span>
+              </InfoRow>
+            )}
+            {item.creator && (
+              <InfoRow label="Creador">{item.creator.name}</InfoRow>
+            )}
+            {item.start_date && (
+              <InfoRow label="Fecha inicio">
+                <span className="inline-flex items-center gap-1.5">
+                  <Clock className="size-3 text-muted-foreground" />
+                  {item.start_date}
+                </span>
+              </InfoRow>
             )}
             {item.due_date && (
-              <div className="flex items-center gap-1">
-                <Clock className="size-3 text-muted-foreground" />
-                <div>
-                  <p className="text-xs text-muted-foreground">Fecha límite</p>
-                  <p className="font-medium">{item.due_date}</p>
-                </div>
-              </div>
+              <InfoRow label="Fecha fin">
+                <span className="inline-flex items-center gap-1.5">
+                  <Clock className="size-3 text-muted-foreground" />
+                  {item.due_date}
+                </span>
+              </InfoRow>
             )}
-            {item.estimated_hours !== undefined && item.estimated_hours !== null && (
-              <div>
-                <p className="text-xs text-muted-foreground">Horas estimadas</p>
-                <p className="font-medium">{item.estimated_hours}h</p>
-              </div>
+            {countDays(item.start_date, item.due_date) !== null && (
+              <InfoRow label="Duración">
+                {countDays(item.start_date, item.due_date)} día
+                {countDays(item.start_date, item.due_date) !== 1 ? "s" : ""}
+              </InfoRow>
             )}
+            {item.estimated_hours !== undefined &&
+              item.estimated_hours !== null && (
+                <InfoRow label="Horas estimadas">
+                  {item.estimated_hours}h
+                </InfoRow>
+              )}
             {item.actual_hours !== undefined && item.actual_hours !== null && (
-              <div>
-                <p className="text-xs text-muted-foreground">Horas reales</p>
-                <p className="font-medium">{item.actual_hours}h</p>
-              </div>
+              <InfoRow label="Horas reales">{item.actual_hours}h</InfoRow>
+            )}
+            {item.tags && item.tags.length > 0 && (
+              <InfoRow label="Etiquetas">
+                <div className="flex flex-wrap gap-1.5">
+                  {item.tags.map((tag) => (
+                    <Badge
+                      key={tag.id}
+                      variant="outline"
+                      color={tag.color || undefined}
+                    >
+                      {tag.name}
+                    </Badge>
+                  ))}
+                </div>
+              </InfoRow>
             )}
           </div>
 
-          {/* Tags */}
-          {item.tags && item.tags.length > 0 && (
+          {/* Descripción: al final porque es lo que más se lee */}
+          {item.description && (
             <div>
-              <p className="text-sm font-medium mb-2">Etiquetas</p>
-              <div className="flex flex-wrap gap-1.5">
-                {item.tags.map((tag) => (
-                  <Badge
-                    key={tag.id}
-                    variant="outline"
-                    style={tag.color ? { borderColor: tag.color, color: tag.color } : undefined}
-                  >
-                    {tag.name}
-                  </Badge>
-                ))}
-              </div>
+              <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-2">
+                Descripción
+              </p>
+              <p className="text-sm whitespace-pre-wrap leading-relaxed">
+                {item.description}
+              </p>
             </div>
           )}
-
-          <Separator />
 
           {/* Comments */}
           <div>
@@ -311,9 +382,13 @@ export function ItemDetailSheet({ itemId, open, onClose }: Props) {
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between gap-2">
                       <span className="text-xs font-medium">{c.user.name}</span>
-                      <span className="text-xs text-muted-foreground">{c.created_at}</span>
+                      <span className="text-xs text-muted-foreground">
+                        {c.created_at}
+                      </span>
                     </div>
-                    <p className="text-sm mt-0.5 text-muted-foreground">{c.content}</p>
+                    <p className="text-sm mt-0.5 text-muted-foreground">
+                      {c.content}
+                    </p>
                   </div>
                   <Button
                     variant="ghost"
@@ -346,8 +421,6 @@ export function ItemDetailSheet({ itemId, open, onClose }: Props) {
             </div>
           </div>
 
-          <Separator />
-
           {/* History */}
           {item.history && item.history.length > 0 && (
             <div>
@@ -357,20 +430,29 @@ export function ItemDetailSheet({ itemId, open, onClose }: Props) {
               </div>
               <div className="space-y-2">
                 {item.history.map((entry, idx) => (
-                  <div key={idx} className="flex items-start gap-2 text-xs text-muted-foreground">
-                    <span className="font-medium text-foreground">{entry.user.name}</span>
+                  <div
+                    key={idx}
+                    className="flex items-start gap-2 text-xs text-muted-foreground"
+                  >
+                    <span className="font-medium text-foreground">
+                      {entry.user.name}
+                    </span>
                     <span>cambió</span>
                     <span className="font-medium">{entry.field}</span>
                     {entry.old_value && (
                       <>
                         <span>de</span>
-                        <span className="bg-red-50 text-red-600 px-1 rounded">{entry.old_value}</span>
+                        <span className="bg-red-50 text-red-600 px-1 rounded">
+                          {entry.old_value}
+                        </span>
                       </>
                     )}
                     {entry.new_value && (
                       <>
                         <span>a</span>
-                        <span className="bg-green-50 text-green-600 px-1 rounded">{entry.new_value}</span>
+                        <span className="bg-green-50 text-green-600 px-1 rounded">
+                          {entry.new_value}
+                        </span>
                       </>
                     )}
                     <span className="ml-auto shrink-0">{entry.created_at}</span>
@@ -407,7 +489,10 @@ export function ItemDetailSheet({ itemId, open, onClose }: Props) {
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1">
               <Label className="text-xs">Estado</Label>
-              <Select value={editState.status} onValueChange={(v) => set("status", v)}>
+              <Select
+                value={editState.status}
+                onValueChange={(v) => set("status", v)}
+              >
                 <SelectTrigger className="text-sm h-8">
                   <SelectValue />
                 </SelectTrigger>
@@ -423,7 +508,10 @@ export function ItemDetailSheet({ itemId, open, onClose }: Props) {
 
             <div className="space-y-1">
               <Label className="text-xs">Prioridad</Label>
-              <Select value={editState.priority} onValueChange={(v) => set("priority", v)}>
+              <Select
+                value={editState.priority}
+                onValueChange={(v) => set("priority", v)}
+              >
                 <SelectTrigger className="text-sm h-8">
                   <SelectValue placeholder="Sin prioridad" />
                 </SelectTrigger>
@@ -460,8 +548,18 @@ export function ItemDetailSheet({ itemId, open, onClose }: Props) {
               />
             </div>
 
-            <div className="space-y-1 col-span-2">
-              <Label className="text-xs">Fecha límite</Label>
+            <div className="space-y-1">
+              <Label className="text-xs">Fecha inicio</Label>
+              <Input
+                type="date"
+                value={editState.start_date}
+                onChange={(e) => set("start_date", e.target.value)}
+                className="text-sm h-8"
+              />
+            </div>
+
+            <div className="space-y-1">
+              <Label className="text-xs">Fecha fin</Label>
               <Input
                 type="date"
                 value={editState.due_date}
@@ -469,14 +567,37 @@ export function ItemDetailSheet({ itemId, open, onClose }: Props) {
                 className="text-sm h-8"
               />
             </div>
+
+            {countDays(editState.start_date, editState.due_date) !== null && (
+              <div className="col-span-2 text-xs text-muted-foreground">
+                {countDays(editState.start_date, editState.due_date)} día
+                {countDays(editState.start_date, editState.due_date) !== 1
+                  ? "s"
+                  : ""}
+              </div>
+            )}
           </div>
 
           <Separator />
 
           <div className="text-xs text-muted-foreground space-y-1">
-            {item.project && <p><span className="font-medium">Proyecto:</span> {item.project.name}</p>}
-            {item.sprint && <p><span className="font-medium">Sprint:</span> {item.sprint.name}</p>}
-            {item.assignee && <p><span className="font-medium">Asignado a:</span> {item.assignee.name}</p>}
+            {item.project && (
+              <p>
+                <span className="font-medium">Proyecto:</span>{" "}
+                {item.project.name}
+              </p>
+            )}
+            {item.sprint && (
+              <p>
+                <span className="font-medium">Sprint:</span> {item.sprint.name}
+              </p>
+            )}
+            {item.assignee && (
+              <p>
+                <span className="font-medium">Asignado a:</span>{" "}
+                {item.assignee.name}
+              </p>
+            )}
           </div>
         </div>
       )}

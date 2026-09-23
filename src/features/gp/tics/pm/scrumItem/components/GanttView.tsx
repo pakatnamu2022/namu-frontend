@@ -20,6 +20,7 @@ import {
   GanttFeatureList,
   GanttFeatureListGroup,
   GanttFeatureItem,
+  GanttDependencyArrows,
   GanttToday,
   useGanttContext,
   type GanttFeature,
@@ -53,27 +54,27 @@ function makeGanttStatus(status: ScrumItemStatus): GanttStatus {
   return { id: status, name: STATUS_LABEL[status], color: STATUS_HEX[status] };
 }
 
-function makeGanttFeature(
-  item: ScrumItemResource,
-  sprint: ScrumSprintResource,
-): GanttFeature {
-  const startAt =
-    parseDate(sprint.start_date) ?? parseDate(item.due_date) ?? new Date();
-  const endAt = parseDate(item.due_date) ?? addDays(startAt, 7);
+function toFeature(item: ScrumItemResource, startAt: Date, endAt: Date): GanttFeature {
   return {
     id: item.id.toString(),
     name: item.title,
     startAt,
     endAt,
     status: makeGanttStatus(item.status),
+    itemType: item.type,
   };
 }
 
 const RANGE_LABELS: Record<Range, string> = {
   daily: "Día",
+  weekly: "Semana",
   monthly: "Mes",
   quarterly: "Trimestre",
+  semiannual: "Semestre",
+  yearly: "Año",
 };
+
+const RANGES: Range[] = ["daily", "weekly", "monthly", "quarterly", "semiannual", "yearly"];
 
 interface GanttToolbarProps {
   range: Range;
@@ -98,10 +99,10 @@ function GanttToolbar({
     <div className="flex items-center gap-3 px-3 py-2 border-b bg-background shrink-0 flex-wrap">
       <div className="flex items-center gap-0.5">
         <span className="text-xs text-muted-foreground mr-1">Escala:</span>
-        {(["daily", "monthly", "quarterly"] as Range[]).map((r) => (
+        {RANGES.map((r) => (
           <Button
             key={r}
-            variant={range === r ? "secondary" : "ghost"}
+            variant={range === r ? "default" : "ghost"}
             size="sm"
             className="h-7 px-2.5 text-xs"
             onClick={() => onRangeChange(r)}
@@ -118,7 +119,7 @@ function GanttToolbar({
         {[50, 100, 150].map((z) => (
           <Button
             key={z}
-            variant={zoom === z ? "secondary" : "ghost"}
+            variant={zoom === z ? "default" : "ghost"}
             size="sm"
             className="h-7 px-2.5 text-xs"
             onClick={() => onZoomChange(z)}
@@ -192,8 +193,24 @@ export function GanttView({
   const [zoom, setZoom] = useState(100);
 
   const updateMutation = useMutation({
-    mutationFn: ({ id, due_date }: { id: number; due_date: string }) =>
-      updateScrumItem(id, { due_date }),
+    mutationFn: ({
+      id,
+      start_date,
+      due_date,
+    }: {
+      id: number;
+      start_date: string;
+      due_date: string;
+    }) => updateScrumItem(id, { start_date, due_date }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["scrumItem"] });
+      queryClient.invalidateQueries({ queryKey: ["scrumKanban"] });
+    },
+  });
+
+  const linkPredecessorMutation = useMutation({
+    mutationFn: ({ id, predecessor_id }: { id: number; predecessor_id: number }) =>
+      updateScrumItem(id, { predecessor_id }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["scrumItem"] });
       queryClient.invalidateQueries({ queryKey: ["scrumKanban"] });
@@ -211,42 +228,114 @@ export function GanttView({
     return map;
   }, [items]);
 
-  const allFeatures = useMemo(() => {
-    const features: GanttFeature[] = [];
+  const itemsById = useMemo(() => {
+    const map = new Map<number, ScrumItemResource>();
+    for (const it of items) map.set(it.id, it);
+    return map;
+  }, [items]);
+
+  // Orden único de la cadena por sprint: la historia antes que sus tareas
+  // (agrupadas por la historia dueña), y dentro de ese grupo por `order`.
+  // Se usa tanto para calcular las fechas encadenadas como para pintar el
+  // sidebar y las barras, así el orden visual y el orden temporal siempre
+  // coinciden (si no, un item que termina a fin de mes podía listarse antes
+  // que uno que empieza al inicio del sprint).
+  const sortedItemsBySprint = useMemo(() => {
+    const map: Record<number, ScrumItemResource[]> = {};
     for (const sprint of sprints) {
-      for (const item of itemsBySprint[sprint.id] ?? []) {
-        if (item.due_date) features.push(makeGanttFeature(item, sprint));
+      const sprintItems = (itemsBySprint[sprint.id] ?? []).filter((i) => i.due_date);
+      map[sprint.id] = [...sprintItems].sort((a, b) => {
+        const parentA = a.parent_id ? itemsById.get(a.parent_id) : undefined;
+        const parentB = b.parent_id ? itemsById.get(b.parent_id) : undefined;
+        const groupOrderA = parentA?.order ?? a.order;
+        const groupOrderB = parentB?.order ?? b.order;
+        if (groupOrderA !== groupOrderB) return groupOrderA - groupOrderB;
+        const rankA = a.type === "historia" ? -1 : a.order;
+        const rankB = b.type === "historia" ? -1 : b.order;
+        return rankA - rankB;
+      });
+    }
+    return map;
+  }, [sprints, itemsBySprint, itemsById]);
+
+  // Cada item empieza justo donde termina el anterior en su misma cadena, en
+  // vez de que todos partan del inicio del sprint: así el Gantt se ve en
+  // escalera real, uno detrás de otro.
+  const featuresByItemId = useMemo(() => {
+    const map = new Map<number, GanttFeature>();
+    for (const sprint of sprints) {
+      const sorted = sortedItemsBySprint[sprint.id] ?? [];
+      let cursor = parseDate(sprint.start_date) ?? new Date();
+      for (const item of sorted) {
+        // Si el item ya tiene start_date real, se usa directamente; si no,
+        // se sigue encadenando desde donde terminó el anterior (compatibilidad
+        // con items antiguos sin start_date persistido).
+        const startAt = parseDate(item.start_date) ?? cursor;
+        const endAt = parseDate(item.due_date) ?? addDays(startAt, 1);
+        map.set(item.id, toFeature(item, startAt, endAt));
+        if (item.type !== "historia") cursor = endAt;
       }
     }
-    return features;
-  }, [sprints, itemsBySprint]);
+    return map;
+  }, [sprints, sortedItemsBySprint]);
+
+  const allFeatures = useMemo(() => Array.from(featuresByItemId.values()), [featuresByItemId]);
 
   const handleMove = useCallback(
-    (id: string, _startAt: Date, endAt: Date | null) => {
+    (id: string, startAt: Date, endAt: Date | null) => {
       if (!endAt) return;
       const itemId = parseInt(id);
       const item = items.find((i) => i.id === itemId);
+      const newStartDate = format(startAt, "yyyy-MM-dd");
       const newDueDate = format(endAt, "yyyy-MM-dd");
-      if (
+      const sameStart =
+        item?.start_date &&
+        format(parseDate(item.start_date)!, "yyyy-MM-dd") === newStartDate;
+      const sameDue =
         item?.due_date &&
-        format(parseDate(item.due_date)!, "yyyy-MM-dd") === newDueDate
-      )
-        return;
-      updateMutation.mutate({ id: itemId, due_date: newDueDate });
+        format(parseDate(item.due_date)!, "yyyy-MM-dd") === newDueDate;
+      if (sameStart && sameDue) return;
+      updateMutation.mutate({
+        id: itemId,
+        start_date: newStartDate,
+        due_date: newDueDate,
+      });
     },
     [updateMutation, items],
+  );
+
+  const handleLinkPredecessor = useCallback(
+    (successorId: string, predecessorId: string) => {
+      const id = parseInt(successorId);
+      const predecessor_id = parseInt(predecessorId);
+      const item = items.find((i) => i.id === id);
+      if (item?.predecessor_id === predecessor_id) return;
+      linkPredecessorMutation.mutate({ id, predecessor_id });
+    },
+    [linkPredecessorMutation, items],
   );
 
   const scrollToDate = useCallback(
     (date: Date) => {
       const scrollEl = document.querySelector(".gantt") as HTMLElement | null;
       if (!scrollEl) return;
-      const colW = range === "daily" ? 50 : range === "monthly" ? 150 : 100;
+      const colW =
+        range === "daily"
+          ? 50
+          : range === "weekly"
+            ? 24
+            : range === "monthly"
+              ? 150
+              : range === "quarterly"
+                ? 100
+                : range === "semiannual"
+                  ? 60
+                  : 30;
       const actualColW = (zoom / 100) * colW;
       const timelineStartYear = new Date().getFullYear() - 1;
       const timelineStart = new Date(timelineStartYear, 0, 1);
       let offset: number;
-      if (range === "daily") {
+      if (range === "daily" || range === "weekly") {
         const days = Math.floor(
           (date.getTime() - timelineStart.getTime()) / 86400000,
         );
@@ -321,18 +410,20 @@ export function GanttView({
           />
           <GanttSidebar>
             {sprints.map((sprint) => {
-              const sprintItems = (itemsBySprint[sprint.id] ?? []).filter(
-                (i) => i.due_date,
-              );
+              const sprintItems = sortedItemsBySprint[sprint.id] ?? [];
               return (
                 <GanttSidebarGroup key={sprint.id} name={sprint.name}>
-                  {sprintItems.map((item) => (
-                    <GanttSidebarItem
-                      key={item.id}
-                      feature={makeGanttFeature(item, sprint)}
-                      onSelectItem={(id) => onItemClick(parseInt(id))}
-                    />
-                  ))}
+                  {sprintItems.map((item) => {
+                    const feature = featuresByItemId.get(item.id);
+                    if (!feature) return null;
+                    return (
+                      <GanttSidebarItem
+                        key={item.id}
+                        feature={feature}
+                        onSelectItem={(id) => onItemClick(parseInt(id))}
+                      />
+                    );
+                  })}
                 </GanttSidebarGroup>
               );
             })}
@@ -341,19 +432,26 @@ export function GanttView({
             <GanttHeader />
             <GanttFeatureList>
               {sprints.map((sprint) => {
-                const sprintItems = (itemsBySprint[sprint.id] ?? []).filter(
-                  (i) => i.due_date,
-                );
+                const sprintItems = sortedItemsBySprint[sprint.id] ?? [];
+                const sprintFeatures = sprintItems
+                  .map((item) => featuresByItemId.get(item.id))
+                  .filter((f): f is GanttFeature => !!f);
                 return (
                   <GanttFeatureListGroup key={sprint.id}>
-                    {sprintItems.map((item) => (
-                      <GanttFeatureItem
-                        key={item.id}
-                        onMove={handleMove}
-                        onDoubleClick={(id) => onItemClick(parseInt(id))}
-                        {...makeGanttFeature(item, sprint)}
-                      />
-                    ))}
+                    <GanttDependencyArrows features={sprintFeatures} />
+                    {sprintItems.map((item) => {
+                      const feature = featuresByItemId.get(item.id);
+                      if (!feature) return null;
+                      return (
+                        <GanttFeatureItem
+                          key={item.id}
+                          onMove={handleMove}
+                          onDoubleClick={(id) => onItemClick(parseInt(id))}
+                          onLinkPredecessor={handleLinkPredecessor}
+                          {...feature}
+                        />
+                      );
+                    })}
                   </GanttFeatureListGroup>
                 );
               })}

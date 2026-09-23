@@ -1,6 +1,7 @@
 import { api } from "@/core/api";
 import { GeneralResponse } from "@/shared/lib/response.interface";
 import {
+  ScrumProjectGantt,
   ScrumProjectRequest,
   ScrumProjectResource,
   ScrumProjectResponse,
@@ -44,4 +45,29 @@ export async function updateScrumProject(
 export async function deleteScrumProject(id: number): Promise<GeneralResponse> {
   const { data } = await api.delete<GeneralResponse>(`${ENDPOINT}/${id}`);
   return data;
+}
+
+export async function getScrumProjectGantt(id: number): Promise<ScrumProjectGantt> {
+  const { data } = await api.get<ScrumProjectGantt>(`${ENDPOINT}/${id}/gantt`);
+  return data;
+}
+
+export async function downloadScrumProjectGanttPdf(
+  id: number,
+  projectName: string
+): Promise<void> {
+  const response = await api.get(`${ENDPOINT}/${id}/gantt/pdf`, {
+    responseType: "blob",
+  });
+
+  const blob = new Blob([response.data], { type: "application/pdf" });
+  const url = window.URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  const slug = projectName.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+  link.setAttribute("download", `gantt-${slug || id}.pdf`);
+  document.body.appendChild(link);
+  link.click();
+  link.parentNode?.removeChild(link);
+  window.URL.revokeObjectURL(url);
 }

@@ -12,11 +12,11 @@ import {
   getScrumKanban,
 } from "./scrumItem.actions";
 
-export const useScrumKanban = (sprintId: number | null) => {
+export const useScrumKanban = (params: Record<string, any> | null) => {
   return useQuery<ScrumKanbanResponse>({
-    queryKey: ["scrumKanban", sprintId],
-    queryFn: () => getScrumKanban(sprintId!),
-    enabled: sprintId !== null,
+    queryKey: ["scrumKanban", params],
+    queryFn: () => getScrumKanban(params ?? undefined),
+    enabled: params !== null,
   });
 };
 
@@ -28,10 +28,11 @@ export const useScrumBacklog = (projectId: number | null) => {
   });
 };
 
-export const useScrumItems = (params?: Record<string, any>) => {
+export const useScrumItems = (params?: Record<string, any>, enabled = true) => {
   return useQuery<ScrumItemResponse>({
     queryKey: ["scrumItem", params],
     queryFn: () => getScrumItems(params),
+    enabled,
   });
 };
 

@@ -7,10 +7,14 @@ import { Button } from "@/components/ui/button";
 import { FormInput } from "@/shared/components/FormInput";
 import { FormTextArea } from "@/shared/components/FormTextArea";
 import { FormSelect } from "@/shared/components/FormSelect";
+import { DateRangePickerFormField } from "@/shared/components/DateRangePickerFormField";
 import { scrumItemSchema, ScrumItemSchema } from "../lib/scrumItem.schema";
 import { ScrumProjectResource } from "@/features/gp/tics/pm/scrumProject/lib/scrumProject.interface";
 import { ScrumSprintResource } from "@/features/gp/tics/pm/scrumSprint/lib/scrumSprint.interface";
 import { useMemo } from "react";
+import { useWatch } from "react-hook-form";
+import { differenceInCalendarDays } from "date-fns";
+import { toDateOrUndefined } from "@/core/core.function";
 
 const TYPE_OPTIONS = [
   { label: "Tarea", value: "tarea" },
@@ -76,12 +80,26 @@ export const ItemForm = ({
       priority: "media",
       story_points: "",
       estimated_hours: "",
+      start_date: "",
       due_date: "",
       assigned_to: "",
       ...defaultValues,
     },
     mode: "onChange",
   });
+
+  const [startDate, dueDate] = useWatch({
+    control: form.control,
+    name: ["start_date", "due_date"],
+  });
+
+  const dayCount = useMemo(() => {
+    const from = toDateOrUndefined(startDate);
+    const to = toDateOrUndefined(dueDate);
+    if (!from || !to) return null;
+    const diff = differenceInCalendarDays(to, from) + 1;
+    return diff > 0 ? diff : null;
+  }, [startDate, dueDate]);
 
   return (
     <Form {...form}>
@@ -150,12 +168,22 @@ export const ItemForm = ({
             type="number"
           />
 
-          <FormInput
-            control={form.control}
-            name="due_date"
-            label="Fecha límite"
-            type="date"
-          />
+          <div className="md:col-span-2 flex items-end gap-4">
+            <div className="flex-1">
+              <DateRangePickerFormField
+                control={form.control}
+                nameFrom="start_date"
+                nameTo="due_date"
+                label="Fecha de inicio y fin"
+                placeholder="Selecciona el rango de fechas"
+              />
+            </div>
+            {dayCount !== null && (
+              <div className="text-sm text-muted-foreground whitespace-nowrap pb-2">
+                {dayCount} día{dayCount !== 1 ? "s" : ""}
+              </div>
+            )}
+          </div>
         </div>
 
         <FormTextArea

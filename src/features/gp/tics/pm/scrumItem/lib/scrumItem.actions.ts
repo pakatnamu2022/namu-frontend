@@ -13,11 +13,11 @@ import { SCRUM_ITEM } from "./scrumItem.constants";
 const { ENDPOINT } = SCRUM_ITEM;
 
 export async function getScrumKanban(
-  sprintId: number
+  params?: Record<string, any>
 ): Promise<ScrumKanbanResponse> {
-  const { data } = await api.get<ScrumKanbanResponse>(
-    `${ENDPOINT}/kanban/${sprintId}`
-  );
+  const { data } = await api.get<ScrumKanbanResponse>(`${ENDPOINT}/kanban`, {
+    params,
+  });
   return data;
 }
 

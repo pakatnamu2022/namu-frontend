@@ -11,6 +11,7 @@ export const scrumItemSchema = z.object({
   priority: z.enum(["alta", "media", "baja"]).default("media"),
   story_points: z.string().optional().or(z.literal("")),
   estimated_hours: z.string().optional().or(z.literal("")),
+  start_date: z.string().optional().or(z.literal("")),
   due_date: z.string().optional().or(z.literal("")),
   assigned_to: z.string().optional().or(z.literal("")),
   tag_ids: z.array(z.number()).optional(),

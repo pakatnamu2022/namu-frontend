@@ -20,11 +20,13 @@ import {
   startOfDay,
   startOfMonth,
 } from "date-fns"
+import { es } from "date-fns/locale"
 import { atom, useAtom } from "jotai"
 import throttle from "lodash.throttle"
-import { PlusIcon, TrashIcon } from "lucide-react"
+import { ArrowRightIcon, PlusIcon, TrashIcon } from "lucide-react"
 import type {
   CSSProperties,
+  DragEventHandler,
   FC,
   KeyboardEventHandler,
   MouseEventHandler,
@@ -71,6 +73,7 @@ export interface GanttFeature {
   endAt: Date
   status: GanttStatus
   lane?: string // Optional: features with the same lane will share a row
+  itemType?: string // Optional: e.g. "historia" | "tarea", used to differentiate rows visually
 }
 
 export interface GanttMarkerProps {
@@ -79,7 +82,9 @@ export interface GanttMarkerProps {
   label: string
 }
 
-export type Range = "daily" | "monthly" | "quarterly"
+export type Range = "daily" | "weekly" | "monthly" | "quarterly" | "semiannual" | "yearly"
+
+const MONTH_BASIS_RANGES: Range[] = ["monthly", "quarterly", "semiannual", "yearly"]
 
 export type TimelineData = {
   year: number
@@ -105,10 +110,10 @@ export interface GanttContextProps {
 }
 
 const getsDaysIn = (range: Range) => {
-  // For when range is daily
+  // For when range is daily/weekly (day-precision ranges)
   let fn = (_date: Date) => 1
 
-  if (range === "monthly" || range === "quarterly") {
+  if (MONTH_BASIS_RANGES.includes(range)) {
     fn = getDaysInMonth
   }
 
@@ -118,7 +123,7 @@ const getsDaysIn = (range: Range) => {
 const getDifferenceIn = (range: Range) => {
   let fn = differenceInDays
 
-  if (range === "monthly" || range === "quarterly") {
+  if (MONTH_BASIS_RANGES.includes(range)) {
     fn = differenceInMonths
   }
 
@@ -128,7 +133,7 @@ const getDifferenceIn = (range: Range) => {
 const getInnerDifferenceIn = (range: Range) => {
   let fn = differenceInHours
 
-  if (range === "monthly" || range === "quarterly") {
+  if (MONTH_BASIS_RANGES.includes(range)) {
     fn = differenceInDays
   }
 
@@ -138,7 +143,7 @@ const getInnerDifferenceIn = (range: Range) => {
 const getStartOf = (range: Range) => {
   let fn = startOfDay
 
-  if (range === "monthly" || range === "quarterly") {
+  if (MONTH_BASIS_RANGES.includes(range)) {
     fn = startOfMonth
   }
 
@@ -148,7 +153,7 @@ const getStartOf = (range: Range) => {
 const getEndOf = (range: Range) => {
   let fn = endOfDay
 
-  if (range === "monthly" || range === "quarterly") {
+  if (MONTH_BASIS_RANGES.includes(range)) {
     fn = endOfMonth
   }
 
@@ -158,7 +163,7 @@ const getEndOf = (range: Range) => {
 const getAddRange = (range: Range) => {
   let fn = addDays
 
-  if (range === "monthly" || range === "quarterly") {
+  if (MONTH_BASIS_RANGES.includes(range)) {
     fn = addMonths
   }
 
@@ -203,13 +208,13 @@ const createInitialTimelineData = (today: Date) => {
   return data
 }
 
-const getOffset = (date: Date, timelineStartDate: Date, context: GanttContextProps) => {
+export const getOffset = (date: Date, timelineStartDate: Date, context: GanttContextProps) => {
   const parsedColumnWidth = (context.columnWidth * context.zoom) / 100
   const differenceIn = getDifferenceIn(context.range)
   const startOf = getStartOf(context.range)
   const fullColumns = differenceIn(startOf(date), timelineStartDate)
 
-  if (context.range === "daily") {
+  if (context.range === "daily" || context.range === "weekly") {
     return parsedColumnWidth * fullColumns
   }
 
@@ -220,7 +225,7 @@ const getOffset = (date: Date, timelineStartDate: Date, context: GanttContextPro
   return fullColumns * parsedColumnWidth + partialColumns * pixelsPerDay
 }
 
-const getWidth = (startAt: Date, endAt: Date | null, context: GanttContextProps) => {
+export const getWidth = (startAt: Date, endAt: Date | null, context: GanttContextProps) => {
   const parsedColumnWidth = (context.columnWidth * context.zoom) / 100
 
   if (!endAt) {
@@ -229,7 +234,7 @@ const getWidth = (startAt: Date, endAt: Date | null, context: GanttContextProps)
 
   const differenceIn = getDifferenceIn(context.range)
 
-  if (context.range === "daily") {
+  if (context.range === "daily" || context.range === "weekly") {
     const delta = differenceIn(endAt, startAt)
 
     return parsedColumnWidth * (delta ? delta : 1)
@@ -349,11 +354,11 @@ const DailyHeader: FC = () => {
               <div className="flex items-center justify-center gap-1">
                 <p>{format(addDays(new Date(year.year, index, 1), item), "d")}</p>
                 <p className="text-muted-foreground">
-                  {format(addDays(new Date(year.year, index, 1), item), "EEEEE")}
+                  {format(addDays(new Date(year.year, index, 1), item), "EEEEE", { locale: es })}
                 </p>
               </div>
             )}
-            title={format(new Date(year.year, index, 1), "MMMM yyyy")}
+            title={format(new Date(year.year, index, 1), "MMMM yyyy", { locale: es })}
           />
           <GanttColumns
             columns={month.days}
@@ -373,7 +378,9 @@ const MonthlyHeader: FC = () => {
     <div className="relative flex flex-col" key={year.year}>
       <GanttContentHeader
         columns={year.quarters.flatMap(quarter => quarter.months).length}
-        renderHeaderItem={(item: number) => <p>{format(new Date(year.year, item, 1), "MMM")}</p>}
+        renderHeaderItem={(item: number) => (
+          <p>{format(new Date(year.year, item, 1), "MMM", { locale: es })}</p>
+        )}
         title={`${year.year}`}
       />
       <GanttColumns columns={year.quarters.flatMap(quarter => quarter.months).length} />
@@ -390,7 +397,7 @@ const QuarterlyHeader: FC = () => {
         <GanttContentHeader
           columns={quarter.months.length}
           renderHeaderItem={(item: number) => (
-            <p>{format(new Date(year.year, quarterIndex * 3 + item, 1), "MMM")}</p>
+            <p>{format(new Date(year.year, quarterIndex * 3 + item, 1), "MMM", { locale: es })}</p>
           )}
           title={`Q${quarterIndex + 1} ${year.year}`}
         />
@@ -400,10 +407,35 @@ const QuarterlyHeader: FC = () => {
   )
 }
 
+const SemiannualHeader: FC = () => {
+  const gantt = useContext(GanttContext)
+
+  return gantt.timelineData.map(year =>
+    [0, 1].map(halfIndex => {
+      const months = year.quarters.flatMap(quarter => quarter.months).slice(halfIndex * 6, halfIndex * 6 + 6)
+      return (
+        <div className="relative flex flex-col" key={`${year.year}-${halfIndex}`}>
+          <GanttContentHeader
+            columns={months.length}
+            renderHeaderItem={(item: number) => (
+              <p>{format(new Date(year.year, halfIndex * 6 + item, 1), "MMM", { locale: es })}</p>
+            )}
+            title={`S${halfIndex + 1} ${year.year}`}
+          />
+          <GanttColumns columns={months.length} />
+        </div>
+      )
+    }),
+  )
+}
+
 const headers: Record<Range, FC> = {
   daily: DailyHeader,
+  weekly: DailyHeader,
   monthly: MonthlyHeader,
   quarterly: QuarterlyHeader,
+  semiannual: SemiannualHeader,
+  yearly: MonthlyHeader,
 }
 
 export interface GanttHeaderProps {
@@ -438,8 +470,8 @@ export const GanttSidebarItem: FC<GanttSidebarItemProps> = ({
       ? addDays(feature.endAt, 1)
       : feature.endAt
   const duration = tempEndAt
-    ? formatDistance(feature.startAt, tempEndAt)
-    : `${formatDistance(feature.startAt, new Date())} so far`
+    ? formatDistance(feature.startAt, tempEndAt, { locale: es })
+    : `${formatDistance(feature.startAt, new Date(), { locale: es })} hasta ahora`
 
   const handleClick: MouseEventHandler<HTMLDivElement> = event => {
     if (event.target === event.currentTarget) {
@@ -481,7 +513,16 @@ export const GanttSidebarItem: FC<GanttSidebarItemProps> = ({
           backgroundColor: feature.status.color,
         }}
       />
-      <p className="pointer-events-none flex-1 truncate text-left font-medium">{feature.name}</p>
+      <p
+        className={cn(
+          "pointer-events-none flex-1 truncate text-left",
+          feature.itemType === "historia"
+            ? "font-semibold"
+            : "pl-3 font-normal text-muted-foreground before:mr-1 before:content-['↳']",
+        )}
+      >
+        {feature.name}
+      </p>
       <p className="pointer-events-none text-muted-foreground">{duration}</p>
     </div>
   )
@@ -493,8 +534,8 @@ export const GanttSidebarHeader: FC = () => (
     style={{ height: "var(--gantt-header-height)" }}
   >
     {/* <Checkbox className="shrink-0" /> */}
-    <p className="flex-1 truncate text-left">Issues</p>
-    <p className="shrink-0">Duration</p>
+    <p className="flex-1 truncate text-left">Tareas</p>
+    <p className="shrink-0">Duración</p>
   </div>
 )
 
@@ -672,7 +713,7 @@ export const GanttCreateMarkerTrigger: FC<GanttCreateMarkerTriggerProps> = ({
           <PlusIcon className="text-muted-foreground" size={12} />
         </button>
         <div className="whitespace-nowrap rounded-full border border-border/50 bg-background/90 px-2 py-1 text-foreground text-xs backdrop-blur-lg">
-          {formatDate(date, "MMM dd, yyyy")}
+          {formatDate(date, "MMM dd, yyyy", { locale: es })}
         </div>
       </div>
     </div>
@@ -726,27 +767,73 @@ export const GanttFeatureDragHelper: FC<GanttFeatureDragHelperProps> = ({
             isPressed && "block",
           )}
         >
-          {format(date, "MMM dd, yyyy")}
+          {format(date, "MMM dd, yyyy", { locale: es })}
         </div>
       )}
     </div>
   )
 }
 
+// Tipo MIME usado en el dataTransfer nativo (HTML5 DnD) para arrastrar el
+// "handle" de predecesor de una tarjeta a otra. Se usa DnD nativo (en vez de
+// dnd-kit, que ya maneja el arrastre de la tarjeta para mover/redimensionar
+// fechas) porque necesitamos soltar sobre tarjetas de otras filas/sprints,
+// algo que dnd-kit no está configurado para resolver aquí.
+const PREDECESSOR_DRAG_TYPE = "application/x-gantt-predecessor"
+
 export type GanttFeatureItemCardProps = Pick<GanttFeature, "id"> & {
   children?: ReactNode
   onDoubleClick?: (id: string) => void
+  /** successorId = esta tarjeta (donde se soltó), predecessorId = la tarjeta arrastrada */
+  onLinkPredecessor?: (successorId: string, predecessorId: string) => void
 }
 
-export const GanttFeatureItemCard: FC<GanttFeatureItemCardProps> = ({ id, children, onDoubleClick }) => {
+export const GanttFeatureItemCard: FC<GanttFeatureItemCardProps> = ({
+  id,
+  children,
+  onDoubleClick,
+  onLinkPredecessor,
+}) => {
   const [, setDragging] = useGanttDragging()
   const { attributes, listeners, setNodeRef } = useDraggable({ id })
   const isPressed = Boolean(attributes["aria-pressed"])
+  const [isDropTarget, setIsDropTarget] = useState(false)
 
   useEffect(() => setDragging(isPressed), [isPressed, setDragging])
 
+  const handleHandleDragStart: DragEventHandler<HTMLDivElement> = event => {
+    event.stopPropagation()
+    event.dataTransfer.setData(PREDECESSOR_DRAG_TYPE, id.toString())
+    event.dataTransfer.effectAllowed = "link"
+  }
+
+  const handleDragOver: DragEventHandler<HTMLDivElement> = event => {
+    if (!onLinkPredecessor || !event.dataTransfer.types.includes(PREDECESSOR_DRAG_TYPE)) return
+    event.preventDefault()
+    event.dataTransfer.dropEffect = "link"
+  }
+
+  const handleDrop: DragEventHandler<HTMLDivElement> = event => {
+    setIsDropTarget(false)
+    if (!onLinkPredecessor) return
+    const predecessorId = event.dataTransfer.getData(PREDECESSOR_DRAG_TYPE)
+    if (predecessorId && predecessorId !== id.toString()) {
+      event.preventDefault()
+      onLinkPredecessor(id.toString(), predecessorId)
+    }
+  }
+
   return (
-    <Card className="h-full w-full rounded-md bg-background p-2 text-xs shadow-sm">
+    <Card
+      className={cn(
+        "group/gantt-card relative h-full w-full rounded-md bg-background p-2 text-xs shadow-sm",
+        isDropTarget && "ring-2 ring-primary",
+      )}
+      onDragEnter={() => onLinkPredecessor && setIsDropTarget(true)}
+      onDragLeave={() => setIsDropTarget(false)}
+      onDragOver={handleDragOver}
+      onDrop={handleDrop}
+    >
       <div
         className={cn(
           "flex h-full w-full items-center justify-between gap-2 text-left",
@@ -759,6 +846,18 @@ export const GanttFeatureItemCard: FC<GanttFeatureItemCardProps> = ({ id, childr
       >
         {children}
       </div>
+      {onLinkPredecessor && (
+        <div
+          className="-right-2 -translate-y-1/2 absolute top-1/2 z-20 flex h-4 w-4 cursor-alias items-center justify-center rounded-full border border-border/50 bg-card opacity-0 shadow-sm transition-opacity group-hover/gantt-card:opacity-100"
+          draggable
+          onClick={event => event.stopPropagation()}
+          onDragStart={handleHandleDragStart}
+          onMouseDown={event => event.stopPropagation()}
+          title="Arrastra para marcar esta tarea como predecesora de otra"
+        >
+          <ArrowRightIcon className="pointer-events-none text-muted-foreground" size={10} />
+        </div>
+      )}
     </Card>
   )
 }
@@ -766,6 +865,7 @@ export const GanttFeatureItemCard: FC<GanttFeatureItemCardProps> = ({ id, childr
 export type GanttFeatureItemProps = GanttFeature & {
   onMove?: (id: string, startDate: Date, endDate: Date | null) => void
   onDoubleClick?: (id: string) => void
+  onLinkPredecessor?: (successorId: string, predecessorId: string) => void
   children?: ReactNode
   className?: string
 }
@@ -773,6 +873,7 @@ export type GanttFeatureItemProps = GanttFeature & {
 export const GanttFeatureItem: FC<GanttFeatureItemProps> = ({
   onMove,
   onDoubleClick,
+  onLinkPredecessor,
   children,
   className,
   ...feature
@@ -877,8 +978,22 @@ export const GanttFeatureItem: FC<GanttFeatureItemProps> = ({
           onDragStart={handleItemDragStart}
           sensors={[mouseSensor]}
         >
-          <GanttFeatureItemCard id={feature.id} onDoubleClick={onDoubleClick}>
-            {children ?? <p className="flex-1 truncate text-xs">{feature.name}</p>}
+          <GanttFeatureItemCard
+            id={feature.id}
+            onDoubleClick={onDoubleClick}
+            onLinkPredecessor={onLinkPredecessor}
+          >
+            {children ?? (
+              <p
+                className={cn(
+                  "flex-1 whitespace-nowrap text-xs",
+                  feature.itemType === "historia" ? "font-semibold" : "font-normal",
+                )}
+              >
+                {feature.itemType !== "historia" && "↳ "}
+                {feature.name}
+              </p>
+            )}
           </GanttFeatureItemCard>
         </DndContext>
         {onMove && (
@@ -906,14 +1021,98 @@ export interface GanttFeatureListGroupProps {
 }
 
 export const GanttFeatureListGroup: FC<GanttFeatureListGroupProps> = ({ children, className }) => (
-  <div className={className} style={{ paddingTop: "var(--gantt-row-height)" }}>
+  <div className={cn("relative", className)} style={{ paddingTop: "var(--gantt-row-height)" }}>
     {children}
   </div>
 )
 
+export interface GanttDependencyArrowsProps {
+  /** Features in the exact top-to-bottom row order they are rendered in. */
+  features: GanttFeature[]
+  className?: string
+}
+
+/**
+ * Draws an elbow connector + arrowhead from the end of each bar to the start
+ * of the next one, but only between rows that are truly sequential (the next
+ * row starts where the previous one ends). Rows that start on the same date
+ * (e.g. a historia running alongside its first task) are left unconnected.
+ */
+export const GanttDependencyArrows: FC<GanttDependencyArrowsProps> = ({ features, className }) => {
+  const gantt = useContext(GanttContext)
+  const markerId = useId()
+  const timelineStartDate = useMemo(
+    () => new Date(gantt.timelineData.at(0)?.year ?? 0, 0, 1),
+    [gantt.timelineData],
+  )
+
+  const bars = useMemo(
+    () =>
+      features.map(feature => ({
+        id: feature.id,
+        startAt: feature.startAt,
+        offset: getOffset(feature.startAt, timelineStartDate, gantt),
+        width: getWidth(feature.startAt, feature.endAt, gantt),
+      })),
+    [features, timelineStartDate, gantt],
+  )
+
+  if (bars.length < 2) {
+    return null
+  }
+
+  const rowHeight = gantt.rowHeight
+  const maxRight = Math.max(...bars.map(bar => bar.offset + bar.width))
+
+  return (
+    <svg
+      className={cn("pointer-events-none absolute top-0 left-0 z-10 overflow-visible", className)}
+      style={{ width: maxRight, height: bars.length * rowHeight }}
+    >
+      <defs>
+        <marker
+          id={markerId}
+          markerWidth={8}
+          markerHeight={8}
+          refX={6}
+          refY={3}
+          orient="auto"
+          markerUnits="userSpaceOnUse"
+        >
+          <path d="M0,0 L6,3 L0,6 Z" className="fill-muted-foreground" />
+        </marker>
+      </defs>
+      {bars.slice(0, -1).map((bar, index) => {
+        const next = bars[index + 1]
+        if (isSameDay(bar.startAt, next.startAt)) {
+          // Parallel rows (e.g. historia + its first task): no dependency to draw.
+          return null
+        }
+
+        const y1 = index * rowHeight + rowHeight / 2
+        const y2 = (index + 1) * rowHeight + rowHeight / 2
+        const x1 = bar.offset + bar.width
+        const x2 = next.offset
+        const midX = x1 + Math.max(6, (x2 - x1) / 2)
+
+        return (
+          <path
+            className="fill-none stroke-muted-foreground/60"
+            d={`M ${x1} ${y1} H ${midX} V ${y2} H ${Math.max(x2 - 6, midX)}`}
+            key={bar.id}
+            markerEnd={`url(#${markerId})`}
+            strokeWidth={1.5}
+          />
+        )
+      })}
+    </svg>
+  )
+}
+
 export interface GanttFeatureRowProps {
   features: GanttFeature[]
   onMove?: (id: string, startAt: Date, endAt: Date | null) => void
+  onLinkPredecessor?: (successorId: string, predecessorId: string) => void
   children?: (feature: GanttFeature) => ReactNode
   className?: string
 }
@@ -921,6 +1120,7 @@ export interface GanttFeatureRowProps {
 export const GanttFeatureRow: FC<GanttFeatureRowProps> = ({
   features,
   onMove,
+  onLinkPredecessor,
   children,
   className,
 }) => {
@@ -969,7 +1169,7 @@ export const GanttFeatureRow: FC<GanttFeatureRowProps> = ({
             height: `${subRowHeight}px`,
           }}
         >
-          <GanttFeatureItem {...feature} onMove={onMove}>
+          <GanttFeatureItem {...feature} onMove={onMove} onLinkPredecessor={onLinkPredecessor}>
             {children ? (
               children(feature)
             ) : (
@@ -1040,7 +1240,7 @@ export const GanttMarker: FC<
             {label}
             <span className="max-
             h-0 overflow-hidden opacity-80 transition-all group-hover:max-h-8">
-              {formatDate(date, "MMM dd, yyyy")}
+              {formatDate(date, "MMM dd, yyyy", { locale: es })}
             </span>
           </div>
         </ContextMenuTrigger>
@@ -1089,10 +1289,16 @@ export const GanttProvider: FC<GanttProviderProps> = ({
   const rowHeight = 36
   let columnWidth = 50
 
-  if (range === "monthly") {
+  if (range === "weekly") {
+    columnWidth = 24
+  } else if (range === "monthly") {
     columnWidth = 150
   } else if (range === "quarterly") {
     columnWidth = 100
+  } else if (range === "semiannual") {
+    columnWidth = 60
+  } else if (range === "yearly") {
+    columnWidth = 30
   }
 
   // Memoize CSS variables to prevent unnecessary re-renders
@@ -1343,7 +1549,7 @@ export const GanttToday: FC<GanttTodayProps> = ({ className }) => {
       >
         {label}
         <span className="max-h-0 overflow-hidden opacity-80 transition-all group-hover:max-h-8">
-          {formatDate(date, "MMM dd, yyyy")}
+          {formatDate(date, "MMM dd, yyyy", { locale: es })}
         </span>
       </div>
       <div className={cn("h-full w-px bg-card", className)} />

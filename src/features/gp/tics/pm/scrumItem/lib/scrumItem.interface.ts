@@ -66,11 +66,13 @@ export interface ScrumItemResource {
   project_id: number;
   sprint_id?: number;
   parent_id?: number;
+  predecessor_id?: number | null;
   assigned_to?: number;
   assignee?: ScrumItemAssignee;
   creator?: ScrumItemAssignee;
   tags: ScrumItemTag[];
   children_count?: number;
+  start_date?: string;
   due_date?: string;
   estimated_hours?: number;
   actual_hours?: number;
@@ -130,6 +132,7 @@ export interface ScrumItemRequest {
   project_id: number;
   sprint_id?: number | null;
   parent_id?: number | null;
+  predecessor_id?: number | null;
   type: ScrumItemType;
   title: string;
   description?: string;
@@ -139,6 +142,7 @@ export interface ScrumItemRequest {
   story_points?: number | null;
   estimated_hours?: number | null;
   actual_hours?: number | null;
+  start_date?: string | null;
   due_date?: string | null;
   tag_ids?: number[];
 }

@@ -1,6 +1,6 @@
 import { api } from "@/core/api";
 import { GeneralResponse } from "@/shared/lib/response.interface";
-import { ScrumTagRequest, ScrumTagResource } from "./scrumTag.interface";
+import { ScrumTagRequest, ScrumTagResource, ScrumTagResponse } from "./scrumTag.interface";
 import { SCRUM_TAG } from "./scrumTag.constants";
 
 const { ENDPOINT } = SCRUM_TAG;
@@ -8,10 +8,13 @@ const { ENDPOINT } = SCRUM_TAG;
 export async function getScrumTags(
   projectId?: number
 ): Promise<ScrumTagResource[]> {
-  const { data } = await api.get<ScrumTagResource[]>(ENDPOINT, {
-    params: projectId !== undefined ? { project_id: projectId } : undefined,
+  const { data } = await api.get<ScrumTagResponse>(ENDPOINT, {
+    params: {
+      all: "true",
+      ...(projectId !== undefined ? { project_id: projectId } : {}),
+    },
   });
-  return data;
+  return data.data;
 }
 
 export async function storeScrumTag(

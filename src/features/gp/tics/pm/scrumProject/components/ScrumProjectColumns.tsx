@@ -1,13 +1,16 @@
 "use client";
 
+import { useState } from "react";
 import type { ColumnDef } from "@tanstack/react-table";
 import { ScrumProjectResource } from "../lib/scrumProject.interface";
 import { Badge } from "@/components/ui/badge";
-import { Archive, CheckCircle, Pencil } from "lucide-react";
+import { Archive, CheckCircle, Download, Pencil } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
 import { SCRUM_PROJECT } from "../lib/scrumProject.constants";
 import { ButtonAction } from "@/shared/components/ButtonAction";
+import { downloadScrumProjectGanttPdf } from "../lib/scrumProject.actions";
+import { errorToast } from "@/core/core.function";
 
 export type ScrumProjectColumns = ColumnDef<ScrumProjectResource>;
 
@@ -86,9 +89,28 @@ export const scrumProjectColumns = ({
     cell: ({ row }) => {
       const router = useNavigate();
       const { ROUTE_UPDATE } = SCRUM_PROJECT;
-      const id = row.original.id;
+      const { id, name } = row.original;
+      const [downloading, setDownloading] = useState(false);
+
+      const handleDownloadGantt = async () => {
+        setDownloading(true);
+        try {
+          await downloadScrumProjectGanttPdf(id, name);
+        } catch {
+          errorToast("Error al descargar el PDF del Gantt");
+        } finally {
+          setDownloading(false);
+        }
+      };
+
       return (
         <div className="flex items-center gap-2">
+          <ButtonAction
+            icon={Download}
+            title="Descargar Gantt en PDF"
+            disabled={downloading}
+            onClick={handleDownloadGantt}
+          />
           <ButtonAction
             icon={Pencil}
             onClick={() => router(`${ROUTE_UPDATE}/${id}`)}
