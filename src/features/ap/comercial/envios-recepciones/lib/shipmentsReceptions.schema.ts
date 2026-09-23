@@ -123,22 +123,6 @@ export const shipmentsReceptionsSchemaCreate = shipmentsReceptionsSchemaBase
     (data) => {
       if (
         data.transfer_modality_id ===
-        SUNAT_CONCEPTS_ID.TYPE_TRANSPORTATION_PUBLIC
-      ) {
-        return data.receiver_destination_id !== data.transport_company_id;
-      }
-      return true;
-    },
-    {
-      message:
-        "En transporte público, el remitente no puede ser igual al transportista",
-      path: ["transport_company_id"],
-    },
-  )
-  .refine(
-    (data) => {
-      if (
-        data.transfer_modality_id ===
         SUNAT_CONCEPTS_ID.TYPE_TRANSPORTATION_PRIVATE
       ) {
         return !!data.driver_doc && data.driver_doc.length >= 8;
