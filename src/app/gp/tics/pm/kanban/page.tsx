@@ -14,6 +14,7 @@ import {
   List,
   Calendar,
   GanttChartSquare,
+  TrendingUp,
   Filter,
   FolderKanban,
   X,
@@ -49,12 +50,12 @@ import { KanbanView } from "@/features/gp/tics/pm/scrumItem/components/KanbanVie
 import { ListView } from "@/features/gp/tics/pm/scrumItem/components/ListView";
 import { CalendarView } from "@/features/gp/tics/pm/scrumItem/components/CalendarView";
 import { GanttView } from "@/features/gp/tics/pm/scrumItem/components/GanttView";
+import { EffortView } from "@/features/gp/tics/pm/scrumItem/components/EffortView";
 
-type ViewMode = "kanban" | "list" | "calendar" | "gantt";
-type FilterKey = "history" | "priority" | "tag" | "assignee";
+type ViewMode = "kanban" | "list" | "calendar" | "gantt" | "effort";
+type FilterKey = "priority" | "tag" | "assignee";
 
 const FILTER_DEFS: { key: FilterKey; label: string }[] = [
-  { key: "history", label: "Historia" },
   { key: "priority", label: "Prioridad" },
   { key: "tag", label: "Etiqueta" },
   { key: "assignee", label: "Responsable" },
@@ -83,6 +84,7 @@ const VIEWS: { id: ViewMode; label: string; Icon: React.FC<any> }[] = [
   { id: "list", label: "Lista", Icon: List },
   { id: "calendar", label: "Calendario", Icon: Calendar },
   { id: "gantt", label: "Gantt", Icon: GanttChartSquare },
+  { id: "effort", label: "Esfuerzo", Icon: TrendingUp },
 ];
 
 export default function KanbanPage() {
@@ -91,6 +93,7 @@ export default function KanbanPage() {
   const [viewMode, setViewMode] = useState<ViewMode>("kanban");
   const [projectId, setProjectId] = useState<string>("");
   const [historyFilter, setHistoryFilter] = useState<string>("");
+  const [sprintFilter, setSprintFilter] = useState<string>("");
   const [priorityFilter, setPriorityFilter] = useState<string>("");
   const [tagFilter, setTagFilter] = useState<string>("");
   const [assigneeFilter, setAssigneeFilter] = useState<string>("");
@@ -102,6 +105,12 @@ export default function KanbanPage() {
   const handleFocusInGantt = (id: number) => {
     setViewMode("gantt");
     setGanttFocusId(id);
+  };
+
+  // Si el sheet ya está abierto con este mismo item, un segundo clic lo
+  // cierra (toggle); si es otro item, solo cambia el contenido sin cerrar.
+  const handleItemClick = (id: number) => {
+    setDetailItemId((prev) => (prev === id ? null : id));
   };
 
   const { data: projectsData } = useScrumProjects({ per_page: 100, status: "activo" });
@@ -118,6 +127,7 @@ export default function KanbanPage() {
 
   useEffect(() => {
     setHistoryFilter("");
+    setSprintFilter("");
     setPriorityFilter("");
     setTagFilter("");
     setAssigneeFilter("");
@@ -133,12 +143,13 @@ export default function KanbanPage() {
         ? {
             project_id: resolvedProjectId,
             history_id: historyFilter || undefined,
+            sprint_id: sprintFilter || undefined,
             priority: priorityFilter || undefined,
             tag_id: tagFilter || undefined,
             assigned_to: assigneeFilter || undefined,
           }
         : null,
-    [resolvedProjectId, historyFilter, priorityFilter, tagFilter, assigneeFilter],
+    [resolvedProjectId, historyFilter, sprintFilter, priorityFilter, tagFilter, assigneeFilter],
   );
 
   const { data: kanban, isLoading: loadingKanban, refetch } = useScrumKanban(kanbanParams);
@@ -154,19 +165,34 @@ export default function KanbanPage() {
   // una sola vez (esas vistas no pegan al endpoint filtrado del Kanban).
   const listItems = useMemo(() => {
     const historyId = historyFilter ? Number(historyFilter) : null;
+    const sprintId = sprintFilter ? Number(sprintFilter) : null;
     return allListItems.filter((item) => {
       if (historyId && item.id !== historyId && item.parent_id !== historyId) return false;
+      if (sprintId && item.sprint_id !== sprintId) return false;
       if (priorityFilter && item.priority !== priorityFilter) return false;
       if (tagFilter && !item.tags?.some((t) => t.id === Number(tagFilter))) return false;
       if (assigneeFilter && item.assigned_to !== Number(assigneeFilter)) return false;
       return true;
     });
-  }, [allListItems, historyFilter, priorityFilter, tagFilter, assigneeFilter]);
+  }, [allListItems, historyFilter, sprintFilter, priorityFilter, tagFilter, assigneeFilter]);
 
   const historyOptions = useMemo(() => {
+    // Ordenadas por fecha de fin (cuál termina primero) y, si empatan, por
+    // `order` (orden real de creación/secuencia asignado por el backend) en
+    // vez del orden crudo en que llega el array, para que el filtro se lea
+    // como una línea de tiempo y no como una lista de ids sueltos.
     return allListItems
       .filter((item) => !item.parent_id)
-      .map((item) => ({ label: item.title, value: item.id.toString() }));
+      .sort((a, b) => {
+        const dueA = a.due_date ? new Date(a.due_date).getTime() : Infinity;
+        const dueB = b.due_date ? new Date(b.due_date).getTime() : Infinity;
+        if (dueA !== dueB) return dueA - dueB;
+        return a.order - b.order;
+      })
+      .map((item, index) => ({
+        label: `${index + 1}. ${item.title}`,
+        value: item.id.toString(),
+      }));
   }, [allListItems]);
 
   const assigneeOptions = useMemo(() => {
@@ -208,6 +234,7 @@ export default function KanbanPage() {
   });
 
   const projectOptions = projects.map((p) => ({ label: p.name, value: p.id.toString() }));
+  const sprintOptions = sprints.map((s) => ({ label: s.name, value: s.id.toString() }));
   const priorityOptions = [
     { label: "Alta", value: "alta" satisfies ScrumItemPriority },
     { label: "Media", value: "media" satisfies ScrumItemPriority },
@@ -216,7 +243,6 @@ export default function KanbanPage() {
   const tagOptions = tags.map((t) => ({ label: t.name, value: t.id.toString() }));
 
   const filterState: Record<FilterKey, { value: string; setValue: (v: string) => void; options: { label: string; value: string }[]; placeholder: string }> = {
-    history: { value: historyFilter, setValue: setHistoryFilter, options: historyOptions, placeholder: "Historia" },
     priority: { value: priorityFilter, setValue: setPriorityFilter, options: priorityOptions, placeholder: "Prioridad" },
     tag: { value: tagFilter, setValue: setTagFilter, options: tagOptions, placeholder: "Etiqueta" },
     assignee: { value: assigneeFilter, setValue: setAssigneeFilter, options: assigneeOptions, placeholder: "Responsable" },
@@ -242,71 +268,86 @@ export default function KanbanPage() {
       <PageWrapper>
         {/* Header */}
         <div className="flex flex-col gap-3 pb-3 border-b">
-          <div className="flex items-center justify-between gap-3">
-            <TitleComponent
-              title={currentView.descripcion}
-              subtitle="Gestiona tus tareas al estilo Jira"
-              icon={currentView.icon}
-            />
-            <div className="flex items-center gap-2">
+          <TitleComponent
+            title={currentView.descripcion}
+            subtitle="Gestiona tus tareas al estilo Jira"
+            icon={currentView.icon}
+          >
+            <div className="flex items-center gap-1.5 flex-wrap justify-end">
+              {/* Filtros fijos, en cascada: Proyecto > Historia > Sprint. No se
+                  puede elegir historia ni sprint sin proyecto seleccionado. */}
               <SearchableSelect
                 value={projectId}
                 onChange={setProjectId}
                 options={projectOptions}
-                placeholder="Selecciona un proyecto"
+                placeholder="Proyecto"
               />
-              {resolvedProjectId && (
-                <Button size="sm" onClick={() => setAddModalOpen(true)}>
-                  <Plus className="size-3.5 mr-1" /> Item
-                </Button>
-              )}
-            </div>
-          </div>
+              <SearchableSelect
+                value={historyFilter}
+                onChange={setHistoryFilter}
+                options={historyOptions}
+                placeholder="Historia"
+                buttonSize="sm"
+                disabled={!resolvedProjectId}
+              />
+              <SearchableSelect
+                value={sprintFilter}
+                onChange={setSprintFilter}
+                options={sprintOptions}
+                placeholder="Sprint"
+                buttonSize="sm"
+                disabled={!resolvedProjectId}
+              />
 
-          {/* Filtros estilo Notion: solo se muestran los que el usuario agrega */}
-          {resolvedProjectId && (
-            <div className="flex items-center gap-1.5 flex-wrap">
-              <Filter className="size-3.5 text-muted-foreground shrink-0" />
-              {activeFilterKeys.map((key) => {
-                const def = filterState[key];
-                return (
-                  <div key={key} className="flex items-center gap-0.5">
-                    <SearchableSelect
-                      value={def.value}
-                      onChange={def.setValue}
-                      options={def.options}
-                      placeholder={def.placeholder}
-                      buttonSize="sm"
-                    />
-                    <Button
-                      variant="ghost"
-                      size="icon-sm"
-                      className="size-6 text-muted-foreground hover:text-foreground"
-                      onClick={() => removeFilter(key)}
-                    >
-                      <X className="size-3" />
-                    </Button>
-                  </div>
-                );
-              })}
-              {availableFilterDefs.length > 0 && (
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="sm" className="h-7 text-xs text-muted-foreground">
-                      <Plus className="size-3 mr-1" /> Filtro
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="start">
-                    {availableFilterDefs.map((f) => (
-                      <DropdownMenuItem key={f.key} onClick={() => addFilter(f.key)}>
-                        {f.label}
-                      </DropdownMenuItem>
-                    ))}
-                  </DropdownMenuContent>
-                </DropdownMenu>
+              {/* Filtros adicionales estilo Notion: solo se muestran los que
+                  el usuario agrega. */}
+              {resolvedProjectId && (
+                <>
+                  {activeFilterKeys.map((key) => {
+                    const def = filterState[key];
+                    return (
+                      <div key={key} className="flex items-center gap-0.5">
+                        <SearchableSelect
+                          value={def.value}
+                          onChange={def.setValue}
+                          options={def.options}
+                          placeholder={def.placeholder}
+                          buttonSize="sm"
+                        />
+                        <Button
+                          variant="ghost"
+                          size="icon-sm"
+                          className="size-6 text-muted-foreground hover:text-foreground"
+                          onClick={() => removeFilter(key)}
+                        >
+                          <X className="size-3" />
+                        </Button>
+                      </div>
+                    );
+                  })}
+                  {availableFilterDefs.length > 0 && (
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="sm" className="h-8 text-xs text-muted-foreground">
+                          <Filter className="size-3 mr-1" /> Filtro
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        {availableFilterDefs.map((f) => (
+                          <DropdownMenuItem key={f.key} onClick={() => addFilter(f.key)}>
+                            {f.label}
+                          </DropdownMenuItem>
+                        ))}
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  )}
+                  <Button size="sm" onClick={() => setAddModalOpen(true)}>
+                    <Plus className="size-3.5 mr-1" /> Item
+                  </Button>
+                </>
               )}
             </div>
-          )}
+          </TitleComponent>
 
           {/* View switcher */}
           <div className="flex items-center gap-1 border rounded-lg p-0.5 w-fit bg-muted/40">
@@ -342,7 +383,7 @@ export default function KanbanPage() {
                 <KanbanView
                   kanban={kanban as any}
                   isLoading={loadingKanban}
-                  onItemClick={setDetailItemId}
+                  onItemClick={handleItemClick}
                   onStatusChange={(id, status) => updateMutation.mutate({ id, status })}
                 />
               )}
@@ -351,7 +392,7 @@ export default function KanbanPage() {
                   items={listItems}
                   sprints={sprints}
                   isLoading={loadingItems}
-                  onItemClick={setDetailItemId}
+                  onItemClick={handleItemClick}
                   onFocusInGantt={handleFocusInGantt}
                 />
               )}
@@ -359,7 +400,7 @@ export default function KanbanPage() {
                 <CalendarView
                   items={listItems}
                   isLoading={loadingItems}
-                  onItemClick={setDetailItemId}
+                  onItemClick={handleItemClick}
                 />
               )}
               {viewMode === "gantt" && (
@@ -367,10 +408,13 @@ export default function KanbanPage() {
                   sprints={sprints}
                   items={listItems}
                   isLoading={loadingItems}
-                  onItemClick={setDetailItemId}
+                  onItemClick={handleItemClick}
                   focusItemId={ganttFocusId}
                   onFocused={() => setGanttFocusId(null)}
                 />
+              )}
+              {viewMode === "effort" && (
+                <EffortView items={listItems} isLoading={loadingItems} />
               )}
             </>
           )}

@@ -26,14 +26,6 @@ export interface ScrumItemTag {
   color?: BadgeColor;
 }
 
-export interface ScrumItemChild {
-  id: number;
-  parent_id: number;
-  title: string;
-  status: ScrumItemStatus;
-  order: number;
-}
-
 export interface ScrumKanbanItem {
   id: number;
   title: string;
@@ -44,7 +36,8 @@ export interface ScrumKanbanItem {
   story_points?: number;
   assignee?: ScrumItemAssignee;
   tags: ScrumItemTag[];
-  children: ScrumItemChild[];
+  parent_id?: number;
+  parent?: { id: number; title: string };
 }
 
 export interface ScrumKanbanResponse {
@@ -117,6 +110,12 @@ export interface ScrumItemParentSummary {
   title: string;
 }
 
+export interface ScrumItemPredecessorSummary {
+  id: number;
+  title: string;
+  due_date?: string;
+}
+
 export interface ScrumItemDetail extends ScrumItemResource {
   description?: string;
   project: ScrumItemProjectSummary;
@@ -126,6 +125,8 @@ export interface ScrumItemDetail extends ScrumItemResource {
   watchers: ScrumItemAssignee[];
   comments: ScrumItemComment[];
   history: ScrumItemHistoryEntry[];
+  predecessor?: ScrumItemPredecessorSummary | null;
+  successors?: ScrumItemPredecessorSummary[];
 }
 
 export interface ScrumItemRequest {

@@ -31,7 +31,7 @@ import {
 import { useEffect, useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { errorToast, successToast } from "@/core/core.function";
-import { useScrumItemById } from "../lib/scrumItem.hook";
+import { useScrumItemById, useScrumItems } from "../lib/scrumItem.hook";
 import { updateScrumItem } from "@/features/gp/tics/pm/scrumItem/lib/scrumItem.actions";
 import {
   storeScrumComment,
@@ -54,10 +54,10 @@ const TYPE_LABEL: Record<ScrumItemType, string> = {
 };
 
 const TYPE_COLOR: Record<ScrumItemType, BadgeColor> = {
-  tarea: "gray",
-  historia: "blue",
-  funcion: "green",
-  solicitud: "orange",
+  tarea: "indigo",
+  historia: "green",
+  funcion: "orange",
+  solicitud: "amber",
   error: "red",
 };
 
@@ -71,9 +71,9 @@ const STATUS_LABEL: Record<ScrumItemStatus, string> = {
 
 const STATUS_COLOR: Record<ScrumItemStatus, BadgeColor> = {
   backlog: "gray",
-  por_hacer: "orange",
-  en_progreso: "blue",
-  en_revision: "yellow",
+  por_hacer: "blue",
+  en_progreso: "orange",
+  en_revision: "violet",
   hecho: "green",
 };
 
@@ -113,6 +113,7 @@ interface EditState {
   estimated_hours: string;
   start_date: string;
   due_date: string;
+  predecessor_id: string;
 }
 
 function initEdit(item: ScrumItemDetail): EditState {
@@ -126,8 +127,12 @@ function initEdit(item: ScrumItemDetail): EditState {
       item.estimated_hours != null ? String(item.estimated_hours) : "",
     start_date: item.start_date ?? "",
     due_date: item.due_date ?? "",
+    predecessor_id:
+      item.predecessor_id != null ? String(item.predecessor_id) : "",
   };
 }
+
+const NO_PREDECESSOR = "none";
 
 function countDays(start?: string | null, end?: string | null): number | null {
   if (!start || !end) return null;
@@ -152,6 +157,16 @@ export function ItemDetailSheet({ itemId, open, onClose }: Props) {
   const [editing, setEditing] = useState(false);
   const [editState, setEditState] = useState<EditState | null>(null);
   const { data: item, isLoading } = useScrumItemById(itemId);
+
+  // Candidatos a predecesora: otros items del mismo proyecto (no hace falta
+  // mientras no se esté editando).
+  const { data: candidates } = useScrumItems(
+    { project_id: item?.project.id, per_page: 200 },
+    editing && item !== undefined,
+  );
+  const predecessorOptions = (candidates?.data ?? []).filter(
+    (i) => i.id !== itemId,
+  );
 
   useEffect(() => {
     setEditing(false);
@@ -190,6 +205,10 @@ export function ItemDetailSheet({ itemId, open, onClose }: Props) {
           : null,
         start_date: state.start_date || null,
         due_date: state.due_date || null,
+        predecessor_id:
+          state.predecessor_id && state.predecessor_id !== NO_PREDECESSOR
+            ? Number(state.predecessor_id)
+            : null,
       }),
     onSuccess: () => {
       successToast("Item actualizado");
@@ -247,7 +266,7 @@ export function ItemDetailSheet({ itemId, open, onClose }: Props) {
       </div>
     )
   ) : null;
-  
+
 
   return (
     <GeneralSheet
@@ -259,7 +278,16 @@ export function ItemDetailSheet({ itemId, open, onClose }: Props) {
       modal={false}
       isLoading={isLoading && open}
       childrenFooter={footer}
-      onInteractOutside={(e) => e.preventDefault()}
+      onInteractOutside={(e) => {
+        // Si el clic fue sobre otra tarjeta/fila/item (tablero, lista,
+        // calendario o gantt), no cerramos: el propio onItemClick se
+        // encarga de cargar ese item en el mismo sheet. Cualquier otro
+        // clic afuera sí cierra normalmente.
+        const target = e.target as HTMLElement | null;
+        if (target?.closest("[data-scrum-item]")) {
+          e.preventDefault();
+        }
+      }}
     >
       {item && !editing && (
         <div className="space-y-8 pb-4">
@@ -304,6 +332,9 @@ export function ItemDetailSheet({ itemId, open, onClose }: Props) {
             )}
             {item.creator && (
               <InfoRow label="Creador">{item.creator.name}</InfoRow>
+            )}
+            {item.predecessor && (
+              <InfoRow label="Predecesora">{item.predecessor.title}</InfoRow>
             )}
             {item.start_date && (
               <InfoRow label="Fecha inicio">
@@ -576,6 +607,28 @@ export function ItemDetailSheet({ itemId, open, onClose }: Props) {
                   : ""}
               </div>
             )}
+
+            <div className="col-span-2 space-y-1">
+              <Label className="text-xs">Predecesora</Label>
+              <Select
+                value={editState.predecessor_id || NO_PREDECESSOR}
+                onValueChange={(v) =>
+                  set("predecessor_id", v === NO_PREDECESSOR ? "" : v)
+                }
+              >
+                <SelectTrigger className="text-sm h-8">
+                  <SelectValue placeholder="Sin predecesora" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value={NO_PREDECESSOR}>Sin predecesora</SelectItem>
+                  {predecessorOptions.map((option) => (
+                    <SelectItem key={option.id} value={String(option.id)}>
+                      [{TYPE_LABEL[option.type]}] {option.title}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
           </div>
 
           <Separator />

@@ -20,7 +20,6 @@ import {
   GanttFeatureList,
   GanttFeatureListGroup,
   GanttFeatureItem,
-  GanttDependencyArrows,
   GanttToday,
   useGanttContext,
   type GanttFeature,
@@ -433,12 +432,8 @@ export function GanttView({
             <GanttFeatureList>
               {sprints.map((sprint) => {
                 const sprintItems = sortedItemsBySprint[sprint.id] ?? [];
-                const sprintFeatures = sprintItems
-                  .map((item) => featuresByItemId.get(item.id))
-                  .filter((f): f is GanttFeature => !!f);
                 return (
                   <GanttFeatureListGroup key={sprint.id}>
-                    <GanttDependencyArrows features={sprintFeatures} />
                     {sprintItems.map((item) => {
                       const feature = featuresByItemId.get(item.id);
                       if (!feature) return null;

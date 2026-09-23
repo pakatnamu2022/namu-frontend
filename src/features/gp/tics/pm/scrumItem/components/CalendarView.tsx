@@ -86,6 +86,7 @@ function CalendarSidePanel({ selectedDay, items, onItemClick }: SidePanelProps) 
               key={item.id}
               onClick={() => onItemClick(item.id)}
               className="flex items-start gap-2 p-2 rounded-md border hover:bg-muted/50 cursor-pointer transition-colors"
+              data-scrum-item
             >
               <span className={cn("mt-1 size-2 shrink-0 rounded-full", STATUS_DOT[item.status])} />
               <div className="min-w-0">

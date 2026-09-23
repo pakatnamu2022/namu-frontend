@@ -73,6 +73,7 @@ function ListRow({ item, onItemClick, onFocusInGantt, emphasized, indented }: Li
         emphasized && "bg-muted/20",
       )}
       onClick={() => onItemClick(item.id)}
+      data-scrum-item
     >
       <td className={cn("py-2 px-3", indented && "pl-8")}>
         <TypeIcon className="size-3.5 text-muted-foreground" title={TYPE_LABEL[item.type]} />

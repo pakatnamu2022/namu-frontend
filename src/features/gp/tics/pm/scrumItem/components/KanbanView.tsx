@@ -73,7 +73,7 @@ export function KanbanView({ kanban, isLoading, onItemClick, onStatusChange }: K
           <KanbanBoard
             id={column.id}
             key={column.id}
-            className="border-none shadow-none w-full min-w-64"
+            className="border-none shadow-none w-full min-w-64 bg-muted/40"
           >
             <KanbanHeader className="border-none">
               <div className="flex items-center justify-between">
@@ -100,7 +100,7 @@ export function KanbanView({ kanban, isLoading, onItemClick, onStatusChange }: K
                     key={item.id}
                     name={item.name}
                     column={item.column}
-                    className="w-full bg-background cursor-pointer hover:shadow-md transition-shadow"
+                    className="w-full bg-background border-none rounded-lg p-3 cursor-pointer shadow-sm hover:shadow-md transition-shadow"
                   >
                     <ItemCard
                       item={item as ScrumKanbanItem}

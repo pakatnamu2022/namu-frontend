@@ -502,6 +502,7 @@ export const GanttSidebarItem: FC<GanttSidebarItemProps> = ({
       onKeyDown={handleKeyDown}
       role="button"
       tabIndex={0}
+      data-scrum-item
       style={{
         height: "var(--gantt-row-height)",
       }}
@@ -829,6 +830,7 @@ export const GanttFeatureItemCard: FC<GanttFeatureItemCardProps> = ({
         "group/gantt-card relative h-full w-full rounded-md bg-background p-2 text-xs shadow-sm",
         isDropTarget && "ring-2 ring-primary",
       )}
+      data-scrum-item
       onDragEnter={() => onLinkPredecessor && setIsDropTarget(true)}
       onDragLeave={() => setIsDropTarget(false)}
       onDragOver={handleDragOver}
@@ -1033,6 +1035,37 @@ export interface GanttDependencyArrowsProps {
 }
 
 /**
+ * Arma un path SVG ortogonal (solo tramos horizontales/verticales) que pasa
+ * por los waypoints dados, con las esquinas redondeadas. A diferencia de un
+ * bezier con puntos de control fijos, un codo ortogonal no puede auto-
+ * cruzarse ni degenerar en un lazo sin importar qué tan cerca estén los
+ * puntos entre sí.
+ */
+const roundedElbowPath = (points: { x: number; y: number }[], radius = 5): string => {
+  if (points.length < 2) return ""
+
+  let d = `M ${points[0].x} ${points[0].y}`
+  for (let i = 1; i < points.length - 1; i++) {
+    const prev = points[i - 1]
+    const curr = points[i]
+    const next = points[i + 1]
+
+    const toPrev = Math.min(radius, Math.hypot(curr.x - prev.x, curr.y - prev.y) / 2)
+    const toNext = Math.min(radius, Math.hypot(next.x - curr.x, next.y - curr.y) / 2)
+
+    const p1x = curr.x + Math.sign(prev.x - curr.x) * toPrev
+    const p1y = curr.y + Math.sign(prev.y - curr.y) * toPrev
+    const p2x = curr.x + Math.sign(next.x - curr.x) * toNext
+    const p2y = curr.y + Math.sign(next.y - curr.y) * toNext
+
+    d += ` L ${p1x} ${p1y} Q ${curr.x} ${curr.y}, ${p2x} ${p2y}`
+  }
+  const last = points[points.length - 1]
+  d += ` L ${last.x} ${last.y}`
+  return d
+}
+
+/**
  * Draws an elbow connector + arrowhead from the end of each bar to the start
  * of the next one, but only between rows that are truly sequential (the next
  * row starts where the previous one ends). Rows that start on the same date
@@ -1048,16 +1081,36 @@ export const GanttDependencyArrows: FC<GanttDependencyArrowsProps> = ({ features
 
   const bars = useMemo(
     () =>
-      features.map(feature => ({
+      features.map((feature, rowIndex) => ({
         id: feature.id,
         startAt: feature.startAt,
+        itemType: feature.itemType,
+        rowIndex,
         offset: getOffset(feature.startAt, timelineStartDate, gantt),
         width: getWidth(feature.startAt, feature.endAt, gantt),
       })),
     [features, timelineStartDate, gantt],
   )
 
-  if (bars.length < 2) {
+  // Las predecesoras solo tienen sentido dentro del mismo tipo: las
+  // historias encadenan entre sí, y las tareas encadenan entre sí, pero
+  // nunca se conecta una historia con una tarea (o viceversa) aunque estén
+  // en filas consecutivas.
+  const chainPairs = useMemo(() => {
+    const lastByType = new Map<string, (typeof bars)[number]>()
+    const pairs: { from: (typeof bars)[number]; to: (typeof bars)[number] }[] = []
+    for (const bar of bars) {
+      const type = bar.itemType ?? ""
+      const prev = lastByType.get(type)
+      if (prev && !isSameDay(prev.startAt, bar.startAt)) {
+        pairs.push({ from: prev, to: bar })
+      }
+      lastByType.set(type, bar)
+    }
+    return pairs
+  }, [bars])
+
+  if (bars.length < 2 || chainPairs.length === 0) {
     return null
   }
 
@@ -1082,24 +1135,35 @@ export const GanttDependencyArrows: FC<GanttDependencyArrowsProps> = ({ features
           <path d="M0,0 L6,3 L0,6 Z" className="fill-muted-foreground" />
         </marker>
       </defs>
-      {bars.slice(0, -1).map((bar, index) => {
-        const next = bars[index + 1]
-        if (isSameDay(bar.startAt, next.startAt)) {
-          // Parallel rows (e.g. historia + its first task): no dependency to draw.
-          return null
-        }
-
-        const y1 = index * rowHeight + rowHeight / 2
-        const y2 = (index + 1) * rowHeight + rowHeight / 2
-        const x1 = bar.offset + bar.width
-        const x2 = next.offset
-        const midX = x1 + Math.max(6, (x2 - x1) / 2)
+      {chainPairs.map(({ from, to }) => {
+        const y1 = from.rowIndex * rowHeight + rowHeight / 2
+        const y2 = to.rowIndex * rowHeight + rowHeight / 2
+        // La flecha nace donde termina la barra "padre" y llega al inicio de
+        // la barra final. Se traza como un codo ortogonal (horizontal-
+        // vertical-horizontal) con esquinas redondeadas en vez de un bezier:
+        // un bezier con un punto de control fijo podía degenerar en un lazo
+        // cuando las filas estaban muy cerca en Y, y un codo ortogonal no
+        // puede auto-cruzarse. Si la siguiente barra empieza antes de que
+        // termine la anterior (se solapan en el tiempo), el codo sale por
+        // un "pasillo" a la derecha del fin de ambas barras en vez de
+        // cortar por en medio, para no atravesar ninguna.
+        const x1 = from.offset + from.width
+        const x2 = to.offset
+        const overlaps = x2 < x1 + 4
+        const midX = overlaps
+          ? Math.max(x1, to.offset + to.width) + 16
+          : x1 + (x2 - x1) / 2
 
         return (
           <path
             className="fill-none stroke-muted-foreground/60"
-            d={`M ${x1} ${y1} H ${midX} V ${y2} H ${Math.max(x2 - 6, midX)}`}
-            key={bar.id}
+            d={roundedElbowPath([
+              { x: x1, y: y1 },
+              { x: midX, y: y1 },
+              { x: midX, y: y2 },
+              { x: x2, y: y2 },
+            ])}
+            key={`${from.id}-${to.id}`}
             markerEnd={`url(#${markerId})`}
             strokeWidth={1.5}
           />
@@ -1514,7 +1578,6 @@ export interface GanttTodayProps {
 }
 
 export const GanttToday: FC<GanttTodayProps> = ({ className }) => {
-  const label = "Today"
   const date = useMemo(() => new Date(), [])
   const gantt = useContext(GanttContext)
   const differenceIn = useMemo(() => getDifferenceIn(gantt.range), [gantt.range])
@@ -1542,17 +1605,10 @@ export const GanttToday: FC<GanttTodayProps> = ({ className }) => {
       }}
     >
       <div
-        className={cn(
-          "group pointer-events-auto sticky top-0 flex select-auto flex-col flex-nowrap items-center justify-center whitespace-nowrap rounded-b-md bg-card px-2 py-1 text-foreground text-xs",
-          className,
-        )}
-      >
-        {label}
-        <span className="max-h-0 overflow-hidden opacity-80 transition-all group-hover:max-h-8">
-          {formatDate(date, "MMM dd, yyyy", { locale: es })}
-        </span>
-      </div>
-      <div className={cn("h-full w-px bg-card", className)} />
+        title={formatDate(date, "MMM dd, yyyy", { locale: es })}
+        className="pointer-events-auto sticky top-0 size-2 rounded-full bg-red-500"
+      />
+      <div className={cn("h-full w-px bg-red-500", className)} />
     </div>
   )
 }
