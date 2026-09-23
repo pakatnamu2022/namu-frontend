@@ -3,32 +3,28 @@
 import { RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SearchableSelect } from "@/shared/components/SearchableSelect";
-import { EMPRESA_AP, MONTH_OPTIONS } from "@/core/core.constants";
+import { EMPRESA_AP } from "@/core/core.constants";
 import { generateYear } from "@/core/core.function";
 import { useMySedes } from "@/features/gp/maestro-general/sede/lib/sede.hook";
 import { cn } from "@/lib/utils";
 
-interface ProductivityDashboardFiltersProps {
+interface ProductivityHistoricalFiltersProps {
   year: number;
-  month: number;
   sedeId: string;
   onYearChange: (year: number) => void;
-  onMonthChange: (month: number) => void;
   onSedeChange: (sedeId: string) => void;
   onRefresh: () => void;
   isRefreshing?: boolean;
 }
 
-export default function ProductivityDashboardFilters({
+export default function ProductivityHistoricalFilters({
   year,
-  month,
   sedeId,
   onYearChange,
-  onMonthChange,
   onSedeChange,
   onRefresh,
   isRefreshing = false,
-}: ProductivityDashboardFiltersProps) {
+}: ProductivityHistoricalFiltersProps) {
   const { data: sedes = [], isLoading: isLoadingSedes } = useMySedes({
     company: EMPRESA_AP.id,
     has_workshop: 1,
@@ -64,18 +60,6 @@ export default function ProductivityDashboardFilters({
         showSearch={false}
         allowClear={false}
         buttonSize="sm"
-      />
-
-      <SearchableSelect
-        label="Mes"
-        value={month.toString()}
-        onChange={(value) => onMonthChange(Number(value))}
-        options={MONTH_OPTIONS}
-        placeholder="Mes"
-        showSearch={false}
-        allowClear={false}
-        buttonSize="sm"
-        classNameDiv="min-w-[150px]"
       />
 
       <Button

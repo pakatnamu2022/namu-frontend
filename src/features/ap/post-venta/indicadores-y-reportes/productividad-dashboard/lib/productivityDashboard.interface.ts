@@ -72,6 +72,7 @@ export interface ProductivityTechnicianDetail {
   real_hours?: number;
   standard_hours: number;
   billed_hours: number;
+  reentry_hours: number;
   productivity_hours: number;
   productivity_percentage: number;
   earnings: number;

@@ -8,6 +8,7 @@ import {
   PeriodInfo,
 } from "../lib/objectivesDashboard.interface";
 import { OBJECTIVE_STATUS_COLOR } from "../lib/objectivesDashboard.constants";
+import { formatMoney } from "@/core/core.function";
 
 interface ObjectivesExecutiveSummaryProps {
   summary: ExecutiveSummary;
@@ -20,12 +21,6 @@ const TREND_ICON = {
   down: TrendingDown,
   stable: Minus,
 };
-
-const formatCurrency = (value: number) =>
-  `S/ ${new Intl.NumberFormat("es-PE", {
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  }).format(value)}`;
 
 export default function ObjectivesExecutiveSummary({
   summary,
@@ -47,7 +42,7 @@ export default function ObjectivesExecutiveSummary({
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <MetricCard
           title="Objetivo (Taller - Mostrador)"
-          value={formatCurrency(summary.total_objective)}
+          value={formatMoney(summary.total_objective)}
           subtitle={period.name}
           icon={Target}
           variant="outline"
@@ -56,7 +51,7 @@ export default function ObjectivesExecutiveSummary({
 
         <MetricCard
           title="Avance (Taller - Mostrador)"
-          value={formatCurrency(summary.total_progress)}
+          value={formatMoney(summary.total_progress)}
           subtitle={`${summary.completion_percentage.toFixed(1)}% del objetivo`}
           footer={formatDifference(difference)}
           icon={TrendIcon}

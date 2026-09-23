@@ -2,7 +2,7 @@ import type { ColumnDef } from "@tanstack/react-table";
 import { Badge } from "@/components/ui/badge";
 import { Trophy } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { formatHours } from "@/core/core.function";
+import { formatHours, formatMoney } from "@/core/core.function";
 import { ProductivityHeadquarterSummary } from "../lib/productivityDashboard.interface";
 import {
   PRODUCTIVITY_STATUS_BADGE_COLOR,
@@ -11,12 +11,6 @@ import {
 
 export type ProductivityHeadquartersColumn =
   ColumnDef<ProductivityHeadquarterSummary>;
-
-const formatCurrency = (value: number) =>
-  `S/ ${new Intl.NumberFormat("es-PE", {
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  }).format(value)}`;
 
 export const productivityHeadquartersColumns =
   (): ProductivityHeadquartersColumn[] => [
@@ -87,7 +81,7 @@ export const productivityHeadquartersColumns =
         const value = row.original.total_earnings;
         return (
           <span className={cn(value < 0 ? "text-red-600" : "")}>
-            {formatCurrency(value)}
+            {formatMoney(value)}
           </span>
         );
       },

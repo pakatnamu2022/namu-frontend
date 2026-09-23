@@ -1,7 +1,7 @@
 "use client";
 
-import ProductivityDashboard from "@/features/ap/post-venta/indicadores-y-reportes/productividad-dashboard/components/ProductivityDashboard";
+import ProductivityDashboardContainer from "@/features/ap/post-venta/indicadores-y-reportes/productividad-dashboard/components/ProductivityDashboardContainer";
 
 export default function ProductivityDashboardPage() {
-  return <ProductivityDashboard />;
+  return <ProductivityDashboardContainer />;
 }
