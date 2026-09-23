@@ -13,17 +13,12 @@ import {
   OBJECTIVE_STATUS_BADGE_COLOR,
   OBJECTIVE_STATUS_LABEL,
 } from "../lib/objectivesDashboard.constants";
+import { formatMoney } from "@/core/core.function";
 
 interface ObjectivesHeadquartersTableProps {
   data: HeadquarterSummary[];
   onSedeClick: (sede: HeadquarterSummary) => void;
 }
-
-const formatCurrency = (value: number) =>
-  `S/ ${new Intl.NumberFormat("es-PE", {
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  }).format(value)}`;
 
 export default function ObjectivesHeadquartersTable({
   data,
@@ -47,7 +42,9 @@ export default function ObjectivesHeadquartersTable({
             <div className="font-semibold">
               #{sede.rank} · {sede.name}
             </div>
-            <div className="text-xs text-muted-foreground">{sede.abbreviation}</div>
+            <div className="text-xs text-muted-foreground">
+              {sede.abbreviation}
+            </div>
           </div>
           <Badge color={OBJECTIVE_STATUS_BADGE_COLOR[sede.status]}>
             {OBJECTIVE_STATUS_LABEL[sede.status]}
@@ -57,11 +54,15 @@ export default function ObjectivesHeadquartersTable({
         <div className="grid grid-cols-2 gap-2 text-sm">
           <div>
             <div className="text-xs text-muted-foreground">Objetivo</div>
-            <div className="font-semibold">{formatCurrency(sede.total_objective)}</div>
+            <div className="font-semibold">
+              {formatMoney(sede.total_objective)}
+            </div>
           </div>
           <div>
             <div className="text-xs text-muted-foreground">Avance</div>
-            <div className="font-semibold">{formatCurrency(sede.total_progress)}</div>
+            <div className="font-semibold">
+              {formatMoney(sede.total_progress)}
+            </div>
           </div>
         </div>
 
@@ -70,7 +71,10 @@ export default function ObjectivesHeadquartersTable({
             <span className="text-muted-foreground">Cumplimiento</span>
             <span className="font-semibold">{sede.completion_percentage}%</span>
           </div>
-          <Progress value={Math.min(sede.completion_percentage, 100)} className="h-1.5" />
+          <Progress
+            value={Math.min(sede.completion_percentage, 100)}
+            className="h-1.5"
+          />
         </div>
       </CardContent>
     </Card>

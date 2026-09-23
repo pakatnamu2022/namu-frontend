@@ -260,7 +260,7 @@ export const POST_VENTA_REPORTS: ReportConfig[] = [
     type: "Taller",
     section: "TALLER",
     description:
-      "Exporta el reporte de últimas órdenes de trabajo cerradas filtrando por rango de fechas y sede.",
+      "Exporta el reporte de últimas órdenes de trabajo cerradas sin duplicar vin filtrando por rango de fechas y sede.",
     icon: "Wrench",
     endpoint: "/ap/postVenta/reports/work-orders/closed-by-vehicle/export",
     fileName: "reporte_ultimas_ordenes_trabajo_por_vehiculo",
