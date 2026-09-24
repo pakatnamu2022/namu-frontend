@@ -72,6 +72,17 @@ export const objectivesHeadquartersColumns = ({
     ),
   },
   {
+    accessorKey: "loose_invoices_progress",
+    header: "OC",
+    cell: ({ row }) => (
+      <div onClick={() => onRowClick(row.original)} className={cellClickClass}>
+        <span className="font-semibold">
+          {formatMoney(row.original.loose_invoices_progress)}
+        </span>
+      </div>
+    ),
+  },
+  {
     accessorKey: "completion_percentage",
     header: "Cumplimiento",
     cell: ({ row }) => {

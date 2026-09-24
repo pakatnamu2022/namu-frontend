@@ -78,6 +78,7 @@ export interface HeadquarterSummary {
   abbreviation: string;
   total_objective: number;
   total_progress: number;
+  loose_invoices_progress: number;
   completion_percentage: number;
   status: ObjectiveStatus;
   rank: number;
