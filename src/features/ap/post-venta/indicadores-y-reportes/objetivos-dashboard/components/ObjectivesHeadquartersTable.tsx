@@ -64,6 +64,12 @@ export default function ObjectivesHeadquartersTable({
               {formatMoney(sede.total_progress)}
             </div>
           </div>
+          <div>
+            <div className="text-xs text-muted-foreground">OC</div>
+            <div className="font-semibold">
+              {formatMoney(sede.loose_invoices_progress)}
+            </div>
+          </div>
         </div>
 
         <div className="space-y-1">
