@@ -180,6 +180,18 @@ export const POST_VENTA_REPORTS: ReportConfig[] = [
         nameTo: "date_to",
         rangeParamName: "fecha_emision",
       },
+      {
+        name: "sede_id",
+        label: "Sede",
+        type: "select",
+        required: false,
+        endpoint: `/gp/mg/sede/my?company=${EMPRESA_AP.id}&has_workshop=true`,
+        optionsMapper: (data) =>
+          (data ?? []).map((item: any) => ({
+            label: item.description,
+            value: String(item.id),
+          })),
+      },
     ],
     defaultParams: {},
   },
@@ -311,6 +323,18 @@ export const POST_VENTA_REPORTS: ReportConfig[] = [
         nameTo: "date_to",
         rangeParamName: "fecha_emision",
       },
+      {
+        name: "sede_id",
+        label: "Sede",
+        type: "select",
+        required: false,
+        endpoint: `/gp/mg/sede/my?company=${EMPRESA_AP.id}&has_workshop=true`,
+        optionsMapper: (data) =>
+          (data ?? []).map((item: any) => ({
+            label: item.description,
+            value: String(item.id),
+          })),
+      },
     ],
     defaultParams: {},
   },
@@ -329,7 +353,7 @@ export const POST_VENTA_REPORTS: ReportConfig[] = [
       {
         name: "date_range",
         label: "Rango de Fechas",
-        type: "daterange",
+        type: "daterange-or-month",
         required: false,
         nameFrom: "date_from",
         nameTo: "date_to",
@@ -345,6 +369,18 @@ export const POST_VENTA_REPORTS: ReportConfig[] = [
           { label: "Dólares", value: String(SUNAT_CURRENCY_ID.DOLARES) },
         ],
         defaultValue: String(SUNAT_CURRENCY_ID.SOLES),
+      },
+      {
+        name: "all",
+        label: "Convertir todo a la moneda seleccionada",
+        type: "toggle",
+        required: false,
+        advanced: true,
+        options: [
+          { label: "No", value: "0" },
+          { label: "Sí", value: "1" },
+        ],
+        defaultValue: "0",
       },
     ],
     defaultParams: {},

@@ -47,6 +47,9 @@ export interface ReportField {
   // Valores por defecto para daterange (se aplican a nameFrom/nameTo respectivamente)
   defaultValueFrom?: any;
   defaultValueTo?: any;
+  // Si es true, el campo se muestra dentro de la sección colapsable "Filtros avanzados"
+  // en lugar de mostrarse junto con los demás campos
+  advanced?: boolean;
 }
 
 export interface ReportConfig {
