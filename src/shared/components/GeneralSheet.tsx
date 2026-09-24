@@ -37,6 +37,7 @@ export interface GeneralSheetProps {
   size?: Size;
   type?: "default" | "tablet" | "mobile";
   isLoading?: boolean;
+  onInteractOutside?: (event: Event) => void;
 }
 
 type Size =
@@ -81,6 +82,7 @@ const GeneralSheet: React.FC<GeneralSheetProps> = ({
   size = "lg",
   type,
   isLoading,
+  onInteractOutside,
 }) => {
   const isMobile = useIsMobile();
   const isTablet = useIsTablet();
@@ -104,6 +106,7 @@ const GeneralSheet: React.FC<GeneralSheetProps> = ({
       <Sheet open={open} onOpenChange={(v) => !v && onClose()} modal={modal}>
         <SheetContent
           side={side}
+          onInteractOutside={onInteractOutside}
           className={cn(
             sizes[size],
             className,
@@ -142,6 +145,7 @@ const GeneralSheet: React.FC<GeneralSheetProps> = ({
     ) : (
       <Drawer open={open} onOpenChange={(v) => !v && onClose()} modal={modal}>
         <DrawerContent
+          onInteractOutside={onInteractOutside}
           className={cn(sizes[size], className, "px-0 pb-4 overflow-hidden")}
         >
           <DrawerHeader className="py-2">

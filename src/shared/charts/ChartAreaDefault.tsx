@@ -35,6 +35,7 @@ interface DataPoint {
   name: string;
   value: number;
   value2?: number;
+  [key: string]: unknown;
 }
 
 interface Props {
@@ -52,6 +53,8 @@ interface Props {
   showDots?: boolean;
   /** Ocupa toda la altura del contenedor (útil al alinear con otra tarjeta en un grid). Mínimo 250px. */
   fillHeight?: boolean;
+  /** Se llama con el DataPoint completo al hacer clic en un punto de la serie principal (requiere showDots). */
+  onPointClick?: (point: DataPoint) => void;
 }
 
 export function ChartAreaDefault({
@@ -65,6 +68,7 @@ export function ChartAreaDefault({
   showYAxis = false,
   showDots = false,
   fillHeight = false,
+  onPointClick,
 }: Props) {
   const id = useId();
   const hasSecondSeries = data.some((d) => d.value2 !== undefined);
@@ -91,6 +95,26 @@ export function ChartAreaDefault({
 
   const fillId1 = `fill-value-${id}`;
   const fillId2 = `fill-value2-${id}`;
+
+  // Como función en vez de objeto de props: así recibimos `payload` (el
+  // DataPoint completo) para pasárselo a onPointClick. Con el dot como
+  // objeto plano, recharts solo reenvía el evento del DOM al onClick.
+  const renderDot = (radius: number) => (props: any) => {
+    const { cx, cy, payload, index } = props;
+    return (
+      <circle
+        key={`dot-${index}`}
+        cx={cx}
+        cy={cy}
+        r={radius}
+        fill="var(--color-value)"
+        stroke="var(--background)"
+        strokeWidth={2}
+        style={onPointClick ? { cursor: "pointer" } : undefined}
+        onClick={() => onPointClick?.(payload)}
+      />
+    );
+  };
 
   return (
     <Card className={cn("pt-0", fillHeight && "h-full")}>
@@ -214,17 +238,8 @@ export function ChartAreaDefault({
               fill={`url(#${fillId1})`}
               stroke="var(--color-value)"
               stackId="a"
-              dot={
-                showDots
-                  ? {
-                      r: 4,
-                      fill: "var(--color-value)",
-                      stroke: "var(--background)",
-                      strokeWidth: 2,
-                    }
-                  : false
-              }
-              activeDot={showDots ? { r: 6 } : undefined}
+              dot={showDots ? renderDot(4) : false}
+              activeDot={showDots ? renderDot(6) : undefined}
             />
             {hasSecondSeries && <ChartLegend content={<ChartLegendContent />} />}
           </AreaChart>

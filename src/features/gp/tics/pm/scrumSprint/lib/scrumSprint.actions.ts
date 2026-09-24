@@ -13,7 +13,10 @@ export async function getScrumSprints(
   params?: Record<string, any>
 ): Promise<ScrumSprintResource[]> {
   const { data } = await api.get<ScrumSprintResource[] | { data: ScrumSprintResource[] }>(ENDPOINT, {
-    params: { ...(projectId != null ? { project_id: projectId } : {}), ...params },
+    // "all=true" evita que la paginación por defecto (10 por página) recorte
+    // sprints de meses posteriores (ej. no mostrar nada de 2027 en un proyecto
+    // con 20 sprints). La lista de sprints de un proyecto siempre es acotada.
+    params: { all: "true", ...(projectId != null ? { project_id: projectId } : {}), ...params },
   });
   return Array.isArray(data) ? data : (data as { data: ScrumSprintResource[] }).data ?? [];
 }
