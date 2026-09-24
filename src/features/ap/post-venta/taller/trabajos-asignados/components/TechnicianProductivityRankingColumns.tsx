@@ -1,0 +1,141 @@
+import type { ColumnDef } from "@tanstack/react-table";
+import { Badge } from "@/components/ui/badge";
+import { Trophy } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { formatHours, formatMoney } from "@/core/core.function";
+import { TechnicianProductivityRankingItem } from "../lib/technicianProductivityRanking.interface";
+import {
+  PRODUCTIVITY_STATUS_BADGE_COLOR,
+  PRODUCTIVITY_STATUS_LABEL,
+} from "@/features/ap/post-venta/indicadores-y-reportes/productividad-dashboard/lib/productivityDashboard.constants";
+
+export type TechnicianProductivityRankingColumn =
+  ColumnDef<TechnicianProductivityRankingItem>;
+
+export const technicianProductivityRankingColumns =
+  (): TechnicianProductivityRankingColumn[] => [
+    {
+      accessorKey: "rank",
+      header: "#",
+      cell: ({ row }) => {
+        const tech = row.original;
+        return (
+          <div className="flex items-center gap-1.5 font-semibold">
+            {tech.rank === 1 && <Trophy className="h-4 w-4 text-amber-500" />}
+            {tech.rank}
+          </div>
+        );
+      },
+    },
+    {
+      accessorKey: "worker_name",
+      header: "Técnico",
+      cell: ({ row }) => {
+        const tech = row.original;
+        return (
+          <div>
+            <div className="font-semibold">
+              {tech.worker_name}
+              {tech.is_on_leave && (
+                <span className="text-red-600"> · Baja</span>
+              )}
+            </div>
+            <div className="text-xs text-muted-foreground">
+              {tech.worker_dni} · {tech.sede_abbreviation}
+            </div>
+          </div>
+        );
+      },
+    },
+    {
+      accessorKey: "real_hours",
+      header: "Hrs. reales",
+      cell: ({ row }) => {
+        const tech = row.original;
+        if (tech.real_hours === undefined) return "-";
+        return (
+          <span className="font-semibold">
+            {formatHours(tech.real_hours)}
+          </span>
+        );
+      },
+    },
+    {
+      accessorKey: "standard_hours",
+      header: "Hrs. laborables (8h)",
+      cell: ({ row }) => {
+        const tech = row.original;
+        return (
+          <div>
+            <div>{formatHours(tech.standard_hours)}</div>
+            {tech.days_worked !== undefined && (
+              <div className="text-xs text-muted-foreground">
+                {tech.days_worked}d x 8h = {tech.standard_hours}
+              </div>
+            )}
+          </div>
+        );
+      },
+    },
+    {
+      accessorKey: "billed_hours",
+      header: "Hrs. facturadas",
+      cell: ({ row }) => (
+        <span className="font-semibold">
+          {formatHours(row.original.billed_hours)}
+        </span>
+      ),
+    },
+    {
+      accessorKey: "reentry_hours",
+      header: "Hrs. reingreso",
+      cell: ({ row }) => (
+        <span className="font-semibold">
+          {formatHours(row.original.reentry_hours ?? 0)}
+        </span>
+      ),
+    },
+    {
+      accessorKey: "productivity_hours",
+      header: "Productividad",
+      cell: ({ row }) => {
+        const tech = row.original;
+        return (
+          <span
+            className={cn(
+              "font-semibold",
+              tech.productivity_hours < 0 ? "text-red-600" : "text-green-600",
+            )}
+          >
+            {tech.productivity_hours >= 0 ? "+" : "-"}
+            {formatHours(Math.abs(tech.productivity_hours))} ·{" "}
+            {tech.productivity_percentage}%
+          </span>
+        );
+      },
+    },
+    {
+      accessorKey: "earnings",
+      header: "Ganancia",
+      cell: ({ row }) => {
+        const value = row.original.earnings;
+        return (
+          <span className={cn(value < 0 ? "text-red-600" : "")}>
+            {formatMoney(value)}
+          </span>
+        );
+      },
+    },
+    {
+      accessorKey: "status",
+      header: "Estado",
+      cell: ({ row }) => {
+        const tech = row.original;
+        return (
+          <Badge color={PRODUCTIVITY_STATUS_BADGE_COLOR[tech.status]}>
+            {PRODUCTIVITY_STATUS_LABEL[tech.status]}
+          </Badge>
+        );
+      },
+    },
+  ];
