@@ -23,7 +23,7 @@ import {
 import { es } from "date-fns/locale"
 import { atom, useAtom } from "jotai"
 import throttle from "lodash.throttle"
-import { ArrowRightIcon, PlusIcon, TrashIcon } from "lucide-react"
+import { ArrowRightIcon, PlusIcon, TrashIcon, Unlink2Icon } from "lucide-react"
 import type {
   CSSProperties,
   DragEventHandler,
@@ -45,6 +45,7 @@ import {
   useState,
 } from "react"
 import { Card } from "@/components/ui/card"
+import { Checkbox } from "@/components/ui/checkbox"
 import {
   ContextMenu,
   ContextMenuContent,
@@ -74,6 +75,7 @@ export interface GanttFeature {
   status: GanttStatus
   lane?: string // Optional: features with the same lane will share a row
   itemType?: string // Optional: e.g. "historia" | "tarea", used to differentiate rows visually
+  hasPredecessor?: boolean // Optional: whether this feature has a predecessor link, to show the "unlink" button
 }
 
 export interface GanttMarkerProps {
@@ -456,12 +458,16 @@ export const GanttHeader: FC<GanttHeaderProps> = ({ className }) => {
 export interface GanttSidebarItemProps {
   feature: GanttFeature
   onSelectItem?: (id: string) => void
+  selected?: boolean
+  onToggleSelect?: (id: string) => void
   className?: string
 }
 
 export const GanttSidebarItem: FC<GanttSidebarItemProps> = ({
   feature,
   onSelectItem,
+  selected,
+  onToggleSelect,
   className,
 }) => {
   const gantt = useContext(GanttContext)
@@ -475,6 +481,10 @@ export const GanttSidebarItem: FC<GanttSidebarItemProps> = ({
 
   const handleClick: MouseEventHandler<HTMLDivElement> = event => {
     if (event.target === event.currentTarget) {
+      if (event.ctrlKey || event.metaKey) {
+        onToggleSelect?.(feature.id)
+        return
+      }
       // Scroll to the feature in the timeline
       gantt.scrollToFeature?.(feature)
       // Call the original onSelectItem callback
@@ -495,6 +505,7 @@ export const GanttSidebarItem: FC<GanttSidebarItemProps> = ({
     <div
       className={cn(
         "relative flex items-center gap-2.5 p-2.5 text-xs hover:bg-muted",
+        selected && "bg-primary/10 hover:bg-primary/15",
         className,
       )}
       key={feature.id}
@@ -507,7 +518,14 @@ export const GanttSidebarItem: FC<GanttSidebarItemProps> = ({
         height: "var(--gantt-row-height)",
       }}
     >
-      {/* <Checkbox onCheckedChange={handleCheck} className="shrink-0" /> */}
+      {onToggleSelect ? (
+        <Checkbox
+          checked={selected ?? false}
+          onCheckedChange={() => onToggleSelect(feature.id)}
+          onClick={event => event.stopPropagation()}
+          className="shrink-0"
+        />
+      ) : null}
       <div
         className="pointer-events-none h-2 w-2 shrink-0 rounded-full"
         style={{
@@ -787,6 +805,7 @@ export type GanttFeatureItemCardProps = Pick<GanttFeature, "id"> & {
   onDoubleClick?: (id: string) => void
   /** successorId = esta tarjeta (donde se soltó), predecessorId = la tarjeta arrastrada */
   onLinkPredecessor?: (successorId: string, predecessorId: string) => void
+  selected?: boolean
 }
 
 export const GanttFeatureItemCard: FC<GanttFeatureItemCardProps> = ({
@@ -794,6 +813,7 @@ export const GanttFeatureItemCard: FC<GanttFeatureItemCardProps> = ({
   children,
   onDoubleClick,
   onLinkPredecessor,
+  selected,
 }) => {
   const [, setDragging] = useGanttDragging()
   const { attributes, listeners, setNodeRef } = useDraggable({ id })
@@ -829,6 +849,7 @@ export const GanttFeatureItemCard: FC<GanttFeatureItemCardProps> = ({
       className={cn(
         "group/gantt-card relative h-full w-full rounded-md bg-background p-2 text-xs shadow-sm",
         isDropTarget && "ring-2 ring-primary",
+        selected && !isDropTarget && "ring-2 ring-primary/60",
       )}
       data-scrum-item
       onDragEnter={() => onLinkPredecessor && setIsDropTarget(true)}
@@ -868,6 +889,8 @@ export type GanttFeatureItemProps = GanttFeature & {
   onMove?: (id: string, startDate: Date, endDate: Date | null) => void
   onDoubleClick?: (id: string) => void
   onLinkPredecessor?: (successorId: string, predecessorId: string) => void
+  onRemovePredecessor?: (id: string) => void
+  selected?: boolean
   children?: ReactNode
   className?: string
 }
@@ -876,6 +899,8 @@ export const GanttFeatureItem: FC<GanttFeatureItemProps> = ({
   onMove,
   onDoubleClick,
   onLinkPredecessor,
+  onRemovePredecessor,
+  selected,
   children,
   className,
   ...feature
@@ -888,6 +913,17 @@ export const GanttFeatureItem: FC<GanttFeatureItemProps> = ({
   )
   const [startAt, setStartAt] = useState<Date>(feature.startAt)
   const [endAt, setEndAt] = useState<Date | null>(feature.endAt)
+
+  // Si las fechas del feature cambian por fuera (p.ej. se editó el item en
+  // el sheet de detalle y se refrescó la query), el estado local del drag
+  // debe seguir a las nuevas props; si no, la barra se queda "congelada" en
+  // la posición vieja hasta que se recargue toda la página.
+  useEffect(() => {
+    setStartAt(feature.startAt)
+  }, [feature.startAt])
+  useEffect(() => {
+    setEndAt(feature.endAt)
+  }, [feature.endAt])
 
   // Memoize expensive calculations
   const width = useMemo(() => getWidth(startAt, endAt, gantt), [startAt, endAt, gantt])
@@ -955,6 +991,17 @@ export const GanttFeatureItem: FC<GanttFeatureItemProps> = ({
       className={cn("relative flex w-max min-w-full py-0.5", className)}
       style={{ height: "var(--gantt-row-height)" }}
     >
+      {feature.hasPredecessor && onRemovePredecessor && (
+        <button
+          className="-translate-y-1/2 pointer-events-auto absolute top-1/2 z-20 flex h-4 w-4 items-center justify-center rounded-full border border-border/50 bg-card text-muted-foreground opacity-60 shadow-sm transition-opacity hover:text-destructive hover:opacity-100"
+          onClick={() => onRemovePredecessor(feature.id)}
+          style={{ left: Math.round(offset) - 20 }}
+          title="Quitar predecesora"
+          type="button"
+        >
+          <Unlink2Icon size={10} />
+        </button>
+      )}
       <div
         className="pointer-events-auto absolute top-0.5"
         style={{
@@ -984,6 +1031,7 @@ export const GanttFeatureItem: FC<GanttFeatureItemProps> = ({
             id={feature.id}
             onDoubleClick={onDoubleClick}
             onLinkPredecessor={onLinkPredecessor}
+            selected={selected}
           >
             {children ?? (
               <p

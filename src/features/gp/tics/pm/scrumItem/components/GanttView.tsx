@@ -61,6 +61,7 @@ function toFeature(item: ScrumItemResource, startAt: Date, endAt: Date): GanttFe
     endAt,
     status: makeGanttStatus(item.status),
     itemType: item.type,
+    hasPredecessor: item.predecessor_id != null,
   };
 }
 
@@ -191,6 +192,18 @@ export function GanttView({
   const [range, setRange] = useState<Range>("monthly");
   const [zoom, setZoom] = useState(100);
 
+  const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
+
+  const handleToggleSelect = useCallback((id: string) => {
+    const itemId = parseInt(id);
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(itemId)) next.delete(itemId);
+      else next.add(itemId);
+      return next;
+    });
+  }, []);
+
   const updateMutation = useMutation({
     mutationFn: ({
       id,
@@ -207,9 +220,33 @@ export function GanttView({
     },
   });
 
+  // Mueve varios items a la vez (hijos de una historia arrastrada, o el
+  // resto de la selección múltiple), todos desplazados el mismo delta de
+  // días que el item que el usuario soltó.
+  const bulkMoveMutation = useMutation({
+    mutationFn: (updates: { id: number; start_date: string; due_date: string }[]) =>
+      Promise.all(
+        updates.map((u) =>
+          updateScrumItem(u.id, { start_date: u.start_date, due_date: u.due_date }),
+        ),
+      ),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["scrumItem"] });
+      queryClient.invalidateQueries({ queryKey: ["scrumKanban"] });
+    },
+  });
+
   const linkPredecessorMutation = useMutation({
     mutationFn: ({ id, predecessor_id }: { id: number; predecessor_id: number }) =>
       updateScrumItem(id, { predecessor_id }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["scrumItem"] });
+      queryClient.invalidateQueries({ queryKey: ["scrumKanban"] });
+    },
+  });
+
+  const removePredecessorMutation = useMutation({
+    mutationFn: (id: number) => updateScrumItem(id, { predecessor_id: null }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["scrumItem"] });
       queryClient.invalidateQueries({ queryKey: ["scrumKanban"] });
@@ -280,27 +317,95 @@ export function GanttView({
 
   const allFeatures = useMemo(() => Array.from(featuresByItemId.values()), [featuresByItemId]);
 
+  // Junta, para un item que se movió `deltaDays`, los updates de todos sus
+  // hijos directos (tareas de una historia) que también deben desplazarse
+  // la misma cantidad de días. Muta `updates`/`movedIds` in-place para poder
+  // encadenarse fácilmente entre la historia arrastrada y las historias que
+  // vinieron con ella por selección múltiple.
+  const collectChildShifts = useCallback(
+    (
+      parentId: number,
+      deltaDays: number,
+      updates: { id: number; start_date: string; due_date: string }[],
+      movedIds: Set<number>,
+    ) => {
+      for (const child of items.filter((i) => i.parent_id === parentId)) {
+        if (movedIds.has(child.id)) continue;
+        const childStart = parseDate(child.start_date);
+        const childDue = parseDate(child.due_date);
+        if (!childStart || !childDue) continue;
+        updates.push({
+          id: child.id,
+          start_date: format(addDays(childStart, deltaDays), "yyyy-MM-dd"),
+          due_date: format(addDays(childDue, deltaDays), "yyyy-MM-dd"),
+        });
+        movedIds.add(child.id);
+      }
+    },
+    [items],
+  );
+
   const handleMove = useCallback(
     (id: string, startAt: Date, endAt: Date | null) => {
       if (!endAt) return;
       const itemId = parseInt(id);
       const item = items.find((i) => i.id === itemId);
+      if (!item) return;
       const newStartDate = format(startAt, "yyyy-MM-dd");
       const newDueDate = format(endAt, "yyyy-MM-dd");
       const sameStart =
-        item?.start_date &&
+        item.start_date &&
         format(parseDate(item.start_date)!, "yyyy-MM-dd") === newStartDate;
       const sameDue =
-        item?.due_date &&
+        item.due_date &&
         format(parseDate(item.due_date)!, "yyyy-MM-dd") === newDueDate;
       if (sameStart && sameDue) return;
-      updateMutation.mutate({
-        id: itemId,
-        start_date: newStartDate,
-        due_date: newDueDate,
-      });
+
+      const oldStart = parseDate(item.start_date) ?? startAt;
+      const deltaDays = Math.round(
+        (startAt.getTime() - oldStart.getTime()) / 86400000,
+      );
+
+      const updates: { id: number; start_date: string; due_date: string }[] = [
+        { id: itemId, start_date: newStartDate, due_date: newDueDate },
+      ];
+      const movedIds = new Set<number>([itemId]);
+
+      // Mover una historia arrastra a sus tareas (hijas) con ella.
+      if (item.type === "historia" && deltaDays !== 0) {
+        collectChildShifts(itemId, deltaDays, updates, movedIds);
+      }
+
+      // Si el item movido forma parte de una selección múltiple, el resto
+      // de la selección (y las tareas de cada historia seleccionada) se
+      // desplaza el mismo delta.
+      if (selectedIds.has(itemId) && selectedIds.size > 1 && deltaDays !== 0) {
+        for (const otherId of selectedIds) {
+          if (movedIds.has(otherId)) continue;
+          const other = items.find((i) => i.id === otherId);
+          if (!other) continue;
+          const otherStart = parseDate(other.start_date);
+          const otherDue = parseDate(other.due_date);
+          if (!otherStart || !otherDue) continue;
+          updates.push({
+            id: other.id,
+            start_date: format(addDays(otherStart, deltaDays), "yyyy-MM-dd"),
+            due_date: format(addDays(otherDue, deltaDays), "yyyy-MM-dd"),
+          });
+          movedIds.add(other.id);
+          if (other.type === "historia") {
+            collectChildShifts(other.id, deltaDays, updates, movedIds);
+          }
+        }
+      }
+
+      if (updates.length === 1) {
+        updateMutation.mutate(updates[0]);
+      } else {
+        bulkMoveMutation.mutate(updates);
+      }
     },
-    [updateMutation, items],
+    [updateMutation, bulkMoveMutation, items, selectedIds, collectChildShifts],
   );
 
   const handleLinkPredecessor = useCallback(
@@ -312,6 +417,13 @@ export function GanttView({
       linkPredecessorMutation.mutate({ id, predecessor_id });
     },
     [linkPredecessorMutation, items],
+  );
+
+  const handleRemovePredecessor = useCallback(
+    (id: string) => {
+      removePredecessorMutation.mutate(parseInt(id));
+    },
+    [removePredecessorMutation],
   );
 
   const scrollToDate = useCallback(
@@ -395,6 +507,26 @@ export function GanttView({
         onGoToMonth={goToMonth}
       />
 
+      {selectedIds.size > 0 && (
+        <div className="flex items-center gap-2 px-3 py-1.5 border-b bg-primary/5 text-xs shrink-0">
+          <span className="font-medium">
+            {selectedIds.size} item{selectedIds.size !== 1 ? "s" : ""} seleccionado
+            {selectedIds.size !== 1 ? "s" : ""}
+          </span>
+          <span className="text-muted-foreground">
+            — al arrastrar cualquiera de ellos, todos se mueven juntos
+          </span>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-6 px-2 text-xs ml-auto"
+            onClick={() => setSelectedIds(new Set())}
+          >
+            Deseleccionar
+          </Button>
+        </div>
+      )}
+
       {/* Gantt */}
       <div className="flex-1 min-h-0">
         <GanttProvider
@@ -420,6 +552,8 @@ export function GanttView({
                         key={item.id}
                         feature={feature}
                         onSelectItem={(id) => onItemClick(parseInt(id))}
+                        selected={selectedIds.has(item.id)}
+                        onToggleSelect={handleToggleSelect}
                       />
                     );
                   })}
@@ -443,6 +577,8 @@ export function GanttView({
                           onMove={handleMove}
                           onDoubleClick={(id) => onItemClick(parseInt(id))}
                           onLinkPredecessor={handleLinkPredecessor}
+                          onRemovePredecessor={handleRemovePredecessor}
+                          selected={selectedIds.has(item.id)}
                           {...feature}
                         />
                       );
