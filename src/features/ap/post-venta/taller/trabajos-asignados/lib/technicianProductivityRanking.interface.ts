@@ -29,11 +29,14 @@ export interface TechnicianProductivityRankingItem {
   worker_id: number;
   worker_dni: string;
   worker_name: string;
+  is_on_leave: boolean;
   has_error: boolean;
   days_worked: number;
   standard_hours: number;
   real_hours: number;
   billed_hours: number;
+  reentry_hours?: number;
+  effective_billed_hours?: number;
   productivity_hours: number;
   productivity_percentage: number;
   earnings: number;

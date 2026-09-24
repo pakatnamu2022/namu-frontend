@@ -10,21 +10,16 @@ import {
   TechnicianProductivityWorkOrder,
   TechnicianProductivityWorkOrderWithoutLabour,
 } from "../lib/technicianProductivity.interface";
-import ProductivityWorkOrderDetailSheet from "@/features/ap/post-venta/indicadores-y-reportes/productividad-dashboard/components/ProductivityWorkOrderDetailSheet";
+
+const getWorkOrderManageUrl = (workOrderId: number) =>
+  `/ap/post-venta/taller/orden-trabajo/gestionar/${workOrderId}`;
 
 interface TechnicianProductivityWorkOrderCardsProps {
   workOrders: TechnicianProductivityWorkOrder[];
   workOrdersWithoutLabour: TechnicianProductivityWorkOrderWithoutLabour[];
-  nameTechnician: string;
 }
 
-function WorkOrderCard({
-  wo,
-  onViewWorkOrder,
-}: {
-  wo: TechnicianProductivityWorkOrder;
-  onViewWorkOrder: (workOrderId: number) => void;
-}) {
+function WorkOrderCard({ wo }: { wo: TechnicianProductivityWorkOrder }) {
   const horasFacturadasTecnico = wo.trabajos.reduce(
     (sum, trabajo) => sum + trabajo.horas_facturadas_tecnico,
     0,
@@ -35,13 +30,14 @@ function WorkOrderCard({
       <CardContent className="p-4 space-y-3">
         <div className="flex items-start justify-between gap-2">
           <div>
-            <button
-              type="button"
-              onClick={() => onViewWorkOrder(wo.work_order_id)}
+            <a
+              href={getWorkOrderManageUrl(wo.work_order_id)}
+              target="_blank"
+              rel="noopener noreferrer"
               className="font-semibold text-sm text-primary hover:underline"
             >
               {wo.work_order_number}
-            </button>
+            </a>
             <div className="flex items-center gap-1 text-xs text-muted-foreground mt-0.5">
               <CalendarDays className="size-3" />
               {formatDate(wo.fecha_facturacion)}
@@ -93,23 +89,22 @@ function WorkOrderCard({
 
 function WorkOrderWithoutLabourCard({
   wo,
-  onViewWorkOrder,
 }: {
   wo: TechnicianProductivityWorkOrderWithoutLabour;
-  onViewWorkOrder: (workOrderId: number) => void;
 }) {
   return (
     <Card className="border-amber-200 bg-amber-50/40">
       <CardContent className="p-4 space-y-2">
         <div className="flex items-start justify-between gap-2">
           <div>
-            <button
-              type="button"
-              onClick={() => onViewWorkOrder(wo.work_order_id)}
+            <a
+              href={getWorkOrderManageUrl(wo.work_order_id)}
+              target="_blank"
+              rel="noopener noreferrer"
               className="font-semibold text-sm text-primary hover:underline"
             >
               {wo.work_order_number}
-            </button>
+            </a>
             <div className="flex items-center gap-1 text-xs text-muted-foreground mt-0.5">
               <CalendarDays className="size-3" />
               {formatDate(wo.fecha_facturacion)}
@@ -162,12 +157,8 @@ function matchesSearch(
 export default function TechnicianProductivityWorkOrderCards({
   workOrders,
   workOrdersWithoutLabour,
-  nameTechnician,
 }: TechnicianProductivityWorkOrderCardsProps) {
   const [search, setSearch] = useState("");
-  const [selectedWorkOrderId, setSelectedWorkOrderId] = useState<number | null>(
-    null,
-  );
 
   const normalizedSearch = normalizeSearchValue(search);
 
@@ -204,11 +195,7 @@ export default function TechnicianProductivityWorkOrderCards({
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3">
             {filteredWorkOrders.map((wo, index) => (
-              <WorkOrderCard
-                key={`${wo.work_order_id}-${index}`}
-                wo={wo}
-                onViewWorkOrder={setSelectedWorkOrderId}
-              />
+              <WorkOrderCard key={`${wo.work_order_id}-${index}`} wo={wo} />
             ))}
           </div>
         )}
@@ -226,18 +213,11 @@ export default function TechnicianProductivityWorkOrderCards({
               <WorkOrderWithoutLabourCard
                 key={`${wo.work_order_id}-${index}`}
                 wo={wo}
-                onViewWorkOrder={setSelectedWorkOrderId}
               />
             ))}
           </div>
         </div>
       )}
-
-      <ProductivityWorkOrderDetailSheet
-        workOrderId={selectedWorkOrderId}
-        nameTechnician={nameTechnician}
-        onClose={() => setSelectedWorkOrderId(null)}
-      />
     </div>
   );
 }

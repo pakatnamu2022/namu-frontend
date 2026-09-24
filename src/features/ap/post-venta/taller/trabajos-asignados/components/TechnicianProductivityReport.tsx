@@ -30,6 +30,7 @@ import TechnicianProductivitySummaryCards from "./TechnicianProductivitySummaryC
 import TechnicianProductivityCharts from "./TechnicianProductivityCharts";
 import TechnicianProductivityWorkOrderCards from "./TechnicianProductivityWorkOrderCards";
 import TechnicianProductivityRankingCharts from "./TechnicianProductivityRankingCharts";
+import TechnicianProductivityRankingTable from "./TechnicianProductivityRankingTable";
 import { WORK_ORDER_PLANNING_SESSION } from "../lib/assignedWork.constants";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
 
@@ -170,7 +171,10 @@ export default function TechnicianProductivityReport() {
     data: rankingData,
     isLoading: isLoadingRanking,
     isError: isRankingError,
-  } = useTechnicianProductivityRanking(rankingFilters, viewMode === "ranking");
+  } = useTechnicianProductivityRanking(
+    rankingFilters,
+    viewMode === "ranking" || viewMode === "personal",
+  );
   const rankingDetail = rankingData?.data?.technician_detail;
 
   return (
@@ -263,8 +267,14 @@ export default function TechnicianProductivityReport() {
               <TechnicianProductivityWorkOrderCards
                 workOrders={detail.work_orders}
                 workOrdersWithoutLabour={detail.work_orders_without_labour}
-                nameTechnician={detail.technician_info.worker_name}
               />
+
+              {!isLoadingRanking && rankingDetail && rankingDetail.length > 0 && (
+                <TechnicianProductivityRankingTable
+                  data={rankingDetail}
+                  currentPartnerId={user?.partner_id ?? null}
+                />
+              )}
             </div>
           )}
         </>
