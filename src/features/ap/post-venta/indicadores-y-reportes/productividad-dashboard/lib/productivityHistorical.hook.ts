@@ -1,9 +1,10 @@
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   compareProductivityYears,
   getProductivityAnnualTrends,
   getProductivityMonthSnapshot,
   getProductivityMultiYearSummary,
+  regenerateProductivitySnapshot,
 } from "./productivityHistorical.actions";
 import {
   ProductivityAnnualTrendsResponse,
@@ -14,7 +15,9 @@ import {
   ProductivityMonthSnapshotResponse,
   ProductivityMultiYearSummaryFilters,
   ProductivityMultiYearSummaryResponse,
+  ProductivityRegenerateSnapshotResponse,
 } from "./productivityHistorical.interface";
+import { errorToast, successToast } from "@/core/core.function";
 
 export const PRODUCTIVITY_ANNUAL_TRENDS_QUERY_KEY = "productivityAnnualTrends";
 export const PRODUCTIVITY_COMPARE_YEARS_QUERY_KEY = "productivityCompareYears";
@@ -82,5 +85,34 @@ export const useProductivityMultiYearSummary = (
       filters.sede_id ?? "all",
     ],
     queryFn: () => getProductivityMultiYearSummary(filters),
+  });
+};
+
+export const useRegenerateProductivitySnapshot = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation<ProductivityRegenerateSnapshotResponse>({
+    mutationFn: regenerateProductivitySnapshot,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: [PRODUCTIVITY_ANNUAL_TRENDS_QUERY_KEY],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [PRODUCTIVITY_COMPARE_YEARS_QUERY_KEY],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [PRODUCTIVITY_MONTH_SNAPSHOT_QUERY_KEY],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [PRODUCTIVITY_MULTI_YEAR_SUMMARY_QUERY_KEY],
+      });
+      successToast("Datos históricos actualizados correctamente");
+    },
+    onError: (error: any) => {
+      const errorMessage =
+        error?.response?.data?.message ||
+        "Error al actualizar los datos históricos";
+      errorToast(errorMessage);
+    },
   });
 };

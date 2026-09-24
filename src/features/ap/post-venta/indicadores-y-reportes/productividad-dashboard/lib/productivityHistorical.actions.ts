@@ -9,6 +9,7 @@ import {
   ProductivityMonthSnapshotResponse,
   ProductivityMultiYearSummaryFilters,
   ProductivityMultiYearSummaryResponse,
+  ProductivityRegenerateSnapshotResponse,
 } from "./productivityHistorical.interface";
 
 const BASE_ENDPOINT = "/ap/postVenta/dashboard/productivity/historical";
@@ -77,6 +78,13 @@ export async function getProductivityMultiYearSummary(
   const { data } = await api.get<ProductivityMultiYearSummaryResponse>(
     `${BASE_ENDPOINT}/summary`,
     config,
+  );
+  return data;
+}
+
+export async function regenerateProductivitySnapshot(): Promise<ProductivityRegenerateSnapshotResponse> {
+  const { data } = await api.post<ProductivityRegenerateSnapshotResponse>(
+    `${BASE_ENDPOINT}/regenerate`,
   );
   return data;
 }

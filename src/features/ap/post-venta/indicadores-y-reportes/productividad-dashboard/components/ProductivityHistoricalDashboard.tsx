@@ -10,7 +10,7 @@ import TitleComponent from "@/shared/components/TitleComponent";
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
 import { useScopedFilters } from "@/shared/hooks/useScopedFilters";
-import { currentYear } from "@/core/core.function";
+import { currentYear, formatDateTime } from "@/core/core.function";
 import ProductivityHistoricalFilters from "./ProductivityHistoricalFilters";
 import ProductivityHistoricalKpiCards from "./ProductivityHistoricalKpiCards";
 import ProductivityTrendChart from "./ProductivityTrendChart";
@@ -25,6 +25,7 @@ import {
   useProductivityCompareYears,
   useProductivityMonthSnapshot,
   useProductivityMultiYearSummary,
+  useRegenerateProductivitySnapshot,
   PRODUCTIVITY_ANNUAL_TRENDS_QUERY_KEY,
   PRODUCTIVITY_MONTH_SNAPSHOT_QUERY_KEY,
   PRODUCTIVITY_MULTI_YEAR_SUMMARY_QUERY_KEY,
@@ -122,7 +123,19 @@ export default function ProductivityHistoricalDashboard({
   const { data: compareData, isLoading: isLoadingCompare } =
     useProductivityCompareYears(compareFilters);
 
+  const { mutateAsync: regenerateSnapshot, isPending: isRegenerating } =
+    useRegenerateProductivitySnapshot();
+
   const handleRefresh = async () => {
+    // Regenera la snapshot en el backend (recalcula la data histórica) y luego
+    // invalida las queries para traer los datos ya actualizados. Si falla la
+    // regeneración, el error ya se notifica en el hook y no tiene sentido
+    // refrescar queries con la data anterior.
+    try {
+      await regenerateSnapshot();
+    } catch {
+      return;
+    }
     await queryClient.invalidateQueries({
       queryKey: [PRODUCTIVITY_ANNUAL_TRENDS_QUERY_KEY],
     });
@@ -144,7 +157,13 @@ export default function ProductivityHistoricalDashboard({
         title="Dashboard de Productividad"
         subtitle={
           trendsData?.data
-            ? `Tendencia Anual · ${trendsData.data.sede_name}`
+            ? `Tendencia Anual · ${trendsData.data.sede_name}${
+                trendsData.data.last_update
+                  ? ` · Última actualización: ${formatDateTime(
+                      trendsData.data.last_update,
+                    )}`
+                  : ""
+              }`
             : "Postventa · Taller · Tendencia Anual"
         }
         icon={currentView?.icon || "Gauge"}
@@ -174,6 +193,7 @@ export default function ProductivityHistoricalDashboard({
           onYearChange={setYear}
           onSedeChange={setSedeId}
           onRefresh={handleRefresh}
+          isRefreshing={isRegenerating}
         />
 
         <Button
