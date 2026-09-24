@@ -222,6 +222,7 @@ export default function KanbanPage() {
         priority: data.priority,
         story_points: data.story_points ? Number(data.story_points) : null,
         estimated_hours: data.estimated_hours ? Number(data.estimated_hours) : null,
+        start_date: data.start_date || null,
         due_date: data.due_date || null,
         assigned_to: data.assigned_to ? Number(data.assigned_to) : null,
       }),
