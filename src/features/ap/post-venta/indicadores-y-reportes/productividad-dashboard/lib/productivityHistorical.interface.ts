@@ -41,6 +41,7 @@ export interface ProductivityAnnualTrendsData {
   sede_id: number | null;
   sede_name: string;
   period_count: number;
+  last_update: string | null;
   trends: ProductivityHistoricalTrends;
   summary: ProductivityHistoricalSummaryStats;
 }
@@ -48,6 +49,11 @@ export interface ProductivityAnnualTrendsData {
 export interface ProductivityAnnualTrendsResponse {
   success: boolean;
   data: ProductivityAnnualTrendsData;
+}
+
+export interface ProductivityRegenerateSnapshotResponse {
+  success: boolean;
+  message?: string;
 }
 
 export interface ProductivityCompareYearsFilters {
