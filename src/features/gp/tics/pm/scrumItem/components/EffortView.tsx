@@ -20,11 +20,11 @@ interface WeekContribution {
   points: number;
 }
 
-interface WeekPoint {
+type WeekPoint = {
   name: string;
   value: number;
   weekKey: string;
-}
+};
 
 // El esfuerzo de una semana es la suma de story points de las tareas activas
 // en esa semana (repartiendo el punto de cada tarea entre los días de su

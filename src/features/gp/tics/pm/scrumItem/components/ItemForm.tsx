@@ -11,7 +11,7 @@ import { DateRangePickerFormField } from "@/shared/components/DateRangePickerFor
 import { scrumItemSchema, ScrumItemSchema } from "../lib/scrumItem.schema";
 import { ScrumProjectResource } from "@/features/gp/tics/pm/scrumProject/lib/scrumProject.interface";
 import { ScrumSprintResource } from "@/features/gp/tics/pm/scrumSprint/lib/scrumSprint.interface";
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo } from "react";
 import { useWatch } from "react-hook-form";
 import { addDays, differenceInCalendarDays } from "date-fns";
 import { getTodayLocalDateString, toDateOrUndefined, toLocalDateString } from "@/core/core.function";
