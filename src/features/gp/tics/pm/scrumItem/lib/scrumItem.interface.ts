@@ -26,14 +26,6 @@ export interface ScrumItemTag {
   color?: BadgeColor;
 }
 
-export interface ScrumItemChild {
-  id: number;
-  parent_id: number;
-  title: string;
-  status: ScrumItemStatus;
-  order: number;
-}
-
 export interface ScrumKanbanItem {
   id: number;
   title: string;
@@ -44,7 +36,8 @@ export interface ScrumKanbanItem {
   story_points?: number;
   assignee?: ScrumItemAssignee;
   tags: ScrumItemTag[];
-  children: ScrumItemChild[];
+  parent_id?: number;
+  parent?: { id: number; title: string };
 }
 
 export interface ScrumKanbanResponse {
@@ -66,11 +59,13 @@ export interface ScrumItemResource {
   project_id: number;
   sprint_id?: number;
   parent_id?: number;
+  predecessor_id?: number | null;
   assigned_to?: number;
   assignee?: ScrumItemAssignee;
   creator?: ScrumItemAssignee;
   tags: ScrumItemTag[];
   children_count?: number;
+  start_date?: string;
   due_date?: string;
   estimated_hours?: number;
   actual_hours?: number;
@@ -115,6 +110,12 @@ export interface ScrumItemParentSummary {
   title: string;
 }
 
+export interface ScrumItemPredecessorSummary {
+  id: number;
+  title: string;
+  due_date?: string;
+}
+
 export interface ScrumItemDetail extends ScrumItemResource {
   description?: string;
   project: ScrumItemProjectSummary;
@@ -124,12 +125,15 @@ export interface ScrumItemDetail extends ScrumItemResource {
   watchers: ScrumItemAssignee[];
   comments: ScrumItemComment[];
   history: ScrumItemHistoryEntry[];
+  predecessor?: ScrumItemPredecessorSummary | null;
+  successors?: ScrumItemPredecessorSummary[];
 }
 
 export interface ScrumItemRequest {
   project_id: number;
   sprint_id?: number | null;
   parent_id?: number | null;
+  predecessor_id?: number | null;
   type: ScrumItemType;
   title: string;
   description?: string;
@@ -139,6 +143,7 @@ export interface ScrumItemRequest {
   story_points?: number | null;
   estimated_hours?: number | null;
   actual_hours?: number | null;
+  start_date?: string | null;
   due_date?: string | null;
   tag_ids?: number[];
 }

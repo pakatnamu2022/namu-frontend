@@ -53,3 +53,36 @@ export interface ScrumProjectRequest {
   color?: string;
   status?: "activo" | "archivado";
 }
+
+export interface ScrumProjectGanttItem {
+  id: number;
+  parent_id?: number | null;
+  parent_title?: string | null;
+  parent_in_same_sprint?: boolean | null;
+  title: string;
+  type: string;
+  status: string;
+  priority?: string;
+  assignee?: string | null;
+  start_at: string;
+  end_at: string;
+  progress: number;
+}
+
+export interface ScrumProjectGanttSprint {
+  id: number;
+  name: string;
+  kind: "dev" | "test";
+  start_date: string | null;
+  end_date: string | null;
+  status: "planeado" | "activo" | "cerrado";
+  items: ScrumProjectGanttItem[];
+}
+
+export interface ScrumProjectGantt {
+  project: { id: number; name: string; color?: string; status: string };
+  range: { start: string | null; end: string | null };
+  sprints: ScrumProjectGanttSprint[];
+  backlog: ScrumProjectGanttItem[];
+  generated_at: string;
+}

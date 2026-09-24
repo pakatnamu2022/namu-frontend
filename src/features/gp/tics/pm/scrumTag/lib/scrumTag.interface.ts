@@ -10,3 +10,9 @@ export interface ScrumTagRequest {
   color?: string;
   project_id?: number;
 }
+
+export interface ScrumTagResponse {
+  data: ScrumTagResource[];
+  links?: Record<string, unknown>;
+  meta?: Record<string, unknown>;
+}

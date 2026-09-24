@@ -8,8 +8,13 @@ const { ENDPOINT } = SCRUM_TAG;
 export async function getScrumTags(
   projectId?: number
 ): Promise<ScrumTagResource[]> {
+  // Con all=true el backend devuelve el arreglo de tags directo (sin envolver
+  // en { data: [...] }), a diferencia del listado paginado normal.
   const { data } = await api.get<ScrumTagResource[]>(ENDPOINT, {
-    params: projectId !== undefined ? { project_id: projectId } : undefined,
+    params: {
+      all: "true",
+      ...(projectId !== undefined ? { project_id: projectId } : {}),
+    },
   });
   return data;
 }
