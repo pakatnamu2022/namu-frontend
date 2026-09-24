@@ -56,8 +56,11 @@ export async function downloadScrumProjectGanttPdf(
   id: number,
   projectName: string
 ): Promise<void> {
+  // Cache-busting: la URL es siempre la misma, y sin esto el navegador
+  // podía servir una descarga vieja cacheada en vez de pedir el PDF actual.
   const response = await api.get(`${ENDPOINT}/${id}/gantt/pdf`, {
     responseType: "blob",
+    params: { _: Date.now() },
   });
 
   const blob = new Blob([response.data], { type: "application/pdf" });
