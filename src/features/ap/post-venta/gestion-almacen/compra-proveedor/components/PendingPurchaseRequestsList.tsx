@@ -130,7 +130,7 @@ export const PendingPurchaseRequestsList = ({
                     <CardContent className="p-3">
                       <div className="flex items-start justify-between gap-3">
                         <div className="flex-1 min-w-0 space-y-1">
-                          <p className="font-semibold text-sm truncate">
+                          <p className="font-semibold text-sm wrap-break-word">
                             {detail.product_name}
                           </p>
                           <p className="text-xs text-muted-foreground">
