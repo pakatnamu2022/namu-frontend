@@ -40,7 +40,8 @@ import {
   reorderScrumItems,
 } from "@/features/gp/tics/pm/scrumItem/lib/scrumItem.actions";
 import { STATUS_LABEL } from "@/features/gp/tics/pm/pm.constants";
-import { errorToast, successToast } from "@/core/core.function";
+import { errorToast, successToast, getErrorMessage } from "@/core/core.function";
+import { addWorkingDays, countWorkingDays, nextWorkingDay } from "../lib/workingHours";
 
 const STATUS_HEX: Record<ScrumItemStatus, string> = {
   backlog: "#94a3b8",
@@ -93,75 +94,6 @@ function computeReorderedIds(
     ...draggedInOriginalOrder,
     ...remaining.slice(insertAt),
   ];
-}
-
-interface ChainRelink {
-  /** Historia que antes tenía a la movida como predecesora: hay que
-   *  "puentearla" hacia lo que era la predecesora vieja ANTES de tocar la
-   *  fecha de la movida, para que el cascadeo de due_date del backend
-   *  (ScrumItemService::cascadeDueDateShift) no le caiga encima a un
-   *  sucesor que está a punto de dejar de serlo. */
-  bridgeUpdate: { id: number; predecessor_id: number | null } | null;
-  newPredecessorId: number | null;
-  predecessorChanged: boolean;
-  /** Historia que pasa a tener a la movida como predecesora en su nueva
-   *  posición. Se aplica DESPUÉS del cambio de fecha. */
-  successorUpdate: { id: number; predecessor_id: number } | null;
-}
-
-// Al arrastrar una historia a una fecha nueva, la reinserta en la cadena de
-// predecesoras historia-con-historia según su nueva posición cronológica (no
-// según el orden de prioridad original con el que se sembró): la saca de
-// donde estaba (reconectando a su antigua predecesora con su antiguo
-// sucesor) y la intercala entre las dos historias con fecha más cercana a su
-// nuevo inicio. Así la flecha del Gantt siempre sigue el orden visual real
-// en vez de quedar "saltando" hacia atrás en el tiempo.
-function computeChainRelink(
-  movedItem: ScrumItemResource,
-  newStartAt: Date,
-  items: ScrumItemResource[],
-  featuresByItemId: Map<number, GanttFeature>,
-): ChainRelink {
-  const movedId = movedItem.id;
-  const historias = items.filter((i) => i.type === "historia" && i.id !== movedId);
-
-  const dated = historias
-    .map((i) => {
-      const startAt = featuresByItemId.get(i.id)?.startAt ?? parseDate(i.start_date);
-      return startAt ? { item: i, startAt } : null;
-    })
-    .filter((x): x is { item: ScrumItemResource; startAt: Date } => x !== null)
-    .sort((a, b) => a.startAt.getTime() - b.startAt.getTime());
-
-  let newPredecessor: ScrumItemResource | null = null;
-  let newSuccessor: ScrumItemResource | null = null;
-  for (const { item: candidate, startAt } of dated) {
-    if (startAt.getTime() <= newStartAt.getTime()) {
-      newPredecessor = candidate;
-    } else if (!newSuccessor) {
-      newSuccessor = candidate;
-    }
-  }
-
-  const oldPredecessorId = movedItem.predecessor_id ?? null;
-  const oldSuccessor = historias.find((i) => i.predecessor_id === movedId) ?? null;
-  const newPredecessorId = newPredecessor ? newPredecessor.id : null;
-  const newSuccessorId = newSuccessor ? newSuccessor.id : null;
-  const oldSuccessorId = oldSuccessor ? oldSuccessor.id : null;
-  const successorChanged = oldSuccessorId !== newSuccessorId;
-
-  return {
-    bridgeUpdate:
-      successorChanged && oldSuccessor
-        ? { id: oldSuccessor.id, predecessor_id: oldPredecessorId }
-        : null,
-    newPredecessorId,
-    predecessorChanged: oldPredecessorId !== newPredecessorId,
-    successorUpdate:
-      successorChanged && newSuccessor
-        ? { id: newSuccessor.id, predecessor_id: movedId }
-        : null,
-  };
 }
 
 function makeGanttStatus(status: ScrumItemStatus): GanttStatus {
@@ -403,16 +335,19 @@ export function GanttView({
       start_date,
       due_date,
       predecessor_id,
+      sprint_id,
     }: {
       id: number;
       start_date: string;
       due_date: string;
       predecessor_id?: number | null;
+      sprint_id?: number;
     }) =>
       updateScrumItem(id, {
         start_date,
         due_date,
         ...(predecessor_id !== undefined ? { predecessor_id } : {}),
+        ...(sprint_id !== undefined ? { sprint_id } : {}),
       }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["scrumItem"] });
@@ -420,9 +355,12 @@ export function GanttView({
     },
   });
 
-  // Re-enlaza la cadena de predecesoras entre historias (ver
-  // computeChainRelink). Solo toca `predecessor_id`, nunca `due_date`, así
-  // que nunca dispara el cascadeo de fechas del backend por sí sola.
+  // Re-enlaza `predecessor_id` de uno o más items SIN tocar `due_date`, para
+  // no disparar el cascadeo de fechas del backend
+  // (ScrumItemService::cascadeDueDateShift) antes de que corresponda. Se usa
+  // para "puentear" a terceros durante un swap de orden (ver
+  // handleChangePredecessor) antes de mover las fechas de las dos historias
+  // involucradas.
   const relinkMutation = useMutation({
     mutationFn: (updates: { id: number; predecessor_id: number | null }[]) =>
       Promise.all(
@@ -559,67 +497,6 @@ export function GanttView({
     return map;
   }, [sprints, itemsBySprint, itemsById]);
 
-  // Drag-and-drop para reordenar filas en el sidebar del Gantt. `dragInfo`
-  // guarda qué ids se están moviendo (varios si el item arrastrado forma
-  // parte de la selección múltiple) y a qué sprint pertenecen, para no
-  // permitir soltar en un sprint distinto.
-  const [dragInfo, setDragInfo] = useState<{ ids: number[]; sprintId: number } | null>(null);
-  const [dropTarget, setDropTarget] = useState<{ id: number; position: "before" | "after" } | null>(
-    null,
-  );
-
-  const handleReorderDragStart = useCallback(
-    (id: string, sprintId: number, event: DragEvent<HTMLDivElement>) => {
-      const itemId = parseInt(id);
-      const ids =
-        selectedIds.has(itemId) && selectedIds.size > 1 ? Array.from(selectedIds) : [itemId];
-      setDragInfo({ ids, sprintId });
-      event.dataTransfer.effectAllowed = "move";
-      event.dataTransfer.setData("text/plain", String(itemId));
-    },
-    [selectedIds],
-  );
-
-  const handleReorderDragOver = useCallback(
-    (id: string, sprintId: number, event: DragEvent<HTMLDivElement>) => {
-      if (!dragInfo || dragInfo.sprintId !== sprintId) return;
-      const itemId = parseInt(id);
-      if (dragInfo.ids.includes(itemId)) return;
-      event.preventDefault();
-      const rect = event.currentTarget.getBoundingClientRect();
-      const position: "before" | "after" =
-        event.clientY < rect.top + rect.height / 2 ? "before" : "after";
-      setDropTarget((prev) =>
-        prev?.id === itemId && prev.position === position ? prev : { id: itemId, position },
-      );
-    },
-    [dragInfo],
-  );
-
-  const handleReorderDrop = useCallback(
-    (id: string, sprintId: number, event: DragEvent<HTMLDivElement>) => {
-      event.preventDefault();
-      const targetId = parseInt(id);
-      if (dragInfo && dragInfo.sprintId === sprintId && !dragInfo.ids.includes(targetId)) {
-        const currentIds = (sortedItemsBySprint[sprintId] ?? []).map((i) => i.id);
-        const position = dropTarget?.id === targetId ? dropTarget.position : "before";
-        const newIds = computeReorderedIds(currentIds, dragInfo.ids, targetId, position);
-        const projectId = items.find((i) => i.id === targetId)?.project_id;
-        if (projectId) {
-          reorderMutation.mutate({ project_id: projectId, sprint_id: sprintId, items: newIds });
-        }
-      }
-      setDragInfo(null);
-      setDropTarget(null);
-    },
-    [dragInfo, dropTarget, sortedItemsBySprint, items, reorderMutation],
-  );
-
-  const handleReorderDragEnd = useCallback(() => {
-    setDragInfo(null);
-    setDropTarget(null);
-  }, []);
-
   // Cada item empieza justo donde termina el anterior en su misma cadena, en
   // vez de que todos partan del inicio del sprint: así el Gantt se ve en
   // escalera real, uno detrás de otro.
@@ -699,14 +576,79 @@ export function GanttView({
     [items, featuresByItemId],
   );
 
+  // Drag-and-drop para reordenar filas en el sidebar del Gantt: solo cambia
+  // el `order` dentro del mismo sprint (reorderMutation), nunca fechas ni
+  // predecesoras. El swap de orden entre historias se hace aparte,
+  // seleccionando dos y usando el botón "Cambiar orden" (ver
+  // handleChangePredecessor).
+  const [dragInfo, setDragInfo] = useState<{ ids: number[]; sprintId: number } | null>(null);
+  const [dropTarget, setDropTarget] = useState<{ id: number; position: "before" | "after" } | null>(
+    null,
+  );
+
+  const handleReorderDragStart = useCallback(
+    (id: string, sprintId: number, event: DragEvent<HTMLDivElement>) => {
+      const itemId = parseInt(id);
+      const ids =
+        selectedIds.has(itemId) && selectedIds.size > 1 ? Array.from(selectedIds) : [itemId];
+      setDragInfo({ ids, sprintId });
+      event.dataTransfer.effectAllowed = "move";
+      event.dataTransfer.setData("text/plain", String(itemId));
+    },
+    [selectedIds],
+  );
+
+  const handleReorderDragOver = useCallback(
+    (id: string, sprintId: number, event: DragEvent<HTMLDivElement>) => {
+      if (!dragInfo || dragInfo.sprintId !== sprintId) return;
+      const itemId = parseInt(id);
+      if (dragInfo.ids.includes(itemId)) return;
+      event.preventDefault();
+      const rect = event.currentTarget.getBoundingClientRect();
+      const position: "before" | "after" =
+        event.clientY < rect.top + rect.height / 2 ? "before" : "after";
+      setDropTarget((prev) =>
+        prev?.id === itemId && prev.position === position ? prev : { id: itemId, position },
+      );
+    },
+    [dragInfo],
+  );
+
+  const handleReorderDrop = useCallback(
+    (id: string, sprintId: number, event: DragEvent<HTMLDivElement>) => {
+      event.preventDefault();
+      const targetId = parseInt(id);
+      const position = dropTarget?.id === targetId ? dropTarget.position : "before";
+
+      if (dragInfo && dragInfo.sprintId === sprintId && !dragInfo.ids.includes(targetId)) {
+        const currentIds = (sortedItemsBySprint[sprintId] ?? []).map((i) => i.id);
+        const newIds = computeReorderedIds(currentIds, dragInfo.ids, targetId, position);
+        const projectId = items.find((i) => i.id === targetId)?.project_id;
+        if (projectId) {
+          reorderMutation.mutate({ project_id: projectId, sprint_id: sprintId, items: newIds });
+        }
+      }
+      setDragInfo(null);
+      setDropTarget(null);
+    },
+    [dragInfo, dropTarget, sortedItemsBySprint, items, reorderMutation],
+  );
+
+  const handleReorderDragEnd = useCallback(() => {
+    setDragInfo(null);
+    setDropTarget(null);
+  }, []);
+
   const handleMove = useCallback(
     (id: string, startAt: Date, endAt: Date | null) => {
       if (!endAt) return;
       const itemId = parseInt(id);
       const item = items.find((i) => i.id === itemId);
       if (!item) return;
+
+      const finalDueAt = endAtToDueDate(endAt);
       const newStartDate = format(startAt, "yyyy-MM-dd");
-      const newDueDate = format(endAtToDueDate(endAt), "yyyy-MM-dd");
+      const newDueDate = format(finalDueAt, "yyyy-MM-dd");
       const sameStart =
         item.start_date &&
         format(parseDate(item.start_date)!, "yyyy-MM-dd") === newStartDate;
@@ -717,9 +659,7 @@ export function GanttView({
 
       const oldStart =
         featuresByItemId.get(itemId)?.startAt ?? parseDate(item.start_date) ?? startAt;
-      const deltaDays = Math.round(
-        (startAt.getTime() - oldStart.getTime()) / 86400000,
-      );
+      const deltaDays = Math.round((startAt.getTime() - oldStart.getTime()) / 86400000);
 
       const updates: { id: number; start_date: string; due_date: string }[] = [
         { id: itemId, start_date: newStartDate, due_date: newDueDate },
@@ -753,58 +693,136 @@ export function GanttView({
         }
       }
 
-      const runRest = () => {
-        const rest = updates.slice(1); // hijos + resto de la selección múltiple, sin la historia arrastrada
-        if (rest.length === 1) {
-          updateMutation.mutate(rest[0]);
-        } else if (rest.length > 1) {
-          bulkMoveMutation.mutate(rest);
-        }
-      };
-
-      // Solo la historia arrastrada directamente se reordena en la cadena de
-      // predecesoras (no las que vienen "de paso" por selección múltiple).
-      const relink =
-        item.type === "historia"
-          ? computeChainRelink(item, startAt, items, featuresByItemId)
-          : null;
-
-      if (!relink || (!relink.bridgeUpdate && !relink.predecessorChanged && !relink.successorUpdate)) {
-        if (updates.length === 1) {
-          updateMutation.mutate(updates[0]);
-        } else {
-          bulkMoveMutation.mutate(updates);
-        }
-        return;
+      if (updates.length === 1) {
+        updateMutation.mutate(updates[0]);
+      } else {
+        bulkMoveMutation.mutate(updates);
       }
-
-      // Hay reordenamiento de cadena: 1) suelta el link viejo (bridge) ANTES
-      // de tocar la fecha, para que el cascadeo de due_date del backend no
-      // le pegue al sucesor que está a punto de dejar de serlo; 2) guarda
-      // fecha + nueva predecesora de la historia movida; 3) engancha a su
-      // nueva sucesora. Los hijos/selección múltiple van aparte, sin esperar
-      // a esta secuencia.
-      (async () => {
-        try {
-          if (relink.bridgeUpdate) {
-            await relinkMutation.mutateAsync([relink.bridgeUpdate]);
-          }
-          await updateMutation.mutateAsync({
-            id: itemId,
-            start_date: newStartDate,
-            due_date: newDueDate,
-            predecessor_id: relink.predecessorChanged ? relink.newPredecessorId : undefined,
-          });
-          if (relink.successorUpdate) {
-            await relinkMutation.mutateAsync([relink.successorUpdate]);
-          }
-        } finally {
-          runRest();
-        }
-      })();
     },
-    [updateMutation, bulkMoveMutation, relinkMutation, items, selectedIds, collectChildShifts, featuresByItemId],
+    [updateMutation, bulkMoveMutation, items, selectedIds, collectChildShifts, featuresByItemId],
   );
+
+  // Intercambia el ORDEN de las DOS historias seleccionadas: la que va
+  // después pasa a ocupar el lugar de la que va antes (y viceversa), con
+  // todo lo que eso implica en la cadena de predecesoras:
+  //   - la de ANTES (EARLIER) le cede su slot a la de DESPUÉS (LATER): LATER
+  //     hereda la predecesora que tenía EARLIER, y arranca justo tras ella.
+  //   - EARLIER pasa a ir justo después de LATER (su nueva sucesora es la
+  //     que antes era su propia predecesora... en la posición, no en la
+  //     entidad): EARLIER.predecessor_id = LATER.id.
+  //   - Cualquier TERCERA historia que dependía de EARLIER ahora depende de
+  //     LATER, y cualquiera que dependía de LATER ahora depende de EARLIER
+  //     (se "sustituye" la identidad de una por la otra en todo el grafo).
+  // Es, literalmente, un swap de posiciones: cada referencia a EARLIER se
+  // reemplaza por LATER y cada referencia a LATER se reemplaza por EARLIER.
+  const handleChangePredecessor = useCallback(async () => {
+    const [idA, idB] = Array.from(selectedIds);
+    const itemA = items.find((i) => i.id === idA);
+    const itemB = items.find((i) => i.id === idB);
+    if (!itemA || !itemB || itemA.type !== "historia" || itemB.type !== "historia") return;
+
+    const startA = featuresByItemId.get(itemA.id)?.startAt ?? parseDate(itemA.start_date);
+    const startB = featuresByItemId.get(itemB.id)?.startAt ?? parseDate(itemB.start_date);
+    if (!startA || !startB) return;
+
+    const [earlier, later] =
+      startA.getTime() <= startB.getTime() ? [itemA, itemB] : [itemB, itemA];
+
+    const sub = (id: number | null): number | null => {
+      if (id === earlier.id) return later.id;
+      if (id === later.id) return earlier.id;
+      return id;
+    };
+
+    const oldPredEarlierId = earlier.predecessor_id ?? null;
+    const oldPredLaterId = later.predecessor_id ?? null;
+
+    // Terceras historias (ni earlier ni later) que dependían de una de las
+    // dos: hay que puentearlas ANTES de tocar las fechas, para que el
+    // cascadeo de due_date del backend no les caiga con datos viejos.
+    const thirdPartyOfEarlier = items.filter(
+      (i) => i.type === "historia" && i.predecessor_id === earlier.id && i.id !== later.id,
+    );
+    const thirdPartyOfLater = items.filter(
+      (i) => i.type === "historia" && i.predecessor_id === later.id && i.id !== earlier.id,
+    );
+    const bridgeUpdates = [
+      ...thirdPartyOfEarlier.map((i) => ({ id: i.id, predecessor_id: later.id })),
+      ...thirdPartyOfLater.map((i) => ({ id: i.id, predecessor_id: earlier.id })),
+    ];
+
+    // LATER toma el slot de EARLIER: hereda su predecesora y arranca justo
+    // después de ella (o conserva la fecha de EARLIER si esta no tenía
+    // predecesora, por ser la primera de la cadena).
+    const newPredOfLaterId = sub(oldPredEarlierId);
+    const newPredOfLaterItem = newPredOfLaterId ? items.find((i) => i.id === newPredOfLaterId) : null;
+    const newPredOfLaterDue = newPredOfLaterItem ? parseDate(newPredOfLaterItem.due_date) : null;
+
+    const laterOldStart = parseDate(later.start_date);
+    const laterOldDue = parseDate(later.due_date);
+    const laterDuration = laterOldStart && laterOldDue ? countWorkingDays(laterOldStart, laterOldDue) : 1;
+
+    const earlierOldStart = parseDate(earlier.start_date);
+    const laterNewStart = newPredOfLaterDue
+      ? nextWorkingDay(addDays(newPredOfLaterDue, 1))
+      : (earlierOldStart ?? new Date());
+    const laterNewDue = addWorkingDays(laterNewStart, laterDuration);
+
+    // EARLIER pasa a ir justo después de LATER, conservando su propia
+    // duración original.
+    const earlierOldDue = parseDate(earlier.due_date);
+    const earlierDuration = earlierOldStart && earlierOldDue ? countWorkingDays(earlierOldStart, earlierOldDue) : 1;
+    const earlierNewStart = nextWorkingDay(addDays(laterNewDue, 1));
+    const earlierNewDue = addWorkingDays(earlierNewStart, earlierDuration);
+    const newPredOfEarlierId = sub(oldPredLaterId); // === later.id en el caso adyacente
+
+    const laterOldStartForDelta = featuresByItemId.get(later.id)?.startAt ?? laterOldStart ?? laterNewStart;
+    const laterDeltaDays = Math.round((laterNewStart.getTime() - laterOldStartForDelta.getTime()) / 86400000);
+    const earlierOldStartForDelta =
+      featuresByItemId.get(earlier.id)?.startAt ?? earlierOldStart ?? earlierNewStart;
+    const earlierDeltaDays = Math.round(
+      (earlierNewStart.getTime() - earlierOldStartForDelta.getTime()) / 86400000,
+    );
+
+    const childUpdates: { id: number; start_date: string; due_date: string }[] = [];
+    const movedIds = new Set<number>([earlier.id, later.id]);
+    if (laterDeltaDays !== 0) collectChildShifts(later.id, laterDeltaDays, childUpdates, movedIds);
+    if (earlierDeltaDays !== 0) collectChildShifts(earlier.id, earlierDeltaDays, childUpdates, movedIds);
+
+    try {
+      if (bridgeUpdates.length > 0) {
+        await relinkMutation.mutateAsync(bridgeUpdates);
+      }
+      await updateMutation.mutateAsync({
+        id: later.id,
+        start_date: format(laterNewStart, "yyyy-MM-dd"),
+        due_date: format(laterNewDue, "yyyy-MM-dd"),
+        predecessor_id: newPredOfLaterId,
+      });
+      await updateMutation.mutateAsync({
+        id: earlier.id,
+        start_date: format(earlierNewStart, "yyyy-MM-dd"),
+        due_date: format(earlierNewDue, "yyyy-MM-dd"),
+        predecessor_id: newPredOfEarlierId,
+      });
+      if (childUpdates.length === 1) {
+        await updateMutation.mutateAsync(childUpdates[0]);
+      } else if (childUpdates.length > 1) {
+        await bulkMoveMutation.mutateAsync(childUpdates);
+      }
+      successToast(`${later.title} ahora va antes que ${earlier.title}.`);
+      setSelectedIds(new Set());
+    } catch (err) {
+      errorToast(
+        "No se pudo cambiar el orden.",
+        getErrorMessage(err) ?? "Intenta de nuevo.",
+      );
+    }
+  }, [selectedIds, items, featuresByItemId, collectChildShifts, updateMutation, bulkMoveMutation, relinkMutation]);
+
+  const canChangePredecessor =
+    selectedIds.size === 2 &&
+    Array.from(selectedIds).every((id) => items.find((i) => i.id === id)?.type === "historia");
 
   const handleLinkPredecessor = useCallback(
     (successorId: string, predecessorId: string) => {
@@ -966,6 +984,16 @@ export function GanttView({
           <span className="text-muted-foreground">
             — al arrastrar cualquiera de ellos, todos se mueven juntos
           </span>
+          {canChangePredecessor && (
+            <Button
+              variant="secondary"
+              size="sm"
+              className="h-6 px-2 text-xs"
+              onClick={() => void handleChangePredecessor()}
+            >
+              Cambiar orden
+            </Button>
+          )}
           <Button
             variant="ghost"
             size="sm"
