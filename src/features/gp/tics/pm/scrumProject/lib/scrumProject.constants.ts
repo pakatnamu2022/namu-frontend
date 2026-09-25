@@ -22,5 +22,6 @@ export const SCRUM_PROJECT: ModelComplete<ScrumProjectRequest> = {
     description: "",
     color: "#3B82F6",
     status: "activo",
+    hourly_cost: 10,
   },
 };

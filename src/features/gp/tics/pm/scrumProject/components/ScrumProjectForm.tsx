@@ -37,6 +37,7 @@ export const ScrumProjectForm = ({ defaultValues, onSubmit, isSubmitting = false
       description: "",
       color: "#3B82F6",
       status: "activo",
+      hourly_cost: 10,
       ...defaultValues,
     },
     mode: "onChange",
@@ -76,6 +77,17 @@ export const ScrumProjectForm = ({ defaultValues, onSubmit, isSubmitting = false
             label="Estado"
             placeholder="Selecciona el estado"
             options={STATUS_OPTIONS}
+          />
+
+          <FormInput
+            control={form.control}
+            name="hourly_cost"
+            label="Costo por hora-hombre (USD)"
+            placeholder="10"
+            type="number"
+            min={0}
+            step={0.5}
+            tooltip="Se usa para estimar el costo del proyecto en la vista de Costos."
           />
         </div>
 

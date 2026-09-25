@@ -16,6 +16,8 @@ import {
   AdvancePaymentsByQuotationResponse,
   ElectronicDocumentMigrationLogsResponse,
   ElectronicDocumentMigrationHistoryResponse,
+  ElectronicDocumentCancellation,
+  QueryCancellationResponse,
   MigrationAllResponse,
   ExchangeRateResource,
   InvoiceWithWorkOrdersResponse,
@@ -310,6 +312,24 @@ export async function cancelElectronicDocument(
   const response = await api.post<ElectronicDocumentResource>(
     `${ENDPOINT}/${id}/cancel`,
     { reason },
+  );
+  return response.data;
+}
+
+export async function getElectronicDocumentCancellations(
+  id: number,
+): Promise<ElectronicDocumentCancellation[]> {
+  const response = await api.get<ElectronicDocumentCancellation[]>(
+    `${ENDPOINT}/${id}/cancellations`,
+  );
+  return response.data;
+}
+
+export async function queryElectronicDocumentCancellation(
+  id: number,
+): Promise<QueryCancellationResponse> {
+  const response = await api.post<QueryCancellationResponse>(
+    `${ENDPOINT}/${id}/cancellations/query`,
   );
   return response.data;
 }

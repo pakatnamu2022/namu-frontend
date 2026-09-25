@@ -38,6 +38,7 @@ import { Link } from "react-router-dom";
 import GeneralSheet from "@/shared/components/GeneralSheet";
 import { AREA_COMERCIAL } from "@/features/ap/ap-master/lib/apMaster.constants";
 import { CopyCell } from "@/shared/components/CopyCell";
+import { ElectronicDocumentCancellationTab } from "./ElectronicDocumentCancellationTab";
 
 interface ElectronicDocumentDetailSheetProps {
   /**
@@ -578,6 +579,7 @@ export function ElectronicDocumentDetailSheet({
             <TabsTrigger value="items">Ítems ({items.length})</TabsTrigger>
             <TabsTrigger value="cliente">Cliente y vehículo</TabsTrigger>
             <TabsTrigger value="sunat">SUNAT y trazabilidad</TabsTrigger>
+            <TabsTrigger value="anulacion">Anulación</TabsTrigger>
           </TabsList>
 
           {/* ------------------------- RESUMEN ------------------------- */}
@@ -1315,6 +1317,15 @@ export function ElectronicDocumentDetailSheet({
                 </p>
               </div>
             )}
+          </TabsContent>
+
+          {/* ------------------------ ANULACIÓN ------------------------ */}
+          <TabsContent value="anulacion">
+            <ElectronicDocumentCancellationTab
+              doc={doc}
+              enabled={open}
+              onStatusUpdated={onStatusUpdated}
+            />
           </TabsContent>
         </Tabs>
       </div>

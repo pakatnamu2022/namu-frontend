@@ -38,6 +38,7 @@ export interface ScrumProjectResource {
   description?: string;
   color?: string;
   status: "activo" | "archivado";
+  hourly_cost?: number | string;
   created_by: number;
   creator: ScrumProjectCreator;
   active_sprint?: ScrumProjectActiveSprint;
@@ -52,6 +53,7 @@ export interface ScrumProjectRequest {
   description?: string;
   color?: string;
   status?: "activo" | "archivado";
+  hourly_cost?: number;
 }
 
 export interface ScrumProjectGanttItem {

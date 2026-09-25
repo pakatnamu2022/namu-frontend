@@ -143,8 +143,8 @@ export default function SalesReceiptsCajaPage() {
   const cancelDocumentMutation = useMutation({
     mutationFn: ({ id, reason }: { id: number; reason: string }) =>
       cancelElectronicDocument(id, reason),
-    onSuccess: () => {
-      successToast("Documento cancelado en Nubefact correctamente");
+    onSuccess: (res: any) => {
+      successToast(res?.message ?? "Comunicación de baja enviada a Nubefact");
       refetch();
     },
     onError: (error: any) => {

@@ -22,6 +22,7 @@ function mapToForm(data: ScrumProjectResource): Partial<ScrumProjectSchema> {
     description: data.description ?? "",
     color: data.color ?? "#3B82F6",
     status: data.status,
+    hourly_cost: data.hourly_cost != null ? Number(data.hourly_cost) : 10,
   };
 }
 

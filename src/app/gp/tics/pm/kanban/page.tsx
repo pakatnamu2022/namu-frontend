@@ -15,6 +15,7 @@ import {
   Calendar,
   GanttChartSquare,
   TrendingUp,
+  DollarSign,
   Filter,
   FolderKanban,
   X,
@@ -51,8 +52,9 @@ import { ListView } from "@/features/gp/tics/pm/scrumItem/components/ListView";
 import { CalendarView } from "@/features/gp/tics/pm/scrumItem/components/CalendarView";
 import { GanttView } from "@/features/gp/tics/pm/scrumItem/components/GanttView";
 import { EffortView } from "@/features/gp/tics/pm/scrumItem/components/EffortView";
+import { CostView } from "@/features/gp/tics/pm/scrumItem/components/CostView";
 
-type ViewMode = "kanban" | "list" | "calendar" | "gantt" | "effort";
+type ViewMode = "kanban" | "list" | "calendar" | "gantt" | "effort" | "cost";
 type FilterKey = "priority" | "tag" | "assignee";
 
 const FILTER_DEFS: { key: FilterKey; label: string }[] = [
@@ -85,6 +87,7 @@ const VIEWS: { id: ViewMode; label: string; Icon: React.FC<any> }[] = [
   { id: "calendar", label: "Calendario", Icon: Calendar },
   { id: "gantt", label: "Gantt", Icon: GanttChartSquare },
   { id: "effort", label: "Esfuerzo", Icon: TrendingUp },
+  { id: "cost", label: "Costo", Icon: DollarSign },
 ];
 
 export default function KanbanPage() {
@@ -117,6 +120,8 @@ export default function KanbanPage() {
   const projects = projectsData?.data ?? [];
 
   const resolvedProjectId = projectId ? Number(projectId) : null;
+  const resolvedProject = projects.find((p) => p.id === resolvedProjectId);
+  const hourlyCost = resolvedProject?.hourly_cost != null ? Number(resolvedProject.hourly_cost) : 10;
   const { data: allSprints = [] } = useScrumSprints();
 
   const sprints = resolvedProjectId
@@ -416,6 +421,9 @@ export default function KanbanPage() {
               )}
               {viewMode === "effort" && (
                 <EffortView items={listItems} isLoading={loadingItems} />
+              )}
+              {viewMode === "cost" && (
+                <CostView items={listItems} hourlyCost={hourlyCost} isLoading={loadingItems} />
               )}
             </>
           )}
