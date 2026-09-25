@@ -773,3 +773,35 @@ export interface PurchaseOrderItemTraverseResponse {
   links: Links;
   meta: Meta;
 }
+
+/** Operación de comunicación de baja (anulación) registrada con Nubefact. */
+export interface ElectronicDocumentCancellation {
+  id: number;
+  operation: "generar_anulacion" | "consultar_anulacion";
+  motivo: string | null;
+  codigo_unico: string | null;
+  success: boolean;
+  http_status_code: number | null;
+  error_code: number | null;
+  error_message: string | null;
+  numero: number | null;
+  enlace: string | null;
+  sunat_ticket_numero: string | null;
+  aceptada_por_sunat: boolean | null;
+  sunat_description: string | null;
+  sunat_note: string | null;
+  sunat_responsecode: string | null;
+  sunat_soap_error: string | null;
+  enlace_del_pdf: string | null;
+  enlace_del_xml: string | null;
+  enlace_del_cdr: string | null;
+  user_name: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface QueryCancellationResponse {
+  exists: boolean;
+  aceptada_por_sunat: boolean;
+  error: string | null;
+}

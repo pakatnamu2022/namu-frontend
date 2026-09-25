@@ -21,11 +21,12 @@ import {
   startOfMonth,
 } from "date-fns"
 import { es } from "date-fns/locale"
-import { atom, useAtom } from "jotai"
+import { atom, useAtom, useSetAtom } from "jotai"
 import throttle from "lodash.throttle"
-import { ArrowRightIcon, PlusIcon, TrashIcon, Unlink2Icon } from "lucide-react"
+import { ArrowRightIcon, GripVerticalIcon, PlusIcon, TrashIcon, Unlink2Icon } from "lucide-react"
 import type {
   CSSProperties,
+  DragEvent,
   DragEventHandler,
   FC,
   KeyboardEventHandler,
@@ -57,9 +58,31 @@ import { cn } from "@/lib/utils"
 const draggingAtom = atom(false)
 const scrollXAtom = atom(0)
 
+// Estado del arrastre del "handle" de predecesor: mientras se arrastra,
+// guarda el punto de origen (donde está el handle) y la posición actual del
+// mouse (coords de viewport, iguales a las que da dataTransfer/drag events)
+// para poder dibujar una línea fantasma que va siguiendo al cursor.
+interface PredecessorDragState {
+  originX: number
+  originY: number
+  x: number
+  y: number
+}
+const predecessorDragAtom = atom<PredecessorDragState | null>(null)
+
 export const useGanttDragging = () => useAtom(draggingAtom)
 export const useGanttScrollX = () => useAtom(scrollXAtom)
 export const useGanttContext = () => useContext(GanttContext)
+export const useGanttPredecessorDrag = () => useAtom(predecessorDragAtom)
+// Setter "write-only": no suscribe al componente al valor del átomo. Se
+// actualiza en cada evento `drag` nativo (decenas de veces por segundo)
+// mientras se arrastra el handle de predecesor; si cada GanttFeatureItemCard
+// usara useGanttPredecessorDrag() solo para obtener el setter, TODAS las
+// tarjetas del Gantt (de todos los sprints) se re-renderizarían en cada
+// tick del drag, lo que hace que el navegador pierda el tracking del drop
+// nativo a mitad de camino (el aro de "aquí se suelta" queda pintado pero
+// el drop deja de confirmarse).
+export const useSetGanttPredecessorDrag = () => useSetAtom(predecessorDragAtom)
 
 export interface GanttStatus {
   id: string
@@ -75,7 +98,9 @@ export interface GanttFeature {
   status: GanttStatus
   lane?: string // Optional: features with the same lane will share a row
   itemType?: string // Optional: e.g. "historia" | "tarea", used to differentiate rows visually
+  parentId?: string // Optional: id of the parent historia, used to restrict predecessor linking to the same domain
   hasPredecessor?: boolean // Optional: whether this feature has a predecessor link, to show the "unlink" button
+  predecessorId?: string // Optional: id of the feature this one depends on, used to draw the dependency arrow
 }
 
 export interface GanttMarkerProps {
@@ -460,6 +485,17 @@ export interface GanttSidebarItemProps {
   onSelectItem?: (id: string) => void
   selected?: boolean
   onToggleSelect?: (id: string) => void
+  /** Habilita el drag-and-drop para reordenar filas en el sidebar. */
+  reorderable?: boolean
+  onReorderDragStart?: (id: string, event: DragEvent<HTMLDivElement>) => void
+  onReorderDragOver?: (id: string, event: DragEvent<HTMLDivElement>) => void
+  onReorderDrop?: (id: string, event: DragEvent<HTMLDivElement>) => void
+  onReorderDragEnd?: () => void
+  /** Línea indicadora de dónde caerá el item que se está arrastrando. */
+  dropIndicator?: "before" | "after" | null
+  /** Resalte temporal (p.ej. al encontrarlo desde el buscador), distinto de
+   *  `selected` para no confundirlo con la selección múltiple de bulk-move. */
+  highlighted?: boolean
   className?: string
 }
 
@@ -468,15 +504,21 @@ export const GanttSidebarItem: FC<GanttSidebarItemProps> = ({
   onSelectItem,
   selected,
   onToggleSelect,
+  reorderable,
+  onReorderDragStart,
+  onReorderDragOver,
+  onReorderDrop,
+  onReorderDragEnd,
+  dropIndicator,
+  highlighted,
   className,
 }) => {
   const gantt = useContext(GanttContext)
-  const tempEndAt =
-    feature.endAt && isSameDay(feature.startAt, feature.endAt)
-      ? addDays(feature.endAt, 1)
-      : feature.endAt
-  const duration = tempEndAt
-    ? formatDistance(feature.startAt, tempEndAt, { locale: es })
+  // feature.endAt ya llega como límite EXCLUSIVO (el llamador le suma 1 día
+  // al último día inclusive de trabajo), así que no hace falta ajustar nada
+  // acá para que formatDistance cuente los días reales.
+  const duration = feature.endAt
+    ? formatDistance(feature.startAt, feature.endAt, { locale: es })
     : `${formatDistance(feature.startAt, new Date(), { locale: es })} hasta ahora`
 
   const handleClick: MouseEventHandler<HTMLDivElement> = event => {
@@ -506,6 +548,9 @@ export const GanttSidebarItem: FC<GanttSidebarItemProps> = ({
       className={cn(
         "relative flex items-center gap-2.5 p-2.5 text-xs hover:bg-muted",
         selected && "bg-primary/10 hover:bg-primary/15",
+        highlighted && "bg-amber-400/20 ring-1 ring-inset ring-amber-400",
+        dropIndicator === "before" && "shadow-[inset_0_2px_0_0_var(--color-primary)]",
+        dropIndicator === "after" && "shadow-[inset_0_-2px_0_0_var(--color-primary)]",
         className,
       )}
       key={feature.id}
@@ -514,10 +559,18 @@ export const GanttSidebarItem: FC<GanttSidebarItemProps> = ({
       role="button"
       tabIndex={0}
       data-scrum-item
+      draggable={reorderable}
+      onDragStart={reorderable ? event => onReorderDragStart?.(feature.id, event) : undefined}
+      onDragOver={reorderable ? event => onReorderDragOver?.(feature.id, event) : undefined}
+      onDrop={reorderable ? event => onReorderDrop?.(feature.id, event) : undefined}
+      onDragEnd={reorderable ? () => onReorderDragEnd?.() : undefined}
       style={{
         height: "var(--gantt-row-height)",
       }}
     >
+      {reorderable && (
+        <GripVerticalIcon className="pointer-events-none size-3.5 shrink-0 text-muted-foreground/50 cursor-grab" />
+      )}
       {onToggleSelect ? (
         <Checkbox
           checked={selected ?? false}
@@ -800,12 +853,28 @@ export const GanttFeatureDragHelper: FC<GanttFeatureDragHelperProps> = ({
 // algo que dnd-kit no está configurado para resolver aquí.
 const PREDECESSOR_DRAG_TYPE = "application/x-gantt-predecessor"
 
+// Altura de fila fija usada tanto por GanttProvider (--gantt-row-height) como
+// por GanttDependencyArrows para ubicar las flechas por fila globalmente
+// (entre sprints distintos, no solo dentro de un mismo grupo).
+export const GANTT_ROW_HEIGHT = 36
+
+// A propósito, el MIME type de este drag NO codifica tipo ni dominio (tarea
+// vs historia, misma historia padre, etc.): cualquier restricción codificada
+// ahí hace que el navegador bloquee el drop a nivel nativo cuando no coincide
+// (sin dragenter, sin aro, sin evento drop siquiera), y entonces la
+// validación en handleLinkPredecessor (GanttView.tsx) nunca llega a
+// ejecutarse ni a mostrar su toast — el drag queda muerto en silencio. Todas
+// esas reglas se validan solo en el JS del drop, donde sí se le puede avisar
+// al usuario por qué no se pudo enlazar.
+
 export type GanttFeatureItemCardProps = Pick<GanttFeature, "id"> & {
   children?: ReactNode
   onDoubleClick?: (id: string) => void
   /** successorId = esta tarjeta (donde se soltó), predecessorId = la tarjeta arrastrada */
   onLinkPredecessor?: (successorId: string, predecessorId: string) => void
   selected?: boolean
+  /** Resalte temporal (p.ej. al encontrarlo desde el buscador). */
+  highlighted?: boolean
 }
 
 export const GanttFeatureItemCard: FC<GanttFeatureItemCardProps> = ({
@@ -814,11 +883,19 @@ export const GanttFeatureItemCard: FC<GanttFeatureItemCardProps> = ({
   onDoubleClick,
   onLinkPredecessor,
   selected,
+  highlighted,
 }) => {
   const [, setDragging] = useGanttDragging()
+  const setPredecessorDrag = useSetGanttPredecessorDrag()
   const { attributes, listeners, setNodeRef } = useDraggable({ id })
   const isPressed = Boolean(attributes["aria-pressed"])
   const [isDropTarget, setIsDropTarget] = useState(false)
+  // El navegador dispara dragenter/dragleave en cada hijo por el que pasa el
+  // mouse dentro de la tarjeta (el texto, el div de dnd-kit, etc.), no solo
+  // al entrar/salir de la Card completa. Con un booleano simple eso hacía
+  // parpadear el anillo azul al moverse hacia el centro. Un contador de
+  // enter/leave evita apagarlo hasta que realmente se salió de la tarjeta.
+  const dragEnterCountRef = useRef(0)
 
   useEffect(() => setDragging(isPressed), [isPressed, setDragging])
 
@@ -826,6 +903,22 @@ export const GanttFeatureItemCard: FC<GanttFeatureItemCardProps> = ({
     event.stopPropagation()
     event.dataTransfer.setData(PREDECESSOR_DRAG_TYPE, id.toString())
     event.dataTransfer.effectAllowed = "link"
+    const handleRect = event.currentTarget.getBoundingClientRect()
+    const originX = handleRect.left + handleRect.width / 2
+    const originY = handleRect.top + handleRect.height / 2
+    setPredecessorDrag({ originX, originY, x: event.clientX, y: event.clientY })
+  }
+
+  const handleHandleDrag: DragEventHandler<HTMLDivElement> = event => {
+    // El último evento "drag" antes de soltar suele llegar con clientX/Y en
+    // 0 (limitación de seguridad del navegador); ignorarlo evita que la
+    // línea fantasma salte al (0,0) justo antes de desaparecer.
+    if (event.clientX === 0 && event.clientY === 0) return
+    setPredecessorDrag(prev => (prev ? { ...prev, x: event.clientX, y: event.clientY } : prev))
+  }
+
+  const handleHandleDragEnd: DragEventHandler<HTMLDivElement> = () => {
+    setPredecessorDrag(null)
   }
 
   const handleDragOver: DragEventHandler<HTMLDivElement> = event => {
@@ -835,8 +928,9 @@ export const GanttFeatureItemCard: FC<GanttFeatureItemCardProps> = ({
   }
 
   const handleDrop: DragEventHandler<HTMLDivElement> = event => {
+    dragEnterCountRef.current = 0
     setIsDropTarget(false)
-    if (!onLinkPredecessor) return
+    if (!onLinkPredecessor || !event.dataTransfer.types.includes(PREDECESSOR_DRAG_TYPE)) return
     const predecessorId = event.dataTransfer.getData(PREDECESSOR_DRAG_TYPE)
     if (predecessorId && predecessorId !== id.toString()) {
       event.preventDefault()
@@ -850,10 +944,22 @@ export const GanttFeatureItemCard: FC<GanttFeatureItemCardProps> = ({
         "group/gantt-card relative h-full w-full rounded-md bg-background p-2 text-xs shadow-sm",
         isDropTarget && "ring-2 ring-primary",
         selected && !isDropTarget && "ring-2 ring-primary/60",
+        highlighted && !isDropTarget && "ring-2 ring-amber-400",
       )}
       data-scrum-item
-      onDragEnter={() => onLinkPredecessor && setIsDropTarget(true)}
-      onDragLeave={() => setIsDropTarget(false)}
+      onDragEnter={event => {
+        if (onLinkPredecessor && event.dataTransfer.types.includes(PREDECESSOR_DRAG_TYPE)) {
+          dragEnterCountRef.current += 1
+          setIsDropTarget(true)
+        }
+      }}
+      onDragLeave={() => {
+        dragEnterCountRef.current -= 1
+        if (dragEnterCountRef.current <= 0) {
+          dragEnterCountRef.current = 0
+          setIsDropTarget(false)
+        }
+      }}
       onDragOver={handleDragOver}
       onDrop={handleDrop}
     >
@@ -874,6 +980,8 @@ export const GanttFeatureItemCard: FC<GanttFeatureItemCardProps> = ({
           className="-right-2 -translate-y-1/2 absolute top-1/2 z-20 flex h-4 w-4 cursor-alias items-center justify-center rounded-full border border-border/50 bg-card opacity-0 shadow-sm transition-opacity group-hover/gantt-card:opacity-100"
           draggable
           onClick={event => event.stopPropagation()}
+          onDrag={handleHandleDrag}
+          onDragEnd={handleHandleDragEnd}
           onDragStart={handleHandleDragStart}
           onMouseDown={event => event.stopPropagation()}
           title="Arrastra para marcar esta tarea como predecesora de otra"
@@ -891,6 +999,8 @@ export type GanttFeatureItemProps = GanttFeature & {
   onLinkPredecessor?: (successorId: string, predecessorId: string) => void
   onRemovePredecessor?: (id: string) => void
   selected?: boolean
+  /** Resalte temporal (p.ej. al encontrarlo desde el buscador). */
+  highlighted?: boolean
   children?: ReactNode
   className?: string
 }
@@ -901,6 +1011,7 @@ export const GanttFeatureItem: FC<GanttFeatureItemProps> = ({
   onLinkPredecessor,
   onRemovePredecessor,
   selected,
+  highlighted,
   children,
   className,
   ...feature
@@ -1032,6 +1143,7 @@ export const GanttFeatureItem: FC<GanttFeatureItemProps> = ({
             onDoubleClick={onDoubleClick}
             onLinkPredecessor={onLinkPredecessor}
             selected={selected}
+            highlighted={highlighted}
           >
             {children ?? (
               <p
@@ -1077,8 +1189,13 @@ export const GanttFeatureListGroup: FC<GanttFeatureListGroupProps> = ({ children
 )
 
 export interface GanttDependencyArrowsProps {
-  /** Features in the exact top-to-bottom row order they are rendered in. */
+  /** TODAS las features del Gantt (de todos los sprints), para poder resolver
+   *  el predecessorId aunque la predecesora esté en otro grupo/sprint. */
   features: GanttFeature[]
+  /** Fila global (0-based) de cada feature, contando los renglones de header
+   *  de cada grupo de sprint y el hueco entre grupos como fracción de fila —
+   *  así una flecha puede cruzar de un sprint a otro. */
+  rowIndexById: Map<string, number>
   className?: string
 }
 
@@ -1114,12 +1231,16 @@ const roundedElbowPath = (points: { x: number; y: number }[], radius = 5): strin
 }
 
 /**
- * Draws an elbow connector + arrowhead from the end of each bar to the start
- * of the next one, but only between rows that are truly sequential (the next
- * row starts where the previous one ends). Rows that start on the same date
- * (e.g. a historia running alongside its first task) are left unconnected.
+ * Draws an elbow connector + arrowhead from the end of each item's real
+ * predecessor bar to the start of its own bar, using the actual
+ * `predecessorId` link (not a guessed row order), so the arrows always match
+ * what the "quitar predecesora" button would remove.
  */
-export const GanttDependencyArrows: FC<GanttDependencyArrowsProps> = ({ features, className }) => {
+export const GanttDependencyArrows: FC<GanttDependencyArrowsProps> = ({
+  features,
+  rowIndexById,
+  className,
+}) => {
   const gantt = useContext(GanttContext)
   const markerId = useId()
   const timelineStartDate = useMemo(
@@ -1129,46 +1250,49 @@ export const GanttDependencyArrows: FC<GanttDependencyArrowsProps> = ({ features
 
   const bars = useMemo(
     () =>
-      features.map((feature, rowIndex) => ({
-        id: feature.id,
-        startAt: feature.startAt,
-        itemType: feature.itemType,
-        rowIndex,
-        offset: getOffset(feature.startAt, timelineStartDate, gantt),
-        width: getWidth(feature.startAt, feature.endAt, gantt),
-      })),
-    [features, timelineStartDate, gantt],
+      features.flatMap(feature => {
+        const rowIndex = rowIndexById.get(feature.id)
+        if (rowIndex === undefined) return []
+        return [
+          {
+            id: feature.id,
+            predecessorId: feature.predecessorId,
+            rowIndex,
+            offset: getOffset(feature.startAt, timelineStartDate, gantt),
+            width: getWidth(feature.startAt, feature.endAt, gantt),
+          },
+        ]
+      }),
+    [features, rowIndexById, timelineStartDate, gantt],
   )
 
-  // Las predecesoras solo tienen sentido dentro del mismo tipo: las
-  // historias encadenan entre sí, y las tareas encadenan entre sí, pero
-  // nunca se conecta una historia con una tarea (o viceversa) aunque estén
-  // en filas consecutivas.
   const chainPairs = useMemo(() => {
-    const lastByType = new Map<string, (typeof bars)[number]>()
+    const byId = new Map(bars.map(bar => [bar.id, bar]))
     const pairs: { from: (typeof bars)[number]; to: (typeof bars)[number] }[] = []
     for (const bar of bars) {
-      const type = bar.itemType ?? ""
-      const prev = lastByType.get(type)
-      if (prev && !isSameDay(prev.startAt, bar.startAt)) {
-        pairs.push({ from: prev, to: bar })
-      }
-      lastByType.set(type, bar)
+      if (!bar.predecessorId) continue
+      const from = byId.get(bar.predecessorId)
+      if (from) pairs.push({ from, to: bar })
     }
     return pairs
   }, [bars])
 
-  if (bars.length < 2 || chainPairs.length === 0) {
+  if (chainPairs.length === 0) {
     return null
   }
 
   const rowHeight = gantt.rowHeight
   const maxRight = Math.max(...bars.map(bar => bar.offset + bar.width))
+  const maxRowIndex = Math.max(...bars.map(bar => bar.rowIndex))
 
   return (
     <svg
       className={cn("pointer-events-none absolute top-0 left-0 z-10 overflow-visible", className)}
-      style={{ width: maxRight, height: bars.length * rowHeight }}
+      // marginTop replica el que aplica GanttFeatureList: este SVG se renderiza
+      // como hermano de GanttFeatureList (no como hijo) para no heredar el
+      // space-y-4 que ese contenedor aplica entre grupos de sprint, que
+      // desalinearía la fila global calculada en rowIndexById.
+      style={{ width: maxRight, height: (maxRowIndex + 1) * rowHeight, marginTop: "var(--gantt-header-height)" }}
     >
       <defs>
         <marker
@@ -1192,15 +1316,14 @@ export const GanttDependencyArrows: FC<GanttDependencyArrowsProps> = ({ features
         // un bezier con un punto de control fijo podía degenerar en un lazo
         // cuando las filas estaban muy cerca en Y, y un codo ortogonal no
         // puede auto-cruzarse. Si la siguiente barra empieza antes de que
-        // termine la anterior (se solapan en el tiempo), el codo sale por
-        // un "pasillo" a la derecha del fin de ambas barras en vez de
-        // cortar por en medio, para no atravesar ninguna.
+        // termine la anterior (se solapan en el tiempo), el codo baja recto
+        // desde el borde derecho de la barra padre (de abajo hacia la
+        // derecha) en vez de salir por un pasillo a la derecha y volver,
+        // que generaba una vuelta innecesaria.
         const x1 = from.offset + from.width
         const x2 = to.offset
         const overlaps = x2 < x1 + 4
-        const midX = overlaps
-          ? Math.max(x1, to.offset + to.width) + 16
-          : x1 + (x2 - x1) / 2
+        const midX = overlaps ? x1 : x1 + (x2 - x1) / 2
 
         return (
           <path
@@ -1375,6 +1498,41 @@ export const GanttMarker: FC<
 
 GanttMarker.displayName = "GanttMarker"
 
+// Línea que sigue al cursor mientras se arrastra el handle de predecesor,
+// para que quede claro que el drag "está agarrando algo" en vez de no dar
+// ninguna señal hasta soltar. Se posiciona con `fixed` usando coordenadas de
+// viewport (las mismas que dan los eventos de drag nativos), así que no hay
+// que convertir nada al sistema de coordenadas con scroll del Gantt.
+const GanttPredecessorDragGhost: FC = () => {
+  const [predecessorDrag] = useGanttPredecessorDrag()
+  if (!predecessorDrag) return null
+
+  const { originX, originY, x, y } = predecessorDrag
+
+  return (
+    <svg className="pointer-events-none fixed inset-0 z-50 h-screen w-screen" style={{ overflow: "visible" }}>
+      <title>Vínculo de predecesora en progreso</title>
+      <defs>
+        <marker id="gantt-ghost-arrowhead" markerHeight="8" markerWidth="8" orient="auto" refX="7" refY="4">
+          <path d="M0,0 L8,4 L0,8 Z" fill="var(--primary)" />
+        </marker>
+      </defs>
+      <line
+        markerEnd="url(#gantt-ghost-arrowhead)"
+        stroke="var(--primary)"
+        strokeDasharray="4 3"
+        strokeLinecap="round"
+        strokeWidth={2}
+        x1={originX}
+        x2={x}
+        y1={originY}
+        y2={y}
+      />
+      <circle cx={originX} cy={originY} fill="var(--primary)" r={3} />
+    </svg>
+  )
+}
+
 export interface GanttProviderProps {
   range?: Range
   zoom?: number
@@ -1398,7 +1556,7 @@ export const GanttProvider: FC<GanttProviderProps> = ({
   const [sidebarWidth, setSidebarWidth] = useState(0)
 
   const headerHeight = 60
-  const rowHeight = 36
+  const rowHeight = GANTT_ROW_HEIGHT
   let columnWidth = 50
 
   if (range === "weekly") {
@@ -1606,6 +1764,7 @@ export const GanttProvider: FC<GanttProviderProps> = ({
       >
         {children}
       </div>
+      <GanttPredecessorDragGhost />
     </GanttContext.Provider>
   )
 }

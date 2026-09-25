@@ -124,8 +124,8 @@ export default function SalesReceiptsTallerPage() {
       reason: string;
       willReinvoice: boolean;
     }) => cancelElectronicDocument(id, reason, willReinvoice),
-    onSuccess: () => {
-      successToast("Documento cancelado en Nubefact correctamente");
+    onSuccess: (res: any) => {
+      successToast(res?.message ?? "Comunicación de baja enviada a Nubefact");
       refetch();
     },
     onError: (error: any) => {
