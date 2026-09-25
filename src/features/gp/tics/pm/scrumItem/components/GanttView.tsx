@@ -753,13 +753,57 @@ export function GanttView({
         }
       }
 
-      if (updates.length === 1) {
-        updateMutation.mutate(updates[0]);
-      } else {
-        bulkMoveMutation.mutate(updates);
+      const runRest = () => {
+        const rest = updates.slice(1); // hijos + resto de la selección múltiple, sin la historia arrastrada
+        if (rest.length === 1) {
+          updateMutation.mutate(rest[0]);
+        } else if (rest.length > 1) {
+          bulkMoveMutation.mutate(rest);
+        }
+      };
+
+      // Solo la historia arrastrada directamente se reordena en la cadena de
+      // predecesoras (no las que vienen "de paso" por selección múltiple).
+      const relink =
+        item.type === "historia"
+          ? computeChainRelink(item, startAt, items, featuresByItemId)
+          : null;
+
+      if (!relink || (!relink.bridgeUpdate && !relink.predecessorChanged && !relink.successorUpdate)) {
+        if (updates.length === 1) {
+          updateMutation.mutate(updates[0]);
+        } else {
+          bulkMoveMutation.mutate(updates);
+        }
+        return;
       }
+
+      // Hay reordenamiento de cadena: 1) suelta el link viejo (bridge) ANTES
+      // de tocar la fecha, para que el cascadeo de due_date del backend no
+      // le pegue al sucesor que está a punto de dejar de serlo; 2) guarda
+      // fecha + nueva predecesora de la historia movida; 3) engancha a su
+      // nueva sucesora. Los hijos/selección múltiple van aparte, sin esperar
+      // a esta secuencia.
+      (async () => {
+        try {
+          if (relink.bridgeUpdate) {
+            await relinkMutation.mutateAsync([relink.bridgeUpdate]);
+          }
+          await updateMutation.mutateAsync({
+            id: itemId,
+            start_date: newStartDate,
+            due_date: newDueDate,
+            predecessor_id: relink.predecessorChanged ? relink.newPredecessorId : undefined,
+          });
+          if (relink.successorUpdate) {
+            await relinkMutation.mutateAsync([relink.successorUpdate]);
+          }
+        } finally {
+          runRest();
+        }
+      })();
     },
-    [updateMutation, bulkMoveMutation, items, selectedIds, collectChildShifts, featuresByItemId],
+    [updateMutation, bulkMoveMutation, relinkMutation, items, selectedIds, collectChildShifts, featuresByItemId],
   );
 
   const handleLinkPredecessor = useCallback(
