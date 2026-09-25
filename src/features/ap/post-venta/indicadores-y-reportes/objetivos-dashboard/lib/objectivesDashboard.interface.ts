@@ -79,6 +79,8 @@ export interface HeadquarterSummary {
   total_objective: number;
   total_progress: number;
   loose_invoices_progress: number;
+  taller_area_progress: number;
+  meson_area_progress: number;
   completion_percentage: number;
   status: ObjectiveStatus;
   rank: number;

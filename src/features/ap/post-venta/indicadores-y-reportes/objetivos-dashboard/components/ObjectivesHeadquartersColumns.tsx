@@ -75,9 +75,40 @@ export const objectivesHeadquartersColumns = ({
     accessorKey: "loose_invoices_progress",
     header: "OC",
     cell: ({ row }) => (
-      <div onClick={() => onRowClick(row.original)} className={cellClickClass}>
+      <div
+        onClick={() => onRowClick(row.original)}
+        className={cn(cellClickClass, "bg-muted-foreground/15")}
+      >
         <span className="font-semibold">
           {formatMoney(row.original.loose_invoices_progress)}
+        </span>
+      </div>
+    ),
+  },
+  {
+    accessorKey: "taller_area_progress",
+    header: "Taller",
+    cell: ({ row }) => (
+      <div
+        onClick={() => onRowClick(row.original)}
+        className={cn(cellClickClass, "bg-muted-foreground/15")}
+      >
+        <span className="font-semibold">
+          {formatMoney(row.original.taller_area_progress)}
+        </span>
+      </div>
+    ),
+  },
+  {
+    accessorKey: "meson_area_progress",
+    header: "Mostrador",
+    cell: ({ row }) => (
+      <div
+        onClick={() => onRowClick(row.original)}
+        className={cn(cellClickClass, "bg-muted-foreground/15")}
+      >
+        <span className="font-semibold">
+          {formatMoney(row.original.meson_area_progress)}
         </span>
       </div>
     ),
