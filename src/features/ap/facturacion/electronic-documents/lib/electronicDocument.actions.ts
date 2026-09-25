@@ -337,6 +337,24 @@ export async function queryElectronicDocumentCancellation(
   return response.data;
 }
 
+export async function getElectronicDocumentCancellations(
+  id: number,
+): Promise<ElectronicDocumentCancellation[]> {
+  const response = await api.get<ElectronicDocumentCancellation[]>(
+    `${ENDPOINT}/${id}/cancellations`,
+  );
+  return response.data;
+}
+
+export async function queryElectronicDocumentCancellation(
+  id: number,
+): Promise<QueryCancellationResponse> {
+  const response = await api.post<QueryCancellationResponse>(
+    `${ENDPOINT}/${id}/cancellations/query`,
+  );
+  return response.data;
+}
+
 export async function getNextCreditNoteNumber(
   id: number,
   series: number,

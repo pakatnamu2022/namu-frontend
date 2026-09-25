@@ -95,6 +95,75 @@ function computeReorderedIds(
   ];
 }
 
+interface ChainRelink {
+  /** Historia que antes tenía a la movida como predecesora: hay que
+   *  "puentearla" hacia lo que era la predecesora vieja ANTES de tocar la
+   *  fecha de la movida, para que el cascadeo de due_date del backend
+   *  (ScrumItemService::cascadeDueDateShift) no le caiga encima a un
+   *  sucesor que está a punto de dejar de serlo. */
+  bridgeUpdate: { id: number; predecessor_id: number | null } | null;
+  newPredecessorId: number | null;
+  predecessorChanged: boolean;
+  /** Historia que pasa a tener a la movida como predecesora en su nueva
+   *  posición. Se aplica DESPUÉS del cambio de fecha. */
+  successorUpdate: { id: number; predecessor_id: number } | null;
+}
+
+// Al arrastrar una historia a una fecha nueva, la reinserta en la cadena de
+// predecesoras historia-con-historia según su nueva posición cronológica (no
+// según el orden de prioridad original con el que se sembró): la saca de
+// donde estaba (reconectando a su antigua predecesora con su antiguo
+// sucesor) y la intercala entre las dos historias con fecha más cercana a su
+// nuevo inicio. Así la flecha del Gantt siempre sigue el orden visual real
+// en vez de quedar "saltando" hacia atrás en el tiempo.
+function computeChainRelink(
+  movedItem: ScrumItemResource,
+  newStartAt: Date,
+  items: ScrumItemResource[],
+  featuresByItemId: Map<number, GanttFeature>,
+): ChainRelink {
+  const movedId = movedItem.id;
+  const historias = items.filter((i) => i.type === "historia" && i.id !== movedId);
+
+  const dated = historias
+    .map((i) => {
+      const startAt = featuresByItemId.get(i.id)?.startAt ?? parseDate(i.start_date);
+      return startAt ? { item: i, startAt } : null;
+    })
+    .filter((x): x is { item: ScrumItemResource; startAt: Date } => x !== null)
+    .sort((a, b) => a.startAt.getTime() - b.startAt.getTime());
+
+  let newPredecessor: ScrumItemResource | null = null;
+  let newSuccessor: ScrumItemResource | null = null;
+  for (const { item: candidate, startAt } of dated) {
+    if (startAt.getTime() <= newStartAt.getTime()) {
+      newPredecessor = candidate;
+    } else if (!newSuccessor) {
+      newSuccessor = candidate;
+    }
+  }
+
+  const oldPredecessorId = movedItem.predecessor_id ?? null;
+  const oldSuccessor = historias.find((i) => i.predecessor_id === movedId) ?? null;
+  const newPredecessorId = newPredecessor ? newPredecessor.id : null;
+  const newSuccessorId = newSuccessor ? newSuccessor.id : null;
+  const oldSuccessorId = oldSuccessor ? oldSuccessor.id : null;
+  const successorChanged = oldSuccessorId !== newSuccessorId;
+
+  return {
+    bridgeUpdate:
+      successorChanged && oldSuccessor
+        ? { id: oldSuccessor.id, predecessor_id: oldPredecessorId }
+        : null,
+    newPredecessorId,
+    predecessorChanged: oldPredecessorId !== newPredecessorId,
+    successorUpdate:
+      successorChanged && newSuccessor
+        ? { id: newSuccessor.id, predecessor_id: movedId }
+        : null,
+  };
+}
+
 function makeGanttStatus(status: ScrumItemStatus): GanttStatus {
   return { id: status, name: STATUS_LABEL[status], color: STATUS_HEX[status] };
 }
@@ -333,14 +402,34 @@ export function GanttView({
       id,
       start_date,
       due_date,
+      predecessor_id,
     }: {
       id: number;
       start_date: string;
       due_date: string;
-    }) => updateScrumItem(id, { start_date, due_date }),
+      predecessor_id?: number | null;
+    }) =>
+      updateScrumItem(id, {
+        start_date,
+        due_date,
+        ...(predecessor_id !== undefined ? { predecessor_id } : {}),
+      }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["scrumItem"] });
       queryClient.invalidateQueries({ queryKey: ["scrumKanban"] });
+    },
+  });
+
+  // Re-enlaza la cadena de predecesoras entre historias (ver
+  // computeChainRelink). Solo toca `predecessor_id`, nunca `due_date`, así
+  // que nunca dispara el cascadeo de fechas del backend por sí sola.
+  const relinkMutation = useMutation({
+    mutationFn: (updates: { id: number; predecessor_id: number | null }[]) =>
+      Promise.all(
+        updates.map((u) => updateScrumItem(u.id, { predecessor_id: u.predecessor_id })),
+      ),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["scrumItem"] });
     },
   });
 
