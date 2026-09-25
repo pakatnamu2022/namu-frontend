@@ -153,6 +153,15 @@ export interface Concept {
   status: ObjectiveStatus;
   by_brand?: (BrandBreakdown | VehicleCrossingByBrand)[];
   top_advisors?: AdvisorPerformance[];
+  // Paso vehicular: desglose por modo de conteo (M1 = Derco, M2 = Automotores)
+  progress_m1?: number;
+  completion_percentage_m1?: number;
+  status_m1?: ObjectiveStatus;
+  by_brand_m1?: VehicleCrossingByBrand[];
+  progress_m2?: number;
+  completion_percentage_m2?: number;
+  status_m2?: ObjectiveStatus;
+  by_brand_m2?: VehicleCrossingByBrand[];
 }
 
 export interface HeadquarterDetail {
