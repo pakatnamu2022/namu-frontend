@@ -7,16 +7,21 @@ import { Button } from "@/components/ui/button";
 import { FormInput } from "@/shared/components/FormInput";
 import { FormTextArea } from "@/shared/components/FormTextArea";
 import { FormSelect } from "@/shared/components/FormSelect";
-import { DateRangePickerFormField } from "@/shared/components/DateRangePickerFormField";
+import { DatePickerFormField } from "@/shared/components/DatePickerFormField";
 import { scrumItemSchema, ScrumItemSchema } from "../lib/scrumItem.schema";
 import { ScrumProjectResource } from "@/features/gp/tics/pm/scrumProject/lib/scrumProject.interface";
 import { ScrumSprintResource } from "@/features/gp/tics/pm/scrumSprint/lib/scrumSprint.interface";
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useWatch } from "react-hook-form";
-import { addDays, differenceInCalendarDays } from "date-fns";
 import { getTodayLocalDateString, toDateOrUndefined, toLocalDateString } from "@/core/core.function";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  addWorkingDays,
+  countWorkingDays,
+  sumWorkingHours,
+  SUNDAY_DISABLED_MATCHER,
+} from "../lib/workingHours";
 
 const TYPE_OPTIONS = [
   { label: "Tarea", value: "tarea" },
@@ -98,45 +103,41 @@ export const ItemForm = ({
     mode: "onChange",
   });
 
-  const [startDate, dueDate] = useWatch({
-    control: form.control,
-    name: ["start_date", "due_date"],
+  const startDate = useWatch({ control: form.control, name: "start_date" });
+
+  // La fecha fin ya NO se edita a mano: la base siempre es la fecha de
+  // inicio, y "Días" (laborables, domingo no cuenta) es lo único que el
+  // usuario ajusta. `days` arranca calculado del due_date que venga en
+  // defaultValues (edición) para no perder lo ya guardado.
+  const [days, setDays] = useState<number | "">(() => {
+    const from = toDateOrUndefined(defaultValues?.start_date);
+    const to = toDateOrUndefined(defaultValues?.due_date);
+    if (!from || !to) return 1;
+    const count = countWorkingDays(from, to);
+    return count > 0 ? count : 1;
   });
 
-  const dayCount = useMemo(() => {
-    const from = toDateOrUndefined(startDate);
-    const to = toDateOrUndefined(dueDate);
-    if (!from || !to) return null;
-    const diff = differenceInCalendarDays(to, from) + 1;
-    return diff > 0 ? diff : null;
-  }, [startDate, dueDate]);
-
-  // Auto-calcula horas estimadas (8h por día) cada vez que cambia el rango
-  // de fechas o la cantidad de días. El usuario puede ajustarlas a mano
-  // después, pero un nuevo cambio de fechas las vuelve a recalcular.
+  // Recalcula due_date (y las horas estimadas) cada vez que cambia la fecha
+  // de inicio o los días: due_date deja de ser un campo que el usuario toca,
+  // es siempre start_date + días laborables.
   useEffect(() => {
-    if (dayCount === null) return;
-    form.setValue("estimated_hours", String(dayCount * 8), {
+    const from = toDateOrUndefined(startDate);
+    if (!from || !days || days < 1) return;
+    const to = addWorkingDays(from, days);
+    form.setValue("due_date", toLocalDateString(to), {
+      shouldValidate: true,
+      shouldDirty: true,
+    });
+    form.setValue("estimated_hours", String(sumWorkingHours(from, to)), {
       shouldValidate: true,
       shouldDirty: true,
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dayCount]);
+  }, [startDate, days]);
 
   const handleDaysChange = (value: string) => {
-    const days = Number(value);
-    if (!value || Number.isNaN(days) || days < 1) return;
-    const from = toDateOrUndefined(startDate) ?? new Date();
-    if (!startDate) {
-      form.setValue("start_date", toLocalDateString(from), {
-        shouldValidate: true,
-        shouldDirty: true,
-      });
-    }
-    form.setValue("due_date", toLocalDateString(addDays(from, days - 1)), {
-      shouldValidate: true,
-      shouldDirty: true,
-    });
+    const n = Number(value);
+    setDays(!value || Number.isNaN(n) || n < 1 ? "" : n);
   };
 
   return (
@@ -208,12 +209,12 @@ export const ItemForm = ({
 
           <div className="md:col-span-2 flex items-end gap-4">
             <div className="flex-1">
-              <DateRangePickerFormField
+              <DatePickerFormField
                 control={form.control}
-                nameFrom="start_date"
-                nameTo="due_date"
-                label="Fecha de inicio y fin"
-                placeholder="Selecciona el rango de fechas"
+                name="start_date"
+                label="Fecha de inicio"
+                placeholder="Selecciona la fecha de inicio"
+                disabledRange={SUNDAY_DISABLED_MATCHER}
               />
             </div>
             <div className="w-24">
@@ -224,7 +225,7 @@ export const ItemForm = ({
                 type="number"
                 min={1}
                 className="h-7 md:h-8 text-xs md:text-sm"
-                value={dayCount ?? ""}
+                value={days}
                 onChange={(e) => handleDaysChange(e.target.value)}
               />
             </div>

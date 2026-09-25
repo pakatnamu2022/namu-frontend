@@ -26,11 +26,28 @@ import {
   Pencil,
   X,
   Check,
+  ListTree,
+  RefreshCw,
+  CalendarIcon,
   LucideIcon,
 } from "lucide-react";
+import { es } from "date-fns/locale";
+import { format } from "date-fns";
 import { useEffect, useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { errorToast, successToast } from "@/core/core.function";
+import { Calendar } from "@/components/ui/calendar";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
+  addWorkingDays,
+  countWorkingDays,
+  nextWorkingDay,
+  SUNDAY_DISABLED_MATCHER,
+} from "../lib/workingHours";
 import { useScrumItemById, useScrumItems } from "../lib/scrumItem.hook";
 import { updateScrumItem } from "@/features/gp/tics/pm/scrumItem/lib/scrumItem.actions";
 import {
@@ -134,15 +151,20 @@ function initEdit(item: ScrumItemDetail): EditState {
 
 const NO_PREDECESSOR = "none";
 
+function parseLocalDate(s: string | undefined | null): Date | null {
+  if (!s) return null;
+  const parts = s.split("T")[0].split("-").map(Number);
+  if (parts.length !== 3 || parts.some(isNaN)) return null;
+  return new Date(parts[0], parts[1] - 1, parts[2]);
+}
+
+// Cuenta días laborables (lunes a sábado; domingo no cuenta).
 function countDays(start?: string | null, end?: string | null): number | null {
-  if (!start || !end) return null;
-  const diff =
-    Math.round(
-      (new Date(end).setHours(0, 0, 0, 0) -
-        new Date(start).setHours(0, 0, 0, 0)) /
-        86400000,
-    ) + 1;
-  return diff > 0 ? diff : null;
+  const from = parseLocalDate(start);
+  const to = parseLocalDate(end);
+  if (!from || !to) return null;
+  const count = countWorkingDays(from, to);
+  return count > 0 ? count : null;
 }
 
 interface Props {
@@ -156,6 +178,9 @@ export function ItemDetailSheet({ itemId, open, onClose }: Props) {
   const [comment, setComment] = useState("");
   const [editing, setEditing] = useState(false);
   const [editState, setEditState] = useState<EditState | null>(null);
+  // La fecha fin ya no se edita a mano: la base siempre es la fecha de
+  // inicio, y "días" (laborables) es lo único que se ajusta.
+  const [days, setDays] = useState<number | "">(1);
   const { data: item, isLoading } = useScrumItemById(itemId);
 
   // Candidatos a predecesora: otros items del mismo proyecto (no hace falta
@@ -164,8 +189,14 @@ export function ItemDetailSheet({ itemId, open, onClose }: Props) {
     { project_id: item?.project.id, per_page: 200 },
     editing && item !== undefined,
   );
+  // Solo se puede linkear predecesora entre items del mismo tipo (tarea con
+  // tarea, historia con historia) y, entre tareas, de la misma historia
+  // padre (mismo dominio) — igual que valida el backend.
   const predecessorOptions = (candidates?.data ?? []).filter(
-    (i) => i.id !== itemId,
+    (i) =>
+      i.id !== itemId &&
+      i.type === item?.type &&
+      (item?.type !== "tarea" || i.parent_id === item?.parent_id),
   );
 
   useEffect(() => {
@@ -220,12 +251,52 @@ export function ItemDetailSheet({ itemId, open, onClose }: Props) {
     onError: () => errorToast("Error al actualizar el item"),
   });
 
+  // Reencadena las fechas de las tareas hijas de esta historia, una tras
+  // otra a partir de la fecha de inicio de la historia, conservando la
+  // duración que ya tenía cada tarea. Sirve tanto para acomodar tareas que
+  // nunca tuvieron fecha propia como para recuadrar todo tras mover la
+  // historia manualmente.
+  const recalculateChildrenMutation = useMutation({
+    mutationFn: (updates: { id: number; start_date: string; due_date: string }[]) =>
+      Promise.all(
+        updates.map((u) =>
+          updateScrumItem(u.id, { start_date: u.start_date, due_date: u.due_date }),
+        ),
+      ),
+    onSuccess: () => {
+      successToast("Fechas de las tareas recalculadas");
+      queryClient.invalidateQueries({ queryKey: ["scrumItem"] });
+      queryClient.invalidateQueries({ queryKey: ["scrumKanban"] });
+    },
+    onError: () => errorToast("Error al recalcular las fechas"),
+  });
+
+  const handleRecalculateChildren = () => {
+    if (!item || item.type !== "historia" || !item.children?.length) return;
+    let cursor = nextWorkingDay(parseLocalDate(item.start_date) ?? new Date());
+    const sortedChildren = [...item.children].sort((a, b) => a.order - b.order);
+    const updates = sortedChildren.map((child) => {
+      const durationDays = countDays(child.start_date, child.due_date) ?? 1;
+      const start = cursor;
+      const due = addWorkingDays(start, durationDays);
+      cursor = nextWorkingDay(new Date(due.getFullYear(), due.getMonth(), due.getDate() + 1));
+      return {
+        id: child.id,
+        start_date: format(start, "yyyy-MM-dd"),
+        due_date: format(due, "yyyy-MM-dd"),
+      };
+    });
+    recalculateChildrenMutation.mutate(updates);
+  };
+
   const priority = item?.priority as ScrumItemPriority | undefined;
   const PriorityIcon = priority ? PRIORITY_ICON[priority] : Minus;
 
   const startEdit = () => {
     if (item) {
-      setEditState(initEdit(item));
+      const state = initEdit(item);
+      setEditState(state);
+      setDays(countDays(state.start_date, state.due_date) ?? 1);
       setEditing(true);
     }
   };
@@ -242,6 +313,27 @@ export function ItemDetailSheet({ itemId, open, onClose }: Props) {
 
   const set = (field: keyof EditState, value: string) =>
     setEditState((s) => (s ? { ...s, [field]: value } : s));
+
+  // due_date siempre se deriva de start_date + días laborables, sea que
+  // cambie la fecha de inicio o el número de días.
+  const applyDuration = (startDateStr: string, newDays: number | "") => {
+    const from = parseLocalDate(startDateStr);
+    if (!from || !newDays || newDays < 1) return;
+    set("due_date", format(addWorkingDays(from, newDays), "yyyy-MM-dd"));
+  };
+
+  const handleStartDateChange = (date: Date | undefined) => {
+    const str = date ? format(date, "yyyy-MM-dd") : "";
+    set("start_date", str);
+    if (str) applyDuration(str, days);
+  };
+
+  const handleDaysChange = (value: string) => {
+    const n = Number(value);
+    const newDays = !value || Number.isNaN(n) || n < 1 ? "" : n;
+    setDays(newDays);
+    if (editState?.start_date) applyDuration(editState.start_date, newDays);
+  };
 
   const footer = item ? (
     editing ? (
@@ -383,6 +475,25 @@ export function ItemDetailSheet({ itemId, open, onClose }: Props) {
               </InfoRow>
             )}
           </div>
+
+          {/* Recalcular fechas de las tareas hijas */}
+          {item.type === "historia" && item.children && item.children.length > 0 && (
+            <div className="flex items-center justify-between gap-3 rounded-lg bg-muted/50 px-3 py-2.5">
+              <span className="inline-flex items-center gap-2 text-sm text-muted-foreground">
+                <ListTree className="size-4" />
+                {item.children.length} tarea{item.children.length !== 1 ? "s" : ""}
+              </span>
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={recalculateChildrenMutation.isPending}
+                onClick={handleRecalculateChildren}
+              >
+                <RefreshCw className="size-3.5 mr-1.5" />
+                Recalcular tiempos de las tareas
+              </Button>
+            </div>
+          )}
 
           {/* Descripción: al final porque es lo que más se lee */}
           {item.description && (
@@ -581,30 +692,47 @@ export function ItemDetailSheet({ itemId, open, onClose }: Props) {
 
             <div className="space-y-1">
               <Label className="text-xs">Fecha inicio</Label>
-              <Input
-                type="date"
-                value={editState.start_date}
-                onChange={(e) => set("start_date", e.target.value)}
-                className="text-sm h-8"
-              />
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="w-full justify-start text-left font-normal text-sm h-8"
+                  >
+                    {editState.start_date
+                      ? format(parseLocalDate(editState.start_date)!, "dd/MM/yyyy")
+                      : "Selecciona la fecha"}
+                    <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    locale={es}
+                    mode="single"
+                    selected={parseLocalDate(editState.start_date) ?? undefined}
+                    defaultMonth={parseLocalDate(editState.start_date) ?? undefined}
+                    onSelect={handleStartDateChange}
+                    disabled={SUNDAY_DISABLED_MATCHER}
+                    className="rounded-md border"
+                  />
+                </PopoverContent>
+              </Popover>
             </div>
 
             <div className="space-y-1">
-              <Label className="text-xs">Fecha fin</Label>
+              <Label className="text-xs">Días</Label>
               <Input
-                type="date"
-                value={editState.due_date}
-                onChange={(e) => set("due_date", e.target.value)}
+                type="number"
+                min={1}
+                value={days}
+                onChange={(e) => handleDaysChange(e.target.value)}
                 className="text-sm h-8"
               />
             </div>
 
-            {countDays(editState.start_date, editState.due_date) !== null && (
+            {editState.due_date && (
               <div className="col-span-2 text-xs text-muted-foreground">
-                {countDays(editState.start_date, editState.due_date)} día
-                {countDays(editState.start_date, editState.due_date) !== 1
-                  ? "s"
-                  : ""}
+                Termina el {format(parseLocalDate(editState.due_date)!, "dd/MM/yyyy")}
               </div>
             )}
 
