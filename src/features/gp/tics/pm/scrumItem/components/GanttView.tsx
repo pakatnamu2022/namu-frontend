@@ -40,7 +40,8 @@ import {
   reorderScrumItems,
 } from "@/features/gp/tics/pm/scrumItem/lib/scrumItem.actions";
 import { STATUS_LABEL } from "@/features/gp/tics/pm/pm.constants";
-import { errorToast, successToast } from "@/core/core.function";
+import { errorToast, successToast, getErrorMessage } from "@/core/core.function";
+import { addWorkingDays, countWorkingDays, nextWorkingDay } from "../lib/workingHours";
 
 const STATUS_HEX: Record<ScrumItemStatus, string> = {
   backlog: "#94a3b8",
@@ -109,14 +110,45 @@ interface ChainRelink {
   successorUpdate: { id: number; predecessor_id: number } | null;
 }
 
-// Al arrastrar una historia a una fecha nueva, la reinserta en la cadena de
-// predecesoras historia-con-historia según su nueva posición cronológica (no
-// según el orden de prioridad original con el que se sembró): la saca de
-// donde estaba (reconectando a su antigua predecesora con su antiguo
-// sucesor) y la intercala entre las dos historias con fecha más cercana a su
-// nuevo inicio. Así la flecha del Gantt siempre sigue el orden visual real
-// en vez de quedar "saltando" hacia atrás en el tiempo.
-function computeChainRelink(
+// Dado el par de vecinos (predecesora/sucesora) que le corresponden a la
+// historia movida en su NUEVA posición, arma las actualizaciones necesarias
+// para reinsertarla en la cadena historia-con-historia: la saca de donde
+// estaba (reconectando a su antigua predecesora con su antiguo sucesor) y la
+// intercala entre los vecinos nuevos. Es el núcleo compartido por los dos
+// modos de arrastre (por fecha en el timeline, por posición en la lista).
+function buildChainRelink(
+  movedItem: ScrumItemResource,
+  newPredecessor: ScrumItemResource | null,
+  newSuccessor: ScrumItemResource | null,
+  otherHistorias: ScrumItemResource[],
+): ChainRelink {
+  const movedId = movedItem.id;
+  const oldPredecessorId = movedItem.predecessor_id ?? null;
+  const oldSuccessor = otherHistorias.find((i) => i.predecessor_id === movedId) ?? null;
+  const newPredecessorId = newPredecessor ? newPredecessor.id : null;
+  const newSuccessorId = newSuccessor ? newSuccessor.id : null;
+  const oldSuccessorId = oldSuccessor ? oldSuccessor.id : null;
+  const successorChanged = oldSuccessorId !== newSuccessorId;
+
+  return {
+    bridgeUpdate:
+      successorChanged && oldSuccessor
+        ? { id: oldSuccessor.id, predecessor_id: oldPredecessorId }
+        : null,
+    newPredecessorId,
+    predecessorChanged: oldPredecessorId !== newPredecessorId,
+    successorUpdate:
+      successorChanged && newSuccessor
+        ? { id: newSuccessor.id, predecessor_id: movedId }
+        : null,
+  };
+}
+
+// Al arrastrar una historia a una fecha nueva en el TIMELINE, la reinserta en
+// la cadena según su nueva posición cronológica (no según el orden de
+// prioridad original con el que se sembró): se intercala entre las dos
+// historias con fecha más cercana a su nuevo inicio.
+function computeChainRelinkByDate(
   movedItem: ScrumItemResource,
   newStartAt: Date,
   items: ScrumItemResource[],
@@ -143,25 +175,28 @@ function computeChainRelink(
     }
   }
 
-  const oldPredecessorId = movedItem.predecessor_id ?? null;
-  const oldSuccessor = historias.find((i) => i.predecessor_id === movedId) ?? null;
-  const newPredecessorId = newPredecessor ? newPredecessor.id : null;
-  const newSuccessorId = newSuccessor ? newSuccessor.id : null;
-  const oldSuccessorId = oldSuccessor ? oldSuccessor.id : null;
-  const successorChanged = oldSuccessorId !== newSuccessorId;
+  return buildChainRelink(movedItem, newPredecessor, newSuccessor, historias);
+}
 
-  return {
-    bridgeUpdate:
-      successorChanged && oldSuccessor
-        ? { id: oldSuccessor.id, predecessor_id: oldPredecessorId }
-        : null,
-    newPredecessorId,
-    predecessorChanged: oldPredecessorId !== newPredecessorId,
-    successorUpdate:
-      successorChanged && newSuccessor
-        ? { id: newSuccessor.id, predecessor_id: movedId }
-        : null,
-  };
+// Al soltar una historia en la LISTA (sidebar) justo antes/después de otra,
+// la reinserta en la cadena según esa posición relativa, recorriendo la
+// secuencia global de historias (todos los sprints, en su orden de
+// despliegue) en vez de por fecha.
+function computeChainRelinkByPosition(
+  movedItem: ScrumItemResource,
+  targetId: number,
+  position: "before" | "after",
+  historiaSequence: ScrumItemResource[],
+): ChainRelink {
+  const others = historiaSequence.filter((h) => h.id !== movedItem.id);
+  const targetIdx = others.findIndex((h) => h.id === targetId);
+  if (targetIdx === -1) {
+    return buildChainRelink(movedItem, null, null, others);
+  }
+  const newPredecessor = position === "before" ? (others[targetIdx - 1] ?? null) : others[targetIdx];
+  const newSuccessor = position === "before" ? others[targetIdx] : (others[targetIdx + 1] ?? null);
+
+  return buildChainRelink(movedItem, newPredecessor, newSuccessor, others);
 }
 
 function makeGanttStatus(status: ScrumItemStatus): GanttStatus {
@@ -403,16 +438,19 @@ export function GanttView({
       start_date,
       due_date,
       predecessor_id,
+      sprint_id,
     }: {
       id: number;
       start_date: string;
       due_date: string;
       predecessor_id?: number | null;
+      sprint_id?: number;
     }) =>
       updateScrumItem(id, {
         start_date,
         due_date,
         ...(predecessor_id !== undefined ? { predecessor_id } : {}),
+        ...(sprint_id !== undefined ? { sprint_id } : {}),
       }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["scrumItem"] });
@@ -421,7 +459,7 @@ export function GanttView({
   });
 
   // Re-enlaza la cadena de predecesoras entre historias (ver
-  // computeChainRelink). Solo toca `predecessor_id`, nunca `due_date`, así
+  // buildChainRelink). Solo toca `predecessor_id`, nunca `due_date`, así
   // que nunca dispara el cascadeo de fechas del backend por sí sola.
   const relinkMutation = useMutation({
     mutationFn: (updates: { id: number; predecessor_id: number | null }[]) =>
@@ -559,66 +597,19 @@ export function GanttView({
     return map;
   }, [sprints, itemsBySprint, itemsById]);
 
-  // Drag-and-drop para reordenar filas en el sidebar del Gantt. `dragInfo`
-  // guarda qué ids se están moviendo (varios si el item arrastrado forma
-  // parte de la selección múltiple) y a qué sprint pertenecen, para no
-  // permitir soltar en un sprint distinto.
-  const [dragInfo, setDragInfo] = useState<{ ids: number[]; sprintId: number } | null>(null);
-  const [dropTarget, setDropTarget] = useState<{ id: number; position: "before" | "after" } | null>(
-    null,
-  );
-
-  const handleReorderDragStart = useCallback(
-    (id: string, sprintId: number, event: DragEvent<HTMLDivElement>) => {
-      const itemId = parseInt(id);
-      const ids =
-        selectedIds.has(itemId) && selectedIds.size > 1 ? Array.from(selectedIds) : [itemId];
-      setDragInfo({ ids, sprintId });
-      event.dataTransfer.effectAllowed = "move";
-      event.dataTransfer.setData("text/plain", String(itemId));
-    },
-    [selectedIds],
-  );
-
-  const handleReorderDragOver = useCallback(
-    (id: string, sprintId: number, event: DragEvent<HTMLDivElement>) => {
-      if (!dragInfo || dragInfo.sprintId !== sprintId) return;
-      const itemId = parseInt(id);
-      if (dragInfo.ids.includes(itemId)) return;
-      event.preventDefault();
-      const rect = event.currentTarget.getBoundingClientRect();
-      const position: "before" | "after" =
-        event.clientY < rect.top + rect.height / 2 ? "before" : "after";
-      setDropTarget((prev) =>
-        prev?.id === itemId && prev.position === position ? prev : { id: itemId, position },
-      );
-    },
-    [dragInfo],
-  );
-
-  const handleReorderDrop = useCallback(
-    (id: string, sprintId: number, event: DragEvent<HTMLDivElement>) => {
-      event.preventDefault();
-      const targetId = parseInt(id);
-      if (dragInfo && dragInfo.sprintId === sprintId && !dragInfo.ids.includes(targetId)) {
-        const currentIds = (sortedItemsBySprint[sprintId] ?? []).map((i) => i.id);
-        const position = dropTarget?.id === targetId ? dropTarget.position : "before";
-        const newIds = computeReorderedIds(currentIds, dragInfo.ids, targetId, position);
-        const projectId = items.find((i) => i.id === targetId)?.project_id;
-        if (projectId) {
-          reorderMutation.mutate({ project_id: projectId, sprint_id: sprintId, items: newIds });
-        }
+  // Secuencia global de historias (todos los sprints, en su orden real de
+  // despliegue): se usa para reinsertar una historia en la cadena de
+  // predecesoras cuando se la arrastra en la LISTA (por posición relativa a
+  // otra historia), en vez de por fecha.
+  const historiaSequence = useMemo(() => {
+    const seq: ScrumItemResource[] = [];
+    for (const sprint of sprints) {
+      for (const it of sortedItemsBySprint[sprint.id] ?? []) {
+        if (it.type === "historia") seq.push(it);
       }
-      setDragInfo(null);
-      setDropTarget(null);
-    },
-    [dragInfo, dropTarget, sortedItemsBySprint, items, reorderMutation],
-  );
-
-  const handleReorderDragEnd = useCallback(() => {
-    setDragInfo(null);
-    setDropTarget(null);
-  }, []);
+    }
+    return seq;
+  }, [sprints, sortedItemsBySprint]);
 
   // Cada item empieza justo donde termina el anterior en su misma cadena, en
   // vez de que todos partan del inicio del sprint: así el Gantt se ve en
@@ -699,14 +690,231 @@ export function GanttView({
     [items, featuresByItemId],
   );
 
+  // Arrastra una historia en la LISTA para reinsertarla en la cadena de
+  // predecesoras justo antes/después de `targetId` (puede ser de OTRO
+  // sprint/mes): 1) calcula sus nuevos vecinos por posición; 2) recalcula su
+  // fecha real como "siguiente día hábil tras el fin de la nueva
+  // predecesora" + su duración original en días (igual que al arrastrarla en
+  // el timeline); 3) si hay un sprint mensual existente que ya calce con esa
+  // fecha, reasigna sprint_id para que quede agrupada ahí (no se crean
+  // sprints nuevos desde acá); 4) reenlaza la cadena con la misma secuencia
+  // bridge -> fecha+predecesora -> sucesora usada en el drag del timeline.
+  const moveHistoriaByPosition = useCallback(
+    async (movedItem: ScrumItemResource, targetId: number, position: "before" | "after") => {
+      const relink = computeChainRelinkByPosition(movedItem, targetId, position, historiaSequence);
+      if (!relink.bridgeUpdate && !relink.predecessorChanged && !relink.successorUpdate) return;
+
+      const predecessorItem = relink.newPredecessorId
+        ? (items.find((i) => i.id === relink.newPredecessorId) ?? null)
+        : null;
+      const predecessorDue = predecessorItem ? parseDate(predecessorItem.due_date) : null;
+
+      const oldStart = parseDate(movedItem.start_date);
+      const oldDue = parseDate(movedItem.due_date);
+      const durationDays = oldStart && oldDue ? countWorkingDays(oldStart, oldDue) : 1;
+
+      // Sin predecesora nueva (pasa a ser la primera de toda la cadena): no
+      // hay una referencia de dónde "debería" arrancar, así que conserva su
+      // fecha de inicio actual.
+      const newStart = predecessorDue ? nextWorkingDay(addDays(predecessorDue, 1)) : (oldStart ?? new Date());
+      const newDue = addWorkingDays(newStart, durationDays);
+      const newStartDate = format(newStart, "yyyy-MM-dd");
+      const newDueDate = format(newDue, "yyyy-MM-dd");
+
+      const oldStartForDelta = featuresByItemId.get(movedItem.id)?.startAt ?? oldStart ?? newStart;
+      const deltaDays = Math.round((newStart.getTime() - oldStartForDelta.getTime()) / 86400000);
+
+      const targetMonthKey = format(newStart, "yyyy-MM");
+      const matchingSprint = sprints.find((s) => {
+        const sprintStart = parseDate(s.start_date);
+        return sprintStart && format(sprintStart, "yyyy-MM") === targetMonthKey;
+      });
+      const sprintChanged = !!matchingSprint && matchingSprint.id !== movedItem.sprint_id;
+
+      const childUpdates: { id: number; start_date: string; due_date: string }[] = [];
+      const movedIds = new Set<number>([movedItem.id]);
+      if (deltaDays !== 0) {
+        collectChildShifts(movedItem.id, deltaDays, childUpdates, movedIds);
+      }
+
+      try {
+        if (relink.bridgeUpdate) {
+          await relinkMutation.mutateAsync([relink.bridgeUpdate]);
+        }
+        await updateMutation.mutateAsync({
+          id: movedItem.id,
+          start_date: newStartDate,
+          due_date: newDueDate,
+          predecessor_id: relink.predecessorChanged ? relink.newPredecessorId : undefined,
+          ...(sprintChanged ? { sprint_id: matchingSprint!.id } : {}),
+        });
+        if (relink.successorUpdate) {
+          await relinkMutation.mutateAsync([relink.successorUpdate]);
+        }
+        if (childUpdates.length === 1) {
+          await updateMutation.mutateAsync(childUpdates[0]);
+        } else if (childUpdates.length > 1) {
+          await bulkMoveMutation.mutateAsync(childUpdates);
+        }
+        successToast("Historia reordenada en la cadena de predecesoras.");
+      } catch (err) {
+        errorToast(
+          "No se pudo reordenar la historia.",
+          getErrorMessage(err) ?? "Intenta de nuevo.",
+        );
+      }
+    },
+    [
+      historiaSequence,
+      items,
+      sprints,
+      featuresByItemId,
+      collectChildShifts,
+      relinkMutation,
+      updateMutation,
+      bulkMoveMutation,
+    ],
+  );
+
+  // Drag-and-drop para reordenar filas en el sidebar del Gantt. Para una
+  // TAREA, sigue restringido al mismo sprint (solo reordena `order`, ver
+  // reorderMutation). Para una HISTORIA sola (sin selección múltiple), se
+  // puede soltar sobre otra historia de CUALQUIER sprint: eso dispara
+  // moveHistoriaByPosition en vez del reorder simple.
+  const [dragInfo, setDragInfo] = useState<
+    { ids: number[]; sprintId: number; isHistoriaDrag: boolean } | null
+  >(null);
+  const [dropTarget, setDropTarget] = useState<{ id: number; position: "before" | "after" } | null>(
+    null,
+  );
+
+  const handleReorderDragStart = useCallback(
+    (id: string, sprintId: number, event: DragEvent<HTMLDivElement>) => {
+      const itemId = parseInt(id);
+      const ids =
+        selectedIds.has(itemId) && selectedIds.size > 1 ? Array.from(selectedIds) : [itemId];
+      const draggedItem = items.find((i) => i.id === itemId);
+      const isHistoriaDrag = ids.length === 1 && draggedItem?.type === "historia";
+      setDragInfo({ ids, sprintId, isHistoriaDrag });
+      event.dataTransfer.effectAllowed = "move";
+      event.dataTransfer.setData("text/plain", String(itemId));
+    },
+    [selectedIds, items],
+  );
+
+  const handleReorderDragOver = useCallback(
+    (id: string, sprintId: number, event: DragEvent<HTMLDivElement>) => {
+      if (!dragInfo) return;
+      const itemId = parseInt(id);
+      if (dragInfo.ids.includes(itemId)) return;
+      if (dragInfo.isHistoriaDrag) {
+        // Una historia solo se puede soltar sobre OTRA historia (son las
+        // únicas que participan de la cadena historia-con-historia), pero
+        // sí puede cruzar de sprint.
+        const targetItem = items.find((i) => i.id === itemId);
+        if (targetItem?.type !== "historia") return;
+      } else if (dragInfo.sprintId !== sprintId) {
+        return;
+      }
+      event.preventDefault();
+      const rect = event.currentTarget.getBoundingClientRect();
+      const position: "before" | "after" =
+        event.clientY < rect.top + rect.height / 2 ? "before" : "after";
+      setDropTarget((prev) =>
+        prev?.id === itemId && prev.position === position ? prev : { id: itemId, position },
+      );
+    },
+    [dragInfo, items],
+  );
+
+  const handleReorderDrop = useCallback(
+    (id: string, sprintId: number, event: DragEvent<HTMLDivElement>) => {
+      event.preventDefault();
+      const targetId = parseInt(id);
+      const position = dropTarget?.id === targetId ? dropTarget.position : "before";
+
+      if (dragInfo?.isHistoriaDrag && !dragInfo.ids.includes(targetId)) {
+        const movedItem = items.find((i) => i.id === dragInfo.ids[0]);
+        const targetItem = items.find((i) => i.id === targetId);
+        if (movedItem && targetItem?.type === "historia") {
+          void moveHistoriaByPosition(movedItem, targetId, position);
+        }
+      } else if (
+        dragInfo &&
+        !dragInfo.isHistoriaDrag &&
+        dragInfo.sprintId === sprintId &&
+        !dragInfo.ids.includes(targetId)
+      ) {
+        const currentIds = (sortedItemsBySprint[sprintId] ?? []).map((i) => i.id);
+        const newIds = computeReorderedIds(currentIds, dragInfo.ids, targetId, position);
+        const projectId = items.find((i) => i.id === targetId)?.project_id;
+        if (projectId) {
+          reorderMutation.mutate({ project_id: projectId, sprint_id: sprintId, items: newIds });
+        }
+      }
+      setDragInfo(null);
+      setDropTarget(null);
+    },
+    [dragInfo, dropTarget, sortedItemsBySprint, items, reorderMutation, moveHistoriaByPosition],
+  );
+
+  const handleReorderDragEnd = useCallback(() => {
+    setDragInfo(null);
+    setDropTarget(null);
+  }, []);
+
   const handleMove = useCallback(
     (id: string, startAt: Date, endAt: Date | null) => {
       if (!endAt) return;
       const itemId = parseInt(id);
       const item = items.find((i) => i.id === itemId);
       if (!item) return;
-      const newStartDate = format(startAt, "yyyy-MM-dd");
-      const newDueDate = format(endAtToDueDate(endAt), "yyyy-MM-dd");
+
+      // Distingue mover la barra completa (arrastrar el cuerpo: inicio y fin
+      // se corren el mismo delta) de redimensionarla (arrastrar solo un
+      // extremo: cambia la duración a propósito). El re-enlace de cadena y
+      // el recálculo de fecha por predecesora SOLO aplican al primer caso;
+      // si el usuario está estirando/encogiendo la historia desde un borde,
+      // hay que respetar la duración que está eligiendo, no pisarla con la
+      // duración vieja.
+      const oldStartRaw = parseDate(item.start_date);
+      const oldDueRaw = parseDate(item.due_date);
+      const rawDeltaStart = oldStartRaw
+        ? Math.round((startAt.getTime() - oldStartRaw.getTime()) / 86400000)
+        : null;
+      const rawDeltaDue = oldDueRaw
+        ? Math.round((endAtToDueDate(endAt).getTime() - oldDueRaw.getTime()) / 86400000)
+        : null;
+      const isPureMove =
+        rawDeltaStart !== null && rawDeltaDue !== null && rawDeltaStart === rawDeltaDue;
+
+      let relink: ChainRelink | null = null;
+      let finalStartAt = startAt;
+      let finalDueAt = endAtToDueDate(endAt);
+
+      if (item.type === "historia" && isPureMove) {
+        relink = computeChainRelinkByDate(item, startAt, items, featuresByItemId);
+
+        const oldStartForDuration = parseDate(item.start_date);
+        const oldDueForDuration = parseDate(item.due_date);
+        const durationDays =
+          oldStartForDuration && oldDueForDuration
+            ? countWorkingDays(oldStartForDuration, oldDueForDuration)
+            : 1;
+
+        const predecessorItem = relink.newPredecessorId
+          ? (items.find((i) => i.id === relink!.newPredecessorId) ?? null)
+          : null;
+        const predecessorDue = predecessorItem ? parseDate(predecessorItem.due_date) : null;
+
+        finalStartAt = predecessorDue
+          ? nextWorkingDay(addDays(predecessorDue, 1))
+          : nextWorkingDay(startAt);
+        finalDueAt = addWorkingDays(finalStartAt, durationDays);
+      }
+
+      const newStartDate = format(finalStartAt, "yyyy-MM-dd");
+      const newDueDate = format(finalDueAt, "yyyy-MM-dd");
       const sameStart =
         item.start_date &&
         format(parseDate(item.start_date)!, "yyyy-MM-dd") === newStartDate;
@@ -716,9 +924,9 @@ export function GanttView({
       if (sameStart && sameDue) return;
 
       const oldStart =
-        featuresByItemId.get(itemId)?.startAt ?? parseDate(item.start_date) ?? startAt;
+        featuresByItemId.get(itemId)?.startAt ?? parseDate(item.start_date) ?? finalStartAt;
       const deltaDays = Math.round(
-        (startAt.getTime() - oldStart.getTime()) / 86400000,
+        (finalStartAt.getTime() - oldStart.getTime()) / 86400000,
       );
 
       const updates: { id: number; start_date: string; due_date: string }[] = [
@@ -762,13 +970,6 @@ export function GanttView({
         }
       };
 
-      // Solo la historia arrastrada directamente se reordena en la cadena de
-      // predecesoras (no las que vienen "de paso" por selección múltiple).
-      const relink =
-        item.type === "historia"
-          ? computeChainRelink(item, startAt, items, featuresByItemId)
-          : null;
-
       if (!relink || (!relink.bridgeUpdate && !relink.predecessorChanged && !relink.successorUpdate)) {
         if (updates.length === 1) {
           updateMutation.mutate(updates[0]);
@@ -798,6 +999,12 @@ export function GanttView({
           if (relink.successorUpdate) {
             await relinkMutation.mutateAsync([relink.successorUpdate]);
           }
+          successToast("Historia reordenada en la cadena de predecesoras.");
+        } catch (err) {
+          errorToast(
+            "No se pudo reordenar la cadena de predecesoras.",
+            getErrorMessage(err) ?? "Intenta de nuevo.",
+          );
         } finally {
           runRest();
         }
