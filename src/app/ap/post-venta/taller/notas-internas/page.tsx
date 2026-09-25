@@ -17,6 +17,7 @@ import { useGetInternalNoteMigration } from "@/features/ap/post-venta/taller/not
 import InternalNoteMigrationTable from "@/features/ap/post-venta/taller/notas-internas/components/InternalNoteMigrationTable";
 import { internalNoteMigrationColumns } from "@/features/ap/post-venta/taller/notas-internas/components/InternalNoteMigrationColumns";
 import InternalNoteMigrationOptions from "@/features/ap/post-venta/taller/notas-internas/components/InternalNoteMigrationOptions";
+import InternalNoteMigrationActions from "@/features/ap/post-venta/taller/notas-internas/components/InternalNoteMigrationActions";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
 import { WORKER_ORDER } from "@/features/ap/post-venta/taller/orden-trabajo/lib/workOrder.constants";
 import { useMySedes } from "@/features/gp/maestro-general/sede/lib/sede.hook";
@@ -56,7 +57,7 @@ export default function InternalNoteMigrationPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mySedes, sedeId]);
 
-  const { data, isLoading } = useGetInternalNoteMigration({
+  const { data, isLoading, isFetching, refetch } = useGetInternalNoteMigration({
     params: {
       page,
       search,
@@ -79,15 +80,19 @@ export default function InternalNoteMigrationPage() {
           icon="StickyNote"
           onBack={() => router(WORKER_ORDER.ABSOLUTE_ROUTE)}
         />
+        <InternalNoteMigrationActions
+          data={data?.data || []}
+          onRefresh={refetch}
+          isRefreshing={isFetching}
+          permissions={{
+            canUpdateAccountingStatus: permissions.canMigrate,
+          }}
+        />
       </HeaderTableWrapper>
 
       <InternalNoteMigrationTable
         isLoading={isLoading || isLoadingSedes}
-        columns={internalNoteMigrationColumns({
-          permissions: {
-            canVerifyMigration: permissions.canMigrate,
-          },
-        })}
+        columns={internalNoteMigrationColumns()}
         data={data?.data || []}
       >
         <InternalNoteMigrationOptions

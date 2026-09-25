@@ -36,7 +36,7 @@ import { VehicleResource } from "@/features/ap/comercial/vehiculos/lib/vehicles.
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import { GroupFormSection } from "@/shared/components/GroupFormSection";
 import { Checkbox } from "@/components/ui/checkbox";
-import { EMPRESA_AP } from "@/core/core.constants";
+import { EMPRESA_AP, STATUS_ACTIVE } from "@/core/core.constants";
 import { AppointmentPlanningResource } from "../../citas/lib/appointmentPlanning.interface";
 import { useMySedes } from "@/features/gp/maestro-general/sede/lib/sede.hook";
 import { useAllTypesPlanning } from "@/features/ap/configuraciones/postventa/tipos-planificacion/lib/typesPlanning.hook";
@@ -128,7 +128,7 @@ export const WorkOrderForm = ({
     has_workshop: true,
   });
   const { data: typesPlanning = [], isLoading: isLoadingTypesPlanning } =
-    useAllTypesPlanning();
+    useAllTypesPlanning({ status: STATUS_ACTIVE });
 
   const { data: typesOperation = [], isLoading: isLoadingTypesOperation } =
     useAllTypesOperationsAppointment();

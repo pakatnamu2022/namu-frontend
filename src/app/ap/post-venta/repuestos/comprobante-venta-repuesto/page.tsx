@@ -115,8 +115,15 @@ export default function SalesReceiptsRepuestoPage() {
   });
 
   const cancelDocumentMutation = useMutation({
-    mutationFn: ({ id, reason }: { id: number; reason: string }) =>
-      cancelElectronicDocument(id, reason),
+    mutationFn: ({
+      id,
+      reason,
+      willReinvoice,
+    }: {
+      id: number;
+      reason: string;
+      willReinvoice: boolean;
+    }) => cancelElectronicDocument(id, reason, willReinvoice),
     onSuccess: (res: any) => {
       successToast(res?.message ?? "Comunicación de baja enviada a Nubefact");
       refetch();
@@ -136,8 +143,12 @@ export default function SalesReceiptsRepuestoPage() {
     sendToSunatMutation.mutate(id);
   };
 
-  const handleCancel = (id: number, reason: string) => {
-    cancelDocumentMutation.mutate({ id, reason });
+  const handleCancel = (
+    id: number,
+    reason: string,
+    willReinvoice: boolean,
+  ) => {
+    cancelDocumentMutation.mutate({ id, reason, willReinvoice });
   };
 
   const handlePreCancel = async (id: number) => {

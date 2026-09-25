@@ -39,3 +39,13 @@ export async function updateInternalNoteAccountingStatus(
   );
   return data;
 }
+
+export async function bulkUpdateInternalNoteAccountingStatus(
+  ids: number[],
+): Promise<void> {
+  const { data } = await api.post(
+    `${ENDPOINT}/bulk-update-accounting-status`,
+    { ids },
+  );
+  return data;
+}

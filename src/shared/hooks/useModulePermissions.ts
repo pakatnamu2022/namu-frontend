@@ -5,6 +5,7 @@ export interface PermissionAction {
   label: string; // Frontend display label
   icon?: string; // Optional icon name for UI
   description?: string; // Optional description
+  group?: string; // Optional grouping label for UI (e.g. "Reportes de Post Venta")
 }
 
 export const PERMISSION_ACTIONS: PermissionAction[] = [
@@ -390,6 +391,91 @@ export const PERMISSION_ACTIONS: PermissionAction[] = [
     description:
       "Permite vincular una compra a un comprobante de venta de travesía",
   },
+  {
+    value: "unlinkCrossingPurchase",
+    label: "Desvincular Compra Travesía",
+    icon: "Unlink",
+    description:
+      "Permite desvincular una compra de un comprobante de venta de travesía",
+  },
+  // Reportes de Post Venta (permiso por reporte individual, value = ReportConfig.id)
+  {
+    value: "work-orders",
+    label: "Reporte de Órdenes de Trabajo",
+    icon: "Wrench",
+    description: "Permite ver y exportar el reporte de órdenes de trabajo",
+    group: "Reportes de Post Venta",
+  },
+  {
+    value: "inventory-outputs",
+    label: "Reporte de Salidas de Inventario",
+    icon: "PackageSearch",
+    description: "Permite ver y exportar el reporte de salidas de inventario",
+    group: "Reportes de Post Venta",
+  },
+  {
+    value: "worked-hours-by-sede",
+    label: "Reporte de Horas Trabajadas por Sede",
+    icon: "Clock",
+    description:
+      "Permite ver y exportar el reporte de horas trabajadas por sede",
+    group: "Reportes de Post Venta",
+  },
+  {
+    value: "billed-hours-by-sede",
+    label: "Reporte de Horas Facturadas por Sede",
+    icon: "Clock",
+    description:
+      "Permite ver y exportar el reporte de horas facturadas por sede",
+    group: "Reportes de Post Venta",
+  },
+  {
+    value: "invoicing",
+    label: "Reporte de Facturación Taller",
+    icon: "FileText",
+    description: "Permite ver y exportar el reporte de facturación taller",
+    group: "Reportes de Post Venta",
+  },
+  {
+    value: "work-orders-parts",
+    label: "Reporte de Facturación Repuestos (OT)",
+    icon: "FileText",
+    description:
+      "Permite ver y exportar el reporte de facturación de repuestos de órdenes de trabajo",
+    group: "Reportes de Post Venta",
+  },
+  {
+    value: "work-orders-openings",
+    label: "Reporte de Órdenes de Trabajo Generadas",
+    icon: "Wrench",
+    description:
+      "Permite ver y exportar el reporte de órdenes de trabajo generadas/aperturadas",
+    group: "Reportes de Post Venta",
+  },
+  {
+    value: "work-orders-closed",
+    label: "Reporte de Últimas OT por Vehículo",
+    icon: "Wrench",
+    description:
+      "Permite ver y exportar el reporte de últimas órdenes de trabajo cerradas por vehículo",
+    group: "Reportes de Post Venta",
+  },
+  {
+    value: "meson-invoicing",
+    label: "Reporte de Facturación Repuestos (Mesón)",
+    icon: "FileText",
+    description:
+      "Permite ver y exportar el reporte de facturación de repuestos",
+    group: "Reportes de Post Venta",
+  },
+  {
+    value: "electronic-documents",
+    label: "Reporte de Ordenes de Compra / Caja",
+    icon: "FileText",
+    description:
+      "Permite ver y exportar el reporte de órdenes de compra en caja",
+    group: "Reportes de Post Venta",
+  },
 ];
 
 /**
@@ -491,5 +577,6 @@ export function useModulePermissions(moduleCode: string) {
       "viewComparisonByLocation",
     ),
     canLinkCrossingPurchase: hasModulePermission("linkCrossingPurchase"),
+    canUnlinkCrossingPurchase: hasModulePermission("unlinkCrossingPurchase"),
   };
 }

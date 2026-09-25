@@ -656,7 +656,7 @@ export default function ProductDetailSheet({
                             {product.code} - {product.name}
                           </span>
                           <span className="text-xs font-semibold px-2 py-0.5 rounded shrink-0 bg-orange-100 text-orange-700">
-                            {product.brand.name || "Sin marca"}
+                            {product.brand?.name || "Sin marca"}
                           </span>
                         </div>
                       ),

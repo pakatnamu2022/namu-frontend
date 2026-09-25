@@ -3,7 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Trophy, Eye } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { formatHours } from "@/core/core.function";
+import { formatHours, formatMoney } from "@/core/core.function";
 import { ProductivityTechnicianDetail } from "../lib/productivityDashboard.interface";
 import {
   PRODUCTIVITY_STATUS_BADGE_COLOR,
@@ -12,12 +12,6 @@ import {
 
 export type ProductivityTechnicianColumn =
   ColumnDef<ProductivityTechnicianDetail>;
-
-const formatCurrency = (value: number) =>
-  `S/ ${new Intl.NumberFormat("es-PE", {
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  }).format(value)}`;
 
 export const productivityTechnicianColumns = (
   onViewDetail?: (tech: ProductivityTechnicianDetail) => void,
@@ -44,9 +38,7 @@ export const productivityTechnicianColumns = (
         <div>
           <div className="font-semibold">
             {tech.worker_name}
-            {tech.is_on_leave && (
-              <span className="text-red-600"> · Baja</span>
-            )}
+            {tech.is_on_leave && <span className="text-red-600"> · Baja</span>}
           </div>
           <div className="text-xs text-muted-foreground">
             {tech.worker_dni} · {tech.sede_abbreviation}
@@ -57,7 +49,7 @@ export const productivityTechnicianColumns = (
   },
   {
     accessorKey: "real_hours",
-    header: "Horas reales",
+    header: "Hrs. reales",
     cell: ({ row }) => {
       const tech = row.original;
       if (tech.real_hours === undefined) return "-";
@@ -68,7 +60,7 @@ export const productivityTechnicianColumns = (
   },
   {
     accessorKey: "standard_hours",
-    header: "Horas laborables (8h)",
+    header: "Hrs. laborables (8h)",
     cell: ({ row }) => {
       const tech = row.original;
       return (
@@ -85,10 +77,19 @@ export const productivityTechnicianColumns = (
   },
   {
     accessorKey: "billed_hours",
-    header: "Horas facturadas",
+    header: "Hrs. facturadas",
     cell: ({ row }) => (
       <span className="font-semibold">
         {formatHours(row.original.billed_hours)}
+      </span>
+    ),
+  },
+  {
+    accessorKey: "reentry_hours",
+    header: "Hrs. reingreso",
+    cell: ({ row }) => (
+      <span className="font-semibold">
+        {formatHours(row.original.reentry_hours)}
       </span>
     ),
   },
@@ -118,7 +119,7 @@ export const productivityTechnicianColumns = (
       const value = row.original.earnings;
       return (
         <span className={cn(value < 0 ? "text-red-600" : "")}>
-          {formatCurrency(value)}
+          {formatMoney(value)}
         </span>
       );
     },

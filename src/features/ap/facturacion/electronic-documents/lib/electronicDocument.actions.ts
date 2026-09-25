@@ -16,6 +16,7 @@ import {
   AdvancePaymentsByQuotationResponse,
   ElectronicDocumentMigrationLogsResponse,
   ElectronicDocumentMigrationHistoryResponse,
+  ElectronicDocumentTraverseHistoryResponse,
   ElectronicDocumentCancellation,
   QueryCancellationResponse,
   MigrationAllResponse,
@@ -26,6 +27,7 @@ import {
   NubefactPreviewResource,
   DynamicsPayloadPreviewResource,
   HistoricalFinalSaleBulkResponse,
+  TraverseDynamicsPayloadPreviewResource,
 } from "./electronicDocument.interface";
 import { MessageResponse } from "@/core/core.interface";
 import { ParamsProps } from "@/core/core.interface";
@@ -308,10 +310,11 @@ export async function preCancelElectronicDocument(
 export async function cancelElectronicDocument(
   id: number,
   reason: string,
+  willReinvoice?: boolean,
 ): Promise<ElectronicDocumentResource> {
   const response = await api.post<ElectronicDocumentResource>(
     `${ENDPOINT}/${id}/cancel`,
-    { reason },
+    { reason, will_reinvoice: willReinvoice ?? false },
   );
   return response.data;
 }
@@ -463,6 +466,18 @@ export async function getMigrationHistory(
   return data;
 }
 
+/**
+ * Historial de migración de un documento electrónico de travesía.
+ */
+export async function getTraverseHistory(
+  id: number,
+): Promise<ElectronicDocumentTraverseHistoryResponse> {
+  const { data } = await api.get<ElectronicDocumentTraverseHistoryResponse>(
+    `${ENDPOINT}/${id}/traverse-history`,
+  );
+  return data;
+}
+
 export async function dispatchAllElectronicDocuments(): Promise<MigrationAllResponse> {
   const { data } = await api.post<MigrationAllResponse>(
     `${ENDPOINT}/dispatch-all`,
@@ -556,6 +571,18 @@ export async function previewDynamicsPayloadElectronicDocument(
 ): Promise<DynamicsPayloadPreviewResource> {
   const { data } = await api.get<DynamicsPayloadPreviewResource>(
     `${ENDPOINT}/${id}/preview-dynamics-payload`,
+  );
+  return data;
+}
+
+/**
+ * Preview del payload que se enviaría a Dynamics para documentos de travesía.
+ */
+export async function previewTraverseDynamicsPayloadElectronicDocument(
+  id: number,
+): Promise<TraverseDynamicsPayloadPreviewResource> {
+  const { data } = await api.get<TraverseDynamicsPayloadPreviewResource>(
+    `${ENDPOINT}/${id}/preview-traverse-dynamics`,
   );
   return data;
 }

@@ -23,7 +23,7 @@ export const POST_VENTA_REPORTS: ReportConfig[] = [
         required: true,
         nameFrom: "date_from",
         nameTo: "date_to",
-        rangeParamName: "opening_date",
+        rangeParamName: "fecha_de_emision",
       },
       {
         name: "sede_id",
@@ -124,7 +124,7 @@ export const POST_VENTA_REPORTS: ReportConfig[] = [
     defaultParams: {},
   },
   {
-    id: "worked-hours-by-sede",
+    id: "billed-hours-by-sede",
     title: "Reporte de Horas Facturadas por Sede",
     type: "Taller",
     section: "DERCO",
@@ -179,6 +179,18 @@ export const POST_VENTA_REPORTS: ReportConfig[] = [
         nameFrom: "date_from",
         nameTo: "date_to",
         rangeParamName: "fecha_emision",
+      },
+      {
+        name: "sede_id",
+        label: "Sede",
+        type: "select",
+        required: false,
+        endpoint: `/gp/mg/sede/my?company=${EMPRESA_AP.id}&has_workshop=true`,
+        optionsMapper: (data) =>
+          (data ?? []).map((item: any) => ({
+            label: item.description,
+            value: String(item.id),
+          })),
       },
     ],
     defaultParams: {},
@@ -260,7 +272,7 @@ export const POST_VENTA_REPORTS: ReportConfig[] = [
     type: "Taller",
     section: "TALLER",
     description:
-      "Exporta el reporte de últimas órdenes de trabajo cerradas filtrando por rango de fechas y sede.",
+      "Exporta el reporte de últimas órdenes de trabajo cerradas sin duplicar vin filtrando por rango de fechas y sede.",
     icon: "Wrench",
     endpoint: "/ap/postVenta/reports/work-orders/closed-by-vehicle/export",
     fileName: "reporte_ultimas_ordenes_trabajo_por_vehiculo",
@@ -311,6 +323,18 @@ export const POST_VENTA_REPORTS: ReportConfig[] = [
         nameTo: "date_to",
         rangeParamName: "fecha_emision",
       },
+      {
+        name: "sede_id",
+        label: "Sede",
+        type: "select",
+        required: false,
+        endpoint: `/gp/mg/sede/my?company=${EMPRESA_AP.id}&has_workshop=true`,
+        optionsMapper: (data) =>
+          (data ?? []).map((item: any) => ({
+            label: item.description,
+            value: String(item.id),
+          })),
+      },
     ],
     defaultParams: {},
   },
@@ -329,7 +353,7 @@ export const POST_VENTA_REPORTS: ReportConfig[] = [
       {
         name: "date_range",
         label: "Rango de Fechas",
-        type: "daterange",
+        type: "daterange-or-month",
         required: false,
         nameFrom: "date_from",
         nameTo: "date_to",
@@ -346,13 +370,28 @@ export const POST_VENTA_REPORTS: ReportConfig[] = [
         ],
         defaultValue: String(SUNAT_CURRENCY_ID.SOLES),
       },
+      {
+        name: "all",
+        label: "Convertir todo a la moneda seleccionada",
+        type: "toggle",
+        required: false,
+        advanced: true,
+        options: [
+          { label: "No", value: "0" },
+          { label: "Sí", value: "1" },
+        ],
+        defaultValue: "0",
+      },
     ],
     defaultParams: {},
   },
 ];
 
+const ROUTE = "reportes-postventa";
+const ABSOLUTE_ROUTE = `/ap/post-venta/indicadores-y-reportes/${ROUTE}`;
+
 export const POST_VENTA_REPORTS_CONSTANTS: ModelComplete = {
-  ROUTE: "/ap/post-venta/indicadores-y-reportes/reportes-postventa",
+  ROUTE,
   MODEL: {
     name: "Reportes de Post Venta",
     gender: false,
@@ -364,5 +403,5 @@ export const POST_VENTA_REPORTS_CONSTANTS: ModelComplete = {
   QUERY_KEY: "post-venta-reports",
   ROUTE_ADD: "/ap/post-venta/indicadores-y-reportes/reportes/nuevo",
   ROUTE_UPDATE: "/ap/post-venta/indicadores-y-reportes/reportes/editar",
-  ABSOLUTE_ROUTE: "/ap/post-venta/indicadores-y-reportes/reportes",
+  ABSOLUTE_ROUTE,
 };

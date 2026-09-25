@@ -11,6 +11,11 @@ import { DatePickerFormField } from "@/shared/components/DatePickerFormField";
 import { FormInput } from "@/shared/components/FormInput";
 import { MultiSelectTags } from "@/shared/components/MultiSelectTags";
 import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
+import {
   Loader2,
   Download,
   FileSpreadsheet,
@@ -18,6 +23,8 @@ import {
   CalendarIcon,
   ChevronLeft,
   ChevronRight,
+  ChevronDown,
+  SlidersHorizontal,
 } from "lucide-react";
 import { FormLabel } from "@/components/ui/form";
 import {
@@ -50,6 +57,9 @@ export function ReportFilters({
   availableFormats = ["excel", "pdf"],
 }: ReportFiltersProps) {
   const [format, setFormat] = useState<ReportFormat>(availableFormats[0]);
+  const [showAdvanced, setShowAdvanced] = useState(false);
+  const basicFields = fields.filter((field) => !field.advanced);
+  const advancedFields = fields.filter((field) => field.advanced);
   // Construir el schema dinámicamente basado en los campos
   const buildSchema = () => {
     const schemaFields: Record<string, z.ZodTypeAny> = {};
@@ -164,9 +174,9 @@ export function ReportFilters({
     <Form {...form}>
       <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
         {/* Campos dinámicos */}
-        {fields.length > 0 && (
+        {basicFields.length > 0 && (
           <div className="grid grid-cols-1 gap-4">
-            {fields.map((field) => (
+            {basicFields.map((field) => (
               <DynamicField
                 key={field.name}
                 field={field}
@@ -174,6 +184,38 @@ export function ReportFilters({
               />
             ))}
           </div>
+        )}
+
+        {/* Filtros avanzados */}
+        {advancedFields.length > 0 && (
+          <Collapsible open={showAdvanced} onOpenChange={setShowAdvanced}>
+            <CollapsibleTrigger asChild>
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                className="flex items-center gap-2 px-0 text-muted-foreground hover:bg-transparent hover:text-foreground"
+              >
+                <SlidersHorizontal className="h-4 w-4" />
+                Filtros avanzados
+                <ChevronDown
+                  className={cn(
+                    "h-4 w-4 transition-transform",
+                    showAdvanced && "rotate-180",
+                  )}
+                />
+              </Button>
+            </CollapsibleTrigger>
+            <CollapsibleContent className="grid grid-cols-1 gap-4 pt-4">
+              {advancedFields.map((field) => (
+                <DynamicField
+                  key={field.name}
+                  field={field}
+                  control={form.control}
+                />
+              ))}
+            </CollapsibleContent>
+          </Collapsible>
         )}
 
         {/* Selector de formato y botón de descarga */}

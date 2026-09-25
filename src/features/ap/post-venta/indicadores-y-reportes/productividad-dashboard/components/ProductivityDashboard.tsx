@@ -6,6 +6,8 @@ import TitleComponent from "@/shared/components/TitleComponent";
 import PageWrapper from "@/shared/components/PageWrapper";
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import ExportButtons from "@/shared/components/ExportButtons";
+import { Button } from "@/components/ui/button";
+import { ButtonGroup } from "@/components/ui/button-group";
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
 import { useScopedFilters } from "@/shared/hooks/useScopedFilters";
 import {
@@ -30,7 +32,17 @@ import {
 } from "../lib/productivityDashboard.actions";
 import { PRODUCTIVITY_DASHBOARD } from "../lib/productivityDashboard.constants";
 
-export default function ProductivityDashboard() {
+type DashboardMode = "monthly" | "historical";
+
+interface Props {
+  dashboardMode: DashboardMode;
+  onDashboardModeChange: (value: DashboardMode) => void;
+}
+
+export default function ProductivityDashboard({
+  dashboardMode,
+  onDashboardModeChange,
+}: Props) {
   const { currentView } = useCurrentModule();
   const queryClient = useQueryClient();
 
@@ -85,6 +97,22 @@ export default function ProductivityDashboard() {
         }
         icon={currentView?.icon || "Gauge"}
       >
+        <ButtonGroup>
+          <Button
+            size="sm"
+            variant={dashboardMode === "monthly" ? "default" : "outline"}
+            onClick={() => onDashboardModeChange("monthly")}
+          >
+            Detalle Mensual
+          </Button>
+          <Button
+            size="sm"
+            variant={dashboardMode === "historical" ? "default" : "outline"}
+            onClick={() => onDashboardModeChange("historical")}
+          >
+            Tendencia Anual
+          </Button>
+        </ButtonGroup>
         <ExportButtons
           onExcelDownload={() => exportProductivityDashboard(filters)}
           disableExcel={isLoading}

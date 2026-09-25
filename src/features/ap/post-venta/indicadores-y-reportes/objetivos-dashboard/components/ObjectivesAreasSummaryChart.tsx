@@ -27,6 +27,7 @@ import {
   OBJECTIVE_STATUS_LABEL,
   OBJECTIVE_STATUS_HEX,
 } from "../lib/objectivesDashboard.constants";
+import { formatMoney } from "@/core/core.function";
 
 interface ObjectivesAreasSummaryChartProps {
   areas: GlobalAreaSummary[];
@@ -42,12 +43,6 @@ const chartConfig = {
     color: "var(--primary)",
   },
 };
-
-const formatCurrency = (value: number) =>
-  `S/ ${new Intl.NumberFormat("es-PE", {
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  }).format(value)}`;
 
 const formatNumber = (value: number) =>
   new Intl.NumberFormat("es-PE").format(value);
@@ -309,7 +304,7 @@ export default function ObjectivesAreasSummaryChart({
           </div>
         </CardHeader>
         <CardContent className="px-2 sm:p-4">
-          <AreaRadialChart data={monetaryAreas} formatValue={formatCurrency} />
+          <AreaRadialChart data={monetaryAreas} formatValue={formatMoney} />
         </CardContent>
       </Card>
 

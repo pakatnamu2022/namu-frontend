@@ -136,6 +136,7 @@ export default function ElectronicDocumentsPage() {
   };
 
   const handleCancel = (id: number, reason: string) => {
+    // Comercial: nunca se re-factura al anular, siempre false.
     cancelDocumentMutation.mutate({ id, reason });
   };
 

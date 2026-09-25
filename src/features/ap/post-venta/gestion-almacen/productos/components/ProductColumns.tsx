@@ -85,6 +85,14 @@ export const productColumns = ({
     },
   },
   {
+    accessorKey: "ap_class_article_description",
+    header: "Clase Artículo",
+    cell: ({ getValue }) => {
+      const value = getValue() as string;
+      return value || "-";
+    },
+  },
+  {
     accessorKey: "total_stock",
     header: "Stock Total",
     cell: ({ getValue, row }) => {

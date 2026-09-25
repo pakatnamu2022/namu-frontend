@@ -469,10 +469,11 @@ export default function ProformaMesonForm({
   };
 
   const getIgvTotal = () => {
-    return fields.reduce((sum, _, index) => {
+    const igvSum = fields.reduce((sum, _, index) => {
       const itemTotal = calculateTotalAmount(index);
-      return sum + Math.round(itemTotal * IGV.RATE * 100) / 100;
+      return sum + Math.round(itemTotal * IGV.RATE * 10000) / 10000;
     }, 0);
+    return Math.round(igvSum * 100) / 100;
   };
 
   if (isLoadingMySedes) return <FormSkeleton />;

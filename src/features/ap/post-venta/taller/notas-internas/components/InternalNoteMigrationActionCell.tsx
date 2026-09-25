@@ -8,9 +8,6 @@ import InternalNoteHistory from "../../orden-trabajo/components/InternalNoteHist
 
 interface Props {
   row: InternalNoteMigrationResource;
-  permissions: {
-    canVerifyMigration: boolean;
-  };
 }
 
 export function InternalNoteMigrationActionCell({ row }: Props) {

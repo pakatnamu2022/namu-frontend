@@ -330,6 +330,11 @@ export interface EventHistoryResponse {
   proceso_estado?: number;
 }
 
+export interface ElectronicDocumentTraverseHistoryResponse {
+  electronic_document: ElectronicDocumentFromLog;
+  timeline: TimelineHistoryResponse[];
+}
+
 export interface InternalNote {
   id: number;
   number: string;
@@ -604,6 +609,105 @@ export interface DynamicsPayloadPreviewResource {
   document_info: DynamicsPayloadDocumentInfo;
   preview: DynamicsPayloadPreview;
   summary: DynamicsPayloadSummary;
+}
+
+export interface TraverseDynamicsDocumentInfo {
+  id: number;
+  full_number: string;
+  serie: string;
+  numero: number;
+  fecha_emision: string;
+  traverse_migration_status: string;
+  associate_purchase_traverse: boolean;
+}
+
+export interface TraverseDynamicsAdjustmentHeader {
+  EmpresaId: string;
+  TransaccionId: string;
+  FechaEmision: string;
+  FechaContable: string;
+  Procesar: number;
+  ProcesoEstado: number;
+  ProcesoError: string;
+  FechaProceso: string;
+}
+
+export interface TraverseDynamicsAdjustmentDetail {
+  EmpresaId: string;
+  TransaccionId: string;
+  Linea: number;
+  ArticuloId: string;
+  Motivo: string;
+  UnidadMedidaId: string;
+  Cantidad: number;
+  AlmacenId: string;
+  CostoUnitario: number;
+  CuentaInventario: string;
+  CuentaContrapartida: string;
+}
+
+export interface TraverseDynamicsAdjustmentStep {
+  table_header: string;
+  table_detail: string;
+  // El backend puede devolver un único objeto cabecera o un arreglo
+  // (p. ej. `[]` cuando no hay movimiento de ajuste para el grupo).
+  header:
+    | TraverseDynamicsAdjustmentHeader
+    | TraverseDynamicsAdjustmentHeader[];
+  details: TraverseDynamicsAdjustmentDetail[];
+}
+
+export interface TraverseDynamicsAccountingHeader {
+  EmpresaId: string;
+  Asiento: number;
+  LoteId: string;
+  Referencia: string;
+  MonedaId: string;
+  TipoTasaId: string;
+  TipoCambio: number;
+  Error: string;
+  Estado: number;
+  FechaEstado: string;
+  Fecha: string;
+}
+
+export interface TraverseDynamicsAccountingDetail {
+  Asiento: number;
+  Linea: number;
+  CuentaNumero: string;
+  Debito: number;
+  Credito: number;
+  Descripcion: string;
+  LoteId: string;
+}
+
+export interface TraverseDynamicsAccountingStep {
+  table_header: string;
+  table_detail: string;
+  header: TraverseDynamicsAccountingHeader;
+  details: TraverseDynamicsAccountingDetail[];
+}
+
+export interface TraverseDynamicsPayloadGroup {
+  transaction_date: string;
+  creator_vat: string;
+  paso_1_adjustment: TraverseDynamicsAdjustmentStep;
+  paso_2_accounting: TraverseDynamicsAccountingStep;
+}
+
+export interface TraverseDynamicsSummary {
+  transaction_date: string;
+  creator_vat: string;
+  total_movements: number;
+  total_adjustment_details: number;
+  total_accounting_details: number;
+}
+
+export interface TraverseDynamicsPayloadPreviewResource {
+  document_info: TraverseDynamicsDocumentInfo;
+  preview_mode: string;
+  dynamics_payload: TraverseDynamicsPayloadGroup[];
+  summary: TraverseDynamicsSummary;
 }
 
 export interface HistoricalFinalSaleBulkRow {

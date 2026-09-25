@@ -52,6 +52,7 @@ export interface ProductResource {
   brand_name?: string;
   category_name?: string;
   unit_measurement_name?: string;
+  ap_class_article_description?: string;
   total_stock?: number;
   total_available_stock?: number;
   price_with_tax?: number;

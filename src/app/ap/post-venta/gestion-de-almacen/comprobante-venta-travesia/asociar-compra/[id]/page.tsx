@@ -211,19 +211,30 @@ export default function AssociatePurchaseTraversePage() {
             />
 
             <div className="flex justify-end">
-              <Button
-                onClick={() => associateMutation.mutate()}
-                disabled={
-                  selectedItemIds.length === 0 ||
-                  associateMutation.isPending ||
-                  !permissions.canLinkCrossingPurchase
+              <ConfirmationDialog
+                title="Confirmar asociación de compra"
+                description="Una vez asociada la compra, esta información se migrará a Dynamics. ¿Está seguro de que desea continuar?"
+                onConfirm={() => associateMutation.mutate()}
+                icon="warning"
+                confirmText="Sí, asociar"
+                cancelText="No, cancelar"
+                confirmDisabled={associateMutation.isPending}
+                trigger={
+                  <Button
+                    disabled={
+                      selectedItemIds.length === 0 ||
+                      associateMutation.isPending ||
+                      !permissions.canLinkCrossingPurchase
+                    }
+                    className="gap-2"
+                  >
+                    <Link2 className="h-4 w-4" />
+                    Asociar Compra
+                    {selectedItemIds.length > 0 &&
+                      ` (${selectedItemIds.length})`}
+                  </Button>
                 }
-                className="gap-2"
-              >
-                <Link2 className="h-4 w-4" />
-                Asociar Compra
-                {selectedItemIds.length > 0 && ` (${selectedItemIds.length})`}
-              </Button>
+              />
             </div>
           </CardContent>
         </Card>

@@ -52,6 +52,7 @@ interface Props {
   };
   routeUpdate?: string;
   routeReception: string;
+  routeReplace: string;
 }
 
 export const supplierOrderColumns = ({
@@ -61,6 +62,7 @@ export const supplierOrderColumns = ({
   permissions,
   routeUpdate,
   routeReception,
+  routeReplace,
 }: Props): SupplierOrderColumns[] => [
   {
     accessorKey: "order_number",
@@ -212,6 +214,7 @@ export const supplierOrderColumns = ({
         permissions={permissions}
         routeUpdate={routeUpdate}
         routeReception={routeReception}
+        routeReplace={routeReplace}
       />
     ),
   },

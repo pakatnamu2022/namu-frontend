@@ -8,6 +8,7 @@ import {
   OBJECTIVE_STATUS_BADGE_COLOR,
   OBJECTIVE_STATUS_LABEL,
 } from "../lib/objectivesDashboard.constants";
+import { formatMoney } from "@/core/core.function";
 
 export type ObjectivesHeadquartersColumn = ColumnDef<HeadquarterSummary>;
 
@@ -16,12 +17,6 @@ interface Props {
 }
 
 const cellClickClass = "cursor-pointer -m-2 p-2";
-
-const formatCurrency = (value: number) =>
-  `S/ ${new Intl.NumberFormat("es-PE", {
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  }).format(value)}`;
 
 export const objectivesHeadquartersColumns = ({
   onRowClick,
@@ -49,7 +44,9 @@ export const objectivesHeadquartersColumns = ({
       return (
         <div onClick={() => onRowClick(sede)} className={cellClickClass}>
           <div className="font-semibold">{sede.name}</div>
-          <div className="text-xs text-muted-foreground">{sede.abbreviation}</div>
+          <div className="text-xs text-muted-foreground">
+            {sede.abbreviation}
+          </div>
         </div>
       );
     },
@@ -59,7 +56,7 @@ export const objectivesHeadquartersColumns = ({
     header: "Objetivo",
     cell: ({ row }) => (
       <div onClick={() => onRowClick(row.original)} className={cellClickClass}>
-        {formatCurrency(row.original.total_objective)}
+        {formatMoney(row.original.total_objective)}
       </div>
     ),
   },
@@ -69,7 +66,18 @@ export const objectivesHeadquartersColumns = ({
     cell: ({ row }) => (
       <div onClick={() => onRowClick(row.original)} className={cellClickClass}>
         <span className="font-semibold">
-          {formatCurrency(row.original.total_progress)}
+          {formatMoney(row.original.total_progress)}
+        </span>
+      </div>
+    ),
+  },
+  {
+    accessorKey: "loose_invoices_progress",
+    header: "OC",
+    cell: ({ row }) => (
+      <div onClick={() => onRowClick(row.original)} className={cellClickClass}>
+        <span className="font-semibold">
+          {formatMoney(row.original.loose_invoices_progress)}
         </span>
       </div>
     ),
@@ -89,7 +97,10 @@ export const objectivesHeadquartersColumns = ({
               {sede.completion_percentage}%
             </span>
           </div>
-          <Progress value={Math.min(sede.completion_percentage, 100)} className="h-1.5" />
+          <Progress
+            value={Math.min(sede.completion_percentage, 100)}
+            className="h-1.5"
+          />
         </div>
       );
     },

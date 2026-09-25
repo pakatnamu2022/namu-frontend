@@ -34,7 +34,7 @@ export default function ProductivityDashboardFilters({
     has_workshop: 1,
   });
 
-  const YEAR_OPTIONS = generateYear().map((y) => ({
+  const YEAR_OPTIONS = generateYear(2026).map((y) => ({
     value: y.toString(),
     label: y.toString(),
   }));

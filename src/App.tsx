@@ -979,6 +979,10 @@ const AddReceptionProductPage = lazyPage(
   () =>
     import("@/app/ap/post-venta/gestion-de-almacen/compra-proveedor/recepcionar/agregar/[supplierOrderId]/page.tsx"),
 );
+const ReplaceSupplierOrderProductPage = lazyPage(
+  () =>
+    import("@/app/ap/post-venta/gestion-de-almacen/compra-proveedor/reemplazar-repuesto/[supplierOrderId]/page.tsx"),
+);
 const SupplierOrderPage = lazyPage(
   () =>
     import("./app/ap/post-venta/gestion-de-almacen/compra-proveedor/page.tsx"),
@@ -3019,6 +3023,10 @@ function App() {
               <Route
                 path="gestion-de-almacen/compra-proveedor/recepcionar/actualizar/:supplierOrderId/:id"
                 element={<UpdateReceptionProductPage />}
+              />
+              <Route
+                path="gestion-de-almacen/compra-proveedor/reemplazar-repuesto/:supplierOrderId"
+                element={<ReplaceSupplierOrderProductPage />}
               />
               <Route
                 path="gestion-de-almacen/solicitud-compra-almacen"

@@ -89,6 +89,8 @@ export default function SalesReceiptsAlmacenPage() {
     });
 
   const canLinkCrossingPurchase = permissions.canLinkCrossingPurchase || false;
+  const canUnlinkCrossingPurchase =
+    permissions.canUnlinkCrossingPurchase || false;
 
   const { data: sedes = [], isLoading: isLoadingSedes } = useMySedes({
     company: EMPRESA_AP.id,
@@ -168,6 +170,7 @@ export default function SalesReceiptsAlmacenPage() {
             : undefined,
           permissions: {
             canLinkCrossingPurchase,
+            canUnlinkCrossingPurchase,
           },
         })}
         data={data?.data || []}

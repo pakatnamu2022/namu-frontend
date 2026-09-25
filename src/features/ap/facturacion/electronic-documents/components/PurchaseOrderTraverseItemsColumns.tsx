@@ -1,7 +1,7 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
-import { formatMoney } from "@/core/core.function";
+import { formatDate, formatMoney } from "@/core/core.function";
 import { PurchaseOrderItemTraverse } from "../lib/electronicDocument.interface";
 
 export type PurchaseOrderTraverseItemsColumn =
@@ -31,6 +31,20 @@ export const purchaseOrderTraverseItemsColumns =
       enableHiding: false,
     },
     {
+      accessorKey: "emission_date",
+      header: "Fecha de Emisión",
+      cell: ({ row }) => {
+        const po = row.original.purchase_order;
+        return (
+          <div className="flex flex-col">
+            <span className="font-medium text-sm">
+              {formatDate(po.emission_date) || "-"}
+            </span>
+          </div>
+        );
+      },
+    },
+    {
       accessorKey: "product_name",
       header: "Producto",
       cell: ({ row }) => {
@@ -41,7 +55,10 @@ export const purchaseOrderTraverseItemsColumns =
               {item.product_name || item.description || "N/A"}
             </span>
             <span className="text-xs text-muted-foreground">
-              {item.product_code}
+              cod: {item.product_code}
+            </span>
+            <span className="text-xs text-muted-foreground">
+              dyn: {item.product_dyn_code}
             </span>
           </div>
         );

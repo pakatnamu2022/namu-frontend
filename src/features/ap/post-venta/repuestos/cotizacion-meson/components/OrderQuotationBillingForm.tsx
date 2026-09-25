@@ -680,10 +680,19 @@ export function OrderQuotationBillingForm({
 
       if (mode === "gratuita") {
         // Sin cobro: precio_unitario (con IGV) debe igualar a valor_unitario (sin IGV).
+        // valor_unitario venía sin descontar (precio de lista); hay que restar el
+        // descuento unitario antes de usarlo, y el descuento ya no aplica (se envía en 0).
+        const descuentoUnitario = item.descuento
+          ? round2(item.descuento / item.cantidad)
+          : 0;
+        const valorUnitarioNeto = round2(item.valor_unitario - descuentoUnitario);
+
         return {
           ...item,
           sunat_concept_igv_type_id: targetIgvType.id,
-          precio_unitario: round2(item.valor_unitario),
+          valor_unitario: valorUnitarioNeto,
+          precio_unitario: valorUnitarioNeto,
+          descuento: 0,
           igv: 0,
           total: round2(item.subtotal),
         };
