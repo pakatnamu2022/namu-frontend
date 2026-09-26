@@ -323,7 +323,8 @@ export default function PayrollCalculationToolbar({
             open={showBonusImport}
             onClose={() => setShowBonusImport(false)}
             companyId={companyId}
-            companyName={companyName}
+            defaultYear={periodYear}
+            defaultMonth={periodMonth}
             onSuccess={onSuccess}
           />
           <PayrollHistoricalSalaryImportDialog

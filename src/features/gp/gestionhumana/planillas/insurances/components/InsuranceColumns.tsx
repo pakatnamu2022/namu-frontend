@@ -14,6 +14,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { Badge } from "@/components/ui/badge";
 
 export type InsuranceColumns = ColumnDef<InsuranceResource>;
 
@@ -26,9 +27,7 @@ export const insuranceColumns = ({
     accessorKey: "period",
     header: "Periodo",
     cell: ({ row }) => (
-      <span className="inline-flex items-center rounded-md bg-blue-50 px-2 py-1 text-xs font-semibold text-blue-700 ring-1 ring-inset ring-blue-600/20">
-        {formatPeriod(row.original.period)}
-      </span>
+      <Badge color="blue">{formatPeriod(row.original.period)}</Badge>
     ),
   },
   {

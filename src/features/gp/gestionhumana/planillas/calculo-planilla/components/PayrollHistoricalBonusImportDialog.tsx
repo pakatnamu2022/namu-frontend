@@ -1,21 +1,25 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import { AlertCircle, CheckCircle2 } from "lucide-react";
+import { AlertCircle, CheckCircle2, Download } from "lucide-react";
 import { Form, FormField } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { FileForm } from "@/shared/components/FileForm";
 import { errorToast } from "@/core/core.function";
+import { useAllCompanies } from "@/features/gp/maestro-general/empresa/lib/company.hook";
+import { SearchableSelect } from "@/shared/components/SearchableSelect";
 import { importHistoricalBonuses } from "../lib/payroll-calculation.actions";
 import { HistoricalImportResponse } from "../lib/payroll-calculation.interface";
 import GeneralSheet from "@/shared/components/GeneralSheet";
+import PayrollHistoricalBonusTemplateDialog from "./PayrollHistoricalBonusTemplateDialog";
 
 interface Props {
   open: boolean;
   onClose: () => void;
   companyId: number;
-  companyName?: string;
+  defaultYear: number;
+  defaultMonth: number;
   onSuccess: () => void;
 }
 
@@ -27,11 +31,24 @@ export default function PayrollHistoricalBonusImportDialog({
   open,
   onClose,
   companyId,
-  companyName,
+  defaultYear,
+  defaultMonth,
   onSuccess,
 }: Props) {
   const [isLoading, setIsLoading] = useState(false);
   const [result, setResult] = useState<HistoricalImportResponse | null>(null);
+  const [showTemplate, setShowTemplate] = useState(false);
+  const [selectedCompanyId, setSelectedCompanyId] = useState(companyId);
+
+  const { data: companies, isLoading: isLoadingCompanies } = useAllCompanies();
+
+  useEffect(() => {
+    if (open) setSelectedCompanyId(companyId);
+  }, [open, companyId]);
+
+  const selectedCompanyName = companies?.find(
+    (c) => c.id === selectedCompanyId,
+  )?.name;
 
   const form = useForm<FormValues>({ defaultValues: { file: null } });
 
@@ -48,7 +65,7 @@ export default function PayrollHistoricalBonusImportDialog({
     }
     setIsLoading(true);
     try {
-      const res = await importHistoricalBonuses(values.file, companyId);
+      const res = await importHistoricalBonuses(values.file, selectedCompanyId);
       setResult(res);
       if (res.rows_processed > 0) {
         onSuccess();
@@ -67,10 +84,43 @@ export default function PayrollHistoricalBonusImportDialog({
       open={open}
       onClose={handleClose}
       title="Importar histórico de bono/comisión"
-      subtitle={companyName ? `Empresa: ${companyName}` : undefined}
       icon="FileUp"
       size="3xl"
     >
+      <div className="space-y-1.5 mb-4">
+        <label className="text-sm font-medium">Empresa</label>
+        <SearchableSelect
+          options={(companies ?? []).map((c) => ({
+            label: c.name,
+            value: String(c.id),
+          }))}
+          value={String(selectedCompanyId)}
+          onChange={(v) => setSelectedCompanyId(Number(v))}
+          placeholder={isLoadingCompanies ? "Cargando..." : "Empresa"}
+          disabled={isLoadingCompanies}
+          allowClear={false}
+        />
+      </div>
+
+      <div className="flex items-center justify-between gap-3 rounded-lg border bg-muted/40 p-3 mb-4">
+        <div>
+          <p className="text-sm font-medium">¿No tienes la plantilla?</p>
+          <p className="text-xs text-muted-foreground">
+            Descárgala con los trabajadores activos de la empresa elegida.
+          </p>
+        </div>
+        <Button
+          type="button"
+          variant="default"
+          size="sm"
+          className="shrink-0"
+          onClick={() => setShowTemplate(true)}
+        >
+          <Download className="size-4 mr-1.5" />
+          Descargar plantilla
+        </Button>
+      </div>
+
       {result ? (
         <div className="space-y-4">
           <div
@@ -185,6 +235,15 @@ export default function PayrollHistoricalBonusImportDialog({
           </form>
         </Form>
       )}
+
+      <PayrollHistoricalBonusTemplateDialog
+        open={showTemplate}
+        onClose={() => setShowTemplate(false)}
+        companyId={selectedCompanyId}
+        companyName={selectedCompanyName}
+        defaultYear={defaultYear}
+        defaultMonth={defaultMonth}
+      />
     </GeneralSheet>
   );
 }
