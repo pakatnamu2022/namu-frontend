@@ -12,3 +12,10 @@ export const bonusSchema = z.object({
 });
 
 export type BonusSchema = z.infer<typeof bonusSchema>;
+
+export const bonusImportSchema = z.object({
+  period_id: requiredStringId("El periodo es requerido"),
+  type_id: requiredStringId("El tipo de bonificación es requerido"),
+});
+
+export type BonusImportSchema = z.infer<typeof bonusImportSchema>;

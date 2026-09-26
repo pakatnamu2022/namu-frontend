@@ -2,6 +2,7 @@ import { requiredStringId } from "@/shared/lib/global.schema";
 import { z } from "zod";
 
 export const insuranceSchema = z.object({
+  company_id: requiredStringId("La empresa es requerida"),
   business_partner_id: requiredStringId("La aseguradora es requerida"),
   period_id: requiredStringId("El periodo es requerido"),
 });

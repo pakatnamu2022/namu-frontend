@@ -31,16 +31,56 @@ export async function deleteInsurance(id: number): Promise<GeneralResponse> {
   return data;
 }
 
+export interface InsuranceImportRow {
+  fila: number;
+  doc_afiliado: string;
+  contratante: string;
+  doc_contratante: string;
+  tarifa: number | string;
+  estado: string;
+  motivo: string;
+}
+
+export interface InsuranceImportSummary {
+  company_name: string | null;
+  period_name: string | null;
+  business_partner_name: string;
+  imported_at: string;
+  rows_processed: number;
+  created: number;
+  updated: number;
+  not_imported: number;
+  global_errors: string[];
+}
+
+export interface InsuranceImportResult {
+  success: boolean;
+  message: string;
+  created: number;
+  updated: number;
+  rows_processed: number;
+  errors: string[];
+  summary: InsuranceImportSummary;
+  report: InsuranceImportRow[];
+}
+
+/**
+ * Importa el Excel de seguros. El backend valida fila por fila (incluyendo si
+ * el DNI pertenece a la empresa del periodo seleccionado) y responde con un
+ * JSON: resumen de la importación + detalle fila por fila, para mostrarlo en
+ * un GeneralSheet en vez de descargar un archivo.
+ */
 export async function importInsurance(
   file: File,
   period_id: string | number,
   business_partner_id: string | number,
-): Promise<GeneralResponse> {
+): Promise<InsuranceImportResult> {
   const formData = new FormData();
   formData.append("file", file);
   formData.append("period_id", String(period_id));
   formData.append("business_partner_id", String(business_partner_id));
-  const { data } = await api.post<GeneralResponse>(
+
+  const { data } = await api.post<InsuranceImportResult>(
     `${ENDPOINT}/import`,
     formData,
     { headers: { "Content-Type": "multipart/form-data" } },

@@ -33,6 +33,23 @@ export const lifePolicySchemaCreate = z
 
 export type LifePolicyCreateSchema = z.infer<typeof lifePolicySchemaCreate>;
 
+// La empresa y la prima neta no se editan: la prima se recalcula sola al guardar.
+export const lifePolicySchemaUpdate = z
+  .object({
+    insurer: z.string().max(255).optional(),
+    policy_number: z.string().max(100).optional(),
+    start_date: z.string().min(1, "La fecha de inicio es obligatoria"),
+    end_date: z.string().min(1, "La fecha de fin es obligatoria"),
+    monthly_rate: optionalNumberString("La tasa mensual", 100),
+    exclusion: optionalNumberString("La exclusión"),
+  })
+  .refine((d) => !d.start_date || !d.end_date || d.end_date > d.start_date, {
+    message: "La fecha de fin debe ser posterior a la de inicio",
+    path: ["end_date"],
+  });
+
+export type LifePolicyUpdateSchema = z.infer<typeof lifePolicySchemaUpdate>;
+
 export const lifePolicyWorkerSchema = z.object({
   worker_id: z.string().min(1, "El trabajador es obligatorio"),
   insured_salary: optionalNumberString("El sueldo asegurado"),

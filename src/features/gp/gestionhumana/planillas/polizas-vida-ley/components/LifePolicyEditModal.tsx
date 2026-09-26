@@ -13,54 +13,44 @@ import {
   successToast,
 } from "@/core/core.function";
 import { GeneralModal } from "@/shared/components/GeneralModal";
-import { FormSelect } from "@/shared/components/FormSelect";
 import { FormInput } from "@/shared/components/FormInput";
 import { DatePickerFormField } from "@/shared/components/DatePickerFormField";
-import { useAllCompanies } from "@/features/gp/maestro-general/empresa/lib/company.hook";
-import { storeLifePolicy } from "../lib/life-policy.actions";
+import { updateLifePolicy } from "../lib/life-policy.actions";
 import { LIFE_POLICY } from "../lib/life-policy.constants";
+import { LifePolicyResource } from "../lib/life-policy.interface";
 import {
-  LifePolicyCreateSchema,
-  lifePolicySchemaCreate,
+  LifePolicyUpdateSchema,
+  lifePolicySchemaUpdate,
 } from "../lib/life-policy.schema";
 
 const { MODEL, QUERY_KEY } = LIFE_POLICY;
 
 interface Props {
-  open: boolean;
+  policy: LifePolicyResource;
   onClose: () => void;
-  defaultCompanyId?: string;
 }
 
 const toNumber = (v?: string) => (v === undefined || v === "" ? undefined : Number(v));
 
-export default function LifePolicyModal({
-  open,
-  onClose,
-  defaultCompanyId,
-}: Props) {
+export default function LifePolicyEditModal({ policy, onClose }: Props) {
   const queryClient = useQueryClient();
-  const { data: companies } = useAllCompanies();
 
-  const form = useForm<LifePolicyCreateSchema>({
-    resolver: zodResolver(lifePolicySchemaCreate),
+  const form = useForm<LifePolicyUpdateSchema>({
+    resolver: zodResolver(lifePolicySchemaUpdate),
     defaultValues: {
-      company_id: defaultCompanyId ?? "",
-      insurer: "",
-      policy_number: "",
-      start_date: "",
-      end_date: "",
-      monthly_rate: "",
-      exclusion: "",
-      net_premium: "",
+      insurer: policy.insurer ?? "",
+      policy_number: policy.policy_number ?? "",
+      start_date: policy.start_date,
+      end_date: policy.end_date,
+      monthly_rate: String((Number(policy.monthly_rate) * 100).toFixed(4)),
+      exclusion: policy.exclusion ?? "",
     },
     mode: "onChange",
   });
 
   const { mutate, isPending } = useMutation({
-    mutationFn: (d: LifePolicyCreateSchema) =>
-      storeLifePolicy({
-        company_id: Number(d.company_id),
+    mutationFn: (d: LifePolicyUpdateSchema) =>
+      updateLifePolicy(policy.id, {
         insurer: d.insurer || undefined,
         policy_number: d.policy_number || undefined,
         start_date: d.start_date,
@@ -70,53 +60,33 @@ export default function LifePolicyModal({
             ? (toNumber(d.monthly_rate) as number) / 100
             : undefined,
         exclusion: toNumber(d.exclusion),
-        net_premium: toNumber(d.net_premium),
       }),
-    onSuccess: async (result) => {
-      const skipped = result.skipped.length;
-      successToast(
-        skipped > 0
-          ? `Póliza creada. ${skipped} trabajador(es) sin sueldo no fueron asegurados.`
-          : SUCCESS_MESSAGE(MODEL, "create"),
-      );
+    onSuccess: async () => {
+      successToast(SUCCESS_MESSAGE(MODEL, "update"));
       await queryClient.invalidateQueries({ queryKey: [QUERY_KEY] });
-      form.reset();
       onClose();
     },
     onError: (error: any) => {
       errorToast(
         error.response?.data?.message,
-        ERROR_MESSAGE(MODEL, "create"),
+        ERROR_MESSAGE(MODEL, "update"),
       );
     },
   });
 
   return (
-    <GeneralModal open={open} onClose={onClose} title={`Crear ${MODEL.name}`}>
+    <GeneralModal open onClose={onClose} title={`Editar ${MODEL.name}`}>
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit((d) => mutate(d))}
           className="space-y-4 w-full"
         >
           <p className="text-xs text-muted-foreground">
-            Al emitir la póliza se asegura a los trabajadores activos de la
-            empresa con su sueldo vigente al inicio de la póliza (más asignación
-            familiar) y se calcula una sola vez el monto mensual de cada uno.
+            Al guardar se recalculan los sueldos asegurados y los totales de
+            la póliza con los datos nuevos (empresa y prima neta no se
+            editan aquí: la prima se recalcula sola).
           </p>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="sm:col-span-2">
-              <FormSelect
-                control={form.control}
-                name="company_id"
-                label="Empresa"
-                placeholder="Selecciona una empresa"
-                options={(companies ?? []).map((c) => ({
-                  value: String(c.id),
-                  label: c.name,
-                }))}
-                required
-              />
-            </div>
             <FormInput
               name="insurer"
               label="Aseguradora"
@@ -170,14 +140,6 @@ export default function LifePolicyModal({
               placeholder="Opcional. Ej: 0.00"
               control={form.control}
             />
-            <div className="sm:col-span-2">
-              <FormInput
-                name="net_premium"
-                label="Prima neta (S/)"
-                placeholder="Opcional. Si se deja vacío se calcula con la tasa"
-                control={form.control}
-              />
-            </div>
           </div>
 
           <div className="flex gap-4 w-full justify-end">
@@ -191,7 +153,7 @@ export default function LifePolicyModal({
               <Loader
                 className={`mr-2 h-4 w-4 ${!isPending ? "hidden" : ""}`}
               />
-              {isPending ? "Guardando" : `Guardar ${MODEL.name}`}
+              {isPending ? "Guardando y recalculando" : "Guardar y recalcular"}
             </Button>
           </div>
         </form>

@@ -26,6 +26,34 @@ export async function findWorkingConditionById(
   return data.data;
 }
 
+/**
+ * GET /working-conditions/template?company_id=
+ * Descarga la plantilla Excel (cabecera azul) pre-llenada con los trabajadores activos de la
+ * empresa, para completar el monto de C.T. e importarla luego con importWorkingConditions().
+ */
+export async function downloadWorkingConditionsTemplate(
+  companyId: string | number,
+): Promise<void> {
+  const { data } = await api.get(`${ENDPOINT}/template`, {
+    params: { company_id: companyId },
+    responseType: "blob",
+  });
+  const url = URL.createObjectURL(data);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "plantilla_condiciones_trabajo.xlsx";
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+export async function updateWorkingCondition(
+  id: number,
+  body: Partial<Pick<WorkingConditionResource, "amount" | "status">>,
+): Promise<WorkingConditionResource> {
+  const { data } = await api.put(`${ENDPOINT}/${id}`, body);
+  return data;
+}
+
 export async function importWorkingConditions(
   file: File,
   period_id: string | number,

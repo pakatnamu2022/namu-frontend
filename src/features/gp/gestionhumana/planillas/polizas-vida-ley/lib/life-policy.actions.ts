@@ -5,6 +5,7 @@ import {
   LifePolicyResource,
   LifePolicyResponse,
   LifePolicyStoreResult,
+  LifePolicyUpdateRequest,
   LifePolicyWorkerRequest,
 } from "./life-policy.interface";
 import { LIFE_POLICY } from "./life-policy.constants";
@@ -41,10 +42,25 @@ export async function storeLifePolicy(
   };
 }
 
+export async function updateLifePolicy(
+  id: number,
+  payload: LifePolicyUpdateRequest,
+): Promise<LifePolicyResource> {
+  const { data } = await api.put<any>(`${ENDPOINT}/${id}`, payload);
+  return unwrap<LifePolicyResource>(data);
+}
+
 export async function addLifePolicyWorker(
   id: number,
   payload: LifePolicyWorkerRequest,
 ): Promise<LifePolicyResource> {
   const { data } = await api.post<any>(`${ENDPOINT}/${id}/workers`, payload);
+  return unwrap<LifePolicyResource>(data);
+}
+
+export async function recalculateLifePolicy(
+  id: number,
+): Promise<LifePolicyResource> {
+  const { data } = await api.post<any>(`${ENDPOINT}/${id}/recalculate`);
   return unwrap<LifePolicyResource>(data);
 }

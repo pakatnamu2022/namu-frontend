@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   WorkingConditionResource,
   WorkingConditionResponse,
@@ -6,6 +6,7 @@ import {
 import {
   findWorkingConditionById,
   getWorkingConditions,
+  updateWorkingCondition,
 } from "./working-condition.actions";
 import { WORKING_CONDITION } from "./working-condition.constant";
 
@@ -15,7 +16,6 @@ export const useWorkingConditions = (params?: Record<string, any>) => {
   return useQuery<WorkingConditionResponse>({
     queryKey: [QUERY_KEY, params],
     queryFn: () => getWorkingConditions(params),
-    refetchOnWindowFocus: false,
   });
 };
 
@@ -23,7 +23,22 @@ export const useWorkingConditionById = (id: number) => {
   return useQuery<WorkingConditionResource>({
     queryKey: [QUERY_KEY, id],
     queryFn: () => findWorkingConditionById(id),
-    refetchOnWindowFocus: false,
     enabled: !!id,
+  });
+};
+
+export const useUpdateWorkingCondition = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      id,
+      body,
+    }: {
+      id: number;
+      body: Partial<Pick<WorkingConditionResource, "amount" | "status">>;
+    }) => updateWorkingCondition(id, body),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEY] });
+    },
   });
 };

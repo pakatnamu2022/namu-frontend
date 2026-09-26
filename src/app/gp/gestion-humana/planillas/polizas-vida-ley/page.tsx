@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Plus } from "lucide-react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
 import TitleComponent from "@/shared/components/TitleComponent";
 import DataTablePagination from "@/shared/components/DataTablePagination";
@@ -14,14 +15,18 @@ import { SearchableSelect } from "@/shared/components/SearchableSelect";
 import { notFound } from "@/shared/hooks/useNotFound";
 import { Button } from "@/components/ui/button";
 import { DEFAULT_PER_PAGE } from "@/core/core.constants";
+import { errorToast, successToast } from "@/core/core.function";
 import { useAllCompanies } from "@/features/gp/maestro-general/empresa/lib/company.hook";
 import { LIFE_POLICY } from "@/features/gp/gestionhumana/planillas/polizas-vida-ley/lib/life-policy.constants";
 import { useLifePolicies } from "@/features/gp/gestionhumana/planillas/polizas-vida-ley/lib/life-policy.hook";
+import { recalculateLifePolicy } from "@/features/gp/gestionhumana/planillas/polizas-vida-ley/lib/life-policy.actions";
 import { lifePolicyColumns } from "@/features/gp/gestionhumana/planillas/polizas-vida-ley/components/LifePolicyColumns";
 import LifePolicyModal from "@/features/gp/gestionhumana/planillas/polizas-vida-ley/components/LifePolicyModal";
+import LifePolicyEditModal from "@/features/gp/gestionhumana/planillas/polizas-vida-ley/components/LifePolicyEditModal";
 import LifePolicyDetailModal from "@/features/gp/gestionhumana/planillas/polizas-vida-ley/components/LifePolicyDetailModal";
+import { LifePolicyResource } from "@/features/gp/gestionhumana/planillas/polizas-vida-ley/lib/life-policy.interface";
 
-const { MODEL, ROUTE } = LIFE_POLICY;
+const { MODEL, ROUTE, QUERY_KEY } = LIFE_POLICY;
 
 export default function LifePolicyPage() {
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
@@ -31,8 +36,24 @@ export default function LifePolicyPage() {
   const [companyId, setCompanyId] = useState("");
   const [open, setOpen] = useState(false);
   const [detailId, setDetailId] = useState<number | null>(null);
+  const [editPolicy, setEditPolicy] = useState<LifePolicyResource | null>(null);
 
   const { data: companies, isLoading: isLoadingCompanies } = useAllCompanies();
+  const queryClient = useQueryClient();
+
+  const { mutate: recalculate, variables: recalculatingId, isPending: isRecalculatingAny } =
+    useMutation({
+      mutationFn: (id: number) => recalculateLifePolicy(id),
+      onSuccess: async () => {
+        successToast("Póliza recalculada correctamente");
+        await queryClient.invalidateQueries({ queryKey: [QUERY_KEY] });
+      },
+      onError: (error: any) => {
+        errorToast(
+          error?.response?.data?.message ?? "Error al recalcular la póliza",
+        );
+      },
+    });
 
   useEffect(() => {
     if (companies && companies.length > 0 && !companyId) {
@@ -77,7 +98,12 @@ export default function LifePolicyPage() {
 
       <div className="border-none text-muted-foreground max-w-full">
         <DataTable
-          columns={lifePolicyColumns({ onView: setDetailId })}
+          columns={lifePolicyColumns({
+            onView: setDetailId,
+            onEdit: setEditPolicy,
+            onRecalculate: (id) => recalculate(id),
+            isRecalculating: (id) => isRecalculatingAny && recalculatingId === id,
+          })}
           data={data?.data || []}
           isLoading={isLoading}
           initialColumnVisibility={{}}
@@ -115,6 +141,12 @@ export default function LifePolicyPage() {
         <LifePolicyDetailModal
           policyId={detailId}
           onClose={() => setDetailId(null)}
+        />
+      )}
+      {editPolicy && (
+        <LifePolicyEditModal
+          policy={editPolicy}
+          onClose={() => setEditPolicy(null)}
         />
       )}
 

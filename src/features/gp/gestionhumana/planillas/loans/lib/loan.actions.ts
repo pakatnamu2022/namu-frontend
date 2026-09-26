@@ -68,20 +68,12 @@ export async function updateLoanExtraDiscount(
   return unwrap<LoanExtraDiscountResource>(data);
 }
 
-export interface LoanLegacySyncResult {
-  total_legacy: number;
-  created: number;
-  updated: number;
-  deleted: number;
-  details_imported: number;
-  skipped: string[];
-  skipped_total: number;
+export interface LoanLegacySyncQueuedResult {
+  message: string;
 }
 
-/** Sincroniza los préstamos de web_millagp_2 hacia las tablas nuevas. */
-export async function syncLegacyLoans(): Promise<LoanLegacySyncResult> {
-  const { data } = await api.post<any>(`${ENDPOINT}/sync-legacy`, undefined, {
-    timeout: 0,
-  });
-  return unwrap<LoanLegacySyncResult>(data);
+/** Encola la sincronización de los préstamos de web_millagp_2 hacia las tablas nuevas. */
+export async function syncLegacyLoans(): Promise<LoanLegacySyncQueuedResult> {
+  const { data } = await api.post<any>(`${ENDPOINT}/sync-legacy`);
+  return unwrap<LoanLegacySyncQueuedResult>(data);
 }
