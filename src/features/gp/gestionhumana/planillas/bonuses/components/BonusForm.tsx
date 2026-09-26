@@ -17,7 +17,6 @@ import { useGpMasters } from "@/features/gp/gp-master/lib/gpMaster.hook";
 import { GP_MASTER_TYPE } from "@/features/gp/gp-master/lib/gpMaster.constants";
 import { useAllCompanies } from "@/features/gp/maestro-general/empresa/lib/company.hook";
 import { Option } from "@/core/core.interface";
-import { FormSelect } from "@/shared/components/FormSelect";
 
 interface BonusFormProps {
   defaultValues: Partial<BonusSchema>;
@@ -95,7 +94,6 @@ export const BonusForm = ({
             placeholder="Seleccione periodo"
             control={form.control}
             required
-            disabled={!selectedCompanyId}
             useQueryHook={usePayrollPeriods}
             additionalParams={
               selectedCompanyId ? { company_id: selectedCompanyId } : {}

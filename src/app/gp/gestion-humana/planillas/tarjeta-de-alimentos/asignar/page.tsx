@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
 import TitleFormComponent from "@/shared/components/TitleFormComponent";
-import FormWrapper from "@/shared/components/FormWrapper";
+import PageWrapper from "@/shared/components/PageWrapper";
 import { notFound } from "@/shared/hooks/useNotFound";
 import { SearchableSelect } from "@/shared/components/SearchableSelect";
 import { useAllCompanies } from "@/features/gp/maestro-general/empresa/lib/company.hook";
@@ -100,7 +100,7 @@ export default function AssignFoodCardPage() {
   if (!currentView) notFound();
 
   return (
-    <FormWrapper>
+    <PageWrapper>
       <HeaderTableWrapper>
         <BackButton
           size="icon"
@@ -108,7 +108,11 @@ export default function AssignFoodCardPage() {
           route={ABSOLUTE_ROUTE}
         />
 
-        <TitleFormComponent title={currentView.descripcion} mode="create" />
+        <TitleFormComponent
+          title={currentView.descripcion}
+          mode="create"
+          icon={currentView.icon}
+        />
       </HeaderTableWrapper>
 
       <div className="flex flex-wrap items-end gap-3 mb-4">
@@ -159,6 +163,6 @@ export default function AssignFoodCardPage() {
         onSaved={refetch}
         search={search}
       />
-    </FormWrapper>
+    </PageWrapper>
   );
 }

@@ -143,14 +143,24 @@ export default function FoodCardAssignTable({
 
   return (
     <div className="space-y-3">
-      <div className="overflow-x-auto rounded-md border">
+      <div className="overflow-auto rounded-md border max-h-[calc(100vh-260px)]">
         <Table>
-          <TableHeader>
+          <TableHeader className="sticky top-0 z-10 bg-background shadow-sm">
             <TableRow>
-              <TableHead className="w-10 text-center">#</TableHead>
-              <TableHead className="min-w-52">Trabajador</TableHead>
+              <TableHead className="w-8 h-9 px-2 text-center text-xs">
+                #
+              </TableHead>
+              <TableHead className="h-9 px-2 whitespace-nowrap text-xs">
+                Trabajador
+              </TableHead>
+              <TableHead className="h-9 px-2 whitespace-nowrap text-xs">
+                DNI
+              </TableHead>
               {periods.map((period) => (
-                <TableHead key={period.id} className="text-center min-w-36">
+                <TableHead
+                  key={period.id}
+                  className="h-9 px-2 text-center whitespace-nowrap text-xs min-w-24"
+                >
                   {period.name}
                 </TableHead>
               ))}
@@ -160,7 +170,7 @@ export default function FoodCardAssignTable({
             {filteredWorkers.length === 0 ? (
               <TableRow>
                 <TableCell
-                  colSpan={periods.length + 2}
+                  colSpan={periods.length + 3}
                   className="py-6 text-center text-sm text-muted-foreground"
                 >
                   No se encontraron trabajadores.
@@ -169,20 +179,20 @@ export default function FoodCardAssignTable({
             ) : (
               filteredWorkers.map((worker, index) => (
                 <TableRow key={worker.id}>
-                  <TableCell className="text-center text-muted-foreground text-xs">
+                  <TableCell className="py-1.5 px-2 text-center text-muted-foreground text-xs">
                     {index + 1}
                   </TableCell>
-                  <TableCell className="text-sm">
-                    <span className="font-medium">{worker.name}</span>
-                    <span className="block text-xs text-muted-foreground">
-                      DNI: {worker.document}
-                    </span>
+                  <TableCell className="py-1.5 px-2 text-sm whitespace-nowrap font-medium">
+                    {worker.name}
+                  </TableCell>
+                  <TableCell className="py-1.5 px-2 text-xs text-muted-foreground whitespace-nowrap">
+                    {worker.document}
                   </TableCell>
                   {periods.map((period) => {
                     const key: CellKey = `${worker.id}-${period.id}`;
                     const cell = cells[key];
                     return (
-                      <TableCell key={period.id} className="text-center">
+                      <TableCell key={period.id} className="py-1.5 px-2 text-center">
                         <Checkbox
                           checked={cell?.applies ?? false}
                           disabled={cell?.saving}
