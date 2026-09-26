@@ -18,6 +18,18 @@ export const RECRUITMENT_PROCESS: ModelComplete = {
   ROUTE_UPDATE: `${ABSOLUTE_ROUTE}/actualizar`,
 };
 
+export const RECRUITMENT_PROCESS_PRIORITY = {
+  LOW: 0,
+  MEDIUM: 1,
+  HIGH: 2,
+} as const;
+
+export const RECRUITMENT_PROCESS_PRIORITY_OPTIONS = [
+  { value: String(RECRUITMENT_PROCESS_PRIORITY.LOW), label: "Baja" },
+  { value: String(RECRUITMENT_PROCESS_PRIORITY.MEDIUM), label: "Media" },
+  { value: String(RECRUITMENT_PROCESS_PRIORITY.HIGH), label: "Alta" },
+];
+
 export const RECRUITMENT_PROCESS_STATUS = {
   OPEN: 9,
   IN_PROCESS: 10,

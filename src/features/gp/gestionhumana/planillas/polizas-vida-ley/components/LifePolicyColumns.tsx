@@ -1,7 +1,7 @@
 "use client";
 
 import type { ColumnDef } from "@tanstack/react-table";
-import { Eye } from "lucide-react";
+import { Eye, Pencil, RefreshCw } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { formatDate } from "@/core/core.function";
@@ -17,8 +17,14 @@ export const money = (value: string | number | null | undefined) =>
 
 export const lifePolicyColumns = ({
   onView,
+  onEdit,
+  onRecalculate,
+  isRecalculating,
 }: {
   onView: (id: number) => void;
+  onEdit: (policy: LifePolicyResource) => void;
+  onRecalculate: (id: number) => void;
+  isRecalculating?: (id: number) => boolean;
 }): LifePolicyColumns[] => [
   {
     accessorKey: "company",
@@ -75,14 +81,38 @@ export const lifePolicyColumns = ({
   {
     id: "actions",
     header: "Acciones",
-    cell: ({ row }) => (
-      <Button
-        size="sm"
-        variant="outline"
-        onClick={() => onView(row.original.id)}
-      >
-        <Eye className="size-4 mr-2" /> Ver asegurados
-      </Button>
-    ),
+    cell: ({ row }) => {
+      const recalculating = isRecalculating?.(row.original.id) ?? false;
+      return (
+        <div className="flex items-center gap-2">
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => onView(row.original.id)}
+          >
+            <Eye className="size-4 mr-2" /> Ver asegurados
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => onEdit(row.original)}
+          >
+            <Pencil className="size-4 mr-2" /> Editar
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            disabled={recalculating}
+            onClick={() => onRecalculate(row.original.id)}
+            title="Vuelve a leer el sueldo vigente al inicio de la póliza de cada asegurado original y recalcula los totales"
+          >
+            <RefreshCw
+              className={`size-4 mr-2 ${recalculating ? "animate-spin" : ""}`}
+            />
+            Recalcular
+          </Button>
+        </div>
+      );
+    },
   },
 ];

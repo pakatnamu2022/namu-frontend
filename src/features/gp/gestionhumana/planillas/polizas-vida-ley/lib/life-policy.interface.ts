@@ -42,6 +42,15 @@ export interface LifePolicyRequest {
   net_premium?: number;
 }
 
+export interface LifePolicyUpdateRequest {
+  insurer?: string;
+  policy_number?: string;
+  start_date?: string;
+  end_date?: string;
+  monthly_rate?: number;
+  exclusion?: number;
+}
+
 export interface LifePolicyWorkerRequest {
   worker_id: number;
   insured_salary?: number;
