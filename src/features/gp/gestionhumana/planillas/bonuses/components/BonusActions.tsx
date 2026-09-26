@@ -5,36 +5,20 @@ import { Button } from "@/components/ui/button";
 import { Download, Plus, Upload } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { BONUS } from "../lib/bonus.constant";
-import { downloadBonusTemplate } from "../lib/bonus.actions";
-import { errorToast, successToast } from "@/core/core.function";
+import { currentMonth, currentYear } from "@/core/core.function";
 import BonusImportModal from "./BonusImportModal";
+import BonusTemplateDialog from "./BonusTemplateDialog";
 
 const { MODEL, ROUTE_ADD } = BONUS;
 
 interface BonusActionsProps {
   companyId: string;
-  companyName?: string;
 }
 
-export default function BonusActions({
-  companyId,
-  companyName,
-}: BonusActionsProps) {
+export default function BonusActions({ companyId }: BonusActionsProps) {
   const push = useNavigate();
   const [open, setOpen] = useState(false);
-  const [isDownloading, setIsDownloading] = useState(false);
-
-  const handleDownloadTemplate = async () => {
-    setIsDownloading(true);
-    try {
-      await downloadBonusTemplate(companyId);
-      successToast("Plantilla descargada correctamente");
-    } catch {
-      errorToast("Error al descargar la plantilla");
-    } finally {
-      setIsDownloading(false);
-    }
-  };
+  const [showTemplate, setShowTemplate] = useState(false);
 
   return (
     <div className="flex items-center gap-2 w-full md:w-auto md:ml-auto">
@@ -42,8 +26,8 @@ export default function BonusActions({
         size="sm"
         variant="outline"
         className="w-full md:w-auto"
-        onClick={handleDownloadTemplate}
-        disabled={isDownloading || !companyId}
+        onClick={() => setShowTemplate(true)}
+        disabled={!companyId}
       >
         <Download className="size-4 mr-2" /> Descargar Plantilla
       </Button>
@@ -71,7 +55,14 @@ export default function BonusActions({
         open={open}
         onClose={() => setOpen(false)}
         companyId={companyId}
-        companyName={companyName}
+      />
+
+      <BonusTemplateDialog
+        open={showTemplate}
+        onClose={() => setShowTemplate(false)}
+        companyId={companyId}
+        defaultYear={currentYear()}
+        defaultMonth={currentMonth()}
       />
     </div>
   );

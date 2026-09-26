@@ -9,7 +9,6 @@ export const useBonuses = (params?: Record<string, any>) => {
   return useQuery<BonusResponse>({
     queryKey: [QUERY_KEY, params],
     queryFn: () => getBonuses(params),
-    refetchOnWindowFocus: false,
   });
 };
 
@@ -17,7 +16,6 @@ export const useBonusById = (id: number) => {
   return useQuery<BonusResource>({
     queryKey: [QUERY_KEY, id],
     queryFn: () => findBonusById(id),
-    refetchOnWindowFocus: false,
     enabled: !!id,
   });
 };

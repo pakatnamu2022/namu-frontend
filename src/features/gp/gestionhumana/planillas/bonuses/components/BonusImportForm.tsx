@@ -1,67 +1,57 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form, FormField } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
-import { Loader } from "lucide-react";
+import { Download, Loader } from "lucide-react";
 import { BONUS } from "../lib/bonus.constant";
 import {
   BonusImportSchema,
   bonusImportSchema,
 } from "../lib/bonus.schema";
-import { FormSelectAsync } from "@/shared/components/FormSelectAsync";
 import { FormSelect } from "@/shared/components/FormSelect";
 import { FileForm } from "@/shared/components/FileForm";
-import {
-  useCurrentPayrollPeriod,
-  usePayrollPeriods,
-} from "@/features/gp/gestionhumana/planillas/periodo-planilla/lib/payroll-period.hook";
+import { SearchableSelect } from "@/shared/components/SearchableSelect";
 import { useGpMasters } from "@/features/gp/gp-master/lib/gpMaster.hook";
 import { GP_MASTER_TYPE } from "@/features/gp/gp-master/lib/gpMaster.constants";
+import { useAllCompanies } from "@/features/gp/maestro-general/empresa/lib/company.hook";
 import { Option } from "@/core/core.interface";
+import { currentMonth, currentYear } from "@/core/core.function";
+import BonusTemplateDialog from "./BonusTemplateDialog";
 
 interface BonusImportFormProps {
   companyId: string;
-  companyName?: string;
-  onSubmit: (data: BonusImportSchema, file: File) => void;
+  onSubmit: (data: BonusImportSchema, file: File, companyId: string) => void;
   isSubmitting?: boolean;
   onCancel?: () => void;
 }
 
 export const BonusImportForm = ({
   companyId,
-  companyName,
   onSubmit,
   isSubmitting = false,
   onCancel,
 }: BonusImportFormProps) => {
   const { MODEL } = BONUS;
   const [file, setFile] = useState<File | null>(null);
+  const [selectedCompanyId, setSelectedCompanyId] = useState(companyId);
+  const [showTemplate, setShowTemplate] = useState(false);
+
+  const { data: companies, isLoading: isLoadingCompanies } = useAllCompanies();
 
   const form = useForm<BonusImportSchema>({
     resolver: zodResolver(bonusImportSchema) as any,
     defaultValues: {
-      period_id: undefined,
       type_id: undefined,
     },
     mode: "onChange",
   });
 
-  const { data: currentPeriod } = useCurrentPayrollPeriod();
-
-  useEffect(() => {
-    if (
-      currentPeriod &&
-      companyId &&
-      String(currentPeriod.company?.id) === companyId
-    ) {
-      form.setValue("period_id", String(currentPeriod.id), {
-        shouldValidate: true,
-      });
-    }
-  }, [currentPeriod, companyId, form]);
+  const handleCompanyChange = (value: string) => {
+    setSelectedCompanyId(value);
+  };
 
   const { data: gpMastersData } = useGpMasters({
     params: { type: GP_MASTER_TYPE.PAYROLL_BUNESES },
@@ -74,7 +64,7 @@ export const BonusImportForm = ({
 
   const handleSubmit = (data: BonusImportSchema) => {
     if (!file) return;
-    onSubmit(data, file);
+    onSubmit(data, file, selectedCompanyId);
   };
 
   return (
@@ -83,25 +73,40 @@ export const BonusImportForm = ({
         onSubmit={form.handleSubmit(handleSubmit)}
         className="space-y-4 w-full"
       >
-        {companyName && (
-          <p className="text-sm text-muted-foreground">
-            Empresa:{" "}
-            <span className="font-medium text-foreground">{companyName}</span>
-          </p>
-        )}
-        <FormSelectAsync
-          name="period_id"
-          label="Periodo"
-          placeholder="Seleccione periodo"
-          control={form.control}
-          required
-          useQueryHook={usePayrollPeriods}
-          additionalParams={companyId ? { company_id: companyId } : {}}
-          mapOptionFn={(item) => ({
-            label: item.name,
-            value: String(item.id),
-          })}
-        />
+        <div className="space-y-1.5">
+          <label className="text-sm font-medium">Empresa</label>
+          <SearchableSelect
+            options={(companies ?? []).map((c) => ({
+              label: c.name,
+              value: String(c.id),
+            }))}
+            value={selectedCompanyId}
+            onChange={handleCompanyChange}
+            placeholder={isLoadingCompanies ? "Cargando..." : "Empresa"}
+            disabled={isLoadingCompanies}
+            allowClear={false}
+          />
+        </div>
+
+        <div className="flex items-center justify-between gap-3 rounded-lg border bg-muted/40 p-3">
+          <div>
+            <p className="text-sm font-medium">¿No tienes la plantilla?</p>
+            <p className="text-xs text-muted-foreground">
+              Matriz: una fila por trabajador y una columna por cada mes que
+              elijas, así puedes cargar varios periodos en un solo archivo.
+            </p>
+          </div>
+          <Button
+            type="button"
+            size="sm"
+            className="shrink-0"
+            onClick={() => setShowTemplate(true)}
+            disabled={!selectedCompanyId}
+          >
+            <Download className="size-4 mr-1.5" />
+            Descargar plantilla
+          </Button>
+        </div>
 
         <FormSelect
           name="type_id"
@@ -142,6 +147,14 @@ export const BonusImportForm = ({
           </Button>
         </div>
       </form>
+
+      <BonusTemplateDialog
+        open={showTemplate}
+        onClose={() => setShowTemplate(false)}
+        companyId={selectedCompanyId}
+        defaultYear={currentYear()}
+        defaultMonth={currentMonth()}
+      />
     </Form>
   );
 };

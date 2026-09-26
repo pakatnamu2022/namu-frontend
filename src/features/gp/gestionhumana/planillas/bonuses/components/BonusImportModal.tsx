@@ -19,14 +19,12 @@ interface BonusImportModalProps {
   open: boolean;
   onClose: () => void;
   companyId: string;
-  companyName?: string;
 }
 
 export default function BonusImportModal({
   open,
   onClose,
   companyId,
-  companyName,
 }: BonusImportModalProps) {
   const queryClient = useQueryClient();
 
@@ -34,10 +32,12 @@ export default function BonusImportModal({
     mutationFn: ({
       data,
       file,
+      companyId: importCompanyId,
     }: {
       data: BonusImportSchema;
       file: File;
-    }) => importBonuses(file, data.period_id, data.type_id),
+      companyId: string;
+    }) => importBonuses(file, importCompanyId, data.type_id),
     onSuccess: () => {
       successToast(SUCCESS_MESSAGE(MODEL, "create"));
       queryClient.invalidateQueries({ queryKey: [QUERY_KEY] });
@@ -60,8 +60,9 @@ export default function BonusImportModal({
     >
       <BonusImportForm
         companyId={companyId}
-        companyName={companyName}
-        onSubmit={(data, file) => mutate({ data, file })}
+        onSubmit={(data, file, selectedCompanyId) =>
+          mutate({ data, file, companyId: selectedCompanyId })
+        }
         isSubmitting={isPending}
         onCancel={onClose}
       />

@@ -1,7 +1,11 @@
 import { api } from "@/core/api";
 import { GeneralResponse } from "@/shared/lib/response.interface";
 import type { AxiosRequestConfig } from "axios";
-import { BonusResource, BonusResponse } from "./bonus.interface";
+import {
+  BonusPeriodInput,
+  BonusResource,
+  BonusResponse,
+} from "./bonus.interface";
 import { BONUS } from "./bonus.constant";
 
 const { ENDPOINT } = BONUS;
@@ -42,15 +46,22 @@ export async function deleteBonus(id: number): Promise<GeneralResponse> {
 }
 
 /**
- * GET /bonuses/template?company_id=
- * Descarga la plantilla Excel (cabecera azul) para completar DNI + monto e importarla luego con
- * importBonuses().
+ * GET /bonuses/template?company_id=&periods[]=YYYY-MM
+ * Descarga la plantilla Excel matriz (una fila por trabajador activo, una columna por periodo
+ * elegido) para completar el monto de cada trabajador en el mes que corresponda — así se pueden
+ * cargar varios periodos en un mismo archivo — e importarla luego con importBonuses().
  */
 export async function downloadBonusTemplate(
   companyId: string | number,
+  periods: BonusPeriodInput[],
 ): Promise<void> {
   const { data } = await api.get(`${ENDPOINT}/template`, {
-    params: { company_id: companyId },
+    params: {
+      company_id: companyId,
+      periods: periods.map(
+        (p) => `${p.year}-${String(p.month).padStart(2, "0")}`,
+      ),
+    },
     responseType: "blob",
   });
   const url = URL.createObjectURL(data);
@@ -73,12 +84,12 @@ export interface ImportBonusesResult {
 
 export async function importBonuses(
   file: File,
-  periodId: string | number,
+  companyId: string | number,
   typeId: string | number,
 ): Promise<ImportBonusesResult> {
   const formData = new FormData();
   formData.append("file", file);
-  formData.append("period_id", String(periodId));
+  formData.append("company_id", String(companyId));
   formData.append("type_id", String(typeId));
   const { data } = await api.post<ImportBonusesResult>(
     `${ENDPOINT}/import`,

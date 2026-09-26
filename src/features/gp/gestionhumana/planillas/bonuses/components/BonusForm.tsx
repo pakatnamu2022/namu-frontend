@@ -15,7 +15,9 @@ import { useWorkers } from "@/features/gp/gestionhumana/gestion-de-personal/trab
 import { usePayrollPeriods } from "@/features/gp/gestionhumana/planillas/periodo-planilla/lib/payroll-period.hook";
 import { useGpMasters } from "@/features/gp/gp-master/lib/gpMaster.hook";
 import { GP_MASTER_TYPE } from "@/features/gp/gp-master/lib/gpMaster.constants";
+import { useAllCompanies } from "@/features/gp/maestro-general/empresa/lib/company.hook";
 import { Option } from "@/core/core.interface";
+import { FormSelect } from "@/shared/components/FormSelect";
 
 interface BonusFormProps {
   defaultValues: Partial<BonusSchema>;
@@ -30,9 +32,10 @@ export const BonusForm = ({
 }: BonusFormProps) => {
   const { ABSOLUTE_ROUTE, MODEL } = BONUS;
 
-  const form = useForm<BonusSchema>({
+  const form = useForm<BonusSchema & { company_id?: string }>({
     resolver: zodResolver(bonusSchema) as any,
     defaultValues: {
+      company_id: undefined,
       worker_id: defaultValues.worker_id ?? undefined,
       period_id: defaultValues.period_id ?? undefined,
       amount: defaultValues.amount ?? "",
@@ -40,6 +43,14 @@ export const BonusForm = ({
     },
     mode: "onChange",
   });
+
+  const selectedCompanyId = form.watch("company_id");
+
+  const { data: companies } = useAllCompanies();
+  const companyOptions: Option[] = (companies ?? []).map((c) => ({
+    label: c.name,
+    value: String(c.id),
+  }));
 
   const { data: gpMastersData } = useGpMasters({
     params: { type: GP_MASTER_TYPE.PAYROLL_BUNESES },
@@ -54,6 +65,16 @@ export const BonusForm = ({
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 w-full">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 gap-y-6">
+          <FormSelect
+            name="company_id"
+            label="Empresa"
+            placeholder="Seleccione empresa"
+            options={companyOptions}
+            control={form.control}
+            required
+            onValueChange={() => form.setValue("period_id", "")}
+          />
+
           <FormSelectAsync
             name="worker_id"
             label="Trabajador"
@@ -68,12 +89,17 @@ export const BonusForm = ({
           />
 
           <FormSelectAsync
+            key={selectedCompanyId}
             name="period_id"
             label="Periodo"
             placeholder="Seleccione periodo"
             control={form.control}
             required
+            disabled={!selectedCompanyId}
             useQueryHook={usePayrollPeriods}
+            additionalParams={
+              selectedCompanyId ? { company_id: selectedCompanyId } : {}
+            }
             mapOptionFn={(item) => ({
               label: item.name + " - " + item.company.name,
               value: String(item.id),

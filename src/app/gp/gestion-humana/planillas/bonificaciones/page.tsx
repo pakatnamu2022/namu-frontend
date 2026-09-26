@@ -85,10 +85,7 @@ export default function BonusPage() {
           subtitle={currentView.descripcion}
           icon={currentView.icon}
         />
-        <BonusActions
-          companyId={companyId}
-          companyName={companies?.find((c) => String(c.id) === companyId)?.name}
-        />
+        <BonusActions companyId={companyId} />
       </HeaderTableWrapper>
 
       <BonusTable

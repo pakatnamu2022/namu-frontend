@@ -23,3 +23,15 @@ export interface BonusRequest {
   amount: number;
   type_id: number;
 }
+
+export interface BonusPeriodInput {
+  year: number;
+  month: number;
+}
+
+export interface BonusPeriodRange {
+  fromYear: number;
+  fromMonth: number;
+  toYear: number;
+  toMonth: number;
+}
