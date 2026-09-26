@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useMutation } from "@tanstack/react-query";
 import {
@@ -11,9 +12,11 @@ import {
 import {
   importInsurance,
   createInsurance,
+  InsuranceImportResult,
 } from "@/features/gp/gestionhumana/planillas/insurances/lib/insurance.actions";
 import { InsuranceForm } from "@/features/gp/gestionhumana/planillas/insurances/components/InsuranceForm";
 import { InsuranceManualForm } from "@/features/gp/gestionhumana/planillas/insurances/components/InsuranceManualForm";
+import { InsuranceImportResultSheet } from "@/features/gp/gestionhumana/planillas/insurances/components/InsuranceImportResultSheet";
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
 import TitleFormComponent from "@/shared/components/TitleFormComponent";
 import { InsuranceSchema, InsuranceManualSchema } from "@/features/gp/gestionhumana/planillas/insurances/lib/insurance.schema";
@@ -27,15 +30,19 @@ export default function AddInsurancePage() {
   const router = useNavigate();
   const [searchParams] = useSearchParams();
   const companyId = searchParams.get("companyId") ?? undefined;
-  const companyName = searchParams.get("companyName") ?? undefined;
   const { currentView, checkRouteExists } = useCurrentModule();
+  const [importResult, setImportResult] = useState<InsuranceImportResult | null>(
+    null,
+  );
 
   const { mutate: mutateImport, isPending: isImporting } = useMutation({
     mutationFn: ({ data, file }: { data: InsuranceSchema; file: File }) =>
       importInsurance(file, data.period_id, data.business_partner_id),
-    onSuccess: () => {
-      successToast(SUCCESS_MESSAGE(MODEL, "create"));
-      router(ABSOLUTE_ROUTE);
+    onSuccess: (result) => {
+      setImportResult(result);
+      if (result.success) {
+        successToast(SUCCESS_MESSAGE(MODEL, "create"));
+      }
     },
     onError: (error: any) => {
       errorToast(
@@ -93,7 +100,6 @@ export default function AddInsurancePage() {
             onSubmit={handleImportSubmit}
             isSubmitting={isImporting}
             companyId={companyId}
-            companyName={companyName}
           />
         </TabsContent>
 
@@ -106,6 +112,16 @@ export default function AddInsurancePage() {
           />
         </TabsContent>
       </Tabs>
+
+      <InsuranceImportResultSheet
+        open={!!importResult}
+        onClose={() => {
+          const wasSuccess = importResult?.success;
+          setImportResult(null);
+          if (wasSuccess) router(ABSOLUTE_ROUTE);
+        }}
+        result={importResult}
+      />
     </FormWrapper>
   );
 }

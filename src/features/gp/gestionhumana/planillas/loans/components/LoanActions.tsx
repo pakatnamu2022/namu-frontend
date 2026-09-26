@@ -7,7 +7,7 @@ import { Loader2, Plus, RefreshCw } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { LOAN } from "../lib/loan.constant";
 import { syncLegacyLoans } from "../lib/loan.actions";
-import { errorToast, successToast, warningToast } from "@/core/core.function";
+import { errorToast, successToast } from "@/core/core.function";
 
 const { MODEL, ROUTE_ADD, QUERY_KEY } = LOAN;
 
@@ -19,20 +19,11 @@ export default function LoanActions() {
   const handleSync = async () => {
     setIsSyncing(true);
     try {
-      const result = await syncLegacyLoans();
-      const summary =
-        `${result.created} nuevo(s), ${result.updated} actualizado(s), ` +
-        `${result.deleted} eliminado(s), ${result.details_imported} pago(s) importado(s).`;
-
-      if (result.skipped_total > 0) {
-        const extra = result.skipped_total - result.skipped.length;
-        warningToast(
-          `Sincronización con ${result.skipped_total} observación(es)`,
-          `${summary} ${result.skipped.join("; ")}${extra > 0 ? `; y ${extra} más` : ""}`,
-        );
-      } else {
-        successToast("Préstamos sincronizados con el sistema anterior", summary);
-      }
+      await syncLegacyLoans();
+      successToast(
+        "Sincronización encolada",
+        "Se está procesando en segundo plano; los préstamos se actualizarán en unos minutos.",
+      );
       queryClient.invalidateQueries({ queryKey: [QUERY_KEY] });
     } catch (error: any) {
       errorToast(

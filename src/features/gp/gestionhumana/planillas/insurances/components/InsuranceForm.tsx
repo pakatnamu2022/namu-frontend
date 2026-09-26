@@ -13,6 +13,7 @@ import { FormSelect } from "@/shared/components/FormSelect";
 import { FormSelectAsync } from "@/shared/components/FormSelectAsync";
 import { FileForm } from "@/shared/components/FileForm";
 import { usePayrollPeriods } from "@/features/gp/gestionhumana/planillas/periodo-planilla/lib/payroll-period.hook";
+import { useAllCompanies } from "@/features/gp/maestro-general/empresa/lib/company.hook";
 import { Option } from "@/core/core.interface";
 import { downloadInsuranceTemplate } from "../lib/insurance.actions";
 import { errorToast } from "@/core/core.function";
@@ -26,23 +27,28 @@ interface InsuranceFormProps {
   onSubmit: (data: InsuranceSchema, file: File) => void;
   isSubmitting?: boolean;
   companyId?: string;
-  companyName?: string;
 }
 
 export const InsuranceForm = ({
   onSubmit,
   isSubmitting = false,
   companyId,
-  companyName,
 }: InsuranceFormProps) => {
   const { ABSOLUTE_ROUTE, MODEL } = INSURANCE;
   const [file, setFile] = useState<File | null>(null);
 
   const [isDownloading, setIsDownloading] = useState(false);
 
+  const { data: companies } = useAllCompanies();
+  const companyOptions: Option[] = (companies ?? []).map((c) => ({
+    label: c.name,
+    value: String(c.id),
+  }));
+
   const form = useForm<InsuranceSchema>({
     resolver: zodResolver(insuranceSchema) as any,
     defaultValues: {
+      company_id: companyId ?? undefined,
       business_partner_id: undefined,
       period_id: undefined,
     },
@@ -50,6 +56,7 @@ export const InsuranceForm = ({
   });
 
   const businessPartnerId = form.watch("business_partner_id");
+  const selectedCompanyId = form.watch("company_id");
 
   const handleSubmit = (data: InsuranceSchema) => {
     if (!file) return;
@@ -76,14 +83,17 @@ export const InsuranceForm = ({
         onSubmit={form.handleSubmit(handleSubmit)}
         className="space-y-4 w-full"
       >
-        {companyName && (
-          <p className="text-sm text-muted-foreground">
-            Empresa:{" "}
-            <span className="font-medium text-foreground">{companyName}</span>
-          </p>
-        )}
-
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 gap-y-6">
+          <FormSelect
+            name="company_id"
+            label="Empresa"
+            placeholder="Seleccione empresa"
+            options={companyOptions}
+            control={form.control}
+            required
+            onValueChange={() => form.setValue("period_id", "")}
+          />
+
           <FormSelect
             name="business_partner_id"
             label="Aseguradora"
@@ -94,13 +104,17 @@ export const InsuranceForm = ({
           />
 
           <FormSelectAsync
+            key={selectedCompanyId}
             name="period_id"
             label="Periodo"
             placeholder="Seleccione periodo"
             control={form.control}
             required
+            disabled={!selectedCompanyId}
             useQueryHook={usePayrollPeriods}
-            additionalParams={companyId ? { company_id: companyId } : {}}
+            additionalParams={
+              selectedCompanyId ? { company_id: selectedCompanyId } : {}
+            }
             mapOptionFn={(item) => ({
               label: item.name,
               value: String(item.id),

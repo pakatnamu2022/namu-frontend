@@ -5,7 +5,12 @@ import TitleComponent from "@/shared/components/TitleComponent";
 import DataTablePagination from "@/shared/components/DataTablePagination";
 import { useEffect, useState } from "react";
 import PageSkeleton from "@/shared/components/PageSkeleton";
-import { useWorkingConditions } from "@/features/gp/gestionhumana/planillas/working-conditions/lib/working-condition.hook";
+import {
+  useUpdateWorkingCondition,
+  useWorkingConditions,
+} from "@/features/gp/gestionhumana/planillas/working-conditions/lib/working-condition.hook";
+import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
+import { errorToast, successToast } from "@/core/core.function";
 import WorkingConditionTable from "@/features/gp/gestionhumana/planillas/working-conditions/components/WorkingConditionTable";
 import { workingConditionColumns } from "@/features/gp/gestionhumana/planillas/working-conditions/components/WorkingConditionColumns";
 import WorkingConditionOptions from "@/features/gp/gestionhumana/planillas/working-conditions/components/WorkingConditionOptions";
@@ -20,6 +25,8 @@ import { useAllCompanies } from "@/features/gp/maestro-general/empresa/lib/compa
 export default function WorkingConditionPage() {
   const { ROUTE } = WORKING_CONDITION;
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
+  const permissions = useModulePermissions(ROUTE);
+  const { mutate: updateAmount } = useUpdateWorkingCondition();
   const [page, setPage] = useState(1);
   const [per_page, setPerPage] = useState(DEFAULT_PER_PAGE);
   const [search, setSearch] = useState("");
@@ -51,6 +58,16 @@ export default function WorkingConditionPage() {
     ...(periodId ? { period_id: periodId } : {}),
   });
 
+  const handleUpdateAmount = (id: number, amount: number) => {
+    updateAmount(
+      { id, body: { amount } },
+      {
+        onSuccess: () => successToast("Monto actualizado correctamente"),
+        onError: () => errorToast("Error al actualizar el monto"),
+      },
+    );
+  };
+
   if (isLoadingModule) return <PageSkeleton />;
   if (!checkRouteExists(ROUTE)) notFound();
   if (!currentView) return <div>No hay</div>;
@@ -71,7 +88,10 @@ export default function WorkingConditionPage() {
 
       <WorkingConditionTable
         isLoading={isLoading}
-        columns={workingConditionColumns()}
+        columns={workingConditionColumns({
+          onUpdateAmount: handleUpdateAmount,
+          canUpdate: permissions.canUpdate,
+        })}
         data={data?.data || []}
       >
         <WorkingConditionOptions
