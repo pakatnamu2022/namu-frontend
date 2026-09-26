@@ -18,6 +18,7 @@ import { APPLICANT_STATUS_OPTIONS } from "../lib/applicant.constant.ts";
 import { ApplicantResource } from "../lib/applicant.interface.ts";
 import { useInterviews } from "../../procesos-postulacion/lib/interview.hook.ts";
 import { INTERVIEW_PHASE } from "../../procesos-postulacion/lib/interview.constant.ts";
+import { DatePickerFormField } from "@/shared/components/DatePickerFormField.tsx";
 
 interface Props {
   applicant: ApplicantResource | null;
@@ -98,7 +99,15 @@ export default function ApplicantStatusDialog({
           {open && applicant && (
             <div className="flex flex-wrap gap-2 text-xs">
               <span className="text-muted-foreground">Entrevistas:</span>
-              <Badge color={rrhhInterview?.resultado_promedio != null ? "green" : rrhhInterview ? "amber" : "tertiary"}>
+              <Badge
+                color={
+                  rrhhInterview?.resultado_promedio != null
+                    ? "green"
+                    : rrhhInterview
+                      ? "amber"
+                      : "tertiary"
+                }
+              >
                 RRHH{" "}
                 {rrhhInterview
                   ? rrhhInterview.resultado_promedio != null
@@ -106,7 +115,15 @@ export default function ApplicantStatusDialog({
                     : "· sin calificar"
                   : "· no registrada"}
               </Badge>
-              <Badge color={jefeInterview?.resultado_promedio != null ? "green" : jefeInterview ? "amber" : "tertiary"}>
+              <Badge
+                color={
+                  jefeInterview?.resultado_promedio != null
+                    ? "green"
+                    : jefeInterview
+                      ? "amber"
+                      : "tertiary"
+                }
+              >
                 Jefe{" "}
                 {jefeInterview
                   ? jefeInterview.resultado_promedio != null
@@ -132,12 +149,10 @@ export default function ApplicantStatusDialog({
 
           {isSelected && (
             <>
-              <FormInput
+              <DatePickerFormField
                 control={form.control}
                 name="fecha_inicio"
                 label="Fecha de ingreso"
-                type="date"
-                required
               />
               <FormInput
                 control={form.control}

@@ -20,7 +20,10 @@ import {
   recruitmentProcessSchemaCreate,
   recruitmentProcessSchemaUpdate,
 } from "../lib/recruitmentProcess.schema.ts";
-import { RECRUITMENT_PROCESS } from "../lib/recruitmentProcess.constant.ts";
+import {
+  RECRUITMENT_PROCESS,
+  RECRUITMENT_PROCESS_PRIORITY_OPTIONS,
+} from "../lib/recruitmentProcess.constant.ts";
 import { Option } from "@/core/core.interface.ts";
 import { useEffect, useRef } from "react";
 
@@ -194,13 +197,12 @@ export const RecruitmentProcessForm = ({
             })}
             defaultOption={defaultOptions?.solicitante}
           />
-          <FormInput
+          <FormSelect
             control={form.control}
             name="prioridad"
             label="Prioridad"
-            type="number"
-            min="0"
-            max="255"
+            placeholder="Seleccionar prioridad..."
+            options={RECRUITMENT_PROCESS_PRIORITY_OPTIONS}
           />
         </GroupFormSection>
 

@@ -38,8 +38,13 @@ export default function UpdateRecruitmentProcessPage() {
         area_id: Number(data.area_id),
         cargo_id: Number(data.cargo_id),
         cant_trab_solicita: Number(data.cant_trab_solicita),
-        solicitante_id: data.solicitante_id ? Number(data.solicitante_id) : undefined,
-        prioridad: data.prioridad !== "" && data.prioridad !== undefined ? Number(data.prioridad) : undefined,
+        solicitante_id: data.solicitante_id
+          ? Number(data.solicitante_id)
+          : undefined,
+        prioridad:
+          data.prioridad !== "" && data.prioridad !== undefined
+            ? Number(data.prioridad)
+            : undefined,
       }),
     onSuccess: async () => {
       successToast(`${MODEL.name} actualizado correctamente.`);
@@ -65,7 +70,7 @@ export default function UpdateRecruitmentProcessPage() {
       cargo_id: String(data.cargo_id),
       fecha_inicio: data.fecha_inicio,
       solicitante_id: data.solicitante_id ? String(data.solicitante_id) : "",
-      prioridad: data.prioridad ?? "",
+      prioridad: String(data.prioridad),
     };
   }
 
@@ -90,7 +95,10 @@ export default function UpdateRecruitmentProcessPage() {
             ? { value: String(process.cargo_id), label: process.cargo }
             : undefined,
           solicitante: process.solicitante
-            ? { value: String(process.solicitante_id), label: process.solicitante }
+            ? {
+                value: String(process.solicitante_id),
+                label: process.solicitante,
+              }
             : undefined,
         }}
         onSubmit={(data) => mutate(data)}
